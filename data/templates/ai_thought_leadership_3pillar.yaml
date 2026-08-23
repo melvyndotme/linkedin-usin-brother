@@ -1,0 +1,20 @@
+---
+id: "ai_thought_leadership_3pillar"
+name: "3-Pillar AI Breakthrough Synthesis"
+category: "AI & Innovation"
+target_audience: "Business executives, operations leaders, digital transformation practitioners"
+tone: "Sharp, forward-looking, practical, hype-free"
+hofstede_alignment:
+  uncertainty_avoidance: "Demystifies emerging tech with concrete, pragmatic application"
+  long_term_orientation: "Connects immediate AI tools to sustainable enterprise capability"
+structure_rules:
+  hook: "Highlight a real breakthrough in AI within the last 24 hours with an unexpected angle on workplace impact."
+  pillar_1: "What it is: Concise, crystal-clear explanation of the tech innovation."
+  pillar_2: "Why it matters: The macro shift in enterprise agility and workflow design."
+  pillar_3: "How it helps Brother Singapore: Direct application enabling internal teams and partners to achieve breakthrough productivity."
+  cta: "Provocative question asking business leaders how they plan to adopt this in their teams."
+hook_style: "Breakthrough Insight Hook"
+sample_hooks:
+  - "AI is no longer just answering questions — it's taking autonomous action. Here's what that means for enterprise efficiency: ⚡"
+  - "A major shift in AI technology just dropped in the past 24 hours. Here's our breakdown on why it matters for modern teams: 💡"
+---

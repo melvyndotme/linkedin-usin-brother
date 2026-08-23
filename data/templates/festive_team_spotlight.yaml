@@ -1,0 +1,19 @@
+---
+id: "festive_team_spotlight"
+name: "Internal Team & Culture Spotlight"
+category: "Festive & Cultural"
+target_audience: "Potential hires, employees, employer branding followers"
+tone: "Energetic, authentic, human, team-oriented"
+hofstede_alignment:
+  collectivism: "Spotlights the diverse Singapore office family celebrating together"
+  power_distance: "Accessible, down-to-earth workplace culture"
+structure_rules:
+  hook: "Peeking behind the scenes into how Brother Singapore celebrates festive traditions."
+  body: "Share festive office moments, traditions, or employee perspectives on giving back."
+  brother_connection: "Highlight our inclusive workplace culture where diverse traditions thrive together."
+  cta: "Ask how other teams across Singapore are marking this special occasion."
+hook_style: "Behind-The-Scenes Culture Hook"
+sample_hooks:
+  - "The festive spirit is alive and buzzing across our Brother Singapore office! 🎉"
+  - "Celebrating the rich tapestry of cultures that makes our Brother Singapore team uniquely vibrant. 🇸🇬"
+---

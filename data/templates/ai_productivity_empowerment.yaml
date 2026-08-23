@@ -1,0 +1,19 @@
+---
+id: "ai_productivity_empowerment"
+name: "Employee Productivity & Workflow Accelerator"
+category: "AI & Innovation"
+target_audience: "Professionals, knowledge workers, HR & talent development leaders"
+tone: "Empowering, actionable, encouraging, human-first"
+hofstede_alignment:
+  masculinity_drive: "Focuses on achieving breakthrough excellence while reducing drudgery"
+  collectivism: "Democratizes AI skills so every team member grows together"
+structure_rules:
+  hook: "Address a common workplace friction (manual reporting, meeting fatigue, repetitive drafting) solved by AI."
+  body: "Translate the latest AI model capability into 3 simple daily productivity superpowers."
+  brother_connection: "How the Brother Xplorer mindset champions continuous learning and automated ease."
+  cta: "Share a practical prompt or tool tip and invite comments on favorite productivity hacks."
+hook_style: "Pain-to-Productivity Hook"
+sample_hooks:
+  - "What if you could reclaim 5 hours of administrative friction every week with intelligent automation? ⏳"
+  - "At Brother Singapore, we believe technology should amplify human creativity, not replace it. 🚀"
+---

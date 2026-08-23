@@ -1,0 +1,131 @@
+export const MOM_HOLIDAYS = [
+  {
+    id: "cny-2027",
+    name: "Chinese New Year",
+    date: "2027-02-06",
+    endDate: "2027-02-07",
+    category: "MOM Public Holiday",
+    culturalContext: "Celebration of new beginnings, family reunion, renewal, and prosperity across Singapore.",
+    themeKey: "prosperity-renewal",
+    defaultGraphicType: "festive-greeting",
+    suggestedHashtags: ["#ChineseNewYear", "#CNY2027", "#GongXiFaCai", "#BrotherSingapore", "#AtYourSide"]
+  },
+  {
+    id: "hari-raya-puasa-2027",
+    name: "Hari Raya Puasa",
+    date: "2027-03-10",
+    category: "MOM Public Holiday",
+    culturalContext: "Eid al-Fitr marks the culmination of Ramadan — celebrating forgiveness, gratitude, reflection, and community bonding.",
+    themeKey: "gratitude-forgiveness",
+    defaultGraphicType: "festive-greeting",
+    suggestedHashtags: ["#HariRayaPuasa", "#EidMubarak", "#ForgivenessAndGratitude", "#BrotherSingapore", "#AtYourSide"]
+  },
+  {
+    id: "good-friday-2027",
+    name: "Good Friday",
+    date: "2027-03-26",
+    category: "MOM Public Holiday",
+    culturalContext: "A time of quiet reflection, renewal, and peace with loved ones.",
+    themeKey: "reflection-renewal",
+    defaultGraphicType: "festive-greeting",
+    suggestedHashtags: ["#GoodFriday", "#EasterWeekend", "#Reflection", "#BrotherSingapore", "#AtYourSide"]
+  },
+  {
+    id: "earth-day-2027",
+    name: "Earth Day",
+    date: "2027-04-22",
+    category: "Global Awareness Day",
+    culturalContext: "Global day of environmental awareness and commitment to sustainable green operations under the Brother Earth initiative.",
+    themeKey: "sustainability-green",
+    defaultGraphicType: "infographic-green",
+    suggestedHashtags: ["#EarthDay", "#BrotherEarth", "#SustainabilityInAction", "#EcoFriendly", "#BrotherSingapore"]
+  },
+  {
+    id: "labour-day-2027",
+    name: "Labour Day",
+    date: "2027-05-01",
+    category: "MOM Public Holiday",
+    culturalContext: "Honoring the dedication, resilience, and contributions of all workers shaping Singapore's progress.",
+    themeKey: "workplace-appreciation",
+    defaultGraphicType: "stat-spotlight",
+    suggestedHashtags: ["#LabourDay", "#MayDay", "#WorkforceEmpowerment", "#LifeAtBrother", "#BrotherSingapore"]
+  },
+  {
+    id: "vesak-day-2027",
+    name: "Vesak Day",
+    date: "2027-05-20",
+    category: "MOM Public Holiday",
+    culturalContext: "Commemorating peace, compassion, wisdom, and universal goodwill.",
+    themeKey: "peace-harmony",
+    defaultGraphicType: "festive-greeting",
+    suggestedHashtags: ["#VesakDay", "#PeaceAndCompassion", "#CommunityHarmony", "#BrotherSingapore", "#AtYourSide"]
+  },
+  {
+    id: "hari-raya-haji-2027",
+    name: "Hari Raya Haji",
+    date: "2027-05-17",
+    category: "MOM Public Holiday",
+    culturalContext: "Commemorating devotion, selfless sacrifice, and sharing blessings with the wider community.",
+    themeKey: "devotion-sacrifice",
+    defaultGraphicType: "festive-greeting",
+    suggestedHashtags: ["#HariRayaHaji", "#UnityAndGiving", "#BrotherSingapore", "#AtYourSide"]
+  },
+  {
+    id: "national-day-2027",
+    name: "Singapore National Day",
+    date: "2027-08-09",
+    category: "MOM Public Holiday",
+    culturalContext: "Singapore's 62nd National Day — celebrating sovereignty, unity, multicultural resilience, and forward-looking innovation as one nation.",
+    themeKey: "national-pride",
+    defaultGraphicType: "festive-greeting",
+    suggestedHashtags: ["#NationalDay", "#NDP2027", "#MajulahSingapura", "#OneSingapore", "#BrotherSingapore", "#AtYourSide"]
+  },
+  {
+    id: "deepavali-2027",
+    name: "Deepavali",
+    date: "2027-10-29",
+    category: "MOM Public Holiday",
+    culturalContext: "The Festival of Lights celebrating the triumph of light over darkness, knowledge over ignorance, and hope for the future.",
+    themeKey: "light-hope",
+    defaultGraphicType: "festive-greeting",
+    suggestedHashtags: ["#Deepavali", "#FestivalOfLights", "#JoyAndProsperity", "#BrotherSingapore", "#AtYourSide"]
+  },
+  {
+    id: "christmas-2027",
+    name: "Christmas Day",
+    date: "2027-12-25",
+    category: "MOM Public Holiday",
+    culturalContext: "The season of giving, warm family connections, joy, and looking forward to an inspired new year.",
+    themeKey: "giving-joy",
+    defaultGraphicType: "festive-greeting",
+    suggestedHashtags: ["#MerryChristmas", "#SeasonOfGiving", "#YearEndJoy", "#BrotherSingapore", "#AtYourSide"]
+  }
+];
+
+export function getUpcomingHolidays(referenceDate = new Date()) {
+  const ref = new Date(referenceDate);
+  return MOM_HOLIDAYS.map(holiday => {
+    const target = new Date(holiday.date);
+    const diffTime = target - ref;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    let status = "Upcoming";
+    let triggerAlert = false;
+    
+    if (diffDays <= 10 && diffDays >= 0) {
+      status = "Ready for Drafting (T-10 Trigger Active)";
+      triggerAlert = true;
+    } else if (diffDays < 0) {
+      status = "Past";
+    } else {
+      status = `${diffDays} days away`;
+    }
+    
+    return {
+      ...holiday,
+      daysRemaining: diffDays,
+      status,
+      triggerAlert
+    };
+  }).sort((a, b) => a.daysRemaining - b.daysRemaining);
+}

@@ -1,0 +1,19 @@
+---
+id: "festive_warm_greeting"
+name: "Warm Community Greeting"
+category: "Festive & Cultural"
+target_audience: "Singapore business community, clients, partners, employees"
+tone: "Warm, respectful, inclusive, celebratory"
+hofstede_alignment:
+  harmony: "High (celebrates collective unity and multiracial goodwill)"
+  indulgence: "Warm and balanced without over-commercialization"
+structure_rules:
+  hook: "A warm, festive greeting acknowledging the cultural significance of the holiday."
+  body: "Reflect on how the core values of the occasion (harmony, gratitude, resilience) inspire the team at Brother Singapore."
+  brother_connection: "Reaffirm our 'At your side' commitment to our community and partners."
+  cta: "A heartfelt wish to all celebrating and their families."
+hook_style: "Festive Celebration Hook"
+sample_hooks:
+  - "Wishing all our colleagues, partners, and friends a vibrant and joyous [Occasion]! 🌟"
+  - "As we come together to celebrate [Occasion], we reflect on the spirit of unity and renewal that makes Singapore special. ✨"
+---

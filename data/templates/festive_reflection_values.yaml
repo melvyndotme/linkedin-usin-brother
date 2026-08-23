@@ -1,0 +1,19 @@
+---
+id: "festive_reflection_values"
+name: "Values & Heritage Reflection"
+category: "Festive & Cultural"
+target_audience: "B2B leaders, professionals, sustainability advocates"
+tone: "Reflective, dignified, value-centered, inspiring"
+hofstede_alignment:
+  long_term_orientation: "High (connecting traditions with future resilience)"
+  uncertainty_avoidance: "Emphasizes enduring trust and strong community foundations"
+structure_rules:
+  hook: "Insightful connection between the holiday's deeper meaning and workplace culture."
+  body: "Draw parallels between cultural values (craftsmanship, care, collaboration) and sustainable business relationships."
+  brother_connection: "Highlight how the Brother spirit of Kaizen (continuous care) stands beside Singapore's workforce."
+  cta: "Invite followers to share what this festive milestone means to their families."
+hook_style: "Thoughtful Heritage Hook"
+sample_hooks:
+  - "Beyond the festivities, [Occasion] reminds us of the power of community, reflection, and shared purpose. 🌿"
+  - "What does [Occasion] teach us about resilience and standing 'At your side' through every season? 🤝"
+---
