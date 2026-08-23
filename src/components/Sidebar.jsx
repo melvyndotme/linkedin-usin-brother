@@ -1,7 +1,7 @@
 import React from 'react';
-import { Home, Calendar, Sparkles, Users, Settings, Sun, Moon, LogOut, ExternalLink, ShieldCheck } from 'lucide-react';
+import { Home, Calendar, Sparkles, Users, Settings, Sun, Moon, LogOut, ExternalLink, X } from 'lucide-react';
 
-export default function Sidebar({ activeTab, setActiveTab, isDark, setIsDark, onLogout }) {
+export default function Sidebar({ activeTab, setActiveTab, isDark, setIsDark, onLogout, mobileMenuOpen, setMobileMenuOpen }) {
   const menuItems = [
     { id: 'home', label: 'Home', icon: Home, subtitle: 'LinkedIn Stream & Analytics' },
     { id: 'module-1', label: 'Event Posts', icon: Calendar, subtitle: 'Module 1 • Festive 2026', badge: 'MOM 2026' },
@@ -10,14 +10,30 @@ export default function Sidebar({ activeTab, setActiveTab, isDark, setIsDark, on
     { id: 'settings', label: 'Settings', icon: Settings, subtitle: 'API Keys & Gemini Models' },
   ];
 
-  return (
-    <aside className={`w-64 shrink-0 border-r flex flex-col justify-between transition-colors ${
-      isDark 
-        ? 'bg-slate-900 border-slate-800 text-slate-200' 
-        : 'bg-white border-slate-200 text-slate-700'
-    }`}>
+  const handleSelectTab = (id) => {
+    setActiveTab(id);
+    if (setMobileMenuOpen) {
+      setMobileMenuOpen(false);
+    }
+  };
+
+  const navContent = (
+    <div className="flex flex-col h-full justify-between">
       {/* Navigation Links */}
-      <div className="p-4 space-y-6">
+      <div className="p-4 space-y-5 overflow-y-auto custom-scrollbar">
+        {/* Mobile Close Button Header */}
+        <div className="flex items-center justify-between lg:hidden pb-3 border-b border-slate-200 dark:border-slate-800">
+          <span className="font-bold text-xs uppercase tracking-wider text-[#0f2ea2] dark:text-blue-400">
+            LinkedUsIn Menu
+          </span>
+          <button
+            onClick={() => setMobileMenuOpen(false)}
+            className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
         <div>
           <span className={`text-[10px] font-bold uppercase tracking-wider px-3 ${
             isDark ? 'text-slate-400' : 'text-slate-400'
@@ -31,8 +47,8 @@ export default function Sidebar({ activeTab, setActiveTab, isDark, setIsDark, on
               return (
                 <button
                   key={item.id}
-                  onClick={() => setActiveTab(item.id)}
-                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-left ${
+                  onClick={() => handleSelectTab(item.id)}
+                  className={`w-full flex items-center justify-between px-3 py-3 sm:py-2.5 rounded-xl text-xs font-bold transition-all text-left ${
                     isActive
                       ? 'bg-[#0f2ea2] text-white shadow-md shadow-[#0f2ea2]/20'
                       : isDark
@@ -40,7 +56,7 @@ export default function Sidebar({ activeTab, setActiveTab, isDark, setIsDark, on
                         : 'text-slate-700 hover:bg-slate-100 hover:text-[#0f2ea2]'
                   }`}
                 >
-                  <div className="flex items-center gap-2.5">
+                  <div className="flex items-center gap-3">
                     <Icon className="w-4 h-4 shrink-0" />
                     <div>
                       <div className="leading-none">{item.label}</div>
@@ -93,7 +109,7 @@ export default function Sidebar({ activeTab, setActiveTab, isDark, setIsDark, on
       </div>
 
       {/* Bottom Footer Actions */}
-      <div className={`p-4 border-t space-y-2 ${isDark ? 'border-slate-800' : 'border-slate-200'}`}>
+      <div className={`p-4 border-t space-y-2 shrink-0 ${isDark ? 'border-slate-800' : 'border-slate-200'}`}>
         {/* Dark / Light Toggle */}
         <button
           onClick={() => setIsDark(!isDark)}
@@ -117,6 +133,67 @@ export default function Sidebar({ activeTab, setActiveTab, isDark, setIsDark, on
           Logout
         </button>
       </div>
-    </aside>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Desktop Persistent Sidebar */}
+      <aside className={`hidden lg:flex w-64 shrink-0 border-r flex-col justify-between transition-colors ${
+        isDark 
+          ? 'bg-slate-900 border-slate-800 text-slate-200' 
+          : 'bg-white border-slate-200 text-slate-700'
+      }`}>
+        {navContent}
+      </aside>
+
+      {/* Mobile Off-Canvas Drawer Backdrop & Container */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden flex">
+          {/* Backdrop Blur Overlay */}
+          <div
+            className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm transition-opacity"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+
+          {/* Slide-out Drawer Panel */}
+          <div className={`relative w-72 max-w-[85vw] h-full shadow-2xl flex flex-col z-10 transition-transform duration-200 ease-out ${
+            isDark 
+              ? 'bg-slate-900 text-slate-200 border-r border-slate-800' 
+              : 'bg-white text-slate-700 border-r border-slate-200'
+          }`}>
+            {navContent}
+          </div>
+        </div>
+      )}
+
+      {/* Mobile Sticky Bottom Quick-Bar */}
+      <nav className={`lg:hidden fixed bottom-0 left-0 right-0 z-40 border-t flex items-center justify-around px-2 py-1.5 backdrop-blur-lg shadow-lg ${
+        isDark 
+          ? 'bg-slate-900/95 border-slate-800 text-slate-300' 
+          : 'bg-white/95 border-slate-200 text-slate-700'
+      }`}>
+        {menuItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = activeTab === item.id;
+          return (
+            <button
+              key={item.id}
+              onClick={() => handleSelectTab(item.id)}
+              className={`flex flex-col items-center justify-center py-1 px-2 rounded-lg text-[10px] font-bold transition-all min-w-[56px] ${
+                isActive
+                  ? 'text-[#0f2ea2] dark:text-blue-400 font-extrabold'
+                  : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+              }`}
+            >
+              <div className={`p-1 rounded-lg ${isActive ? 'bg-blue-50 dark:bg-blue-950/60' : ''}`}>
+                <Icon className={`w-4 h-4 ${isActive ? 'stroke-[2.5]' : 'stroke-2'}`} />
+              </div>
+              <span className="mt-0.5 tracking-tight">{item.label}</span>
+            </button>
+          );
+        })}
+      </nav>
+    </>
   );
 }

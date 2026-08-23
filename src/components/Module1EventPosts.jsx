@@ -12,7 +12,6 @@ export default function Module1EventPosts({ isDark }) {
   const [customHeadline, setCustomHeadline] = useState("Singapore National Day");
   const [customSubtitle, setCustomSubtitle] = useState("Honoring 61 years of unity, resilience & innovation");
 
-  // When occasion changes, update defaults
   const handleSelectOccasion = (h) => {
     setSelectedOccasion(h);
     setSelectedDraftIndex(0);
@@ -21,7 +20,6 @@ export default function Module1EventPosts({ isDark }) {
     setCustomSubtitle(h.subtitle);
   };
 
-  // Drafts for 2026 occasion
   const drafts = [
     {
       id: "opt-1",
@@ -97,61 +95,63 @@ ${selectedOccasion.suggestedHashtags.join(' ')} #LifeAtBrother #PeopleFirst #Tea
   };
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
+    <div className="space-y-4 sm:space-y-6 max-w-6xl mx-auto">
       {/* Header Banner */}
-      <div className={`p-6 rounded-2xl border transition-colors ${
+      <div className={`p-4 sm:p-6 rounded-2xl border transition-colors ${
         isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
       }`}>
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-[#0f2ea2]/10 text-[#0f2ea2] text-xs font-bold uppercase tracking-wider mb-2">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#0f2ea2]/10 text-[#0f2ea2] dark:text-blue-400 text-[11px] font-bold uppercase tracking-wider mb-1.5 sm:mb-2">
               <Calendar className="w-3.5 h-3.5" />
-              Module 1: Festive & Event Posts (2026 Onwards)
+              Module 1: Festive & Event Posts (2026)
             </div>
-            <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
-              Singapore Public Holidays & Festive Occasions Engine
+            <h2 className={`text-lg sm:text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
+              Singapore Public Holidays & Festive Occasions
             </h2>
             <p className="text-xs text-slate-500 mt-1">
-              Active schedule for 2026 (National Day onwards). Automatically generates 3 tailored drafts + Brother website-style promotion banners.
+              Active schedule for 2026 (National Day onwards). 3 tailored drafts + Brother website-style promotion banners.
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
             <button
               onClick={handleCopy}
-              className="flex items-center gap-1.5 bg-[#0f2ea2] hover:bg-[#004b8f] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md transition-all"
+              className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold px-3.5 sm:px-4 py-2.5 rounded-xl shadow-md transition-all active:scale-95"
             >
               {copied ? <Check className="w-4 h-4 text-emerald-300" /> : <Copy className="w-4 h-4" />}
-              {copied ? 'Copied Post' : 'Copy Post Text'}
+              {copied ? 'Copied' : 'Copy Post'}
             </button>
             <button
               onClick={handleDownloadSvg}
-              className="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl border border-slate-700 transition-all"
+              className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold px-3.5 sm:px-4 py-2.5 rounded-xl border border-slate-700 transition-all active:scale-95"
             >
               <Download className="w-4 h-4" />
-              Download Banner SVG
+              Download SVG
             </button>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column: 2026 Occasion List */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
+        {/* Left Column: 2026 Occasion List (Horizontal pill bar on mobile, vertical list on desktop) */}
         <div className="lg:col-span-4 space-y-4">
-          <div className={`p-4 rounded-2xl border ${
+          <div className={`p-3.5 sm:p-4 rounded-2xl border ${
             isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
           }`}>
-            <h3 className={`text-xs font-bold uppercase tracking-wider mb-3 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-              2026 Occasions (National Day Onwards)
+            <h3 className={`text-xs font-bold uppercase tracking-wider mb-2.5 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+              Select Occasion (Aug 2026 Onwards)
             </h3>
-            <div className="space-y-2">
+            
+            {/* Scrollable list on all screen sizes */}
+            <div className="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-y-auto max-h-none lg:max-h-[520px] pb-2 lg:pb-0 pr-1 custom-scrollbar">
               {holidays.map((h) => {
                 const isSelected = selectedOccasion.id === h.id;
                 return (
                   <div
                     key={h.id}
                     onClick={() => handleSelectOccasion(h)}
-                    className={`p-3.5 rounded-xl border cursor-pointer transition-all ${
+                    className={`p-3 rounded-xl border cursor-pointer transition-all shrink-0 lg:shrink w-64 lg:w-full ${
                       isSelected
                         ? 'bg-blue-50/80 border-[#0f2ea2] dark:bg-blue-950/50 dark:border-blue-500 shadow-sm'
                         : isDark
@@ -160,20 +160,20 @@ ${selectedOccasion.suggestedHashtags.join(' ')} #LifeAtBrother #PeopleFirst #Tea
                     }`}
                   >
                     <div className="flex items-center justify-between mb-1">
-                      <span className={`text-xs font-bold ${isSelected ? 'text-[#0f2ea2] dark:text-blue-300' : isDark ? 'text-white' : 'text-slate-900'}`}>
+                      <span className={`text-xs font-bold line-clamp-1 ${isSelected ? 'text-[#0f2ea2] dark:text-blue-300' : isDark ? 'text-white' : 'text-slate-900'}`}>
                         {h.name}
                       </span>
                       {h.isUrgent ? (
-                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-500 border border-amber-500/30 flex items-center gap-1">
-                          <Flame className="w-2.5 h-2.5" /> T-10 Due
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-500 border border-amber-500/30 flex items-center gap-1 shrink-0">
+                          <Flame className="w-2.5 h-2.5" /> Due
                         </span>
                       ) : (
-                        <span className="text-[10px] text-slate-400 font-mono">{h.daysRemaining}d</span>
+                        <span className="text-[10px] text-slate-400 font-mono shrink-0">{h.daysRemaining}d</span>
                       )}
                     </div>
                     <div className="text-[11px] text-slate-500 flex items-center justify-between">
-                      <span>{new Date(h.date).toLocaleDateString('en-SG', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                      <span className="text-[10px] text-slate-400">{h.category}</span>
+                      <span>{new Date(h.date).toLocaleDateString('en-SG', { month: 'short', day: 'numeric' })}</span>
+                      <span className="text-[10px] text-slate-400 truncate max-w-[110px]">{h.category}</span>
                     </div>
                   </div>
                 );
@@ -183,22 +183,23 @@ ${selectedOccasion.suggestedHashtags.join(' ')} #LifeAtBrother #PeopleFirst #Tea
         </div>
 
         {/* Right Column: Multi-Drafts & Brother SG Website Banner Preview */}
-        <div className="lg:col-span-8 space-y-6">
-          <div className={`p-6 rounded-2xl border space-y-5 ${
+        <div className="lg:col-span-8 space-y-4 sm:space-y-6">
+          <div className={`p-4 sm:p-6 rounded-2xl border space-y-4 sm:space-y-5 ${
             isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
           }`}>
             {/* Draft Angle Selector */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-4 dark:border-slate-800">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b pb-3.5 dark:border-slate-800">
               <div>
-                <span className="text-[11px] font-mono text-[#0f2ea2] font-bold uppercase tracking-wider">
+                <span className="text-[10px] sm:text-[11px] font-mono text-[#0f2ea2] dark:text-blue-400 font-bold uppercase tracking-wider block">
                   AI Multi-Draft Engine • {selectedOccasion.name}
                 </span>
-                <h3 className={`text-base font-bold mt-0.5 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                <h3 className={`text-sm sm:text-base font-bold mt-0.5 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                   {currentDraft.name}
                 </h3>
               </div>
 
-              <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-950 p-1 rounded-xl border dark:border-slate-800">
+              {/* Draft Tabs */}
+              <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-950 p-1 rounded-xl border dark:border-slate-800 self-start sm:self-auto">
                 {drafts.map((d, idx) => (
                   <button
                     key={d.id}
@@ -216,8 +217,8 @@ ${selectedOccasion.suggestedHashtags.join(' ')} #LifeAtBrother #PeopleFirst #Tea
             </div>
 
             {/* Why This Works Banner */}
-            <div className="bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-500/30 rounded-xl p-3.5">
-              <div className="flex items-start gap-2.5">
+            <div className="bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-500/30 rounded-xl p-3 sm:p-3.5">
+              <div className="flex items-start gap-2">
                 <Sparkles className="w-4 h-4 text-[#0f2ea2] dark:text-blue-400 mt-0.5 shrink-0" />
                 <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
                   <strong className="text-[#0f2ea2] dark:text-blue-300">Why this draft works: </strong>
@@ -228,7 +229,7 @@ ${selectedOccasion.suggestedHashtags.join(' ')} #LifeAtBrother #PeopleFirst #Tea
 
             {/* Generated Post Content */}
             <div className="relative">
-              <div className={`p-4 rounded-xl font-mono text-xs whitespace-pre-wrap leading-relaxed max-h-64 overflow-y-auto border ${
+              <div className={`p-3.5 sm:p-4 rounded-xl font-mono text-xs whitespace-pre-wrap leading-relaxed max-h-60 overflow-y-auto border custom-scrollbar ${
                 isDark ? 'bg-slate-950 border-slate-800 text-slate-200' : 'bg-slate-50 border-slate-200 text-slate-800'
               }`}>
                 {currentDraft.post}
@@ -236,19 +237,22 @@ ${selectedOccasion.suggestedHashtags.join(' ')} #LifeAtBrother #PeopleFirst #Tea
             </div>
 
             {/* Live Rendered Brother Website Hero Banner Graphic */}
-            <div className="space-y-2 pt-2">
+            <div className="space-y-2 pt-1">
               <div className="flex items-center justify-between">
-                <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                  <Layers className="w-3.5 h-3.5 text-[#0f2ea2]" />
-                  Paired Brother SG Website Banner Template (From Screenshot Reference)
+                <h4 className="text-[11px] sm:text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                  <Layers className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
+                  Website Hero Banner Graphic
                 </h4>
-                <span className="text-[10px] font-mono text-[#0f2ea2]">1200 × 500 Responsive Vector</span>
+                <span className="text-[10px] font-mono text-[#0f2ea2] dark:text-blue-400">1200 × 500 Responsive</span>
               </div>
 
-              <div 
-                className="w-full rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800 max-h-[300px] flex items-center justify-center bg-slate-950"
-                dangerouslySetInnerHTML={{ __html: bannerSvg }}
-              />
+              {/* Fully responsive vector container */}
+              <div className="w-full rounded-xl sm:rounded-2xl overflow-hidden shadow-md border border-slate-200 dark:border-slate-800 bg-slate-950 flex items-center justify-center">
+                <div 
+                  className="w-full aspect-[12/5] flex items-center justify-center"
+                  dangerouslySetInnerHTML={{ __html: bannerSvg }}
+                />
+              </div>
             </div>
           </div>
         </div>

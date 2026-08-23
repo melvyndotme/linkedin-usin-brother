@@ -10,6 +10,7 @@ import SettingsView from './components/SettingsView.jsx';
 export default function App() {
   const [activeTab, setActiveTab] = useState('home'); // 'home', 'module-1', 'module-2', 'team', 'settings'
   const [isDark, setIsDark] = useState(false); // Default to clean Brother SG light website theme
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState({
     name: 'Allan Cheng',
     role: 'Admin / POD Lead',
@@ -34,7 +35,7 @@ export default function App() {
   };
 
   return (
-    <div className={`min-h-screen flex flex-col font-['Plus_Jakarta_Sans',sans-serif] ${
+    <div className={`min-h-screen flex flex-col font-['Plus_Jakarta_Sans',sans-serif] overflow-x-hidden ${
       isDark ? 'bg-[#090D16] text-slate-100' : 'bg-[#F4F6F9] text-slate-900'
     }`}>
       {/* Official Brother Singapore Header */}
@@ -43,21 +44,25 @@ export default function App() {
         setIsDark={setIsDark}
         currentUser={currentUser}
         onLogout={handleLogout}
+        mobileMenuOpen={mobileMenuOpen}
+        setMobileMenuOpen={setMobileMenuOpen}
       />
 
-      {/* Main App Layout: Left Sidebar + Content Area */}
-      <div className="flex-1 flex max-w-[1536px] w-full mx-auto">
-        {/* Left Sidebar Menu */}
+      {/* Main App Layout: Left Sidebar / Mobile Drawer + Dynamic Content */}
+      <div className="flex-1 flex max-w-[1536px] w-full mx-auto relative">
+        {/* Responsive Sidebar (Drawer on mobile, persistent on desktop) */}
         <Sidebar
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           isDark={isDark}
           setIsDark={setIsDark}
           onLogout={handleLogout}
+          mobileMenuOpen={mobileMenuOpen}
+          setMobileMenuOpen={setMobileMenuOpen}
         />
 
-        {/* Dynamic Main Workspace Content */}
-        <main className={`flex-1 p-6 sm:p-8 overflow-y-auto max-h-[calc(100vh-64px)] custom-scrollbar ${
+        {/* Dynamic Main Workspace Content (with bottom padding for mobile bar) */}
+        <main className={`flex-1 p-3 sm:p-6 lg:p-8 overflow-y-auto max-h-[calc(100vh-56px)] sm:max-h-[calc(100vh-64px)] pb-20 lg:pb-8 custom-scrollbar ${
           isDark ? 'bg-[#090D16]' : 'bg-[#F4F6F9]'
         }`}>
           {activeTab === 'home' && (
