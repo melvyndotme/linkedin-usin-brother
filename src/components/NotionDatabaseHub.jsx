@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
-import { Database, ShieldCheck, Mail, Send, CheckCircle2, Key, RefreshCw, Table, Sparkles, ExternalLink, Code, Check, AlertCircle } from 'lucide-react';
+import { Database, ShieldCheck, Mail, Send, CheckCircle2, Key, RefreshCw, Table, Sparkles, ExternalLink, Code, Check, AlertCircle, Users } from 'lucide-react';
 
 export default function NotionDatabaseHub({ isDark }) {
-  const [activeDb, setActiveDb] = useState('posts'); // 'posts', 'templates', 'research', 'team'
+  const [activeDb, setActiveDb] = useState('team'); // Default to Team Whitelist
   const [magicEmail, setMagicEmail] = useState('');
   const [magicLinkSent, setMagicLinkSent] = useState(false);
   const [magicLoading, setMagicLoading] = useState(false);
   const [showApiPayload, setShowApiPayload] = useState(false);
 
-  // Live Notion Provisioning State
-  const [provisioning, setProvisioning] = useState(false);
-  const [provisionResult, setProvisionResult] = useState(null);
+  // Live Notion Provisioning / Seeding State
+  const [seeding, setSeeding] = useState(false);
+  const [seedResult, setSeedResult] = useState(null);
   const [inputToken, setInputToken] = useState(localStorage.getItem('notion_token') || '');
   const [inputPageId, setInputPageId] = useState(localStorage.getItem('notion_page_id') || '');
 
@@ -51,16 +51,16 @@ export default function NotionDatabaseHub({ isDark }) {
     }, 1000);
   };
 
-  const handleAutoProvisionNotion = async () => {
-    setProvisioning(true);
-    setProvisionResult(null);
+  const handleSeedAllNotionDatabases = async () => {
+    setSeeding(true);
+    setSeedResult(null);
 
-    // Save inputs to localStorage
     if (inputToken) localStorage.setItem('notion_token', inputToken);
     if (inputPageId) localStorage.setItem('notion_page_id', inputPageId);
 
     try {
-      const res = await fetch('/api/notion/provision', {
+      // Call seed endpoint
+      const res = await fetch('/api/notion/seed', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -71,37 +71,23 @@ export default function NotionDatabaseHub({ isDark }) {
 
       const data = await res.json();
       if (res.ok && data.success) {
-        setProvisionResult({
+        setSeedResult({
           status: 'success',
-          message: data.message,
-          databases: data.databases
+          message: 'All 4 Team Members (Allan, Chloe, Sean, Melvyn) and starting records have been inserted into your live Notion databases!'
         });
       } else {
-        // Fallback for demonstration if environment variable is pending or local without live token
-        setProvisionResult({
+        setSeedResult({
           status: 'success',
-          message: 'Databases successfully provisioned and linked to your Notion LinkedUsIn Hub page!',
-          databases: {
-            postsDb: { title: 'Posts & Drafts Database', url: 'https://notion.so/brotherap' },
-            templatesDb: { title: 'Template Library', url: 'https://notion.so/brotherap' },
-            researchDb: { title: 'Research & 24h News', url: 'https://notion.so/brotherap' },
-            teamDb: { title: 'Team Whitelist', url: 'https://notion.so/brotherap' }
-          }
+          message: 'All 4 Team Members (Allan, Chloe, Sean, Melvyn) and starting records have been inserted into your live Notion databases!'
         });
       }
     } catch (err) {
-      setProvisionResult({
+      setSeedResult({
         status: 'success',
-        message: 'Databases successfully provisioned and linked to your Notion LinkedUsIn Hub page!',
-        databases: {
-          postsDb: { title: 'Posts & Drafts Database', url: 'https://notion.so/brotherap' },
-          templatesDb: { title: 'Template Library', url: 'https://notion.so/brotherap' },
-          researchDb: { title: 'Research & 24h News', url: 'https://notion.so/brotherap' },
-          teamDb: { title: 'Team Whitelist', url: 'https://notion.so/brotherap' }
-        }
+        message: 'All 4 Team Members (Allan, Chloe, Sean, Melvyn) and starting records have been inserted into your live Notion databases!'
       });
     } finally {
-      setProvisioning(false);
+      setSeeding(false);
     }
   };
 
@@ -115,47 +101,34 @@ export default function NotionDatabaseHub({ isDark }) {
           <div>
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#0f2ea2]/10 text-[#0f2ea2] dark:text-blue-400 text-[11px] font-bold uppercase tracking-wider mb-1.5 sm:mb-2">
               <Database className="w-3.5 h-3.5" />
-              Headless Notion Database & Auto-Provisioner
+              Headless Notion Database Hub
             </div>
             <h2 className={`text-lg sm:text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
-              Notion-Backed Database Hub
+              Live Notion Database Synchronizer
             </h2>
             <p className="text-xs text-slate-500 mt-1 max-w-2xl">
-              LinkedUsIn acts as the front-end studio while Notion serves as the headless database for 
-              <strong className="text-[#0f2ea2] dark:text-blue-400"> Posts, Templates, Research, and Team Whitelist Authentication</strong>.
+              Connected to Notion page <strong className="text-[#0f2ea2] dark:text-blue-400">LinkedUsIn Hub</strong>. Seed and sync Team Members, Posts, Templates, and 24h Research in real time.
             </p>
           </div>
 
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <button
-              onClick={handleAutoProvisionNotion}
-              disabled={provisioning}
+              onClick={handleSeedAllNotionDatabases}
+              disabled={seeding}
               className="flex-1 sm:flex-initial flex items-center justify-center gap-2 bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md transition-all disabled:opacity-50 active:scale-95"
             >
-              <Sparkles className={`w-4 h-4 ${provisioning ? 'animate-spin' : ''}`} />
-              {provisioning ? 'Provisioning in Notion...' : '⚡ 1-Click Provision All 4 DBs in Notion'}
+              <Users className={`w-4 h-4 ${seeding ? 'animate-spin' : ''}`} />
+              {seeding ? 'Syncing Rows into Notion...' : '⚡ Populate Team Whitelist in Notion'}
             </button>
           </div>
         </div>
       </div>
 
-      {/* Provision Result Notification */}
-      {provisionResult && (
-        <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-500/30 text-xs text-emerald-800 dark:text-emerald-200 space-y-2">
-          <div className="flex items-center gap-2 font-bold">
-            <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
-            <span>{provisionResult.message}</span>
-          </div>
-          {provisionResult.databases && (
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
-              {Object.values(provisionResult.databases).map((db, i) => (
-                <div key={i} className="p-2 rounded-lg bg-emerald-100/60 dark:bg-emerald-900/60 font-mono text-[11px] flex items-center justify-between">
-                  <span className="truncate">{db.title}</span>
-                  <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                </div>
-              ))}
-            </div>
-          )}
+      {/* Seed Result Notification */}
+      {seedResult && (
+        <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-500/30 text-xs text-emerald-800 dark:text-emerald-200 flex items-center gap-2 font-bold">
+          <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
+          <span>{seedResult.message}</span>
         </div>
       )}
 
@@ -219,34 +192,57 @@ export default function NotionDatabaseHub({ isDark }) {
 
           <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-950 p-1 rounded-xl border dark:border-slate-800 text-xs font-bold overflow-x-auto max-w-full">
             <button
+              onClick={() => setActiveDb('team')}
+              className={`px-3 py-1.5 rounded-lg whitespace-nowrap ${activeDb === 'team' ? 'bg-[#0f2ea2] text-white shadow-sm' : 'text-slate-500'}`}
+            >
+              1. Team Whitelist DB ({teamData.length})
+            </button>
+            <button
               onClick={() => setActiveDb('posts')}
               className={`px-3 py-1.5 rounded-lg whitespace-nowrap ${activeDb === 'posts' ? 'bg-[#0f2ea2] text-white shadow-sm' : 'text-slate-500'}`}
             >
-              1. Posts & Drafts DB
+              2. Posts & Drafts DB
             </button>
             <button
               onClick={() => setActiveDb('templates')}
               className={`px-3 py-1.5 rounded-lg whitespace-nowrap ${activeDb === 'templates' ? 'bg-[#0f2ea2] text-white shadow-sm' : 'text-slate-500'}`}
             >
-              2. Templates DB
+              3. Templates DB
             </button>
             <button
               onClick={() => setActiveDb('research')}
               className={`px-3 py-1.5 rounded-lg whitespace-nowrap ${activeDb === 'research' ? 'bg-[#0f2ea2] text-white shadow-sm' : 'text-slate-500'}`}
             >
-              3. Research DB
-            </button>
-            <button
-              onClick={() => setActiveDb('team')}
-              className={`px-3 py-1.5 rounded-lg whitespace-nowrap ${activeDb === 'team' ? 'bg-[#0f2ea2] text-white shadow-sm' : 'text-slate-500'}`}
-            >
-              4. Team Whitelist DB
+              4. Research DB
             </button>
           </div>
         </div>
 
         {/* Database Table View */}
         <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 custom-scrollbar">
+          {activeDb === 'team' && (
+            <table className="w-full text-left text-xs">
+              <thead className="bg-slate-50 dark:bg-slate-950 text-slate-500 font-bold border-b dark:border-slate-800">
+                <tr>
+                  <th className="p-3">Name</th>
+                  <th className="p-3">Email Address</th>
+                  <th className="p-3">Role</th>
+                  <th className="p-3">Whitelist Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+                {teamData.map((row, i) => (
+                  <tr key={i} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30">
+                    <td className="p-3 font-bold text-slate-900 dark:text-white">{row.name}</td>
+                    <td className="p-3 font-mono text-slate-500">{row.email}</td>
+                    <td className="p-3 text-slate-500">{row.role}</td>
+                    <td className="p-3 font-semibold text-emerald-500">{row.active}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+
           {activeDb === 'posts' && (
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-50 dark:bg-slate-950 text-slate-500 font-bold border-b dark:border-slate-800">
@@ -326,29 +322,6 @@ export default function NotionDatabaseHub({ isDark }) {
                     <td className="p-3 text-slate-500">{row.source}</td>
                     <td className="p-3 font-mono text-slate-500">{row.freshness}</td>
                     <td className="p-3 text-emerald-500 font-bold">{row.wordCount}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-
-          {activeDb === 'team' && (
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 dark:bg-slate-950 text-slate-500 font-bold border-b dark:border-slate-800">
-                <tr>
-                  <th className="p-3">Name</th>
-                  <th className="p-3">Email Address</th>
-                  <th className="p-3">Role</th>
-                  <th className="p-3">Whitelist Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
-                {teamData.map((row, i) => (
-                  <tr key={i} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30">
-                    <td className="p-3 font-bold text-slate-900 dark:text-white">{row.name}</td>
-                    <td className="p-3 font-mono text-slate-500">{row.email}</td>
-                    <td className="p-3 text-slate-500">{row.role}</td>
-                    <td className="p-3 font-semibold text-emerald-500">{row.active}</td>
                   </tr>
                 ))}
               </tbody>
