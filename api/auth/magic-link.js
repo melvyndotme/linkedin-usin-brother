@@ -99,7 +99,7 @@ export default async function handler(req, res) {
         </html>
       `;
 
-      const fromAddress = process.env.RESEND_FROM_EMAIL || req.body?.fromEmail || 'LinkedUsIn Studio <auth@befinityai.com>';
+      const fromAddress = process.env.RESEND_FROM_EMAIL || req.body?.fromEmail || 'LinkedUsIn Studio <auth@cs.befinity.ai>';
 
       const resendResponse = await fetch('https://api.resend.com/emails', {
         method: 'POST',
