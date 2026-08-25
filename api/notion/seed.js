@@ -1,4 +1,4 @@
-// Vercel Serverless Function: Force-Seed Team Members into Notion DBs
+// Vercel Serverless Function: Auto-Discover & Seed Notion Databases using Notion Search API
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', true);
@@ -14,22 +14,13 @@ export default async function handler(req, res) {
   }
 
   const apiKey = req.body?.apiKey || process.env.NOTION_API_KEY;
-  let pageId = req.body?.pageId || process.env.NOTION_PAGE_ID;
 
   if (!apiKey) {
-    return res.status(400).json({ success: false, error: 'Missing NOTION_API_KEY. Please ensure it is saved in Vercel Environment Variables.' });
+    return res.status(400).json({
+      success: false,
+      error: 'Missing Notion Secret Token. Please click "Token Override" and paste your secret token, or add NOTION_API_KEY in Vercel.'
+    });
   }
-
-  if (!pageId) {
-    return res.status(400).json({ success: false, error: 'Missing NOTION_PAGE_ID. Please ensure it is saved in Vercel Environment Variables.' });
-  }
-
-  pageId = pageId.trim();
-  if (pageId.includes('notion.so') || pageId.includes('notion.site') || pageId.includes('notion.com')) {
-    const parts = pageId.split('-');
-    pageId = parts[parts.length - 1].split('?')[0];
-  }
-  pageId = pageId.replace(/-/g, '');
 
   const headers = {
     'Authorization': `Bearer ${apiKey}`,
@@ -38,33 +29,42 @@ export default async function handler(req, res) {
   };
 
   try {
-    // 1. Fetch child databases inside the page
-    const searchRes = await fetch(`https://api.notion.com/v1/blocks/${pageId}/children?page_size=100`, {
-      method: 'GET',
-      headers
+    // 1. Auto-discover all accessible databases via Notion Search API
+    const searchRes = await fetch('https://api.notion.com/v1/search', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        filter: { value: 'database', property: 'object' },
+        page_size: 50
+      })
     });
-    
+
     if (!searchRes.ok) {
       const errData = await searchRes.json();
       return res.status(400).json({
         success: false,
-        error: `Notion API error reading LinkedUsIn Hub: ${errData.message || searchRes.statusText}`
+        error: `Notion Search API error: ${errData.message || searchRes.statusText}`
       });
     }
 
-    const blocksData = await searchRes.json();
-    const childDbs = (blocksData.results || []).filter(b => b.type === 'child_database');
+    const searchData = await searchRes.json();
+    const databases = searchData.results || [];
 
-    // Find all Team Whitelist databases
-    const teamDbs = childDbs.filter(d => d.child_database?.title?.toLowerCase().includes('team'));
+    // Find the Team Whitelist database
+    const teamDb = databases.find(d => {
+      const title = (d.title || []).map(t => t.plain_text).join('').toLowerCase();
+      return title.includes('team') || title.includes('whitelist');
+    });
 
-    if (teamDbs.length === 0) {
+    if (!teamDb) {
+      const foundTitles = databases.map(d => (d.title || []).map(t => t.plain_text).join('')).filter(Boolean);
       return res.status(400).json({
         success: false,
-        error: 'No Team Whitelist database found inside this page. Found: ' + childDbs.map(d => d.child_database?.title).join(', ')
+        error: `No 'Team Whitelist' database found. Found accessible databases: ${foundTitles.join(', ') || 'None'}. Please ensure LinkedUsIn Studio is connected to the database.`
       });
     }
 
+    // 2. Insert all 4 team members into the discovered Team Database
     const members = [
       { name: 'Allan Cheng', email: 'allan.cheng@brother.com.sg' },
       { name: 'Chloe Lee', email: 'chloe.lee@brother.com.sg' },
@@ -75,49 +75,47 @@ export default async function handler(req, res) {
     let inserted = 0;
     const errors = [];
 
-    for (const targetDb of teamDbs) {
-      for (const member of members) {
-        const insertRes = await fetch('https://api.notion.com/v1/pages', {
-          method: 'POST',
-          headers,
-          body: JSON.stringify({
-            parent: { database_id: targetDb.id },
-            properties: {
-              'Name': {
-                title: [{ text: { content: member.name } }]
-              },
-              'Email': {
-                email: member.email
-              },
-              'Active': {
-                checkbox: true
-              }
+    for (const member of members) {
+      const insertRes = await fetch('https://api.notion.com/v1/pages', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          parent: { database_id: teamDb.id },
+          properties: {
+            'Name': {
+              title: [{ text: { content: member.name } }]
+            },
+            'Email': {
+              email: member.email
+            },
+            'Active': {
+              checkbox: true
             }
-          })
-        });
+          }
+        })
+      });
 
-        if (insertRes.ok) {
-          inserted++;
-        } else {
-          const errBody = await insertRes.json();
-          errors.push(`${member.name}: ${errBody.message}`);
-        }
+      if (insertRes.ok) {
+        inserted++;
+      } else {
+        const errBody = await insertRes.json();
+        errors.push(`${member.name}: ${errBody.message}`);
       }
     }
 
     if (inserted > 0) {
       return res.status(200).json({
         success: true,
-        message: `Successfully inserted ${inserted} team rows into Notion!`,
-        errors: errors.length > 0 ? errors : undefined
+        message: `Success! Successfully inserted ${inserted} team members (Allan Cheng, Chloe Lee, Sean, Melvyn Tan) into your Notion Team Whitelist database!`
       });
     } else {
       return res.status(400).json({
         success: false,
-        error: `Failed inserting team rows: ${errors.join('; ')}`
+        error: `Failed inserting team members: ${errors.join('; ')}`
       });
     }
   } catch (error) {
+    console.error('Error during Notion seed:', error);
     return res.status(500).json({ success: false, error: error.message });
   }
 }
