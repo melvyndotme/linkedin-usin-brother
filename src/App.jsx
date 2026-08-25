@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import LoginPage from './components/LoginPage.jsx';
 import BrotherHeader from './components/BrotherHeader.jsx';
 import Sidebar from './components/Sidebar.jsx';
 import HomeFeedAnalytics from './components/HomeFeedAnalytics.jsx';
@@ -12,31 +13,62 @@ import SettingsView from './components/SettingsView.jsx';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('home'); 
-  const [isDark, setIsDark] = useState(false); // Default to clean Brother SG light theme
+  const [isDark, setIsDark] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [draftStudioPayload, setDraftStudioPayload] = useState({ content: '', title: '' });
 
-  const [currentUser, setCurrentUser] = useState({
-    name: 'Allan Cheng',
-    role: 'Admin / POD Lead',
-    email: 'allan.cheng@brother.com.sg'
+  // Authentication State
+  const [currentUser, setCurrentUser] = useState(() => {
+    const saved = localStorage.getItem('linkedusin_user');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        return null;
+      }
+    }
+    // Default to Allan Cheng for seamless initial load
+    return {
+      name: 'Allan Cheng',
+      role: 'Admin / POD Lead',
+      email: 'allan.cheng@brother.com.sg'
+    };
   });
 
-  const handleLogout = () => {
-    // Switch between Allan and Chloe for easy prototype role demoing
-    if (currentUser.name === 'Allan Cheng') {
-      setCurrentUser({
-        name: 'Chloe Lee',
-        role: 'User (HR Lead)',
-        email: 'chloe.lee@brother.com.sg'
-      });
-    } else {
-      setCurrentUser({
-        name: 'Allan Cheng',
-        role: 'Admin (POD Lead)',
-        email: 'allan.cheng@brother.com.sg'
-      });
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
+
+  // Check URL query parameters for magic link authentication
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    const email = params.get('email');
+    const name = params.get('name');
+    const role = params.get('role');
+
+    if (token && email) {
+      const user = {
+        name: name || email.split('@')[0],
+        email: decodeURIComponent(email),
+        role: role || 'User'
+      };
+      setCurrentUser(user);
+      setIsAuthenticated(true);
+      localStorage.setItem('linkedusin_user', JSON.stringify(user));
+      // Clean URL
+      window.history.replaceState({}, document.title, window.location.pathname);
     }
+  }, []);
+
+  const handleLoginSuccess = (user) => {
+    setCurrentUser(user);
+    setIsAuthenticated(true);
+    localStorage.setItem('linkedusin_user', JSON.stringify(user));
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('linkedusin_user');
+    setIsAuthenticated(false);
+    setCurrentUser(null);
   };
 
   const handleNavigateToDraftStudio = (content, title) => {
@@ -51,6 +83,16 @@ export default function App() {
     });
     setActiveTab('draft-studio');
   };
+
+  // If not authenticated, render the dedicated Login Screen
+  if (!isAuthenticated || !currentUser) {
+    return (
+      <LoginPage
+        onLoginSuccess={handleLoginSuccess}
+        isDark={isDark}
+      />
+    );
+  }
 
   return (
     <div className={`min-h-screen flex flex-col font-['Plus_Jakarta_Sans',sans-serif] overflow-x-hidden ${
@@ -68,7 +110,7 @@ export default function App() {
 
       {/* Main App Layout: Left Sidebar + Dynamic Main Workspace */}
       <div className="flex-1 flex max-w-[1536px] w-full mx-auto relative">
-        {/* Responsive Sidebar (Drawer on mobile, persistent on desktop) */}
+        {/* Responsive Sidebar */}
         <Sidebar
           activeTab={activeTab}
           setActiveTab={setActiveTab}
