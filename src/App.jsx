@@ -4,13 +4,18 @@ import Sidebar from './components/Sidebar.jsx';
 import HomeFeedAnalytics from './components/HomeFeedAnalytics.jsx';
 import Module1EventPosts from './components/Module1EventPosts.jsx';
 import Module2AIPosts from './components/Module2AIPosts.jsx';
+import TemplateIngestionStudio from './components/TemplateIngestionStudio.jsx';
+import DraftMediaStudio from './components/DraftMediaStudio.jsx';
+import NotionDatabaseHub from './components/NotionDatabaseHub.jsx';
 import TeamView from './components/TeamView.jsx';
 import SettingsView from './components/SettingsView.jsx';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('home'); // 'home', 'module-1', 'module-2', 'team', 'settings'
-  const [isDark, setIsDark] = useState(false); // Default to clean Brother SG light website theme
+  const [activeTab, setActiveTab] = useState('home'); 
+  const [isDark, setIsDark] = useState(false); // Default to clean Brother SG light theme
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [draftStudioPayload, setDraftStudioPayload] = useState({ content: '', title: '' });
+
   const [currentUser, setCurrentUser] = useState({
     name: 'Allan Cheng',
     role: 'Admin / POD Lead',
@@ -34,6 +39,19 @@ export default function App() {
     }
   };
 
+  const handleNavigateToDraftStudio = (content, title) => {
+    setDraftStudioPayload({ content, title });
+    setActiveTab('draft-studio');
+  };
+
+  const handleSelectTemplateForDrafting = (template) => {
+    setDraftStudioPayload({
+      content: template.examplePost,
+      title: `Campaign: ${template.name}`
+    });
+    setActiveTab('draft-studio');
+  };
+
   return (
     <div className={`min-h-screen flex flex-col font-['Plus_Jakarta_Sans',sans-serif] overflow-x-hidden ${
       isDark ? 'bg-[#090D16] text-slate-100' : 'bg-[#F4F6F9] text-slate-900'
@@ -48,7 +66,7 @@ export default function App() {
         setMobileMenuOpen={setMobileMenuOpen}
       />
 
-      {/* Main App Layout: Left Sidebar / Mobile Drawer + Dynamic Content */}
+      {/* Main App Layout: Left Sidebar + Dynamic Main Workspace */}
       <div className="flex-1 flex max-w-[1536px] w-full mx-auto relative">
         {/* Responsive Sidebar (Drawer on mobile, persistent on desktop) */}
         <Sidebar
@@ -61,7 +79,7 @@ export default function App() {
           setMobileMenuOpen={setMobileMenuOpen}
         />
 
-        {/* Dynamic Main Workspace Content (with bottom padding for mobile bar) */}
+        {/* Dynamic Main Workspace Content */}
         <main className={`flex-1 p-3 sm:p-6 lg:p-8 overflow-y-auto max-h-[calc(100vh-56px)] sm:max-h-[calc(100vh-64px)] pb-20 lg:pb-8 custom-scrollbar ${
           isDark ? 'bg-[#090D16]' : 'bg-[#F4F6F9]'
         }`}>
@@ -77,7 +95,29 @@ export default function App() {
           )}
 
           {activeTab === 'module-2' && (
-            <Module2AIPosts isDark={isDark} />
+            <Module2AIPosts
+              isDark={isDark}
+              onNavigateToDraftStudio={handleNavigateToDraftStudio}
+            />
+          )}
+
+          {activeTab === 'template-studio' && (
+            <TemplateIngestionStudio
+              isDark={isDark}
+              onSelectTemplateForDrafting={handleSelectTemplateForDrafting}
+            />
+          )}
+
+          {activeTab === 'draft-studio' && (
+            <DraftMediaStudio
+              isDark={isDark}
+              initialContent={draftStudioPayload.content}
+              initialTitle={draftStudioPayload.title}
+            />
+          )}
+
+          {activeTab === 'notion-hub' && (
+            <NotionDatabaseHub isDark={isDark} />
           )}
 
           {activeTab === 'team' && (
