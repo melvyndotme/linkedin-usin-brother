@@ -131,33 +131,23 @@ export default function LoginPage({ onLoginSuccess, isDark }) {
 
             {/* Magic Link Sent Feedback */}
             {magicSentData && (
-              <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-500/30 text-xs text-emerald-900 dark:text-emerald-200 space-y-3">
-                <div className="flex items-center gap-2 font-bold">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-                  <span>Magic Link Sent to {magicSentData.user.email}!</span>
+              <div className="p-4 rounded-2xl bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-500/30 text-xs text-slate-800 dark:text-slate-200 space-y-2">
+                <div className="flex items-center gap-2 font-bold text-[#0f2ea2] dark:text-blue-400">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
+                  <span>Check your email</span>
                 </div>
-                <p className="text-[11px] text-emerald-700 dark:text-emerald-300 leading-relaxed">
-                  Verified as <strong>{magicSentData.user.name} ({magicSentData.user.role})</strong> in the Notion Team Whitelist.
+                <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                  If an account is associated with <strong>{email}</strong>, we have sent a secure magic link to your inbox. Click the link in the email to sign in.
                 </p>
-                {magicSentData.resendId && (
-                  <div className="font-mono text-[10px] bg-emerald-100/80 dark:bg-emerald-900/60 p-2 rounded-lg text-emerald-900 dark:text-emerald-200">
-                    ✅ Resend API Dispatched! ID: {magicSentData.resendId}
-                  </div>
-                )}
-                {magicSentData.resendError && (
-                  <div className="font-mono text-[10px] bg-amber-100/80 dark:bg-amber-900/60 p-2 rounded-lg text-amber-900 dark:text-amber-200">
-                    ℹ️ Resend Notice: {magicSentData.resendError}
-                  </div>
-                )}
-
-                {/* Instant 1-Click Simulation Button */}
-                <button
-                  onClick={() => onLoginSuccess(magicSentData.user)}
-                  className="w-full flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-xl text-xs shadow-md transition-all active:scale-95"
-                >
-                  <span>1-Click Simulate Login (Inbox Click)</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
+                <div className="pt-1 text-[10px] text-slate-400 border-t border-blue-100 dark:border-slate-800 flex items-center justify-between">
+                  <span>Didn't receive it? Check your spam folder.</span>
+                  <button
+                    onClick={() => setMagicSentData(null)}
+                    className="text-[#0f2ea2] dark:text-blue-400 hover:underline font-semibold"
+                  >
+                    Re-enter email
+                  </button>
+                </div>
               </div>
             )}
           </div>

@@ -19,6 +19,15 @@ export default function App() {
 
   // Authentication State
   const [currentUser, setCurrentUser] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    const email = params.get('email');
+    if (email) {
+      return {
+        name: params.get('name') || email.split('@')[0],
+        email: decodeURIComponent(email),
+        role: params.get('role') || 'User'
+      };
+    }
     const saved = localStorage.getItem('linkedusin_user');
     if (saved) {
       try {
@@ -27,15 +36,14 @@ export default function App() {
         return null;
       }
     }
-    // Default to Allan Cheng for seamless initial load
-    return {
-      name: 'Allan Cheng',
-      role: 'Admin / POD Lead',
-      email: 'allan.cheng@brother.com.sg'
-    };
+    return null;
   });
 
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('token') && params.get('email')) return true;
+    return !!localStorage.getItem('linkedusin_user');
+  });
 
   // Check URL query parameters for magic link authentication
   useEffect(() => {
