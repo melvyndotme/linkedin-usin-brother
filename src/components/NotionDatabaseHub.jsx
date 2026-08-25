@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Database, ShieldCheck, Mail, Send, CheckCircle2, Key, RefreshCw, Table, Sparkles, ExternalLink, Code, Check, AlertCircle, Users } from 'lucide-react';
+import { Database, ShieldCheck, Mail, Send, CheckCircle2, Key, RefreshCw, Table, Sparkles, ExternalLink, Code, Check, AlertCircle, Users, XCircle } from 'lucide-react';
 
 export default function NotionDatabaseHub({ isDark }) {
-  const [activeDb, setActiveDb] = useState('team'); // Default to Team Whitelist
+  const [activeDb, setActiveDb] = useState('team');
   const [magicEmail, setMagicEmail] = useState('');
   const [magicLinkSent, setMagicLinkSent] = useState(false);
   const [magicLoading, setMagicLoading] = useState(false);
@@ -11,8 +11,16 @@ export default function NotionDatabaseHub({ isDark }) {
   // Live Notion Provisioning / Seeding State
   const [seeding, setSeeding] = useState(false);
   const [seedResult, setSeedResult] = useState(null);
+  const [showManualInputs, setShowManualInputs] = useState(false);
   const [inputToken, setInputToken] = useState(localStorage.getItem('notion_token') || '');
-  const [inputPageId, setInputPageId] = useState(localStorage.getItem('notion_page_id') || '');
+  const [inputPageId, setInputPageId] = useState(localStorage.getItem('notion_page_id') || '3c701136-de48-8101-b258-000b3c706126');
+
+  const teamData = [
+    { name: "Allan Cheng", email: "allan.cheng@brother.com.sg", role: "Admin (POD Lead)", active: "✅ Active" },
+    { name: "Chloe Lee", email: "chloe.lee@brother.com.sg", role: "Reviewer (HR Lead)", active: "✅ Active" },
+    { name: "Sean", email: "sean@brother.com.sg", role: "User (POD Member)", active: "✅ Active" },
+    { name: "Melvyn Tan", email: "melvyn@advisor.ai", role: "External Advisor", active: "✅ Active" }
+  ];
 
   const postsData = [
     { title: "Singapore National Day 2026", status: "Published", category: "Festive", author: "Allan Cheng", date: "2026-08-09", urn: "urn:li:share:984729103" },
@@ -35,13 +43,6 @@ export default function NotionDatabaseHub({ isDark }) {
     { headline: "Multimodal Document Intelligence", topic: "Document AI", source: "TechCrunch", freshness: "7 Days", wordCount: "120 words" }
   ];
 
-  const teamData = [
-    { name: "Allan Cheng", email: "allan.cheng@brother.com.sg", role: "Admin (POD Lead)", active: "✅ Active" },
-    { name: "Chloe Lee", email: "chloe.lee@brother.com.sg", role: "Reviewer (HR Lead)", active: "✅ Active" },
-    { name: "Sean", email: "sean@brother.com.sg", role: "User (POD Member)", active: "✅ Active" },
-    { name: "Melvyn Tan", email: "melvyn@advisor.ai", role: "External Advisor", active: "✅ Active" }
-  ];
-
   const handleSendMagicLink = () => {
     if (!magicEmail) return;
     setMagicLoading(true);
@@ -59,7 +60,6 @@ export default function NotionDatabaseHub({ isDark }) {
     if (inputPageId) localStorage.setItem('notion_page_id', inputPageId);
 
     try {
-      // Call seed endpoint
       const res = await fetch('/api/notion/seed', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -73,18 +73,18 @@ export default function NotionDatabaseHub({ isDark }) {
       if (res.ok && data.success) {
         setSeedResult({
           status: 'success',
-          message: 'All 4 Team Members (Allan, Chloe, Sean, Melvyn) and starting records have been inserted into your live Notion databases!'
+          message: data.message || 'All 4 Team Members have been inserted into your Notion Team Whitelist!'
         });
       } else {
         setSeedResult({
-          status: 'success',
-          message: 'All 4 Team Members (Allan, Chloe, Sean, Melvyn) and starting records have been inserted into your live Notion databases!'
+          status: 'error',
+          message: data.error || 'Failed connecting to Notion API. Please verify NOTION_API_KEY in Vercel.'
         });
       }
     } catch (err) {
       setSeedResult({
-        status: 'success',
-        message: 'All 4 Team Members (Allan, Chloe, Sean, Melvyn) and starting records have been inserted into your live Notion databases!'
+        status: 'error',
+        message: err.message || 'Network error connecting to /api/notion/seed'
       });
     } finally {
       setSeeding(false);
@@ -113,6 +113,12 @@ export default function NotionDatabaseHub({ isDark }) {
 
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <button
+              onClick={() => setShowManualInputs(!showManualInputs)}
+              className="px-3 py-2 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+            >
+              {showManualInputs ? 'Hide Token Input' : 'Token Override'}
+            </button>
+            <button
               onClick={handleSeedAllNotionDatabases}
               disabled={seeding}
               className="flex-1 sm:flex-initial flex items-center justify-center gap-2 bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md transition-all disabled:opacity-50 active:scale-95"
@@ -122,13 +128,54 @@ export default function NotionDatabaseHub({ isDark }) {
             </button>
           </div>
         </div>
+
+        {/* Manual Token & Page ID Inputs */}
+        {showManualInputs && (
+          <div className="mt-4 pt-4 border-t dark:border-slate-800 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div>
+              <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                Notion Integration Secret (Overrides Vercel env)
+              </label>
+              <input
+                type="password"
+                value={inputToken}
+                onChange={(e) => setInputToken(e.target.value)}
+                placeholder="ntn_... or secret_..."
+                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs"
+              />
+            </div>
+            <div>
+              <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+                Notion Page ID
+              </label>
+              <input
+                type="text"
+                value={inputPageId}
+                onChange={(e) => setInputPageId(e.target.value)}
+                placeholder="e.g. 3c701136de488101b258000b3c706126"
+                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs"
+              />
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Seed Result Notification */}
+      {/* Result Notification (Success or Error) */}
       {seedResult && (
-        <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-500/30 text-xs text-emerald-800 dark:text-emerald-200 flex items-center gap-2 font-bold">
-          <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
-          <span>{seedResult.message}</span>
+        <div className={`p-4 rounded-xl border text-xs flex items-start gap-2.5 ${
+          seedResult.status === 'success'
+            ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-200'
+            : 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-500/30 text-rose-800 dark:text-rose-200'
+        }`}>
+          {seedResult.status === 'success' ? (
+            <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+          ) : (
+            <XCircle className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
+          )}
+          <div>
+            <div className="font-bold">{seedResult.status === 'success' ? 'Success!' : 'Notion Sync Error'}</div>
+            <div className="mt-0.5 leading-relaxed">{seedResult.message}</div>
+          </div>
         </div>
       )}
 
