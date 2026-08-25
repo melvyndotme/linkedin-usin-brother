@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
-import { Mail, Sparkles, Send, CheckCircle2, ShieldCheck, ArrowRight, Key, ExternalLink, RefreshCw, XCircle, Users } from 'lucide-react';
+import { Mail, Sparkles, Send, CheckCircle2, ShieldCheck, RefreshCw, XCircle } from 'lucide-react';
 
 export default function LoginPage({ onLoginSuccess, isDark }) {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [magicSentData, setMagicSentData] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
-  const [resendKey, setResendKey] = useState(localStorage.getItem('resend_key') || '');
-  const [showKeyInput, setShowKeyInput] = useState(false);
 
   const OFFICIAL_LOGO_URL = "https://media.licdn.com/dms/image/v2/C510BAQFFuI6MoUwmVA/company-logo_400_400/company-logo_400_400/0/1630606968981/brother_international_singapore_pte_ltd_logo?e=1788998400&v=beta&t=YC5raNCKcU09QhBEFCYAU3XIIDbjFlC0cm0hxOx-TOU";
 
@@ -21,15 +19,12 @@ export default function LoginPage({ onLoginSuccess, isDark }) {
     setErrorMsg(null);
     setMagicSentData(null);
 
-    if (resendKey) localStorage.setItem('resend_key', resendKey);
-
     try {
       const res = await fetch('/api/auth/magic-link', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: targetEmail,
-          resendKey,
           appUrl: window.location.origin
         })
       });
@@ -41,24 +36,17 @@ export default function LoginPage({ onLoginSuccess, isDark }) {
         setErrorMsg(data.error || 'Failed to dispatch magic link. Please check your email.');
       }
     } catch (err) {
-      // Offline / client fallback
       setMagicSentData({
         success: true,
         user: {
-          name: targetEmail.includes('allan') ? 'Allan Cheng' : targetEmail.includes('chloe') ? 'Chloe Lee' : 'Sean',
+          name: targetEmail.includes('melvyn') ? 'Melvyn Tan' : targetEmail.includes('allan') ? 'Allan Cheng' : targetEmail.includes('chloe') ? 'Chloe Lee' : 'Sean',
           email: targetEmail,
-          role: targetEmail.includes('allan') ? 'Admin (POD Lead)' : targetEmail.includes('chloe') ? 'Reviewer (HR Lead)' : 'User'
-        },
-        magicLinkUrl: `${window.location.origin}/?token=demo_${Date.now()}&email=${encodeURIComponent(targetEmail)}&role=Admin`,
-        simulated: true
+          role: targetEmail.includes('melvyn') ? 'External Advisor' : targetEmail.includes('allan') ? 'Admin (POD Lead)' : targetEmail.includes('chloe') ? 'Reviewer (HR Lead)' : 'User'
+        }
       });
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleDirectDemoLogin = (demoUser) => {
-    onLoginSuccess(demoUser);
   };
 
   return (
@@ -150,8 +138,6 @@ export default function LoginPage({ onLoginSuccess, isDark }) {
                 </div>
               </div>
             )}
-          </div>
-
           </div>
         </div>
 
