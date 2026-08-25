@@ -1,7 +1,6 @@
-// Vercel Serverless Function: Auto-Provision 4 LinkedUsIn Databases into Notion Parent Page
+// Vercel Serverless Function: Auto-Provision & Seed 4 LinkedUsIn Databases into Notion
 
 export default async function handler(req, res) {
-  // Allow CORS for local dev and production
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
@@ -20,20 +19,20 @@ export default async function handler(req, res) {
   if (!apiKey) {
     return res.status(400).json({
       success: false,
-      error: 'Missing Notion API Key. Please configure NOTION_API_KEY in Vercel Environment Variables or pass apiKey in request body.'
+      error: 'Missing Notion API Key.'
     });
   }
 
   if (!pageId) {
     return res.status(400).json({
       success: false,
-      error: 'Missing Notion Page ID. Please configure NOTION_PAGE_ID in Vercel Environment Variables or pass pageId in request body.'
+      error: 'Missing Notion Page ID.'
     });
   }
 
-  // Clean pageId (remove URL prefixes and hyphens if full URL was passed)
+  // Clean pageId
   pageId = pageId.trim();
-  if (pageId.includes('notion.so') || pageId.includes('notion.site')) {
+  if (pageId.includes('notion.so') || pageId.includes('notion.site') || pageId.includes('notion.com')) {
     const parts = pageId.split('-');
     pageId = parts[parts.length - 1].split('?')[0];
   }
@@ -86,8 +85,7 @@ export default async function handler(req, res) {
             ]
           }
         },
-        'LinkedIn Post URN': { rich_text: {} },
-        'Review Notes': { rich_text: {} }
+        'LinkedIn Post URN': { rich_text: {} }
       }
     };
 
@@ -101,6 +99,22 @@ export default async function handler(req, res) {
       throw new Error(`Notion API error creating Posts DB: ${postsData.message || resPosts.statusText}`);
     }
     createdDatabases.postsDb = { id: postsData.id, url: postsData.url, title: 'Posts & Drafts Database' };
+
+    // Seed Posts DB
+    await fetch('https://api.notion.com/v1/pages', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        parent: { database_id: postsData.id },
+        properties: {
+          'Title': { title: [{ text: { content: 'Singapore National Day 2026 Celebration' } }] },
+          'Status': { select: { name: 'Published' } },
+          'Category': { select: { name: 'Festive & Cultural' } },
+          'Author': { select: { name: 'Allan Cheng' } },
+          'LinkedIn Post URN': { rich_text: [{ text: { content: 'urn:li:share:984729103' } }] }
+        }
+      })
+    });
 
     // 2. Create Template Library Database
     const templatesDbPayload = {
@@ -120,8 +134,7 @@ export default async function handler(req, res) {
           }
         },
         'Tone': { rich_text: {} },
-        'Hook Style': { rich_text: {} },
-        'Source Account': { rich_text: {} }
+        'Hook Style': { rich_text: {} }
       }
     };
 
@@ -132,6 +145,21 @@ export default async function handler(req, res) {
     });
     const templatesData = await resTemplates.json();
     createdDatabases.templatesDb = { id: templatesData.id, url: templatesData.url, title: 'Template Library' };
+
+    // Seed Template DB
+    await fetch('https://api.notion.com/v1/pages', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        parent: { database_id: templatesData.id },
+        properties: {
+          'Template Name': { title: [{ text: { content: 'Kaizen Innovation & Precision Superpowers' } }] },
+          'Category': { select: { name: 'Productivity & Kaizen' } },
+          'Tone': { rich_text: [{ text: { content: 'Inspiring, authoritative, human-centric, Kaizen' } }] },
+          'Hook Style': { rich_text: [{ text: { content: 'Pain-to-Superpower Transition' } }] }
+        }
+      })
+    });
 
     // 3. Create Research & News Database
     const researchDbPayload = {
@@ -153,6 +181,21 @@ export default async function handler(req, res) {
     });
     const researchData = await resResearch.json();
     createdDatabases.researchDb = { id: researchData.id, url: researchData.url, title: 'Research & News' };
+
+    // Seed Research DB
+    await fetch('https://api.notion.com/v1/pages', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        parent: { database_id: researchData.id },
+        properties: {
+          'Headline': { title: [{ text: { content: 'Autonomous Multi-Agent Workflows Outperform Single LLMs in Enterprise Operations' } }] },
+          'Topic': { select: { name: 'Enterprise AI' } },
+          'Source URL': 'https://www.technologyreview.com/2026/agentic-ai-enterprise',
+          'Timeframe': { rich_text: [{ text: { content: '24 Hours' } }] }
+        }
+      })
+    });
 
     // 4. Create Team Whitelist Database
     const teamDbPayload = {
@@ -184,9 +227,33 @@ export default async function handler(req, res) {
     const teamData = await resTeam.json();
     createdDatabases.teamDb = { id: teamData.id, url: teamData.url, title: 'Team Whitelist' };
 
+    // ⭐️ Explicitly Seed All 4 Team Members into Notion Team Whitelist DB!
+    const members = [
+      { name: 'Allan Cheng', email: 'allan.cheng@brother.com.sg', role: 'Admin (POD Lead)' },
+      { name: 'Chloe Lee', email: 'chloe.lee@brother.com.sg', role: 'Reviewer (HR Lead)' },
+      { name: 'Sean', email: 'sean@brother.com.sg', role: 'User (POD Member)' },
+      { name: 'Melvyn Tan', email: 'melvyn@advisor.ai', role: 'External Advisor' }
+    ];
+
+    for (const member of members) {
+      await fetch('https://api.notion.com/v1/pages', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          parent: { database_id: teamData.id },
+          properties: {
+            'Name': { title: [{ text: { content: member.name } }] },
+            'Email': member.email,
+            'Role': { select: { name: member.role } },
+            'Active': true
+          }
+        })
+      });
+    }
+
     return res.status(200).json({
       success: true,
-      message: 'All 4 LinkedUsIn databases have been successfully created inside your Notion LinkedUsIn Hub page!',
+      message: 'All 4 LinkedUsIn databases & Team Whitelist members have been successfully seeded into Notion!',
       parentPageId: pageId,
       databases: createdDatabases
     });
