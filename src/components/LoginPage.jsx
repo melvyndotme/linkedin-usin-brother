@@ -139,6 +139,16 @@ export default function LoginPage({ onLoginSuccess, isDark }) {
                 <p className="text-[11px] text-emerald-700 dark:text-emerald-300 leading-relaxed">
                   Verified as <strong>{magicSentData.user.name} ({magicSentData.user.role})</strong> in the Notion Team Whitelist.
                 </p>
+                {magicSentData.resendId && (
+                  <div className="font-mono text-[10px] bg-emerald-100/80 dark:bg-emerald-900/60 p-2 rounded-lg text-emerald-900 dark:text-emerald-200">
+                    ✅ Resend API Dispatched! ID: {magicSentData.resendId}
+                  </div>
+                )}
+                {magicSentData.resendError && (
+                  <div className="font-mono text-[10px] bg-amber-100/80 dark:bg-amber-900/60 p-2 rounded-lg text-amber-900 dark:text-amber-200">
+                    ℹ️ Resend Notice: {magicSentData.resendError}
+                  </div>
+                )}
 
                 {/* Instant 1-Click Simulation Button */}
                 <button
