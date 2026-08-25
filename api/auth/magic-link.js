@@ -116,7 +116,24 @@ export default async function handler(req, res) {
       const resendData = await resendResponse.json();
       if (!resendResponse.ok) {
         console.warn('Resend API dispatch failed:', resendData);
+        return res.status(200).json({
+          success: true,
+          message: `Magic link created! (Resend Notice: ${resendData.message || 'Free tier test domain restriction'})`,
+          user: matchedUser,
+          magicLinkUrl,
+          resendError: resendData.message,
+          simulated: false
+        });
       }
+
+      return res.status(200).json({
+        success: true,
+        message: `Magic link successfully delivered to ${matchedUser.email} via Resend!`,
+        user: matchedUser,
+        magicLinkUrl,
+        resendId: resendData.id,
+        simulated: false
+      });
     } catch (err) {
       console.error('Error dispatching Resend email:', err);
     }
