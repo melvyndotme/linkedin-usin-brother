@@ -68,8 +68,8 @@ export default async function handler(req, res) {
     const members = [
       { name: 'Allan Cheng', email: 'allan.cheng@brother.com.sg' },
       { name: 'Chloe Lee', email: 'chloe.lee@brother.com.sg' },
-      { name: 'Sean', email: 'sean@brother.com.sg' },
-      { name: 'Melvyn Tan', email: 'melvyn@advisor.ai' }
+      { name: 'Sean', email: 'sean.tan@brother.com.sg' },
+      { name: 'Melvyn Tan', email: 'melvyn@befinityai.com' }
     ];
 
     let inserted = 0;

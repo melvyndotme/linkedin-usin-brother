@@ -18,8 +18,8 @@ export default function NotionDatabaseHub({ isDark }) {
   const teamData = [
     { name: "Allan Cheng", email: "allan.cheng@brother.com.sg", role: "Admin (POD Lead)", active: "✅ Active" },
     { name: "Chloe Lee", email: "chloe.lee@brother.com.sg", role: "Reviewer (HR Lead)", active: "✅ Active" },
-    { name: "Sean", email: "sean@brother.com.sg", role: "User (POD Member)", active: "✅ Active" },
-    { name: "Melvyn Tan", email: "melvyn@advisor.ai", role: "External Advisor", active: "✅ Active" }
+    { name: "Sean", email: "sean.tan@brother.com.sg", role: "User (POD Member)", active: "✅ Active" },
+    { name: "Melvyn Tan", email: "melvyn@befinityai.com", role: "External Advisor", active: "✅ Active" }
   ];
 
   const postsData = [

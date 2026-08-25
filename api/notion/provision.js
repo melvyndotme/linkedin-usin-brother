@@ -133,8 +133,8 @@ export default async function handler(req, res) {
       const members = [
         { name: 'Allan Cheng', email: 'allan.cheng@brother.com.sg', role: 'Admin (POD Lead)' },
         { name: 'Chloe Lee', email: 'chloe.lee@brother.com.sg', role: 'Reviewer (HR Lead)' },
-        { name: 'Sean', email: 'sean@brother.com.sg', role: 'User (POD Member)' },
-        { name: 'Melvyn Tan', email: 'melvyn@advisor.ai', role: 'External Advisor' }
+        { name: 'Sean', email: 'sean.tan@brother.com.sg', role: 'User (POD Member)' },
+        { name: 'Melvyn Tan', email: 'melvyn@befinityai.com', role: 'External Advisor' }
       ];
 
       for (const member of members) {

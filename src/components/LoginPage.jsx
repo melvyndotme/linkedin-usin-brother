@@ -181,6 +181,30 @@ export default function LoginPage({ onLoginSuccess, isDark }) {
                 <div className="font-bold text-slate-900 dark:text-white line-clamp-1">Chloe Lee</div>
                 <div className="text-[10px] text-purple-600 dark:text-purple-400 font-mono">Reviewer (HR Lead)</div>
               </button>
+
+              <button
+                onClick={() => handleDirectDemoLogin({
+                  name: 'Sean',
+                  email: 'sean.tan@brother.com.sg',
+                  role: 'User (POD Member)'
+                })}
+                className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 hover:border-[#0f2ea2] text-left transition-all text-xs active:scale-95"
+              >
+                <div className="font-bold text-slate-900 dark:text-white line-clamp-1">Sean</div>
+                <div className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono">User (POD Member)</div>
+              </button>
+
+              <button
+                onClick={() => handleDirectDemoLogin({
+                  name: 'Melvyn Tan',
+                  email: 'melvyn@befinityai.com',
+                  role: 'External Advisor'
+                })}
+                className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 hover:border-[#0f2ea2] text-left transition-all text-xs active:scale-95"
+              >
+                <div className="font-bold text-slate-900 dark:text-white line-clamp-1">Melvyn Tan</div>
+                <div className="text-[10px] text-amber-600 dark:text-amber-400 font-mono">External Advisor</div>
+              </button>
             </div>
           </div>
 
