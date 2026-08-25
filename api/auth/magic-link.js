@@ -99,6 +99,8 @@ export default async function handler(req, res) {
         </html>
       `;
 
+      const fromAddress = process.env.RESEND_FROM_EMAIL || req.body?.fromEmail || 'LinkedUsIn Studio <auth@befinityai.com>';
+
       const resendResponse = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
@@ -106,7 +108,7 @@ export default async function handler(req, res) {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          from: 'LinkedUsIn Studio <onboarding@resend.dev>',
+          from: fromAddress,
           to: [matchedUser.email],
           subject: 'Sign in to LinkedUsIn Studio (Brother Singapore)',
           html: emailHtml
