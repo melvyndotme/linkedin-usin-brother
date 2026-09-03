@@ -51,7 +51,7 @@ export default async function handler(req, res) {
   }
 
   const token = `tok_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
-  const baseUrl = appUrl || process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://linked-us-in.vercel.app';
+  const baseUrl = appUrl || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://linked-us-in.vercel.app');
   const magicLinkUrl = `${baseUrl}/?token=${token}&email=${encodeURIComponent(matchedUser.email)}&name=${encodeURIComponent(matchedUser.name)}&role=${encodeURIComponent(matchedUser.role)}`;
 
   const activeResendKey = resendKey || process.env.RESEND_API_KEY;
