@@ -85,6 +85,7 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
         delete next['all'];
         return next;
       });
+      fetchTabResults('all', { number: newNumber, unit: newUnit });
     } else {
       setKeywords(prev => {
         const updated = [...prev];
@@ -102,7 +103,29 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
         delete next[activeTab];
         return next;
       });
+      fetchTabResults(activeTab, { number: newNumber, unit: newUnit });
     }
+  };
+
+  const handleSlotTimeChange = (index, newNumber, newUnit) => {
+    setKeywords(prev => {
+      const updated = [...prev];
+      if (updated[index]) {
+        updated[index] = {
+          ...updated[index],
+          timeNumber: newNumber,
+          timeUnit: newUnit
+        };
+      }
+      return updated;
+    });
+    setActiveTab(index);
+    setTabResults(prev => {
+      const next = { ...prev };
+      delete next[index];
+      return next;
+    });
+    fetchTabResults(index, { number: newNumber, unit: newUnit });
   };
 
   const handleKeywordChange = (index, value) => {
@@ -112,6 +135,7 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
       text: value
     };
     setKeywords(updated);
+    setActiveTab(index);
     setTabResults(prev => {
       const next = { ...prev };
       delete next[index];
@@ -402,24 +426,29 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
             const isThisTabActive = activeTab === idx;
             const tabRes = tabResults[idx];
             const hasResults = tabRes?.results?.length > 0;
-            const unitAbbr = kw.timeUnit === 'hours' ? 'h' : kw.timeUnit === 'days' ? 'd' : kw.timeUnit === 'weeks' ? 'w' : 'm';
 
             return (
               <div
                 key={idx}
-                className={`relative flex flex-col justify-between rounded-xl border transition-all ${
+                onClick={() => handleSelectTab(idx)}
+                className={`relative flex flex-col justify-between rounded-xl border transition-all cursor-pointer ${
                   isThisTabActive
                     ? 'border-[#0f2ea2] bg-blue-50/50 dark:bg-blue-950/30 ring-2 ring-[#0f2ea2]/20 shadow-sm'
                     : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 hover:border-slate-300 dark:hover:border-slate-700'
                 }`}
               >
                 <div className="flex items-center p-2">
-                  <span className="text-[10px] font-bold text-slate-400 select-none mr-1.5 shrink-0">
+                  <span className={`text-[10px] font-bold select-none mr-1.5 shrink-0 ${isThisTabActive ? 'text-[#0f2ea2] font-black' : 'text-slate-400'}`}>
                     #{idx + 1}
                   </span>
                   <input
                     type="text"
                     value={kw.text}
+                    onFocus={() => handleSelectTab(idx)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleSelectTab(idx);
+                    }}
                     onChange={(e) => handleKeywordChange(idx, e.target.value)}
                     placeholder={`Keyword ${idx + 1}...`}
                     className="w-full bg-transparent text-xs font-semibold text-slate-900 dark:text-white focus:outline-none pr-1"
@@ -427,7 +456,10 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
                   {keywords.length > 1 && (
                     <button
                       type="button"
-                      onClick={() => handleRemoveKeyword(idx)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemoveKeyword(idx);
+                      }}
                       className="text-slate-400 hover:text-rose-500 p-1 shrink-0 transition-colors"
                       title="Remove this keyword"
                     >
@@ -436,30 +468,48 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
                   )}
                 </div>
 
-                {kw.text.trim() && (
-                  <div className="px-2 pb-1.5 pt-1 flex items-center justify-between border-t border-slate-200/50 dark:border-slate-800/60 bg-white/40 dark:bg-slate-900/30 rounded-b-xl">
-                    <button
-                      type="button"
-                      onClick={() => handleSelectTab(idx)}
-                      className={`text-[10px] font-bold transition-all flex items-center gap-1 ${
+                <div className="px-2 pb-1.5 pt-1 flex items-center justify-between border-t border-slate-200/50 dark:border-slate-800/60 bg-white/40 dark:bg-slate-900/30 rounded-b-xl">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleSelectTab(idx);
+                    }}
+                    className={`text-[10px] font-bold transition-all flex items-center gap-1 ${
+                      isThisTabActive
+                        ? 'text-[#0f2ea2] dark:text-blue-400 font-extrabold'
+                        : 'text-slate-500 hover:text-[#0f2ea2] dark:hover:text-blue-400'
+                    }`}
+                  >
+                    <span>{isThisTabActive ? '● Active' : 'View Top 5 →'}</span>
+                  </button>
+                  
+                  {/* Interactive Timeframe Dropdown on Card */}
+                  <div className="relative flex items-center" onClick={(e) => e.stopPropagation()}>
+                    <Clock className="w-2.5 h-2.5 text-cyan-600 absolute left-1.5 pointer-events-none" />
+                    <select
+                      value={`${kw.timeNumber}-${kw.timeUnit}`}
+                      onChange={(e) => {
+                        e.stopPropagation();
+                        const [num, unit] = e.target.value.split('-');
+                        handleSlotTimeChange(idx, Number(num), unit);
+                      }}
+                      className={`text-[9px] font-mono font-bold pl-4 pr-1 py-0.5 rounded border focus:outline-none focus:ring-1 focus:ring-[#0f2ea2] cursor-pointer transition-colors ${
                         isThisTabActive
-                          ? 'text-[#0f2ea2] dark:text-blue-400'
-                          : 'text-slate-500 hover:text-[#0f2ea2] dark:hover:text-blue-400'
+                          ? 'bg-white dark:bg-slate-900 border-[#0f2ea2]/50 text-[#0f2ea2] dark:text-blue-300'
+                          : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'
                       }`}
+                      title="Change time window for this keyword"
                     >
-                      <span>{isThisTabActive ? '● Active Tab' : 'View Top 5 →'}</span>
-                    </button>
-                    
-                    {/* Timeframe Pill */}
-                    <span 
-                      className="text-[9px] font-mono font-semibold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 flex items-center gap-0.5"
-                      title={`Time window for #${idx + 1}: ${kw.timeNumber} ${kw.timeUnit}`}
-                    >
-                      <Clock className="w-2.5 h-2.5 text-cyan-600" />
-                      <span>{kw.timeNumber}{unitAbbr}</span>
-                    </span>
+                      <option value="24-hours">24h</option>
+                      <option value="48-hours">48h</option>
+                      <option value="7-days">7d</option>
+                      <option value="14-days">14d</option>
+                      <option value="1-months">1m</option>
+                      <option value="3-months">3m</option>
+                    </select>
                   </div>
-                )}
+                </div>
               </div>
             );
           })}
@@ -497,12 +547,40 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
         {/* Dynamic Time Window Bar for Active Tab + Dual Triggers */}
         <div className="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2.5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 flex-wrap">
               <Clock className="w-3.5 h-3.5 text-cyan-600" />
               <span>Timeframe for:</span>
-              <span className="text-[#0f2ea2] dark:text-blue-400 font-extrabold truncate">
+              <span className="px-2 py-0.5 rounded-lg bg-[#0f2ea2]/10 text-[#0f2ea2] dark:text-blue-400 font-extrabold text-xs border border-[#0f2ea2]/20">
                 {activeTab === 'all' ? 'All Keywords (Combined)' : `Keyword #${activeTab + 1}: "${keywords[activeTab]?.text || ''}"`}
               </span>
+              <div className="inline-flex items-center gap-1 ml-1">
+                <button
+                  type="button"
+                  onClick={() => handleSelectTab('all')}
+                  className={`text-[10px] px-1.5 py-0.5 rounded font-semibold transition-all ${
+                    activeTab === 'all'
+                      ? 'bg-[#0f2ea2] text-white shadow-xs'
+                      : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400'
+                  }`}
+                >
+                  All
+                </button>
+                {keywords.map((k, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => handleSelectTab(i)}
+                    className={`text-[10px] px-1.5 py-0.5 rounded font-semibold transition-all ${
+                      activeTab === i
+                        ? 'bg-[#0f2ea2] text-white shadow-xs'
+                        : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400'
+                    }`}
+                    title={k.text || `Slot #${i + 1}`}
+                  >
+                    #{i + 1}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Quick Time Window Chips */}
