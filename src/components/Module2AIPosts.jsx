@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Newspaper, Search, RefreshCw, Copy, Check, Download, Layers, ShieldCheck, Clock, ArrowRight, ExternalLink, AlertCircle, Plus, Trash2, Tag, Sparkles } from 'lucide-react';
-import { EXTENDED_AI_NEWS, formatAs120WordMarkdown, searchSerperWithTimeframe } from '../lib/serperEngine.js';
+import { EXTENDED_AI_NEWS, formatAs120WordMarkdown, searchSerperWithTimeframe, getEffectiveSerperKey } from '../lib/serperEngine.js';
 import { generateAIDrafts } from '../lib/draftGenerator.js';
 import { generateBrotherWaveCorporateSVG } from '../lib/svgBrotherWebsiteTemplates.js';
-import { safeGetItem } from '../lib/storage.js';
+import { safeGetItem, safeSetItem } from '../lib/storage.js';
 
 export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
   // Up to 5 customizable search keywords, each with its own independent timeframe
@@ -57,6 +57,16 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
   const [copiedFormatted, setCopiedFormatted] = useState(false);
   const [selectedDraftIndex, setSelectedDraftIndex] = useState(0);
   const [searchError, setSearchError] = useState(null);
+  const [inlineKey, setInlineKey] = useState('');
+  const [hasKey, setHasKey] = useState(() => Boolean(getEffectiveSerperKey()));
+
+  useEffect(() => {
+    const key = getEffectiveSerperKey();
+    if (key) {
+      setHasKey(true);
+      handleFetchAllTabs();
+    }
+  }, []);
 
   // Suggested keywords for Brother Singapore
   const suggestedKeywords = [
@@ -209,7 +219,7 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
     }
 
     try {
-      const activeKey = safeGetItem('key_serper') || '';
+      const activeKey = getEffectiveSerperKey();
       const response = await searchSerperWithTimeframe({
         apiKey: activeKey,
         query,
@@ -249,7 +259,7 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
     setLoadingTab('batch');
     setSearchError(null);
 
-    const activeKey = safeGetItem('key_serper') || '';
+    const activeKey = getEffectiveSerperKey();
     const activeEntries = keywords
       .map((k, idx) => ({ ...k, idx, text: k.text.trim() }))
       .filter(item => Boolean(item.text));
@@ -404,6 +414,46 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
           </div>
         </div>
       </div>
+
+      {/* API Key Notification & Quick Connect Banner */}
+      {!hasKey && (
+        <div className="p-3.5 sm:p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 text-xs space-y-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div className="flex items-center gap-2 font-bold">
+              <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+              <span>Real-Time Search Inactive — Currently displaying offline sample baseline with portal links.</span>
+            </div>
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-800 dark:text-amber-300 font-bold self-start sm:self-auto">
+              No API Key Detected
+            </span>
+          </div>
+          <p className="text-[11px] text-amber-800/80 dark:text-amber-300/80 leading-relaxed">
+            To search live Google News articles with 100% verified publisher URLs, paste your Serper.dev API key below (or configure it in Settings):
+          </p>
+          <div className="flex items-center gap-2 max-w-md pt-0.5">
+            <input
+              type="password"
+              value={inlineKey}
+              onChange={(e) => setInlineKey(e.target.value)}
+              placeholder="Paste Serper API key here..."
+              className="flex-1 bg-white dark:bg-slate-900 border border-amber-300 dark:border-amber-700/60 rounded-xl px-3 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-[#0f2ea2]"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                if (inlineKey.trim()) {
+                  safeSetItem('key_serper', inlineKey.trim());
+                  setHasKey(true);
+                  handleFetchAllTabs();
+                }
+              }}
+              className="bg-[#0f2ea2] hover:bg-[#0c2482] text-white font-bold px-3 py-1.5 rounded-xl transition-all shrink-0 text-xs active:scale-95 shadow-sm"
+            >
+              Save & Search Live
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Control Panel: 5 Keywords + Time Window + Trigger */}
       <div className={`p-4 sm:p-5 rounded-2xl border ${
@@ -967,10 +1017,21 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
                   <div className="flex items-center gap-2.5 min-w-0">
                     <Newspaper className="w-4 h-4 text-[#0f2ea2] dark:text-blue-400 shrink-0" />
                     <div className="min-w-0">
-                      <div className="text-xs font-bold text-slate-900 dark:text-white truncate">
-                        {activeNews?.sourceTitle || 'News Source'}
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                          {activeNews?.sourceTitle || 'News Source'}
+                        </span>
+                        {activeNews?.isLive ? (
+                          <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-500/20">
+                            Verified Live Article
+                          </span>
+                        ) : (
+                          <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 font-medium border border-amber-500/20">
+                            Official Publication Portal
+                          </span>
+                        )}
                       </div>
-                      <div className="text-[10px] text-slate-500 truncate">
+                      <div className="text-[10px] text-slate-500 truncate mt-0.5">
                         {activeNews?.sourceUrl || '#'}
                       </div>
                     </div>
@@ -981,7 +1042,7 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
                     rel="noopener noreferrer"
                     className="shrink-0 flex items-center gap-1.5 bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm transition-all"
                   >
-                    <span>Open Actual URL</span>
+                    <span>{activeNews?.isLive ? 'Open Actual URL' : 'Open Publication Portal'}</span>
                     <ExternalLink className="w-3.5 h-3.5" />
                   </a>
                 </div>
