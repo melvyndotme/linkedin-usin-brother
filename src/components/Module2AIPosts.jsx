@@ -286,21 +286,43 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
 
       const [allRes, ...indivRes] = await Promise.all([allPromise, ...indivPromises]);
 
+      // Aggregate top live articles from active tabs so "All Combined" never returns 0 if tabs have results
+      const aggregatedFromTabs = [];
+      const seenTitles = new Set();
+      indivRes.forEach(item => {
+        (item.results || []).forEach(r => {
+          if (r.headline && !seenTitles.has(r.headline)) {
+            seenTitles.add(r.headline);
+            aggregatedFromTabs.push(r);
+          }
+        });
+      });
+
+      const finalAllResults = (allRes.results && allRes.results.length > 0)
+        ? allRes.results
+        : aggregatedFromTabs.slice(0, 5);
+
       const newTabResults = {
-        'all': { isLive: allRes.isLive, results: allRes.results, warning: allRes.warning }
+        'all': {
+          isLive: allRes.isLive || indivRes.some(r => r.isLive),
+          results: finalAllResults,
+          warning: finalAllResults.length === 0 ? allRes.warning : null,
+          totalFound: finalAllResults.length
+        }
       };
 
       indivRes.forEach(item => {
         newTabResults[item.tabKey] = {
           isLive: item.isLive,
           results: item.results,
-          warning: item.warning
+          warning: item.warning,
+          totalFound: item.totalFound ?? item.results?.length ?? 0
         };
       });
 
       setTabResults(newTabResults);
 
-      const activeRes = newTabResults[activeTab]?.results || allRes.results;
+      const activeRes = newTabResults[activeTab]?.results || finalAllResults;
       if (activeRes && activeRes.length > 0) {
         setSelectedNews(activeRes[0]);
         setSelectedDraftIndex(0);
