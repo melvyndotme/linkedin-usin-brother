@@ -41,6 +41,16 @@ export const EXTENDED_AI_NEWS = [
     sourceTitle: "TechCrunch Enterprise",
     sourceUrl: "https://techcrunch.com/2026/multimodal-document-ai-workflows",
     timeframe: "7 Days"
+  },
+  {
+    id: "news-brother-sustainability",
+    headline: "Sustainable Smart Workplace Solutions Drive Double-Digit Energy Reductions Across ASEAN",
+    topic: "Enterprise Printing & ESG Sustainability",
+    timeAgo: "1 day ago",
+    summary120: "Enterprise ESG audits across Singapore and ASEAN show organizations transitioning to energy-efficient managed print services and low-power office document hardware reduced facility emissions by up to 34%. Corporate sustainability officers emphasize that smart device lifecycle management and eco-conscious consumables form a critical pillar of green office accreditation. For Brother Singapore, this reflects our global 'At your side' environmental vision, helping local businesses achieve tangible carbon reduction targets without compromising on print velocity or operational resilience.",
+    sourceTitle: "Eco-Business Asia",
+    sourceUrl: "https://www.eco-business.com/news/sustainable-office-technologies-asean",
+    timeframe: "24 Hours"
   }
 ];
 
@@ -91,15 +101,19 @@ export async function searchSerperWithTimeframe({
   query = "enterprise agentic AI productivity",
   number = 24,
   unit = "hours", // 'hours', 'days', 'weeks', 'months'
-  maxResults = 4
+  maxResults = 5
 }) {
   const activeKey = (apiKey || safeGetItem('key_serper') || '').trim();
 
   if (!activeKey) {
-    // If no key configured, return sample benchmark news
+    // If no key configured, return sample benchmark news contextualized to query
     return {
       isLive: false,
-      results: EXTENDED_AI_NEWS.slice(0, maxResults)
+      results: EXTENDED_AI_NEWS.slice(0, maxResults).map((item, idx) => ({
+        ...item,
+        id: `bench-${idx}-${query.replace(/[^a-zA-Z0-9]/g, '_').slice(0, 12)}`,
+        topic: query || item.topic
+      }))
     };
   }
 

@@ -15,17 +15,45 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
     'enterprise printing sustainability'
   ]);
 
+  const [activeTab, setActiveTab] = useState('all'); // 'all' or 0, 1, 2, 3, 4
   const [timeNumber, setTimeNumber] = useState(24);
   const [timeUnit, setTimeUnit] = useState('hours'); // 'hours', 'days', 'weeks', 'months'
-  const [maxResults, setMaxResults] = useState(4);
-  const [newsList, setNewsList] = useState(EXTENDED_AI_NEWS);
+  const [maxResults, setMaxResults] = useState(5);
+
+  // Cache results per keyword tab: { 'all': { isLive, results }, 0: { isLive, results }, ... }
+  const [tabResults, setTabResults] = useState(() => {
+    const initial = {
+      'all': {
+        isLive: false,
+        results: EXTENDED_AI_NEWS.slice(0, 5)
+      }
+    };
+    [
+      'enterprise agentic AI',
+      'workplace productivity',
+      'smart document automation',
+      'Brother Singapore',
+      'enterprise printing sustainability'
+    ].forEach((kw, i) => {
+      initial[i] = {
+        isLive: false,
+        results: EXTENDED_AI_NEWS.slice(0, 5).map((item, idx) => ({
+          ...item,
+          id: `init-${i}-${idx}`,
+          topic: kw
+        }))
+      };
+    });
+    return initial;
+  });
+
   const [selectedNews, setSelectedNews] = useState(EXTENDED_AI_NEWS[0]);
   const [loading, setLoading] = useState(false);
+  const [loadingTab, setLoadingTab] = useState(null); // 'all', 0..4, or 'batch'
   const [copied, setCopied] = useState(false);
   const [copiedFormatted, setCopiedFormatted] = useState(false);
   const [selectedDraftIndex, setSelectedDraftIndex] = useState(0);
   const [searchError, setSearchError] = useState(null);
-  const [isLiveNews, setIsLiveNews] = useState(false);
 
   // Suggested keywords for Brother Singapore
   const suggestedKeywords = [
@@ -42,6 +70,12 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
     const updated = [...keywords];
     updated[index] = value;
     setKeywords(updated);
+    setTabResults(prev => {
+      const next = { ...prev };
+      delete next[index];
+      delete next['all'];
+      return next;
+    });
   };
 
   const handleAddKeyword = () => {
@@ -51,26 +85,166 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
   };
 
   const handleRemoveKeyword = (index) => {
-    if (keywords.length > 1) {
-      setKeywords(keywords.filter((_, i) => i !== index));
-    } else {
-      setKeywords(['']);
+    const updated = keywords.length > 1 ? keywords.filter((_, i) => i !== index) : [''];
+    setKeywords(updated);
+    if (activeTab === index) {
+      setActiveTab('all');
     }
+    setTabResults(prev => {
+      const next = { ...prev };
+      delete next[index];
+      delete next['all'];
+      return next;
+    });
   };
 
   const handleApplyPresetKeyword = (preset) => {
-    // Find first empty slot or replace slot 0
     const emptyIndex = keywords.findIndex(k => !k || !k.trim());
+    let targetIdx = emptyIndex;
     if (emptyIndex !== -1) {
       handleKeywordChange(emptyIndex, preset);
     } else if (keywords.length < 5) {
+      targetIdx = keywords.length;
       setKeywords([...keywords, preset]);
     } else {
-      handleKeywordChange(keywords.length - 1, preset);
+      targetIdx = 0;
+      handleKeywordChange(0, preset);
+    }
+    handleSelectTab(targetIdx);
+  };
+
+  // Fetch top 5 results for a specific tab ('all' or index 0..4)
+  const fetchTabResults = async (tabKey) => {
+    setLoading(true);
+    setLoadingTab(tabKey);
+    setSearchError(null);
+
+    let query = '';
+    if (tabKey === 'all') {
+      const activeKeywords = keywords.map(k => k.trim()).filter(Boolean);
+      query = activeKeywords.length > 0 ? activeKeywords.join(' OR ') : 'enterprise workplace productivity';
+    } else {
+      query = (keywords[tabKey] || '').trim();
+      if (!query) {
+        setLoading(false);
+        setLoadingTab(null);
+        return;
+      }
+    }
+
+    try {
+      const activeKey = safeGetItem('key_serper') || '';
+      const response = await searchSerperWithTimeframe({
+        apiKey: activeKey,
+        query,
+        number: timeNumber,
+        unit: timeUnit,
+        maxResults: 5
+      });
+
+      const { isLive, results, warning } = response;
+      if (warning) {
+        setSearchError(warning);
+      }
+
+      setTabResults(prev => ({
+        ...prev,
+        [tabKey]: { isLive, results, warning }
+      }));
+
+      if (results && results.length > 0) {
+        setSelectedNews(results[0]);
+        setSelectedDraftIndex(0);
+      }
+    } catch (err) {
+      console.error(`Serper search error for ${tabKey}:`, err);
+      setSearchError(err.message || `Failed to search Serper.dev for "${query}".`);
+    } finally {
+      setLoading(false);
+      setLoadingTab(null);
     }
   };
 
-  const activeNews = selectedNews || (newsList && newsList.length > 0 ? newsList[0] : null) || EXTENDED_AI_NEWS[0];
+  // Fetch top 5 results for all active keyword tabs simultaneously
+  const handleFetchAllTabs = async () => {
+    setLoading(true);
+    setLoadingTab('batch');
+    setSearchError(null);
+
+    const activeKey = safeGetItem('key_serper') || '';
+    const activeIndices = keywords
+      .map((k, idx) => ({ keyword: k.trim(), idx }))
+      .filter(item => Boolean(item.keyword));
+
+    try {
+      const combinedQuery = activeIndices.map(i => i.keyword).join(' OR ') || 'enterprise workplace productivity';
+      const allPromise = searchSerperWithTimeframe({
+        apiKey: activeKey,
+        query: combinedQuery,
+        number: timeNumber,
+        unit: timeUnit,
+        maxResults: 5
+      });
+
+      const indivPromises = activeIndices.map(item =>
+        searchSerperWithTimeframe({
+          apiKey: activeKey,
+          query: item.keyword,
+          number: timeNumber,
+          unit: timeUnit,
+          maxResults: 5
+        }).then(res => ({ tabKey: item.idx, ...res }))
+      );
+
+      const [allRes, ...indivRes] = await Promise.all([allPromise, ...indivPromises]);
+
+      const newTabResults = {
+        'all': { isLive: allRes.isLive, results: allRes.results, warning: allRes.warning }
+      };
+
+      indivRes.forEach(item => {
+        newTabResults[item.tabKey] = {
+          isLive: item.isLive,
+          results: item.results,
+          warning: item.warning
+        };
+      });
+
+      setTabResults(newTabResults);
+
+      const activeRes = newTabResults[activeTab]?.results || allRes.results;
+      if (activeRes && activeRes.length > 0) {
+        setSelectedNews(activeRes[0]);
+        setSelectedDraftIndex(0);
+      }
+    } catch (err) {
+      console.error('Serper batch fetch error:', err);
+      setSearchError(err.message || 'Failed to search Serper.dev API for all tabs.');
+    } finally {
+      setLoading(false);
+      setLoadingTab(null);
+    }
+  };
+
+  // Switch tab and automatically fetch if not yet in cache
+  const handleSelectTab = (tabKey) => {
+    setActiveTab(tabKey);
+    const existing = tabResults[tabKey];
+    if (existing?.results && existing.results.length > 0) {
+      setSelectedNews(existing.results[0]);
+      setSelectedDraftIndex(0);
+    } else {
+      fetchTabResults(tabKey);
+    }
+  };
+
+  const currentTabResults = tabResults[activeTab] || tabResults['all'] || {
+    isLive: false,
+    results: EXTENDED_AI_NEWS.slice(0, 5)
+  };
+  const newsList = currentTabResults.results || [];
+  const isLiveNews = currentTabResults.isLive || false;
+  const activeNews = selectedNews || (newsList.length > 0 ? newsList[0] : null) || EXTENDED_AI_NEWS[0];
 
   const drafts = generateAIDrafts({
     title: activeNews?.headline || 'Enterprise Trend Breakthrough',
@@ -95,43 +269,6 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
     promoTag: "Breakthrough Productivity",
     theme: "ai-thought"
   });
-
-  const handleSearch = async () => {
-    setLoading(true);
-    setSearchError(null);
-
-    const activeKeywords = keywords.map(k => k.trim()).filter(Boolean);
-    const combinedQuery = activeKeywords.length > 0 
-      ? activeKeywords.join(' OR ') 
-      : 'enterprise workplace productivity';
-
-    try {
-      const activeKey = safeGetItem('key_serper') || '';
-      const response = await searchSerperWithTimeframe({
-        apiKey: activeKey,
-        query: combinedQuery,
-        number: timeNumber,
-        unit: timeUnit,
-        maxResults
-      });
-
-      const { isLive, results, warning } = response;
-      setIsLiveNews(isLive);
-      if (warning) {
-        setSearchError(warning);
-      }
-      setNewsList(results);
-      if (results.length > 0) {
-        setSelectedNews(results[0]);
-        setSelectedDraftIndex(0);
-      }
-    } catch (err) {
-      console.error('Serper search error:', err);
-      setSearchError(err.message || 'Failed to search Serper.dev API. Check your key in Settings.');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleCopy = (text) => {
     navigator.clipboard.writeText(text);
@@ -205,36 +342,70 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
 
         {/* 5 Keyword Input Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5">
-          {keywords.map((kw, idx) => (
-            <div key={idx} className="relative flex items-center">
-              <span className="absolute left-2.5 text-[10px] font-bold text-slate-400 select-none">
-                #{idx + 1}
-              </span>
-              <input
-                type="text"
-                value={kw}
-                onChange={(e) => handleKeywordChange(idx, e.target.value)}
-                placeholder={`Keyword ${idx + 1}...`}
-                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl pl-8 pr-7 py-2 text-xs font-medium text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none"
-              />
-              {keywords.length > 1 && (
-                <button
-                  type="button"
-                  onClick={() => handleRemoveKeyword(idx)}
-                  className="absolute right-2 text-slate-400 hover:text-rose-500 p-0.5"
-                  title="Remove this keyword"
-                >
-                  <Trash2 className="w-3 h-3" />
-                </button>
-              )}
-            </div>
-          ))}
+          {keywords.map((kw, idx) => {
+            const isThisTabActive = activeTab === idx;
+            const tabRes = tabResults[idx];
+            const hasResults = tabRes?.results?.length > 0;
+
+            return (
+              <div
+                key={idx}
+                className={`relative flex flex-col justify-between rounded-xl border transition-all ${
+                  isThisTabActive
+                    ? 'border-[#0f2ea2] bg-blue-50/50 dark:bg-blue-950/30 ring-2 ring-[#0f2ea2]/20 shadow-sm'
+                    : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 hover:border-slate-300 dark:hover:border-slate-700'
+                }`}
+              >
+                <div className="flex items-center p-2">
+                  <span className="text-[10px] font-bold text-slate-400 select-none mr-1.5 shrink-0">
+                    #{idx + 1}
+                  </span>
+                  <input
+                    type="text"
+                    value={kw}
+                    onChange={(e) => handleKeywordChange(idx, e.target.value)}
+                    placeholder={`Keyword ${idx + 1}...`}
+                    className="w-full bg-transparent text-xs font-semibold text-slate-900 dark:text-white focus:outline-none pr-1"
+                  />
+                  {keywords.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveKeyword(idx)}
+                      className="text-slate-400 hover:text-rose-500 p-1 shrink-0 transition-colors"
+                      title="Remove this keyword"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                  )}
+                </div>
+
+                {kw.trim() && (
+                  <div className="px-2 pb-1.5 pt-1 flex items-center justify-between border-t border-slate-200/50 dark:border-slate-800/60 bg-white/40 dark:bg-slate-900/30 rounded-b-xl">
+                    <button
+                      type="button"
+                      onClick={() => handleSelectTab(idx)}
+                      className={`text-[10px] font-bold transition-all flex items-center gap-1 ${
+                        isThisTabActive
+                          ? 'text-[#0f2ea2] dark:text-blue-400'
+                          : 'text-slate-500 hover:text-[#0f2ea2] dark:hover:text-blue-400'
+                      }`}
+                    >
+                      <span>{isThisTabActive ? '● Active Tab' : 'View Top 5 →'}</span>
+                    </button>
+                    <span className="text-[9px] font-mono text-slate-400">
+                      {tabRes?.isLive ? '🟢 Live' : hasResults ? 'Curated' : 'Ready'}
+                    </span>
+                  </div>
+                )}
+              </div>
+            );
+          })}
 
           {keywords.length < 5 && (
             <button
               type="button"
               onClick={handleAddKeyword}
-              className="flex items-center justify-center gap-1 border border-dashed border-slate-300 dark:border-slate-700 hover:border-[#0f2ea2] text-slate-500 hover:text-[#0f2ea2] text-xs font-semibold py-2 px-3 rounded-xl transition-all"
+              className="flex items-center justify-center gap-1 border border-dashed border-slate-300 dark:border-slate-700 hover:border-[#0f2ea2] text-slate-500 hover:text-[#0f2ea2] text-xs font-semibold py-3 px-3 rounded-xl transition-all h-full"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Add Keyword Slot</span>
@@ -279,7 +450,7 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
           </div>
 
           {/* Time Unit Dropdown */}
-          <div className="sm:col-span-5">
+          <div className="sm:col-span-4">
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
               Unit (Hours / Days / Weeks / Months)
             </label>
@@ -295,15 +466,31 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
             </select>
           </div>
 
-          {/* Trigger Button */}
-          <div className="sm:col-span-4">
+          {/* Dual Trigger Buttons: Active Tab vs. All 5 Tabs */}
+          <div className="sm:col-span-5 flex items-center gap-2">
             <button
-              onClick={handleSearch}
+              onClick={() => fetchTabResults(activeTab)}
               disabled={loading}
-              className="w-full flex items-center justify-center gap-1.5 bg-[#0f2ea2] hover:bg-[#0c2482] text-white font-bold text-xs py-2.5 px-4 rounded-xl shadow-md transition-all disabled:opacity-50 active:scale-95"
+              className="flex-1 flex items-center justify-center gap-1.5 bg-[#0f2ea2] hover:bg-[#0c2482] text-white font-bold text-xs py-2.5 px-3 rounded-xl shadow-md transition-all disabled:opacity-50 active:scale-95"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-              {loading ? 'Searching Real-Time News...' : 'Search News Across Keywords'}
+              <RefreshCw className={`w-3.5 h-3.5 ${loading && loadingTab === activeTab ? 'animate-spin' : ''}`} />
+              <span className="truncate">
+                {loading && loadingTab === activeTab
+                  ? 'Searching...'
+                  : activeTab === 'all'
+                  ? 'Search All (Combined)'
+                  : `Search Tab #${activeTab + 1}`}
+              </span>
+            </button>
+
+            <button
+              onClick={handleFetchAllTabs}
+              disabled={loading}
+              title="Search and populate top 5 live results for each keyword tab simultaneously"
+              className="flex items-center justify-center gap-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs py-2.5 px-3 rounded-xl border border-slate-200 dark:border-slate-700 transition-all disabled:opacity-50 active:scale-95 shrink-0"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              <span>Fetch All 5 Tabs</span>
             </button>
           </div>
         </div>
@@ -329,10 +516,11 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
           <div className={`p-3.5 sm:p-4 rounded-2xl border ${
             isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
           }`}>
-            <div className="flex items-center justify-between mb-2.5">
+            {/* Header with Title and Live Badge */}
+            <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
                 <h3 className={`text-xs font-bold uppercase tracking-wider ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                  120-Word Summaries ({newsList.length})
+                  Top 5 Summaries ({newsList.length})
                 </h3>
                 {isLiveNews ? (
                   <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-500/20">
@@ -347,6 +535,81 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
               <span className="text-[10px] font-mono text-[#0f2ea2] dark:text-blue-400">
                 Within {timeNumber} {timeUnit}
               </span>
+            </div>
+
+            {/* Interactive Keyword Tabs Bar */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-2.5 mb-2.5 custom-scrollbar border-b border-slate-100 dark:border-slate-800">
+              {/* Tab 0: All Keywords (Combined) */}
+              <button
+                type="button"
+                onClick={() => handleSelectTab('all')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 ${
+                  activeTab === 'all'
+                    ? 'bg-[#0f2ea2] text-white shadow-sm ring-2 ring-[#0f2ea2]/30'
+                    : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300'
+                }`}
+              >
+                <span>All Combined</span>
+                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono font-bold ${
+                  activeTab === 'all' ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
+                }`}>
+                  {tabResults['all']?.results?.length || 5}
+                </span>
+              </button>
+
+              {/* Tabs 1..5 for each keyword */}
+              {keywords.map((kw, idx) => {
+                const trimmed = kw.trim();
+                if (!trimmed) return null;
+                const isTabActive = activeTab === idx;
+                const tabRes = tabResults[idx];
+                const isLoadingThis = loadingTab === idx || loadingTab === 'batch';
+
+                return (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => handleSelectTab(idx)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 max-w-[210px] ${
+                      isTabActive
+                        ? 'bg-[#0f2ea2] text-white shadow-sm ring-2 ring-[#0f2ea2]/30'
+                        : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300'
+                    }`}
+                    title={`Click to show top 5 results for: ${trimmed}`}
+                  >
+                    <span className="opacity-60 text-[10px]">#{idx + 1}</span>
+                    <span className="truncate">{trimmed}</span>
+                    {isLoadingThis ? (
+                      <RefreshCw className="w-3 h-3 animate-spin shrink-0" />
+                    ) : (
+                      <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono font-bold shrink-0 ${
+                        isTabActive ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
+                      }`}>
+                        {tabRes?.results?.length ?? 5}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Active Tab Subtitle + Refresh Button */}
+            <div className="flex items-center justify-between text-[11px] mb-3 px-0.5">
+              <div className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5 truncate">
+                <span className="text-slate-400">Active keyword:</span>
+                <span className="font-bold text-slate-900 dark:text-white truncate">
+                  {activeTab === 'all' ? 'All 5 Keywords (Combined)' : `Keyword #${activeTab + 1}: "${keywords[activeTab]}"`}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => fetchTabResults(activeTab)}
+                disabled={loading}
+                className="text-[10px] font-bold text-[#0f2ea2] dark:text-blue-400 hover:underline shrink-0 flex items-center gap-1 ml-2"
+              >
+                <RefreshCw className={`w-2.5 h-2.5 ${loadingTab === activeTab ? 'animate-spin' : ''}`} />
+                <span>Refresh Tab</span>
+              </button>
             </div>
 
             <div className="space-y-3 max-h-[560px] overflow-y-auto pr-1 custom-scrollbar">
