@@ -1,11 +1,11 @@
 import React from 'react';
-import { Home, Calendar, Sparkles, Layers, Edit3, Database, Users, Settings, Sun, Moon, LogOut, ExternalLink, X } from 'lucide-react';
+import { Home, Calendar, Newspaper, Layers, Edit3, Database, Users, Settings, Sun, Moon, LogOut, ExternalLink, X } from 'lucide-react';
 
 export default function Sidebar({ activeTab, setActiveTab, isDark, setIsDark, onLogout, mobileMenuOpen, setMobileMenuOpen }) {
   const menuItems = [
     { id: 'home', label: 'Home', icon: Home, subtitle: 'LinkedIn Stream & Telemetry' },
     { id: 'module-1', label: 'Event Posts', icon: Calendar, subtitle: 'Module 1 • Festive 2026', badge: 'MOM 2026' },
-    { id: 'module-2', label: 'AI Intelligence', icon: Sparkles, subtitle: 'Module 2 • Serper 120-Word', badge: 'Custom Time' },
+    { id: 'module-2', label: 'News & Trends', icon: Newspaper, subtitle: 'Module 2 • Serper 120-Word', badge: '5 Keywords' },
     { id: 'template-studio', label: 'Template Ingestion', icon: Layers, subtitle: 'Competitor & Brother Ingest', badge: 'Placeholders' },
     { id: 'draft-studio', label: 'Draft & Media Studio', icon: Edit3, subtitle: 'Editor, Carousel, Video, Publish', badge: '1-Click' },
     { id: 'notion-hub', label: 'Notion Database Hub', icon: Database, subtitle: 'Headless DB & Magic Link', badge: 'Notion Sync' },

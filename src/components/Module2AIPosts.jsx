@@ -1,11 +1,19 @@
 import React, { useState } from 'react';
-import { Sparkles, Search, RefreshCw, Copy, Check, Download, Layers, ShieldCheck, Newspaper, Clock, ArrowRight, ExternalLink, AlertCircle } from 'lucide-react';
+import { Newspaper, Search, RefreshCw, Copy, Check, Download, Layers, ShieldCheck, Clock, ArrowRight, ExternalLink, AlertCircle, Plus, Trash2, Tag, Sparkles } from 'lucide-react';
 import { EXTENDED_AI_NEWS, formatAs120WordMarkdown, searchSerperWithTimeframe } from '../lib/serperEngine.js';
 import { generateAIDrafts } from '../lib/draftGenerator.js';
 import { generateBrotherWaveCorporateSVG } from '../lib/svgBrotherWebsiteTemplates.js';
 
 export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
-  const [query, setQuery] = useState('enterprise agentic AI productivity');
+  // Up to 5 customizable search keywords
+  const [keywords, setKeywords] = useState([
+    'enterprise agentic AI',
+    'workplace productivity',
+    'smart document automation',
+    'Brother Singapore',
+    'enterprise printing sustainability'
+  ]);
+
   const [timeNumber, setTimeNumber] = useState(24);
   const [timeUnit, setTimeUnit] = useState('hours'); // 'hours', 'days', 'weeks', 'months'
   const [maxResults, setMaxResults] = useState(4);
@@ -17,6 +25,49 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
   const [selectedDraftIndex, setSelectedDraftIndex] = useState(0);
   const [searchError, setSearchError] = useState(null);
   const [isLiveNews, setIsLiveNews] = useState(false);
+
+  // Suggested keywords for Brother Singapore
+  const suggestedKeywords = [
+    'Workplace Automation',
+    'Enterprise Printing',
+    'Cloud Document Solutions',
+    'Sustainability SG',
+    'Smart Nation Singapore',
+    'Cybersecurity In Office',
+    'Hybrid Work Productivity'
+  ];
+
+  const handleKeywordChange = (index, value) => {
+    const updated = [...keywords];
+    updated[index] = value;
+    setKeywords(updated);
+  };
+
+  const handleAddKeyword = () => {
+    if (keywords.length < 5) {
+      setKeywords([...keywords, '']);
+    }
+  };
+
+  const handleRemoveKeyword = (index) => {
+    if (keywords.length > 1) {
+      setKeywords(keywords.filter((_, i) => i !== index));
+    } else {
+      setKeywords(['']);
+    }
+  };
+
+  const handleApplyPresetKeyword = (preset) => {
+    // Find first empty slot or replace slot 0
+    const emptyIndex = keywords.findIndex(k => !k || !k.trim());
+    if (emptyIndex !== -1) {
+      handleKeywordChange(emptyIndex, preset);
+    } else if (keywords.length < 5) {
+      setKeywords([...keywords, preset]);
+    } else {
+      handleKeywordChange(keywords.length - 1, preset);
+    }
+  };
 
   const drafts = generateAIDrafts({
     title: selectedNews.headline,
@@ -31,7 +82,7 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
   const currentDraft = drafts[selectedDraftIndex] || drafts[0];
 
   const waveSvg = generateBrotherWaveCorporateSVG({
-    badgeText: "Brother Xplorer AI Intelligence",
+    badgeText: "Brother Xplorer Trend Intelligence",
     headline: selectedNews.headline.length > 38 ? selectedNews.headline.slice(0, 38) + "..." : selectedNews.headline,
     subtitle: "What it is • Why it matters • Brother SG Breakthrough Productivity",
     promoTag: "Breakthrough Productivity",
@@ -41,11 +92,17 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
   const handleSearch = async () => {
     setLoading(true);
     setSearchError(null);
+
+    const activeKeywords = keywords.map(k => k.trim()).filter(Boolean);
+    const combinedQuery = activeKeywords.length > 0 
+      ? activeKeywords.join(' OR ') 
+      : 'enterprise workplace productivity';
+
     try {
       const activeKey = localStorage.getItem('key_serper') || '';
       const response = await searchSerperWithTimeframe({
         apiKey: activeKey,
-        query,
+        query: combinedQuery,
         number: timeNumber,
         unit: timeUnit,
         maxResults
@@ -87,7 +144,7 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `brother-sg-ai-employer-branding-${Date.now()}.svg`;
+    a.download = `brother-sg-trend-intelligence-${Date.now()}.svg`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -100,15 +157,15 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
       }`}>
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 text-[11px] font-bold uppercase tracking-wider mb-1.5 sm:mb-2">
-              <Sparkles className="w-3.5 h-3.5" />
-              Module 2: AI Intelligence & 120-Word Synthesis
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-500/10 text-[#0f2ea2] dark:text-blue-400 text-[11px] font-bold uppercase tracking-wider mb-1.5 sm:mb-2">
+              <Newspaper className="w-3.5 h-3.5" />
+              Module 2: News & Trend Intelligence
             </div>
             <h2 className={`text-lg sm:text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
-              Flexible Timeframe AI News & Employer Branding Engine
+              Flexible Timeframe News & Trend Intelligence Engine
             </h2>
             <p className="text-xs text-slate-500 mt-1 max-w-2xl">
-              Query recent AI breakthroughs across customized time windows (<strong className="text-[#0f2ea2] dark:text-blue-400">hours, days, weeks, months</strong>) and generate strict 120-word structured summaries.
+              Search breaking news and industry trends using up to <strong className="text-[#0f2ea2] dark:text-blue-400">5 custom keywords</strong> across any time window (<strong className="text-[#0f2ea2] dark:text-blue-400">hours, days, weeks, months</strong>) and generate strict 120-word structured summaries.
             </p>
           </div>
 
@@ -124,28 +181,82 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
         </div>
       </div>
 
-      {/* Control Panel: Keywords + Number Input + Timeframe Dropdown */}
+      {/* Control Panel: 5 Keywords + Time Window + Trigger */}
       <div className={`p-4 sm:p-5 rounded-2xl border ${
         isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
-      }`}>
-        <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 sm:gap-4 items-end">
-          {/* Keywords */}
-          <div className="sm:col-span-5">
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1.5">
-              <Search className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
-              AI Intelligence Keywords
-            </label>
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="e.g. enterprise agentic AI, workplace automation"
-              className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-medium text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none"
-            />
+      } space-y-3.5`}>
+        {/* Keywords Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+            <Search className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
+            Search Keywords (Enter up to 5 topics or phrases)
+          </label>
+          <div className="flex items-center gap-1 text-[11px] text-slate-400">
+            <span>Slots used: <strong>{keywords.filter(k => k.trim()).length} / 5</strong></span>
           </div>
+        </div>
 
+        {/* 5 Keyword Input Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5">
+          {keywords.map((kw, idx) => (
+            <div key={idx} className="relative flex items-center">
+              <span className="absolute left-2.5 text-[10px] font-bold text-slate-400 select-none">
+                #{idx + 1}
+              </span>
+              <input
+                type="text"
+                value={kw}
+                onChange={(e) => handleKeywordChange(idx, e.target.value)}
+                placeholder={`Keyword ${idx + 1}...`}
+                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl pl-8 pr-7 py-2 text-xs font-medium text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none"
+              />
+              {keywords.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => handleRemoveKeyword(idx)}
+                  className="absolute right-2 text-slate-400 hover:text-rose-500 p-0.5"
+                  title="Remove this keyword"
+                >
+                  <Trash2 className="w-3 h-3" />
+                </button>
+              )}
+            </div>
+          ))}
+
+          {keywords.length < 5 && (
+            <button
+              type="button"
+              onClick={handleAddKeyword}
+              className="flex items-center justify-center gap-1 border border-dashed border-slate-300 dark:border-slate-700 hover:border-[#0f2ea2] text-slate-500 hover:text-[#0f2ea2] text-xs font-semibold py-2 px-3 rounded-xl transition-all"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Add Keyword Slot</span>
+            </button>
+          )}
+        </div>
+
+        {/* Suggested Quick Presets */}
+        <div className="flex items-center gap-1.5 flex-wrap pt-1">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-1 flex items-center gap-1">
+            <Tag className="w-3 h-3" />
+            Quick Presets:
+          </span>
+          {suggestedKeywords.map((preset, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => handleApplyPresetKeyword(preset)}
+              className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-100 hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-blue-950/60 text-slate-700 dark:text-slate-300 hover:text-[#0f2ea2] dark:hover:text-blue-300 border border-slate-200 dark:border-slate-700 transition-all"
+            >
+              + {preset}
+            </button>
+          ))}
+        </div>
+
+        {/* Time Window & Search Trigger Row */}
+        <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 sm:gap-4 items-end pt-2 border-t border-slate-100 dark:border-slate-800">
           {/* Time Number Entry */}
-          <div className="sm:col-span-2">
+          <div className="sm:col-span-3">
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1">
               <Clock className="w-3.5 h-3.5 text-cyan-600" />
               Time Window
@@ -161,7 +272,7 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
           </div>
 
           {/* Time Unit Dropdown */}
-          <div className="sm:col-span-3">
+          <div className="sm:col-span-5">
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
               Unit (Hours / Days / Weeks / Months)
             </label>
@@ -178,14 +289,14 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
           </div>
 
           {/* Trigger Button */}
-          <div className="sm:col-span-2">
+          <div className="sm:col-span-4">
             <button
               onClick={handleSearch}
               disabled={loading}
               className="w-full flex items-center justify-center gap-1.5 bg-[#0f2ea2] hover:bg-[#0c2482] text-white font-bold text-xs py-2.5 px-4 rounded-xl shadow-md transition-all disabled:opacity-50 active:scale-95"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-              {loading ? 'Scanning...' : 'Search News'}
+              {loading ? 'Searching Real-Time News...' : 'Search News Across Keywords'}
             </button>
           </div>
         </div>
@@ -249,18 +360,64 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
                           : 'bg-slate-50 border-slate-200 hover:border-slate-300'
                     }`}
                   >
+                    {/* Header: Source and Time */}
                     <div className="flex items-center justify-between text-[10px] text-slate-500 mb-1">
-                      <span className="font-semibold text-[#0f2ea2] dark:text-blue-400">{item.sourceTitle}</span>
+                      <a
+                        href={item.sourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="font-semibold text-[#0f2ea2] dark:text-blue-400 hover:underline flex items-center gap-1"
+                        title="Open actual source publication"
+                      >
+                        <span>{item.sourceTitle}</span>
+                        <ExternalLink className="w-2.5 h-2.5" />
+                      </a>
                       <span className="font-mono">{item.timeAgo}</span>
                     </div>
-                    <h4 className={`text-xs font-bold leading-snug ${
-                      isSelected ? 'text-[#0f2ea2] dark:text-blue-300' : isDark ? 'text-white' : 'text-slate-900'
-                    }`}>
-                      {item.headline}
+
+                    {/* Clickable Headline leading to actual URL */}
+                    <h4 className="text-xs font-bold leading-snug">
+                      <a
+                        href={item.sourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => {
+                          // Select card and let user open article in new tab
+                          setSelectedNews(item);
+                          setSelectedDraftIndex(0);
+                        }}
+                        className={`hover:underline flex items-start justify-between gap-1.5 ${
+                          isSelected ? 'text-[#0f2ea2] dark:text-blue-300' : isDark ? 'text-white' : 'text-slate-900'
+                        }`}
+                        title="Open article in new tab"
+                      >
+                        <span>{item.headline}</span>
+                        <ExternalLink className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400 shrink-0 mt-0.5 opacity-80" />
+                      </a>
                     </h4>
+
+                    {/* Summary */}
                     <p className="text-[11px] text-slate-500 mt-1.5 line-clamp-3 leading-relaxed">
                       {item.summary120}
                     </p>
+
+                    {/* Explicit Direct URL Button */}
+                    <div className="mt-2.5 pt-2 border-t border-slate-200/60 dark:border-slate-800/80 flex items-center justify-between">
+                      <a
+                        href={item.sourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="inline-flex items-center gap-1 text-[11px] font-bold text-[#0f2ea2] dark:text-blue-400 hover:underline"
+                      >
+                        <span>Read Full Article</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                      <span className="text-[10px] text-slate-400 font-medium">
+                        {isSelected ? '✓ Selected for drafting' : 'Click card to draft'}
+                      </span>
+                    </div>
                   </div>
                 );
               })}
@@ -293,6 +450,30 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
               </button>
             </div>
 
+            {/* Direct Source Link Banner */}
+            <div className="flex items-center justify-between p-3 rounded-xl bg-blue-50/60 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <Newspaper className="w-4 h-4 text-[#0f2ea2] dark:text-blue-400 shrink-0" />
+                <div className="min-w-0">
+                  <div className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                    {selectedNews.sourceTitle}
+                  </div>
+                  <div className="text-[10px] text-slate-500 truncate">
+                    {selectedNews.sourceUrl}
+                  </div>
+                </div>
+              </div>
+              <a
+                href={selectedNews.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="shrink-0 flex items-center gap-1.5 bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm transition-all"
+              >
+                <span>Open Actual URL</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            </div>
+
             {/* Formatted Markdown Box */}
             <div className={`p-4 rounded-xl font-mono text-xs whitespace-pre-wrap leading-relaxed border ${
               isDark ? 'bg-slate-950 border-slate-800 text-slate-200' : 'bg-slate-50 border-slate-200 text-slate-800'
@@ -303,35 +484,79 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
             {/* 3-Pillar Generated Post Copy */}
             <div className="pt-2 space-y-3">
               <div className="flex items-center justify-between">
-                <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
-                  Generated 3-Pillar Employer Branding Post
-                </h4>
-
+                <div>
+                  <h4 className={`text-xs font-bold uppercase tracking-wider ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                    3-Pillar Employer Branding Draft
+                  </h4>
+                  <p className="text-[11px] text-slate-500">
+                    What it is • Why it matters • Brother SG Breakthrough Productivity
+                  </p>
+                </div>
                 <button
                   onClick={() => handleCopy(currentDraft.postContent)}
-                  className="text-xs text-[#0f2ea2] dark:text-blue-400 hover:underline font-bold"
+                  className="flex items-center gap-1.5 text-xs font-bold text-[#0f2ea2] dark:text-blue-400 hover:underline"
                 >
-                  {copied ? 'Copied Post!' : 'Copy Post Copy'}
+                  {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copied ? 'Copied Post' : 'Copy Post Copy'}
                 </button>
               </div>
 
-              <div className={`p-4 rounded-xl text-xs whitespace-pre-wrap leading-relaxed border max-h-52 overflow-y-auto custom-scrollbar ${
-                isDark ? 'bg-slate-950/60 border-slate-800 text-slate-300' : 'bg-slate-50/60 border-slate-200 text-slate-700'
+              {/* Draft Angle Switcher */}
+              <div className="flex gap-2 border-b pb-2 dark:border-slate-800">
+                {drafts.map((d, idx) => (
+                  <button
+                    key={d.id}
+                    onClick={() => setSelectedDraftIndex(idx)}
+                    className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-all ${
+                      selectedDraftIndex === idx
+                        ? 'bg-[#0f2ea2] text-white shadow-sm'
+                        : isDark
+                          ? 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }`}
+                  >
+                    Angle {idx + 1}: {d.name.split(' ')[0]}
+                  </button>
+                ))}
+              </div>
+
+              {/* Post Content Display */}
+              <div className={`p-4 rounded-xl border text-xs leading-relaxed whitespace-pre-wrap ${
+                isDark ? 'bg-slate-950 border-slate-800 text-slate-200' : 'bg-slate-50 border-slate-200 text-slate-800'
               }`}>
                 {currentDraft.postContent}
               </div>
             </div>
+          </div>
 
-            {/* Corporate Wave Banner */}
-            <div className="space-y-1.5 pt-1">
-              <span className="text-[11px] font-bold text-slate-500 block">Paired Corporate Graphic</span>
-              <div className="w-full rounded-xl overflow-hidden shadow-md border border-slate-200 dark:border-slate-800 bg-slate-950 flex items-center justify-center">
-                <div 
-                  className="w-full aspect-[12/5] flex items-center justify-center"
-                  dangerouslySetInnerHTML={{ __html: waveSvg }}
-                />
+          {/* Branded Wave Corporate SVG Preview Card */}
+          <div className={`p-4 sm:p-6 rounded-2xl border space-y-4 ${
+            isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+          }`}>
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="text-[10px] font-mono text-[#0f2ea2] dark:text-blue-400 font-bold uppercase tracking-wider block">
+                  Parametric Asset Preview
+                </span>
+                <h3 className={`text-sm sm:text-base font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                  Brother Singapore Wave Corporate Banner
+                </h3>
               </div>
+
+              <button
+                onClick={handleDownloadSvg}
+                className="flex items-center gap-1.5 bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold px-3.5 py-1.5 rounded-lg shadow-sm transition-all active:scale-95"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Export SVG</span>
+              </button>
+            </div>
+
+            <div className="w-full bg-slate-950 rounded-xl overflow-hidden border border-slate-800 flex items-center justify-center p-2">
+              <div
+                className="w-full aspect-[12/5] flex items-center justify-center"
+                dangerouslySetInnerHTML={{ __html: waveSvg }}
+              />
             </div>
           </div>
         </div>
