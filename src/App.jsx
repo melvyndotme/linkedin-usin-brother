@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Component } from 'react';
 import LoginPage from './components/LoginPage.jsx';
 import BrotherHeader from './components/BrotherHeader.jsx';
 import Sidebar from './components/Sidebar.jsx';
@@ -10,6 +10,49 @@ import DraftMediaStudio from './components/DraftMediaStudio.jsx';
 import NotionDatabaseHub from './components/NotionDatabaseHub.jsx';
 import TeamView from './components/TeamView.jsx';
 import SettingsView from './components/SettingsView.jsx';
+
+class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error("Workspace render error:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4 max-w-xl mx-auto mt-12 text-center">
+          <div className="w-12 h-12 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center mx-auto text-xl font-bold">
+            ⚠️
+          </div>
+          <h3 className="text-base font-bold text-slate-900 dark:text-white">
+            Workspace Temporarily Interrupted
+          </h3>
+          <p className="text-xs text-slate-500 font-mono bg-slate-50 dark:bg-slate-950 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800">
+            {this.state.error?.message || 'Rendering error occurred.'}
+          </p>
+          <button
+            onClick={() => {
+              this.setState({ hasError: false, error: null });
+              if (this.props.onReset) this.props.onReset();
+            }}
+            className="bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-md transition-all"
+          >
+            Reload Module
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('home'); 
@@ -133,50 +176,52 @@ export default function App() {
         <main className={`flex-1 p-3 sm:p-6 lg:p-8 overflow-y-auto max-h-[calc(100vh-56px)] sm:max-h-[calc(100vh-64px)] pb-20 lg:pb-8 custom-scrollbar ${
           isDark ? 'bg-[#090D16]' : 'bg-[#F4F6F9]'
         }`}>
-          {activeTab === 'home' && (
-            <HomeFeedAnalytics
-              isDark={isDark}
-              onNavigateToModule={(mod) => setActiveTab(mod)}
-            />
-          )}
+          <ErrorBoundary key={activeTab} onReset={() => setActiveTab('home')}>
+            {activeTab === 'home' && (
+              <HomeFeedAnalytics
+                isDark={isDark}
+                onNavigateToModule={(mod) => setActiveTab(mod)}
+              />
+            )}
 
-          {activeTab === 'module-1' && (
-            <Module1EventPosts isDark={isDark} />
-          )}
+            {activeTab === 'module-1' && (
+              <Module1EventPosts isDark={isDark} />
+            )}
 
-          {activeTab === 'module-2' && (
-            <Module2AIPosts
-              isDark={isDark}
-              onNavigateToDraftStudio={handleNavigateToDraftStudio}
-            />
-          )}
+            {activeTab === 'module-2' && (
+              <Module2AIPosts
+                isDark={isDark}
+                onNavigateToDraftStudio={handleNavigateToDraftStudio}
+              />
+            )}
 
-          {activeTab === 'template-studio' && (
-            <TemplateIngestionStudio
-              isDark={isDark}
-              onSelectTemplateForDrafting={handleSelectTemplateForDrafting}
-            />
-          )}
+            {activeTab === 'template-studio' && (
+              <TemplateIngestionStudio
+                isDark={isDark}
+                onSelectTemplateForDrafting={handleSelectTemplateForDrafting}
+              />
+            )}
 
-          {activeTab === 'draft-studio' && (
-            <DraftMediaStudio
-              isDark={isDark}
-              initialContent={draftStudioPayload.content}
-              initialTitle={draftStudioPayload.title}
-            />
-          )}
+            {activeTab === 'draft-studio' && (
+              <DraftMediaStudio
+                isDark={isDark}
+                initialContent={draftStudioPayload.content}
+                initialTitle={draftStudioPayload.title}
+              />
+            )}
 
-          {activeTab === 'notion-hub' && (
-            <NotionDatabaseHub isDark={isDark} />
-          )}
+            {activeTab === 'notion-hub' && (
+              <NotionDatabaseHub isDark={isDark} />
+            )}
 
-          {activeTab === 'team' && (
-            <TeamView isDark={isDark} />
-          )}
+            {activeTab === 'team' && (
+              <TeamView isDark={isDark} />
+            )}
 
-          {activeTab === 'settings' && (
-            <SettingsView isDark={isDark} />
-          )}
+            {activeTab === 'settings' && (
+              <SettingsView isDark={isDark} />
+            )}
+          </ErrorBoundary>
         </main>
       </div>
     </div>

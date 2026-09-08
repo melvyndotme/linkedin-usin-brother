@@ -44,9 +44,10 @@ export const EXTENDED_AI_NEWS = [
 ];
 
 export function formatAs120WordMarkdown(item) {
-  return `## ${item.headline} - [${item.topic}]
-${item.summary120}
-Source: [${item.sourceTitle}](${item.sourceUrl})`;
+  if (!item) return '';
+  return `## ${item.headline || 'Enterprise Intelligence'} - [${item.topic || 'Market Trends'}]
+${item.summary120 || ''}
+Source: [${item.sourceTitle || 'Source'}](${item.sourceUrl || '#'})`;
 }
 
 /**

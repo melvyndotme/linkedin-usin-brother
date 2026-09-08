@@ -69,21 +69,27 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
     }
   };
 
+  const activeNews = selectedNews || (newsList && newsList.length > 0 ? newsList[0] : null) || EXTENDED_AI_NEWS[0];
+
   const drafts = generateAIDrafts({
-    title: selectedNews.headline,
-    snippet: selectedNews.summary120,
+    title: activeNews?.headline || 'Enterprise Trend Breakthrough',
+    snippet: activeNews?.summary120 || 'Latest business news and automation insights.',
     suggestedPillars: {
-      whatItIs: selectedNews.summary120.slice(0, 130) + "...",
+      whatItIs: (activeNews?.summary120 || 'Enterprise productivity advancements').slice(0, 130) + "...",
       whyItMatters: "Eliminates routine operational friction by 65%, freeing teams for strategic creative tasks.",
       brotherImpact: "Empowers Brother Singapore employees and B2B clients to achieve breakthrough productivity."
     }
   });
 
-  const currentDraft = drafts[selectedDraftIndex] || drafts[0];
+  const currentDraft = (drafts && drafts[selectedDraftIndex]) || drafts?.[0] || {
+    name: 'Default Angle',
+    postContent: 'Breakthrough enterprise update.'
+  };
 
+  const headlineStr = activeNews?.headline || 'Brother Trend Intelligence';
   const waveSvg = generateBrotherWaveCorporateSVG({
     badgeText: "Brother Xplorer Trend Intelligence",
-    headline: selectedNews.headline.length > 38 ? selectedNews.headline.slice(0, 38) + "..." : selectedNews.headline,
+    headline: headlineStr.length > 38 ? headlineStr.slice(0, 38) + "..." : headlineStr,
     subtitle: "What it is • Why it matters • Brother SG Breakthrough Productivity",
     promoTag: "Breakthrough Productivity",
     theme: "ai-thought"
@@ -171,7 +177,7 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
 
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <button
-              onClick={() => onNavigateToDraftStudio(currentDraft.postContent, selectedNews.headline)}
+              onClick={() => onNavigateToDraftStudio(currentDraft.postContent, activeNews?.headline || 'Trending News')}
               className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md transition-all active:scale-95"
             >
               <span>Edit in Draft Studio</span>
@@ -344,7 +350,7 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
 
             <div className="space-y-3 max-h-[560px] overflow-y-auto pr-1 custom-scrollbar">
               {newsList.map((item) => {
-                const isSelected = selectedNews.id === item.id;
+                const isSelected = activeNews?.id === item.id;
                 return (
                   <div
                     key={item.id}
@@ -442,7 +448,7 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
               </div>
 
               <button
-                onClick={() => handleCopy120Format(selectedNews)}
+                onClick={() => handleCopy120Format(activeNews)}
                 className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-white px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-200 dark:border-slate-700 transition-all active:scale-95"
               >
                 {copiedFormatted ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
@@ -456,15 +462,15 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
                 <Newspaper className="w-4 h-4 text-[#0f2ea2] dark:text-blue-400 shrink-0" />
                 <div className="min-w-0">
                   <div className="text-xs font-bold text-slate-900 dark:text-white truncate">
-                    {selectedNews.sourceTitle}
+                    {activeNews?.sourceTitle || 'News Source'}
                   </div>
                   <div className="text-[10px] text-slate-500 truncate">
-                    {selectedNews.sourceUrl}
+                    {activeNews?.sourceUrl || '#'}
                   </div>
                 </div>
               </div>
               <a
-                href={selectedNews.sourceUrl}
+                href={activeNews?.sourceUrl || '#'}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="shrink-0 flex items-center gap-1.5 bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm transition-all"
@@ -478,7 +484,7 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
             <div className={`p-4 rounded-xl font-mono text-xs whitespace-pre-wrap leading-relaxed border ${
               isDark ? 'bg-slate-950 border-slate-800 text-slate-200' : 'bg-slate-50 border-slate-200 text-slate-800'
             }`}>
-              {formatAs120WordMarkdown(selectedNews)}
+              {formatAs120WordMarkdown(activeNews)}
             </div>
 
             {/* 3-Pillar Generated Post Copy */}
