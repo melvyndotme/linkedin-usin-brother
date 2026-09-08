@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, Search, RefreshCw, Copy, Check, Download, Layers, ShieldCheck, Newspaper, Clock, ArrowRight, ExternalLink } from 'lucide-react';
+import { Sparkles, Search, RefreshCw, Copy, Check, Download, Layers, ShieldCheck, Newspaper, Clock, ArrowRight, ExternalLink, AlertCircle } from 'lucide-react';
 import { EXTENDED_AI_NEWS, formatAs120WordMarkdown, searchSerperWithTimeframe } from '../lib/serperEngine.js';
 import { generateAIDrafts } from '../lib/draftGenerator.js';
 import { generateBrotherWaveCorporateSVG } from '../lib/svgBrotherWebsiteTemplates.js';
@@ -15,6 +15,8 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
   const [copied, setCopied] = useState(false);
   const [copiedFormatted, setCopiedFormatted] = useState(false);
   const [selectedDraftIndex, setSelectedDraftIndex] = useState(0);
+  const [searchError, setSearchError] = useState(null);
+  const [isLiveNews, setIsLiveNews] = useState(false);
 
   const drafts = generateAIDrafts({
     title: selectedNews.headline,
@@ -38,18 +40,30 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
 
   const handleSearch = async () => {
     setLoading(true);
+    setSearchError(null);
     try {
-      const results = await searchSerperWithTimeframe({
+      const activeKey = localStorage.getItem('key_serper') || '';
+      const response = await searchSerperWithTimeframe({
+        apiKey: activeKey,
         query,
         number: timeNumber,
         unit: timeUnit,
         maxResults
       });
+
+      const { isLive, results, warning } = response;
+      setIsLiveNews(isLive);
+      if (warning) {
+        setSearchError(warning);
+      }
       setNewsList(results);
       if (results.length > 0) {
         setSelectedNews(results[0]);
         setSelectedDraftIndex(0);
       }
+    } catch (err) {
+      console.error('Serper search error:', err);
+      setSearchError(err.message || 'Failed to search Serper.dev API. Check your key in Settings.');
     } finally {
       setLoading(false);
     }
@@ -177,6 +191,19 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
         </div>
       </div>
 
+      {/* Real-time Status Alert */}
+      {searchError && (
+        <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700/50 text-amber-800 dark:text-amber-300 text-xs font-medium flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" />
+            <span>{searchError}</span>
+          </div>
+          <span className="text-[10px] text-amber-600 dark:text-amber-400 font-mono shrink-0">
+            Check API Key in Settings
+          </span>
+        </div>
+      )}
+
       {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
         {/* Left Column: 120-Word Summarized Feed */}
@@ -185,9 +212,20 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
             isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
           }`}>
             <div className="flex items-center justify-between mb-2.5">
-              <h3 className={`text-xs font-bold uppercase tracking-wider ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                120-Word Structured Summaries ({newsList.length})
-              </h3>
+              <div className="flex items-center gap-2">
+                <h3 className={`text-xs font-bold uppercase tracking-wider ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+                  120-Word Summaries ({newsList.length})
+                </h3>
+                {isLiveNews ? (
+                  <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-500/20">
+                    🟢 Live Serper.dev
+                  </span>
+                ) : (
+                  <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-slate-500/10 text-slate-500 font-medium">
+                    Curated Baseline
+                  </span>
+                )}
+              </div>
               <span className="text-[10px] font-mono text-[#0f2ea2] dark:text-blue-400">
                 Within {timeNumber} {timeUnit}
               </span>

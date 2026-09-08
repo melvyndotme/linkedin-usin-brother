@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Settings, Key, Check, ShieldCheck, Sparkles, Sliders, RefreshCw, Cpu } from 'lucide-react';
+import { Settings, Key, Check, ShieldCheck, Sparkles, Sliders, RefreshCw, Cpu, AlertCircle } from 'lucide-react';
+import { testSerperKey } from '../lib/serperEngine.js';
 
 export default function SettingsView({ isDark }) {
   const [openAIKey, setOpenAIKey] = useState(localStorage.getItem('key_openai') || '');
@@ -25,16 +26,32 @@ export default function SettingsView({ isDark }) {
     setTimeout(() => setSaved(false), 2500);
   };
 
-  const handleTestConnection = () => {
+  const handleTestConnection = async () => {
     setTesting(true);
-    setTimeout(() => {
-      setTesting(false);
-      setTestResult({
-        status: 'success',
-        message: `Connected successfully to Gemini (${geminiModel}), Serper.dev & LinkedIn API endpoints.`
-      });
-      setTimeout(() => setTestResult(null), 4000);
-    }, 1200);
+    setTestResult(null);
+
+    const activeSerperKey = (serperKey || localStorage.getItem('key_serper') || '').trim();
+    const reports = [];
+    let hasError = false;
+
+    if (activeSerperKey) {
+      try {
+        await testSerperKey(activeSerperKey);
+        reports.push("✅ Serper.dev: Connected successfully (API Key verified)");
+      } catch (err) {
+        hasError = true;
+        reports.push(`❌ Serper.dev: ${err.message}`);
+      }
+    } else {
+      reports.push("ℹ️ Serper.dev: No key configured (using fallback dataset)");
+    }
+
+    setTesting(false);
+    setTestResult({
+      status: hasError ? 'error' : 'success',
+      message: reports.join(' • ')
+    });
+    setTimeout(() => setTestResult(null), 6000);
   };
 
   return (
@@ -68,9 +85,17 @@ export default function SettingsView({ isDark }) {
       </div>
 
       {testResult && (
-        <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-medium flex items-center gap-2">
-          <Check className="w-4 h-4 text-emerald-500" />
-          {testResult.message}
+        <div className={`p-4 rounded-xl border text-xs font-medium flex items-center gap-2 ${
+          testResult.status === 'error'
+            ? 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-500/30 text-rose-700 dark:text-rose-300'
+            : 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-300'
+        }`}>
+          {testResult.status === 'error' ? (
+            <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
+          ) : (
+            <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+          )}
+          <span>{testResult.message}</span>
         </div>
       )}
 

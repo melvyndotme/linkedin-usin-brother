@@ -49,6 +49,41 @@ ${item.summary120}
 Source: [${item.sourceTitle}](${item.sourceUrl})`;
 }
 
+/**
+ * Validate Serper API key
+ */
+export async function testSerperKey(apiKey) {
+  const keyToTest = (apiKey || localStorage.getItem('key_serper') || '').trim();
+  if (!keyToTest) throw new Error("No Serper API key provided.");
+
+  const response = await fetch("https://google.serper.dev/news", {
+    method: "POST",
+    headers: {
+      "X-API-KEY": keyToTest,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      q: "Singapore AI enterprise",
+      num: 1
+    })
+  });
+
+  if (!response.ok) {
+    const errBody = await response.text();
+    let msg = response.statusText;
+    try {
+      msg = JSON.parse(errBody)?.message || msg;
+    } catch (e) {}
+    throw new Error(`Serper API error (${response.status}): ${msg}`);
+  }
+
+  const data = await response.json();
+  return { success: true, count: data.news?.length || 0 };
+}
+
+/**
+ * Execute real-time news search via Serper.dev with date-filtering (tbs parameter)
+ */
 export async function searchSerperWithTimeframe({
   apiKey = "",
   query = "enterprise agentic AI productivity",
@@ -56,57 +91,100 @@ export async function searchSerperWithTimeframe({
   unit = "hours", // 'hours', 'days', 'weeks', 'months'
   maxResults = 4
 }) {
-  // Convert number + unit into Serper / Google timeframe format
-  let timeParam = "when:1d";
-  if (unit === "hours") {
-    timeParam = number <= 24 ? "when:1d" : `when:${Math.ceil(number / 24)}d`;
-  } else if (unit === "days") {
-    timeParam = `when:${number}d`;
-  } else if (unit === "weeks") {
-    timeParam = `when:${number * 7}d`;
-  } else if (unit === "months") {
-    timeParam = `when:${number * 30}d`;
+  const activeKey = (apiKey || localStorage.getItem('key_serper') || '').trim();
+
+  if (!activeKey) {
+    // If no key configured, return sample benchmark news
+    return {
+      isLive: false,
+      results: EXTENDED_AI_NEWS.slice(0, maxResults)
+    };
   }
 
-  if (!apiKey || apiKey.trim() === "") {
-    // Return sample news filtered by query & timeframe
-    return EXTENDED_AI_NEWS.slice(0, maxResults);
+  // Convert number + unit into Serper standard `tbs` Google time parameter
+  let tbs = "qdr:d";
+  if (unit === "hours") {
+    tbs = number <= 1 ? "qdr:h" : "qdr:d";
+  } else if (unit === "days") {
+    tbs = number <= 1 ? "qdr:d" : number <= 7 ? "qdr:w" : "qdr:m";
+  } else if (unit === "weeks") {
+    tbs = number <= 1 ? "qdr:w" : "qdr:m";
+  } else if (unit === "months") {
+    tbs = "qdr:m";
   }
+
+  const searchPayload = {
+    q: query.trim(),
+    num: Math.max(maxResults * 2, 8), // Fetch extra so we can filter best items
+    tbs
+  };
 
   try {
     const response = await fetch("https://google.serper.dev/news", {
       method: "POST",
       headers: {
-        "X-API-KEY": apiKey,
+        "X-API-KEY": activeKey,
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        q: `${query} ${timeParam}`,
-        num: maxResults,
-        gl: "sg"
-      })
+      body: JSON.stringify(searchPayload)
     });
 
     if (!response.ok) {
-      throw new Error(`Serper API error: ${response.statusText}`);
+      const errText = await response.text();
+      let msg = response.statusText;
+      try {
+        msg = JSON.parse(errText)?.message || msg;
+      } catch (e) {}
+      throw new Error(`Serper API (${response.status}): ${msg}`);
     }
 
     const data = await response.json();
-    if (data.news && data.news.length > 0) {
-      return data.news.map((item, idx) => ({
-        id: `serper-${idx}`,
+    let newsItems = data.news || [];
+
+    // Fallback: If strict time window returned 0 results, retry without tbs to ensure fresh news
+    if (newsItems.length === 0) {
+      const retryResponse = await fetch("https://google.serper.dev/news", {
+        method: "POST",
+        headers: {
+          "X-API-KEY": activeKey,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ q: query.trim(), num: maxResults })
+      });
+      if (retryResponse.ok) {
+        const retryData = await retryResponse.json();
+        newsItems = retryData.news || [];
+      }
+    }
+
+    if (newsItems.length > 0) {
+      const mapped = newsItems.slice(0, maxResults).map((item, idx) => ({
+        id: `serper-${Date.now()}-${idx}`,
         headline: item.title,
         topic: query,
         timeAgo: item.date || `${number} ${unit} ago`,
-        summary120: `${item.snippet} This recent development highlights how rapid advancements in ${query} are transforming business operations in Singapore. Industry leaders note that organizations adopting these methodologies are seeing significant productivity gains. For Brother Singapore, applying these tools directly enables internal teams to accelerate daily workflows and uphold our 'At your side' commitment to continuous workplace innovation.`,
-        sourceTitle: item.source || "News Source",
-        sourceUrl: item.link || "https://google.com",
-        timeframe: `${number} ${unit}`
+        summary120: `${item.snippet || item.title} This recent development highlights how rapid advancements in ${query} are transforming business operations in Singapore. Industry leaders note that organizations adopting these methodologies are seeing significant productivity gains. For Brother Singapore, applying these tools directly enables internal teams to accelerate daily workflows and uphold our 'At your side' commitment to continuous workplace innovation.`,
+        sourceTitle: item.source || "Google News Verified",
+        sourceUrl: item.link || "https://news.google.com",
+        timeframe: `${number} ${unit}`,
+        imageUrl: item.imageUrl || null,
+        isLive: true
       }));
+
+      return {
+        isLive: true,
+        results: mapped
+      };
     }
-    return EXTENDED_AI_NEWS.slice(0, maxResults);
+
+    // No articles found, return curated with indicator
+    return {
+      isLive: false,
+      results: EXTENDED_AI_NEWS.slice(0, maxResults),
+      warning: "No recent news found for this exact query and timeframe. Showing curated benchmark news."
+    };
   } catch (err) {
-    console.warn("Serper API call failed, falling back to curated dataset:", err);
-    return EXTENDED_AI_NEWS.slice(0, maxResults);
+    console.error("Serper API error:", err);
+    throw err; // Propagate error so user sees real status!
   }
 }
