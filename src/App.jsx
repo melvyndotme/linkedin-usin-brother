@@ -10,6 +10,7 @@ import DraftMediaStudio from './components/DraftMediaStudio.jsx';
 import NotionDatabaseHub from './components/NotionDatabaseHub.jsx';
 import TeamView from './components/TeamView.jsx';
 import SettingsView from './components/SettingsView.jsx';
+import { safeGetItem, safeSetItem, safeRemoveItem } from './lib/storage.js';
 
 class ErrorBoundary extends Component {
   constructor(props) {
@@ -71,7 +72,7 @@ export default function App() {
         role: params.get('role') || 'User'
       };
     }
-    const saved = localStorage.getItem('linkedusin_user');
+    const saved = safeGetItem('linkedusin_user');
     if (saved) {
       try {
         return JSON.parse(saved);
@@ -85,7 +86,7 @@ export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('token') && params.get('email')) return true;
-    return !!localStorage.getItem('linkedusin_user');
+    return !!safeGetItem('linkedusin_user');
   });
 
   // Check URL query parameters for magic link authentication
@@ -104,7 +105,7 @@ export default function App() {
       };
       setCurrentUser(user);
       setIsAuthenticated(true);
-      localStorage.setItem('linkedusin_user', JSON.stringify(user));
+      safeSetItem('linkedusin_user', JSON.stringify(user));
       // Clean URL
       window.history.replaceState({}, document.title, window.location.pathname);
     }
@@ -113,11 +114,11 @@ export default function App() {
   const handleLoginSuccess = (user) => {
     setCurrentUser(user);
     setIsAuthenticated(true);
-    localStorage.setItem('linkedusin_user', JSON.stringify(user));
+    safeSetItem('linkedusin_user', JSON.stringify(user));
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('linkedusin_user');
+    safeRemoveItem('linkedusin_user');
     setIsAuthenticated(false);
     setCurrentUser(null);
   };

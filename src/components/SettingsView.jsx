@@ -1,26 +1,27 @@
 import React, { useState } from 'react';
 import { Settings, Key, Check, ShieldCheck, Sparkles, Sliders, RefreshCw, Cpu, AlertCircle } from 'lucide-react';
 import { testSerperKey } from '../lib/serperEngine.js';
+import { safeGetItem, safeSetItem } from '../lib/storage.js';
 
 export default function SettingsView({ isDark }) {
-  const [openAIKey, setOpenAIKey] = useState(localStorage.getItem('key_openai') || '');
-  const [serperKey, setSerperKey] = useState(localStorage.getItem('key_serper') || '');
-  const [sendPilotKey, setSendPilotKey] = useState(localStorage.getItem('key_sendpilot') || '');
-  const [linkedInToken, setLinkedInToken] = useState(localStorage.getItem('key_linkedin') || '');
-  const [geminiKey, setGeminiKey] = useState(localStorage.getItem('key_gemini') || '');
-  const [geminiModel, setGeminiModel] = useState(localStorage.getItem('model_gemini') || 'gemini-3.7-flash');
+  const [openAIKey, setOpenAIKey] = useState(safeGetItem('key_openai') || '');
+  const [serperKey, setSerperKey] = useState(safeGetItem('key_serper') || '');
+  const [sendPilotKey, setSendPilotKey] = useState(safeGetItem('key_sendpilot') || '');
+  const [linkedInToken, setLinkedInToken] = useState(safeGetItem('key_linkedin') || '');
+  const [geminiKey, setGeminiKey] = useState(safeGetItem('key_gemini') || '');
+  const [geminiModel, setGeminiModel] = useState(safeGetItem('model_gemini') || 'gemini-3.7-flash');
 
   const [saved, setSaved] = useState(false);
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState(null);
 
   const handleSave = () => {
-    localStorage.setItem('key_openai', openAIKey);
-    localStorage.setItem('key_serper', serperKey);
-    localStorage.setItem('key_sendpilot', sendPilotKey);
-    localStorage.setItem('key_linkedin', linkedInToken);
-    localStorage.setItem('key_gemini', geminiKey);
-    localStorage.setItem('model_gemini', geminiModel);
+    safeSetItem('key_openai', openAIKey);
+    safeSetItem('key_serper', serperKey);
+    safeSetItem('key_sendpilot', sendPilotKey);
+    safeSetItem('key_linkedin', linkedInToken);
+    safeSetItem('key_gemini', geminiKey);
+    safeSetItem('model_gemini', geminiModel);
 
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
@@ -30,7 +31,7 @@ export default function SettingsView({ isDark }) {
     setTesting(true);
     setTestResult(null);
 
-    const activeSerperKey = (serperKey || localStorage.getItem('key_serper') || '').trim();
+    const activeSerperKey = (serperKey || safeGetItem('key_serper') || '').trim();
     const reports = [];
     let hasError = false;
 

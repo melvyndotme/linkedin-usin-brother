@@ -3,6 +3,7 @@ import { Newspaper, Search, RefreshCw, Copy, Check, Download, Layers, ShieldChec
 import { EXTENDED_AI_NEWS, formatAs120WordMarkdown, searchSerperWithTimeframe } from '../lib/serperEngine.js';
 import { generateAIDrafts } from '../lib/draftGenerator.js';
 import { generateBrotherWaveCorporateSVG } from '../lib/svgBrotherWebsiteTemplates.js';
+import { safeGetItem } from '../lib/storage.js';
 
 export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
   // Up to 5 customizable search keywords
@@ -105,7 +106,7 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
       : 'enterprise workplace productivity';
 
     try {
-      const activeKey = localStorage.getItem('key_serper') || '';
+      const activeKey = safeGetItem('key_serper') || '';
       const response = await searchSerperWithTimeframe({
         apiKey: activeKey,
         query: combinedQuery,
@@ -521,7 +522,7 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
                           : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                     }`}
                   >
-                    Angle {idx + 1}: {d.name.split(' ')[0]}
+                    Angle {idx + 1}: {(d?.name || d?.templateName || d?.angle || 'Angle').split(' ')[0]}
                   </button>
                 ))}
               </div>

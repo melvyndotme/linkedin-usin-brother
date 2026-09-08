@@ -1,4 +1,5 @@
 // Extended Serper Search Engine with Custom Timeframes & Strict 120-Word Output Format
+import { safeGetItem } from './storage';
 
 export const EXTENDED_AI_NEWS = [
   {
@@ -54,7 +55,7 @@ Source: [${item.sourceTitle || 'Source'}](${item.sourceUrl || '#'})`;
  * Validate Serper API key
  */
 export async function testSerperKey(apiKey) {
-  const keyToTest = (apiKey || localStorage.getItem('key_serper') || '').trim();
+  const keyToTest = (apiKey || safeGetItem('key_serper') || '').trim();
   if (!keyToTest) throw new Error("No Serper API key provided.");
 
   const response = await fetch("https://google.serper.dev/news", {
@@ -92,7 +93,7 @@ export async function searchSerperWithTimeframe({
   unit = "hours", // 'hours', 'days', 'weeks', 'months'
   maxResults = 4
 }) {
-  const activeKey = (apiKey || localStorage.getItem('key_serper') || '').trim();
+  const activeKey = (apiKey || safeGetItem('key_serper') || '').trim();
 
   if (!activeKey) {
     // If no key configured, return sample benchmark news

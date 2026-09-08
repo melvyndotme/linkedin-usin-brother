@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Database, ShieldCheck, Mail, Send, CheckCircle2, Key, RefreshCw, Table, Sparkles, ExternalLink, Code, Check, AlertCircle, Users, XCircle } from 'lucide-react';
+import { safeGetItem, safeSetItem } from '../lib/storage.js';
 
 export default function NotionDatabaseHub({ isDark }) {
   const [activeDb, setActiveDb] = useState('team');
@@ -12,8 +13,8 @@ export default function NotionDatabaseHub({ isDark }) {
   const [seeding, setSeeding] = useState(false);
   const [seedResult, setSeedResult] = useState(null);
   const [showManualInputs, setShowManualInputs] = useState(false);
-  const [inputToken, setInputToken] = useState(localStorage.getItem('notion_token') || '');
-  const [inputPageId, setInputPageId] = useState(localStorage.getItem('notion_page_id') || '3c701136-de48-8101-b258-000b3c706126');
+  const [inputToken, setInputToken] = useState(safeGetItem('notion_token') || '');
+  const [inputPageId, setInputPageId] = useState(safeGetItem('notion_page_id') || '3c701136-de48-8101-b258-000b3c706126');
 
   const teamData = [
     { name: "Allan Cheng", email: "allan.cheng@brother.com.sg", role: "Admin (POD Lead)", active: "✅ Active" },
@@ -56,8 +57,8 @@ export default function NotionDatabaseHub({ isDark }) {
     setSeeding(true);
     setSeedResult(null);
 
-    if (inputToken) localStorage.setItem('notion_token', inputToken);
-    if (inputPageId) localStorage.setItem('notion_page_id', inputPageId);
+    if (inputToken) safeSetItem('notion_token', inputToken);
+    if (inputPageId) safeSetItem('notion_page_id', inputPageId);
 
     try {
       const res = await fetch('/api/notion/seed', {

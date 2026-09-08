@@ -74,6 +74,7 @@ export function generateAIDrafts(newsItem) {
   return [
     {
       id: "ai-draft-1",
+      name: "3-Pillar Synthesis",
       templateId: "ai_thought_leadership_3pillar",
       templateName: "3-Pillar AI Breakthrough Synthesis",
       angle: "Executive Thought Leadership & Strategic Impact",
@@ -99,6 +100,7 @@ How is your team experimenting with practical AI in your daily workflows? Share 
     },
     {
       id: "ai-draft-2",
+      name: "Employee Empowerment",
       templateId: "ai_productivity_empowerment",
       templateName: "Employee Productivity & Workflow Accelerator",
       angle: "Grassroots Empowerment & Kaizen Mindset",
@@ -121,6 +123,7 @@ What is one repetitive workflow task you would love to automate this quarter? Le
     },
     {
       id: "ai-draft-3",
+      name: "Partner Perspective",
       templateId: "ai_thought_leadership_3pillar",
       templateName: "Pragmatic B2B Partner Perspective",
       angle: "Trust, Reliability & Operational Excellence",
