@@ -4,6 +4,7 @@ import { Settings, Key, Check, ShieldCheck, Sparkles, Sliders, RefreshCw, Cpu } 
 export default function SettingsView({ isDark }) {
   const [openAIKey, setOpenAIKey] = useState(localStorage.getItem('key_openai') || '');
   const [serperKey, setSerperKey] = useState(localStorage.getItem('key_serper') || '');
+  const [apifyKey, setApifyKey] = useState(localStorage.getItem('key_apify') || '');
   const [sendPilotKey, setSendPilotKey] = useState(localStorage.getItem('key_sendpilot') || '');
   const [linkedInToken, setLinkedInToken] = useState(localStorage.getItem('key_linkedin') || '');
   const [geminiKey, setGeminiKey] = useState(localStorage.getItem('key_gemini') || '');
@@ -16,6 +17,7 @@ export default function SettingsView({ isDark }) {
   const handleSave = () => {
     localStorage.setItem('key_openai', openAIKey);
     localStorage.setItem('key_serper', serperKey);
+    localStorage.setItem('key_apify', apifyKey);
     localStorage.setItem('key_sendpilot', sendPilotKey);
     localStorage.setItem('key_linkedin', linkedInToken);
     localStorage.setItem('key_gemini', geminiKey);
@@ -144,7 +146,7 @@ export default function SettingsView({ isDark }) {
         <div>
           <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1.5">
             <Key className="w-3.5 h-3.5 text-blue-600" />
-            LinkedIn API OAuth Bearer Token / Client Credentials
+            LinkedIn API OAuth Bearer Token / Client Credentials (Optional Admin)
           </label>
           <input
             type="password"
@@ -153,7 +155,38 @@ export default function SettingsView({ isDark }) {
             placeholder="AQV..."
             className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none"
           />
-          <p className="text-[11px] text-slate-400 mt-1">Enables direct draft pushing and real-time page analytics syncing.</p>
+          <p className="text-[11px] text-slate-400 mt-1">Official LinkedIn Developer API for direct publishing & analytics (requires Page Admin access).</p>
+        </div>
+
+        {/* Apify LinkedIn Live Scraper (Free Tier) */}
+        <div className="p-4 rounded-xl bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-500/30 space-y-2">
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+              <Key className="w-3.5 h-3.5 text-amber-600" />
+              Apify API Token (Free Tier LinkedIn Scraper)
+            </label>
+            <span className="text-[10px] font-bold text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/40 px-2 py-0.5 rounded-full border border-amber-300 dark:border-amber-700/50">
+              $5/mo Free Credit Included
+            </span>
+          </div>
+          <input
+            type="password"
+            value={apifyKey}
+            onChange={(e) => setApifyKey(e.target.value)}
+            placeholder="apify_api_..."
+            className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-amber-500 focus:outline-none"
+          />
+          <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+            <span>Pulls real posts, live likes, comments, and follower metrics for Brother Singapore.</span>
+            <a
+              href="https://console.apify.com/account/integrations"
+              target="_blank"
+              rel="noreferrer"
+              className="text-amber-600 dark:text-amber-400 font-bold hover:underline shrink-0 ml-2"
+            >
+              Get Free Token →
+            </a>
+          </div>
         </div>
 
         {/* SendPilot & OpenAI API Keys */}
