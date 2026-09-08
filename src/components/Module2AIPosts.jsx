@@ -193,30 +193,23 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
 
   // Fetch top 5 results for a specific tab ('all' or index 0..4)
   const fetchTabResults = async (tabKey, overrideTimeframe = null) => {
+    if (tabKey === 'all') {
+      return handleFetchAllTabs();
+    }
+
     setLoading(true);
     setLoadingTab(tabKey);
     setSearchError(null);
 
-    let query = '';
-    let tNumber = 24;
-    let tUnit = 'hours';
-
-    if (tabKey === 'all') {
-      const activeKeywords = keywords.map(k => k.text.trim()).filter(Boolean);
-      query = activeKeywords.length > 0 ? activeKeywords.join(' OR ') : 'enterprise workplace productivity';
-      tNumber = overrideTimeframe?.number ?? combinedTimeframe.timeNumber;
-      tUnit = overrideTimeframe?.unit ?? combinedTimeframe.timeUnit;
-    } else {
-      const kwObj = keywords[tabKey];
-      query = (kwObj?.text || '').trim();
-      if (!query) {
-        setLoading(false);
-        setLoadingTab(null);
-        return;
-      }
-      tNumber = overrideTimeframe?.number ?? kwObj?.timeNumber ?? 24;
-      tUnit = overrideTimeframe?.unit ?? kwObj?.timeUnit ?? 'hours';
+    const kwObj = keywords[tabKey];
+    const query = (kwObj?.text || '').trim();
+    if (!query) {
+      setLoading(false);
+      setLoadingTab(null);
+      return;
     }
+    const tNumber = overrideTimeframe?.number ?? kwObj?.timeNumber ?? 24;
+    const tUnit = overrideTimeframe?.unit ?? kwObj?.timeUnit ?? 'hours';
 
     try {
       const activeKey = getEffectiveSerperKey();
@@ -229,9 +222,8 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
       });
 
       const { isLive, results, warning, totalFound } = response;
-      if (warning && (!results || results.length === 0)) {
-        setSearchError(warning);
-      }
+      // Never flag a legitimate 0-result search as an API failure error
+      setSearchError(null);
 
       setTabResults(prev => ({
         ...prev,
@@ -265,15 +257,6 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
       .filter(item => Boolean(item.text));
 
     try {
-      const combinedQuery = activeEntries.map(i => i.text).join(' OR ') || 'enterprise workplace productivity';
-      const allPromise = searchSerperWithTimeframe({
-        apiKey: activeKey,
-        query: combinedQuery,
-        number: combinedTimeframe.timeNumber,
-        unit: combinedTimeframe.timeUnit,
-        maxResults: 5
-      });
-
       const indivPromises = activeEntries.map(item =>
         searchSerperWithTimeframe({
           apiKey: activeKey,
@@ -284,9 +267,9 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
         }).then(res => ({ tabKey: item.idx, ...res }))
       );
 
-      const [allRes, ...indivRes] = await Promise.all([allPromise, ...indivPromises]);
+      const indivRes = await Promise.all(indivPromises);
 
-      // Aggregate top live articles from active tabs so "All Combined" never returns 0 if tabs have results
+      // Aggregate top live articles from active tabs so "All Combined" showcases live articles from every tab
       const aggregatedFromTabs = [];
       const seenTitles = new Set();
       indivRes.forEach(item => {
@@ -298,15 +281,13 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
         });
       });
 
-      const finalAllResults = (allRes.results && allRes.results.length > 0)
-        ? allRes.results
-        : aggregatedFromTabs.slice(0, 5);
+      const finalAllResults = aggregatedFromTabs.slice(0, 5);
 
       const newTabResults = {
         'all': {
-          isLive: allRes.isLive || indivRes.some(r => r.isLive),
+          isLive: indivRes.some(r => r.isLive),
           results: finalAllResults,
-          warning: finalAllResults.length === 0 ? allRes.warning : null,
+          warning: null,
           totalFound: finalAllResults.length
         }
       };
@@ -331,7 +312,7 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
       }
     } catch (err) {
       console.error('Serper batch fetch error:', err);
-      setSearchError(err.message || 'Failed to search Serper.dev API for all tabs.');
+      setSearchError(err.message || 'Failed to search Serper.dev API.');
     } finally {
       setLoading(false);
       setLoadingTab(null);
@@ -749,15 +730,15 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
         </div>
       </div>
 
-      {/* Real-time Status Alert */}
+      {/* Real-time Status Alert - Displayed only for genuine API/network failures */}
       {searchError && (
-        <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700/50 text-amber-800 dark:text-amber-300 text-xs font-medium flex items-center justify-between gap-2">
+        <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-700/50 text-rose-800 dark:text-rose-300 text-xs font-medium flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" />
+            <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
             <span>{searchError}</span>
           </div>
-          <span className="text-[10px] text-amber-600 dark:text-amber-400 font-mono shrink-0">
-            Check API Key in Settings
+          <span className="text-[10px] text-rose-600 dark:text-rose-400 font-mono shrink-0">
+            API Connection Error
           </span>
         </div>
       )}
