@@ -94,6 +94,57 @@ export async function testSerperKey(apiKey) {
 }
 
 /**
+ * Strict date verification helper
+ * Ensures older results do not leak into tight timeframes (e.g. 24 hours)
+ */
+function isDateWithinWindow(dateStr, unit, number) {
+  if (!dateStr) return true;
+  const lower = dateStr.toLowerCase().trim();
+
+  // If user requested hours or 1 day:
+  if (unit === "hours" || (unit === "days" && number <= 1)) {
+    if (lower.includes("week") || lower.includes("month") || lower.includes("year")) {
+      return false;
+    }
+    const monthPattern = /\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\b/i;
+    if (monthPattern.test(lower)) {
+      return false;
+    }
+    return true;
+  }
+
+  // If user requested days:
+  if (unit === "days") {
+    if (lower.includes("month") || lower.includes("year")) return false;
+    if (number <= 7 && lower.includes("week")) {
+      const match = lower.match(/(\d+)\s*week/);
+      if (match && parseInt(match[1]) > 1) return false;
+    }
+    return true;
+  }
+
+  // If user requested weeks:
+  if (unit === "weeks") {
+    if (lower.includes("year")) return false;
+    if (lower.includes("month")) {
+      const match = lower.match(/(\d+)\s*month/);
+      if (match && parseInt(match[1]) > 1) return false;
+    }
+    return true;
+  }
+
+  // If user requested months:
+  if (unit === "months") {
+    if (lower.includes("year")) return false;
+    const match = lower.match(/(\d+)\s*month/);
+    if (match && parseInt(match[1]) > number) return false;
+    return true;
+  }
+
+  return true;
+}
+
+/**
  * Execute real-time news search via Serper.dev with date-filtering (tbs parameter)
  */
 export async function searchSerperWithTimeframe({
@@ -131,7 +182,7 @@ export async function searchSerperWithTimeframe({
 
   const searchPayload = {
     q: query.trim(),
-    num: Math.max(maxResults * 2, 8), // Fetch extra so we can filter best items
+    num: Math.max(maxResults * 2, 10), // Fetch candidates to filter strictly
     tbs
   };
 
@@ -155,31 +206,20 @@ export async function searchSerperWithTimeframe({
     }
 
     const data = await response.json();
-    let newsItems = data.news || [];
+    let rawNewsItems = data.news || [];
 
-    // Fallback: If strict time window returned 0 results, retry without tbs to ensure fresh news
-    if (newsItems.length === 0) {
-      const retryResponse = await fetch("https://google.serper.dev/news", {
-        method: "POST",
-        headers: {
-          "X-API-KEY": activeKey,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ q: query.trim(), num: maxResults })
-      });
-      if (retryResponse.ok) {
-        const retryData = await retryResponse.json();
-        newsItems = retryData.news || [];
-      }
-    }
+    // Filter strictly by requested timeframe (no older results permitted)
+    const validItems = rawNewsItems.filter(item => isDateWithinWindow(item.date, unit, number));
 
-    if (newsItems.length > 0) {
-      const mapped = newsItems.slice(0, maxResults).map((item, idx) => ({
+    // Zero-padding constraint: return ONLY the real items found, up to maxResults.
+    // Never pad with older articles, synthetic text, or mock data when using live API.
+    if (validItems.length > 0) {
+      const mapped = validItems.slice(0, maxResults).map((item, idx) => ({
         id: `serper-${Date.now()}-${idx}`,
         headline: item.title,
         topic: query,
         timeAgo: item.date || `${number} ${unit} ago`,
-        summary120: `${item.snippet || item.title} This recent development highlights how rapid advancements in ${query} are transforming business operations in Singapore. Industry leaders note that organizations adopting these methodologies are seeing significant productivity gains. For Brother Singapore, applying these tools directly enables internal teams to accelerate daily workflows and uphold our 'At your side' commitment to continuous workplace innovation.`,
+        summary120: item.snippet || item.title, // Pure factual snippet from source, no hallucinated padding
         sourceTitle: item.source || "Google News Verified",
         sourceUrl: item.link || "https://news.google.com",
         timeframe: `${number} ${unit}`,
@@ -189,18 +229,20 @@ export async function searchSerperWithTimeframe({
 
       return {
         isLive: true,
-        results: mapped
+        results: mapped,
+        totalFound: mapped.length
       };
     }
 
-    // No articles found, return curated with indicator
+    // Exactly 0 articles found within this timeframe: return empty results honestly
     return {
-      isLive: false,
-      results: EXTENDED_AI_NEWS.slice(0, maxResults),
-      warning: "No recent news found for this exact query and timeframe. Showing curated benchmark news."
+      isLive: true,
+      results: [],
+      totalFound: 0,
+      warning: `No articles found for "${query}" within the past ${number} ${unit}.`
     };
   } catch (err) {
     console.error("Serper API error:", err);
-    throw err; // Propagate error so user sees real status!
+    throw err;
   }
 }
