@@ -919,7 +919,7 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
               ) : (
                 newsList.map((item) => {
                   const isSelected = activeNews?.id === item.id;
-                  const targetSearchUrl = item.searchUrl || item.sourceUrl || getGoogleNewsSearchUrl(item.headline);
+                  const articleUrl = item.sourceUrl || item.link || getGoogleNewsSearchUrl(item.headline);
                   return (
                     <div
                       key={item.id}
@@ -938,12 +938,12 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
                       {/* Header: Source and Time */}
                       <div className="flex items-center justify-between text-[10px] text-slate-500 mb-1">
                         <a
-                          href={targetSearchUrl}
+                          href={articleUrl}
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={(e) => e.stopPropagation()}
                           className="font-semibold text-[#0f2ea2] dark:text-blue-400 hover:underline flex items-center gap-1"
-                          title="Open actual search result on Google News"
+                          title="Open article in new tab"
                         >
                           <span>{item.sourceTitle}</span>
                           <ExternalLink className="w-2.5 h-2.5" />
@@ -951,10 +951,10 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
                         <span className="font-mono">{item.timeAgo}</span>
                       </div>
 
-                      {/* Clickable Headline leading to actual search result */}
+                      {/* Clickable Headline leading to direct article */}
                       <h4 className="text-xs font-bold leading-snug">
                         <a
-                          href={targetSearchUrl}
+                          href={articleUrl}
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={(e) => {
@@ -964,7 +964,7 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
                           className={`hover:underline flex items-start justify-between gap-1.5 ${
                             isSelected ? 'text-[#0f2ea2] dark:text-blue-300' : isDark ? 'text-white' : 'text-slate-900'
                           }`}
-                          title="Open actual search result in Google News"
+                          title="Open article in new tab"
                         >
                           <span>{item.headline}</span>
                           <ExternalLink className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400 shrink-0 mt-0.5 opacity-80" />
@@ -976,16 +976,16 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
                         {item.summary120}
                       </p>
 
-                      {/* Explicit Direct URL Button leading to search result */}
+                      {/* Explicit Direct URL Button leading directly to article */}
                       <div className="mt-2.5 pt-2 border-t border-slate-200/60 dark:border-slate-800/80 flex items-center justify-between">
                         <a
-                          href={targetSearchUrl}
+                          href={articleUrl}
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={(e) => e.stopPropagation()}
                           className="inline-flex items-center gap-1 text-[11px] font-bold text-[#0f2ea2] dark:text-blue-400 hover:underline"
                         >
-                          <span>Open Actual Search Result</span>
+                          <span>Read Full Article</span>
                           <ExternalLink className="w-3 h-3" />
                         </a>
                         <span className="text-[10px] text-slate-400 font-medium">
@@ -1037,21 +1037,21 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
                           {activeNews?.sourceTitle || 'News Source'}
                         </span>
                         <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-500/20">
-                          Actual Search Result
+                          Direct Article
                         </span>
                       </div>
                       <div className="text-[10px] text-slate-500 truncate mt-0.5 font-mono">
-                        {activeNews?.searchUrl || activeNews?.sourceUrl || '#'}
+                        {activeNews?.sourceUrl || activeNews?.link || '#'}
                       </div>
                     </div>
                   </div>
                   <a
-                    href={activeNews?.searchUrl || activeNews?.sourceUrl || getGoogleNewsSearchUrl(activeNews?.headline)}
+                    href={activeNews?.sourceUrl || activeNews?.link || getGoogleNewsSearchUrl(activeNews?.headline)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="shrink-0 flex items-center gap-1.5 bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-sm transition-all"
                   >
-                    <span>Open Actual Search Result</span>
+                    <span>Read Full Article</span>
                     <ExternalLink className="w-3.5 h-3.5" />
                   </a>
                 </div>

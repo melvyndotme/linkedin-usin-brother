@@ -264,7 +264,7 @@ export async function searchSerperWithTimeframe({
 
     if (validItems.length > 0) {
       const mapped = validItems.slice(0, maxResults).map((item, idx) => {
-        const searchResultUrl = getGoogleNewsSearchUrl(item.title || query);
+        const directArticleUrl = item.link || getGoogleNewsSearchUrl(item.title || query);
         return {
           id: `serper-${Date.now()}-${idx}`,
           headline: item.title,
@@ -272,8 +272,8 @@ export async function searchSerperWithTimeframe({
           timeAgo: item.date || `${number} ${unit} ago`,
           summary120: item.snippet || item.title, // Pure authentic publisher snippet
           sourceTitle: item.source || "Google News Verified",
-          sourceUrl: item.link || searchResultUrl,
-          searchUrl: searchResultUrl,
+          sourceUrl: directArticleUrl,
+          link: directArticleUrl,
           timeframe: `${number} ${unit}`,
           imageUrl: item.imageUrl || null,
           isLive: true
