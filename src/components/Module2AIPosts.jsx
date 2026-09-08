@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Newspaper, Search, RefreshCw, Copy, Check, Download, Layers, ShieldCheck, Clock, ArrowRight, ExternalLink, AlertCircle, Plus, Trash2, Tag, Sparkles } from 'lucide-react';
-import { EXTENDED_AI_NEWS, formatAs120WordMarkdown, searchSerperWithTimeframe, getEffectiveSerperKey } from '../lib/serperEngine.js';
+import { EXTENDED_AI_NEWS, formatAs120WordMarkdown, searchSerperWithTimeframe, getEffectiveSerperKey, getGoogleNewsSearchUrl } from '../lib/serperEngine.js';
 import { generateAIDrafts } from '../lib/draftGenerator.js';
 import { generateBrotherWaveCorporateSVG } from '../lib/svgBrotherWebsiteTemplates.js';
 import { safeGetItem, safeSetItem } from '../lib/storage.js';
@@ -828,8 +828,8 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
               })}
             </div>
 
-            {/* Active Tab Subtitle + Refresh Button */}
-            <div className="flex items-center justify-between text-[11px] mb-3 px-0.5">
+            {/* Active Tab Subtitle + Live Google News Search Link + Refresh Button */}
+            <div className="flex items-center justify-between text-[11px] mb-3 px-0.5 flex-wrap gap-1.5">
               <div className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5 truncate">
                 <span className="text-slate-400">Active query:</span>
                 <span className="font-bold text-slate-900 dark:text-white truncate">
@@ -839,15 +839,26 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
                   {activeTimeNumber} {activeTimeUnit}
                 </span>
               </div>
-              <button
-                type="button"
-                onClick={() => fetchTabResults(activeTab)}
-                disabled={loading}
-                className="text-[10px] font-bold text-[#0f2ea2] dark:text-blue-400 hover:underline shrink-0 flex items-center gap-1 ml-2"
-              >
-                <RefreshCw className={`w-2.5 h-2.5 ${loadingTab === activeTab ? 'animate-spin' : ''}`} />
-                <span>Refresh Tab</span>
-              </button>
+              <div className="flex items-center gap-2 shrink-0">
+                <a
+                  href={getGoogleNewsSearchUrl(activeTab === 'all' ? keywords.map(k => k.text).filter(Boolean).join(' OR ') : keywords[activeTab]?.text || 'Brother Singapore')}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1 bg-emerald-500/10 px-2 py-0.5 rounded-lg border border-emerald-500/20"
+                  title="Open live search results page on Google News"
+                >
+                  <span>Google News Results ↗</span>
+                </a>
+                <button
+                  type="button"
+                  onClick={() => fetchTabResults(activeTab)}
+                  disabled={loading}
+                  className="text-[10px] font-bold text-[#0f2ea2] dark:text-blue-400 hover:underline shrink-0 flex items-center gap-1"
+                >
+                  <RefreshCw className={`w-2.5 h-2.5 ${loadingTab === activeTab ? 'animate-spin' : ''}`} />
+                  <span>Refresh Tab</span>
+                </button>
+              </div>
             </div>
 
             <div className="space-y-3 max-h-[560px] overflow-y-auto pr-1 custom-scrollbar">
@@ -905,6 +916,7 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
               ) : (
                 newsList.map((item) => {
                   const isSelected = activeNews?.id === item.id;
+                  const targetSearchUrl = item.searchUrl || item.sourceUrl || getGoogleNewsSearchUrl(item.headline);
                   return (
                     <div
                       key={item.id}
@@ -923,12 +935,12 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
                       {/* Header: Source and Time */}
                       <div className="flex items-center justify-between text-[10px] text-slate-500 mb-1">
                         <a
-                          href={item.sourceUrl}
+                          href={targetSearchUrl}
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={(e) => e.stopPropagation()}
                           className="font-semibold text-[#0f2ea2] dark:text-blue-400 hover:underline flex items-center gap-1"
-                          title="Open actual source publication"
+                          title="Open actual search result on Google News"
                         >
                           <span>{item.sourceTitle}</span>
                           <ExternalLink className="w-2.5 h-2.5" />
@@ -936,10 +948,10 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
                         <span className="font-mono">{item.timeAgo}</span>
                       </div>
 
-                      {/* Clickable Headline leading to actual URL */}
+                      {/* Clickable Headline leading to actual search result */}
                       <h4 className="text-xs font-bold leading-snug">
                         <a
-                          href={item.sourceUrl}
+                          href={targetSearchUrl}
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={(e) => {
@@ -949,7 +961,7 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
                           className={`hover:underline flex items-start justify-between gap-1.5 ${
                             isSelected ? 'text-[#0f2ea2] dark:text-blue-300' : isDark ? 'text-white' : 'text-slate-900'
                           }`}
-                          title="Open article in new tab"
+                          title="Open actual search result in Google News"
                         >
                           <span>{item.headline}</span>
                           <ExternalLink className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400 shrink-0 mt-0.5 opacity-80" />
@@ -961,16 +973,16 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
                         {item.summary120}
                       </p>
 
-                      {/* Explicit Direct URL Button */}
+                      {/* Explicit Direct URL Button leading to search result */}
                       <div className="mt-2.5 pt-2 border-t border-slate-200/60 dark:border-slate-800/80 flex items-center justify-between">
                         <a
-                          href={item.sourceUrl}
+                          href={targetSearchUrl}
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={(e) => e.stopPropagation()}
                           className="inline-flex items-center gap-1 text-[11px] font-bold text-[#0f2ea2] dark:text-blue-400 hover:underline"
                         >
-                          <span>Read Full Article</span>
+                          <span>Open Actual Search Result</span>
                           <ExternalLink className="w-3 h-3" />
                         </a>
                         <span className="text-[10px] text-slate-400 font-medium">
@@ -1013,7 +1025,7 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
                 </div>
 
                 {/* Direct Source Link Banner */}
-                <div className="flex items-center justify-between p-3 rounded-xl bg-blue-50/60 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800">
+                <div className="flex items-center justify-between p-3 rounded-xl bg-blue-50/60 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 flex-wrap gap-2">
                   <div className="flex items-center gap-2.5 min-w-0">
                     <Newspaper className="w-4 h-4 text-[#0f2ea2] dark:text-blue-400 shrink-0" />
                     <div className="min-w-0">
@@ -1021,28 +1033,22 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
                         <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
                           {activeNews?.sourceTitle || 'News Source'}
                         </span>
-                        {activeNews?.isLive ? (
-                          <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-500/20">
-                            Verified Live Article
-                          </span>
-                        ) : (
-                          <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 font-medium border border-amber-500/20">
-                            Official Publication Portal
-                          </span>
-                        )}
+                        <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-500/20">
+                          Actual Search Result
+                        </span>
                       </div>
-                      <div className="text-[10px] text-slate-500 truncate mt-0.5">
-                        {activeNews?.sourceUrl || '#'}
+                      <div className="text-[10px] text-slate-500 truncate mt-0.5 font-mono">
+                        {activeNews?.searchUrl || activeNews?.sourceUrl || '#'}
                       </div>
                     </div>
                   </div>
                   <a
-                    href={activeNews?.sourceUrl || '#'}
+                    href={activeNews?.searchUrl || activeNews?.sourceUrl || getGoogleNewsSearchUrl(activeNews?.headline)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="shrink-0 flex items-center gap-1.5 bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm transition-all"
+                    className="shrink-0 flex items-center gap-1.5 bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-sm transition-all"
                   >
-                    <span>{activeNews?.isLive ? 'Open Actual URL' : 'Open Publication Portal'}</span>
+                    <span>Open Actual Search Result</span>
                     <ExternalLink className="w-3.5 h-3.5" />
                   </a>
                 </div>
