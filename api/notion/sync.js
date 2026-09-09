@@ -50,7 +50,17 @@ export default async function handler(req, res) {
         },
         'Author': {
           select: { name: post.author || 'Allan Cheng' }
-        }
+        },
+        ...(post.sourceContext ? {
+          'Source Context': {
+            rich_text: [{ type: 'text', text: { content: post.sourceContext } }]
+          }
+        } : {}),
+        ...(post.date ? {
+          'Scheduled Date': {
+            date: { start: post.date }
+          }
+        } : {})
       },
       children: [
         {

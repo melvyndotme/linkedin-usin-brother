@@ -1,8 +1,43 @@
 import http from 'node:http';
 import { URL } from 'node:url';
 import { scrapeLinkedInAdLibrary } from './scraper.js';
+import notionSyncHandler from '../api/notion/sync.js';
+import notionPageHandler from '../api/notion/page.js';
+import notionSeedHandler from '../api/notion/seed.js';
+import serperSearchHandler from '../api/serper/search.js';
 
 const PORT = process.env.PORT || 3001;
+
+function adaptVercel(handler) {
+  return (req, res, parsedUrl) => {
+    let body = '';
+    req.on('data', chunk => { body += chunk; });
+    req.on('end', async () => {
+      try {
+        req.body = body ? JSON.parse(body) : {};
+      } catch (e) {
+        req.body = {};
+      }
+      req.query = Object.fromEntries(parsedUrl.searchParams);
+      res.status = (code) => {
+        res.statusCode = code;
+        return res;
+      };
+      res.json = (data) => {
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(data));
+      };
+      try {
+        await handler(req, res);
+      } catch (err) {
+        console.error('Handler error:', err);
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ success: false, error: err.message }));
+      }
+    });
+  };
+}
 
 // -------------------------------------------------------------
 // Native HTTP Server with Live Playwright Scraper
@@ -30,6 +65,27 @@ const server = http.createServer(async (req, res) => {
       timestamp: new Date().toISOString(),
       service: 'LinkedIn Ads Library Real-Time Playwright Scraper'
     }));
+    return;
+  }
+
+  // Notion & Serper Handlers
+  if (pathname === '/api/notion/sync') {
+    adaptVercel(notionSyncHandler)(req, res, parsedUrl);
+    return;
+  }
+
+  if (pathname === '/api/notion/page') {
+    adaptVercel(notionPageHandler)(req, res, parsedUrl);
+    return;
+  }
+
+  if (pathname === '/api/notion/seed') {
+    adaptVercel(notionSeedHandler)(req, res, parsedUrl);
+    return;
+  }
+
+  if (pathname === '/api/serper/search') {
+    adaptVercel(serperSearchHandler)(req, res, parsedUrl);
     return;
   }
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Settings, Key, Check, ShieldCheck, Sparkles, Sliders, RefreshCw, Cpu, AlertCircle } from 'lucide-react';
+import { Settings, Key, Check, ShieldCheck, Sparkles, Sliders, RefreshCw, Cpu, AlertCircle, Lock, Unlock, Database } from 'lucide-react';
 import { testSerperKey } from '../lib/serperEngine.js';
 import { safeGetItem, safeSetItem } from '../lib/storage.js';
 
@@ -10,6 +10,15 @@ export default function SettingsView({ isDark }) {
   const [linkedInToken, setLinkedInToken] = useState(safeGetItem('key_linkedin') || '');
   const [geminiKey, setGeminiKey] = useState(safeGetItem('key_gemini') || '');
   const [geminiModel, setGeminiModel] = useState(safeGetItem('model_gemini') || 'gemini-3.7-flash');
+
+  // Notion Credentials
+  const [notionToken, setNotionToken] = useState(safeGetItem('notion_token') || '');
+  const [notionDatabaseId, setNotionDatabaseId] = useState(safeGetItem('notion_database_id') || '3c701136de4881de9d29ca4ea415e856');
+
+  // Admin Passcode Security Lock
+  const [isAdminUnlocked, setIsAdminUnlocked] = useState(() => safeGetItem('admin_unlocked') === 'true');
+  const [pinInput, setPinInput] = useState('');
+  const [pinError, setPinError] = useState('');
 
   const [saved, setSaved] = useState(false);
   const [testing, setTesting] = useState(false);
@@ -22,9 +31,29 @@ export default function SettingsView({ isDark }) {
     safeSetItem('key_linkedin', linkedInToken);
     safeSetItem('key_gemini', geminiKey);
     safeSetItem('model_gemini', geminiModel);
+    safeSetItem('notion_token', notionToken);
+    safeSetItem('notion_database_id', notionDatabaseId);
 
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
+  };
+
+  const handleUnlockAdmin = (e) => {
+    e?.preventDefault();
+    const storedPin = safeGetItem('admin_security_pin') || '2026';
+    if (pinInput === storedPin) {
+      setIsAdminUnlocked(true);
+      safeSetItem('admin_unlocked', 'true');
+      setPinError('');
+      setPinInput('');
+    } else {
+      setPinError('Incorrect PIN. Default PIN is 2026.');
+    }
+  };
+
+  const handleLockAdmin = () => {
+    setIsAdminUnlocked(false);
+    safeSetItem('admin_unlocked', 'false');
   };
 
   const handleTestConnection = async () => {
@@ -100,10 +129,126 @@ export default function SettingsView({ isDark }) {
         </div>
       )}
 
+      {/* Admin Passcode Security Banner */}
+      <div className={`p-4 rounded-xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 ${
+        isAdminUnlocked 
+          ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-500/30' 
+          : 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-500/30'
+      }`}>
+        <div className="flex items-center gap-2.5">
+          {isAdminUnlocked ? (
+            <div className="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0">
+              <Unlock className="w-4 h-4" />
+            </div>
+          ) : (
+            <div className="w-7 h-7 rounded-lg bg-amber-600 text-white flex items-center justify-center shrink-0">
+              <Lock className="w-4 h-4" />
+            </div>
+          )}
+          <div>
+            <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <span>{isAdminUnlocked ? 'Admin Mode Unlocked (Single-User Authorized)' : 'Single-User Security Active (Admin Locked)'}</span>
+              <span className={`text-[10px] px-2 py-0.2 rounded-full font-bold ${
+                isAdminUnlocked ? 'bg-emerald-200 text-emerald-800' : 'bg-amber-200 text-amber-800'
+              }`}>
+                {isAdminUnlocked ? 'Editing Enabled' : 'Keys Masked & Protected'}
+              </span>
+            </div>
+            <div className="text-[11px] text-slate-600 dark:text-slate-400">
+              {isAdminUnlocked 
+                ? 'You have permission to edit Notion tokens, Serper API keys, and model orchestration settings.' 
+                : 'API credentials cannot be modified or viewed by unauthorized team members. Enter Admin PIN to unlock.'}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+          {isAdminUnlocked ? (
+            <button
+              onClick={handleLockAdmin}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-800 dark:text-white text-xs font-bold transition-all cursor-pointer"
+            >
+              <Lock className="w-3.5 h-3.5" />
+              <span>Lock Admin Panel</span>
+            </button>
+          ) : (
+            <form onSubmit={handleUnlockAdmin} className="flex items-center gap-1.5">
+              <input
+                type="password"
+                placeholder="Enter PIN (2026)"
+                value={pinInput}
+                onChange={(e) => setPinInput(e.target.value)}
+                className="w-32 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:border-[#0f2ea2]"
+              />
+              <button
+                type="submit"
+                className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#0f2ea2] hover:bg-[#004b8f] text-white text-xs font-bold shadow-sm transition-all cursor-pointer"
+              >
+                <Unlock className="w-3.5 h-3.5" />
+                <span>Unlock</span>
+              </button>
+            </form>
+          )}
+        </div>
+      </div>
+      {pinError && (
+        <div className="text-xs text-rose-500 font-bold px-1">{pinError}</div>
+      )}
+
       {/* Main Settings Card */}
       <div className={`p-6 rounded-2xl border space-y-6 ${
         isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
       }`}>
+        {/* Notion Workspace & Custom Agent Integration (Primary AI Execution Layer) */}
+        <div className="p-5 rounded-xl bg-purple-50/60 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-500/30 space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Database className="w-4 h-4 text-purple-700 dark:text-purple-400" />
+              <h3 className="text-xs font-bold text-purple-900 dark:text-purple-300 uppercase tracking-wider">
+                Notion Workspace & Custom AI Agents (AI Execution Layer)
+              </h3>
+            </div>
+            <span className="text-[10px] font-mono bg-purple-700 text-white px-2 py-0.5 rounded-full font-bold">
+              Active in Notion
+            </span>
+          </div>
+
+          <p className="text-xs text-purple-800 dark:text-purple-300/80">
+            Posts created from MOM Occasions or Serper 24h News are sent directly to this Notion database. Notion Custom Agents generate Draft 1 (Community & Harmony), Draft 2 (Kaizen & Tech), and Strategic Rationale.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                Notion Integration Secret Token
+              </label>
+              <input
+                type="password"
+                disabled={!isAdminUnlocked}
+                value={isAdminUnlocked ? notionToken : (notionToken ? '••••••••••••••••••••••••••••' : '')}
+                onChange={(e) => setNotionToken(e.target.value)}
+                placeholder="secret_..."
+                className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed"
+              />
+              <p className="text-[10px] text-slate-400 mt-1">From notion.so/my-integrations. Connected to LinkedUsIn Hub.</p>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                Notion Posts & Drafts Database ID
+              </label>
+              <input
+                type="text"
+                disabled={!isAdminUnlocked}
+                value={isAdminUnlocked ? notionDatabaseId : (notionDatabaseId ? '••••••••••••••••••••••••••••' : '')}
+                onChange={(e) => setNotionDatabaseId(e.target.value)}
+                placeholder="3c701136de4881de9d29ca4ea415e856"
+                className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed"
+              />
+              <p className="text-[10px] text-slate-400 mt-1">From your Notion database URL.</p>
+            </div>
+          </div>
+        </div>
         {/* Gemini API & Model Switcher (Primary Engine) */}
         <div className="p-5 rounded-xl bg-blue-50/60 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-500/30 space-y-4">
           <div className="flex items-center justify-between">
