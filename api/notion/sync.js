@@ -43,9 +43,23 @@ export default async function handler(req, res) {
       targetDbId = '3c701136de4881de9d29ca4ea415e856';
     }
 
-    const buildPayload = (dbId) => ({
-      parent: { database_id: dbId },
-      properties: {
+    // Dynamically query database to discover exact property names for Draft 1, Draft 2, and Rationale
+    let dbProps = {};
+    try {
+      const dbMetaRes = await fetch(`https://api.notion.com/v1/databases/${targetDbId}`, {
+        method: 'GET',
+        headers
+      });
+      if (dbMetaRes.ok) {
+        const dbMeta = await dbMetaRes.json();
+        dbProps = dbMeta.properties || {};
+      }
+    } catch (e) {
+      console.warn('Could not fetch db metadata, using default property names:', e.message);
+    }
+
+    const buildPayload = (dbId) => {
+      const props = {
         'Title': {
           title: [{ type: 'text', text: { content: post.title || 'Untitled Post Draft' } }]
         },
@@ -60,7 +74,7 @@ export default async function handler(req, res) {
         },
         ...(post.sourceContext ? {
           'Source Context': {
-            rich_text: [{ type: 'text', text: { content: post.sourceContext } }]
+            rich_text: [{ type: 'text', text: { content: post.sourceContext.slice(0, 2000) } }]
           }
         } : {}),
         ...(post.date ? {
@@ -68,22 +82,103 @@ export default async function handler(req, res) {
             date: { start: post.date }
           }
         } : {})
-      },
-      children: [
-        {
+      };
+
+      // Match properties dynamically if user changed column types to Text/rich_text
+      for (const [pName, pDef] of Object.entries(dbProps)) {
+        const lower = pName.toLowerCase();
+        if (pDef.type === 'rich_text') {
+          if ((lower.includes('community') || lower.includes('harmony') || lower.includes('draft 1')) && post.draft1) {
+            props[pName] = { rich_text: [{ type: 'text', text: { content: post.draft1.slice(0, 2000) } }] };
+          } else if ((lower.includes('kaizen') || lower.includes('tech') || lower.includes('draft 2')) && post.draft2) {
+            props[pName] = { rich_text: [{ type: 'text', text: { content: post.draft2.slice(0, 2000) } }] };
+          } else if ((lower.includes('rationale') || lower.includes('strategic')) && post.rationale) {
+            props[pName] = { rich_text: [{ type: 'text', text: { content: post.rationale.slice(0, 2000) } }] };
+          }
+        }
+      }
+
+      // Format page body blocks for Notion document view
+      const blocks = [];
+
+      if (post.draft1) {
+        blocks.push({
+          object: 'block',
+          type: 'heading_2',
+          heading_2: {
+            rich_text: [{ type: 'text', text: { content: '🌸 Draft 1: Community & Harmony' } }]
+          }
+        });
+        blocks.push({
+          object: 'block',
+          type: 'callout',
+          callout: {
+            icon: { type: 'emoji', emoji: '📝' },
+            rich_text: [{ type: 'text', text: { content: post.draft1 } }]
+          }
+        });
+      }
+
+      if (post.draft2) {
+        blocks.push({
+          object: 'block',
+          type: 'heading_2',
+          heading_2: {
+            rich_text: [{ type: 'text', text: { content: '⚡ Draft 2: Kaizen & Innovation' } }]
+          }
+        });
+        blocks.push({
+          object: 'block',
+          type: 'callout',
+          callout: {
+            icon: { type: 'emoji', emoji: '💡' },
+            rich_text: [{ type: 'text', text: { content: post.draft2 } }]
+          }
+        });
+      }
+
+      if (post.rationale) {
+        blocks.push({
+          object: 'block',
+          type: 'heading_3',
+          heading_3: {
+            rich_text: [{ type: 'text', text: { content: '🎯 Strategic Angle & Brand Guardrails' } }]
+          }
+        });
+        blocks.push({
           object: 'block',
           type: 'paragraph',
           paragraph: {
-            rich_text: [
-              {
-                type: 'text',
-                text: { content: post.content || '' }
-              }
-            ]
+            rich_text: [{ type: 'text', text: { content: post.rationale } }]
           }
-        }
-      ]
-    });
+        });
+      }
+
+      blocks.push({ object: 'block', type: 'divider', divider: {} });
+
+      if (post.sourceContext) {
+        blocks.push({
+          object: 'block',
+          type: 'heading_3',
+          heading_3: {
+            rich_text: [{ type: 'text', text: { content: '📋 Raw Source Context' } }]
+          }
+        });
+        blocks.push({
+          object: 'block',
+          type: 'paragraph',
+          paragraph: {
+            rich_text: [{ type: 'text', text: { content: post.sourceContext } }]
+          }
+        });
+      }
+
+      return {
+        parent: { database_id: dbId },
+        properties: props,
+        children: blocks
+      };
+    };
 
     let response = await fetch('https://api.notion.com/v1/pages', {
       method: 'POST',
