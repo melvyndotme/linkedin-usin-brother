@@ -348,7 +348,12 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
   const handleTriggerNotionAI = async () => {
     if (!activeNews) return;
     const token = (safeGetItem('notion_token') || '').trim();
-    const dbId = (safeGetItem('notion_database_id') || safeGetItem('notion_page_id') || '3c701136de4881de9d29ca4ea415e856').trim();
+    const explicitDb = (safeGetItem('notion_database_id') || '').trim();
+    const pageIdStored = (safeGetItem('notion_page_id') || '').trim();
+    const rawId = explicitDb || pageIdStored || '3c701136de4881de9d29ca4ea415e856';
+    const dbId = (rawId.includes('000b3c706126') || rawId.includes('8101'))
+      ? '3c701136de4881de9d29ca4ea415e856'
+      : rawId;
 
     if (!token) {
       alert('Please enter your Notion Integration Token (secret_...) in Settings or Notion Hub first!');

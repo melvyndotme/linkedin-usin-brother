@@ -36,8 +36,15 @@ export default async function handler(req, res) {
   };
 
   try {
-    const payload = {
-      parent: { database_id: databaseId.replace(/-/g, '') },
+    let targetDbId = databaseId.replace(/-/g, '');
+
+    // If targetDbId is the parent page ID (ending with 000b3c706126), redirect to Posts Database
+    if (targetDbId.includes('000b3c706126') || targetDbId.includes('8101')) {
+      targetDbId = '3c701136de4881de9d29ca4ea415e856';
+    }
+
+    const buildPayload = (dbId) => ({
+      parent: { database_id: dbId },
       properties: {
         'Title': {
           title: [{ type: 'text', text: { content: post.title || 'Untitled Post Draft' } }]
@@ -76,15 +83,49 @@ export default async function handler(req, res) {
           }
         }
       ]
-    };
-
-    const response = await fetch('https://api.notion.com/v1/pages', {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(payload)
     });
 
-    const data = await response.json();
+    let response = await fetch('https://api.notion.com/v1/pages', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(buildPayload(targetDbId))
+    });
+
+    let data = await response.json();
+
+    // If could not find database, auto-discover via Notion Search API
+    if (!response.ok && (data.message || '').toLowerCase().includes('could not find database')) {
+      console.log('Database not found with given ID. Auto-discovering via Notion Search API...');
+      const searchRes = await fetch('https://api.notion.com/v1/search', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          filter: { value: 'database', property: 'object' },
+          page_size: 50
+        })
+      });
+
+      if (searchRes.ok) {
+        const searchData = await searchRes.json();
+        const dbs = searchData.results || [];
+        const postsDb = dbs.find(d => {
+          const title = (d.title || []).map(t => t.plain_text).join('').toLowerCase();
+          return title.includes('post') || title.includes('draft');
+        }) || dbs[0];
+
+        if (postsDb) {
+          console.log(`Auto-discovered Posts Database ID: ${postsDb.id}`);
+          targetDbId = postsDb.id.replace(/-/g, '');
+          response = await fetch('https://api.notion.com/v1/pages', {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(buildPayload(targetDbId))
+          });
+          data = await response.json();
+        }
+      }
+    }
+
     if (!response.ok) {
       throw new Error(`Notion API error creating page: ${data.message || response.statusText}`);
     }
