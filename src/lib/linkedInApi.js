@@ -53,3 +53,35 @@ export const RECENT_LINKEDIN_POSTS = [
     postUrl: "https://www.linkedin.com/company/brother-international-singapore-pte-ltd/posts/"
   }
 ];
+
+export function cleanLinkedInOrgId(input) {
+  if (!input) return '';
+  const str = String(input).trim();
+  const match = str.match(/\d{5,12}/);
+  return match ? match[0] : str.replace(/^urn:li:organization:/i, '').trim();
+}
+
+export function formatLinkedInOrgUrn(input) {
+  const cleanId = cleanLinkedInOrgId(input);
+  return cleanId ? `urn:li:organization:${cleanId}` : '';
+}
+
+export async function publishToLinkedInApi({ commentary, orgId, token }) {
+  const cleanId = cleanLinkedInOrgId(orgId);
+  const res = await fetch('/api/linkedin/publish', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ commentary, orgId: cleanId, token })
+  });
+  return await res.json();
+}
+
+export async function testLinkedInCredentials({ orgId, token }) {
+  const cleanId = cleanLinkedInOrgId(orgId);
+  const res = await fetch('/api/linkedin/publish?test=true', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ orgId: cleanId, token, isTest: true })
+  });
+  return await res.json();
+}

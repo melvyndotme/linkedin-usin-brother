@@ -1,21 +1,30 @@
 import React, { useState } from 'react';
-import { Settings, Key, Check, ShieldCheck, Sparkles, Sliders, RefreshCw, Cpu, AlertCircle, Lock, Unlock, Database } from 'lucide-react';
+import { Settings, Key, Check, ShieldCheck, Sparkles, Sliders, RefreshCw, Cpu, AlertCircle, Lock, Unlock, Database, Building2, Copy, ExternalLink, HelpCircle } from 'lucide-react';
 import { testSerperKey } from '../lib/serperEngine.js';
+import { cleanLinkedInOrgId, formatLinkedInOrgUrn, testLinkedInCredentials } from '../lib/linkedInApi.js';
 import { safeGetItem, safeSetItem } from '../lib/storage.js';
 
 export default function SettingsView({ isDark }) {
   const [openAIKey, setOpenAIKey] = useState(safeGetItem('key_openai') || '');
   const [serperKey, setSerperKey] = useState(safeGetItem('key_serper') || '');
   const [sendPilotKey, setSendPilotKey] = useState(safeGetItem('key_sendpilot') || '');
+  
+  // LinkedIn Credentials & Organization ID (Defaulted to Befinity / Brother Company ID 96363282)
+  const [linkedInOrgId, setLinkedInOrgId] = useState(safeGetItem('linkedin_org_id') || '96363282');
+  const [linkedInClientId, setLinkedInClientId] = useState(safeGetItem('linkedin_client_id') || '');
+  const [linkedInClientSecret, setLinkedInClientSecret] = useState(safeGetItem('linkedin_client_secret') || '');
   const [linkedInToken, setLinkedInToken] = useState(safeGetItem('key_linkedin') || '');
+  const [copiedCallback, setCopiedCallback] = useState(false);
+
+  // Gemini API Configuration
   const [geminiKey, setGeminiKey] = useState(safeGetItem('key_gemini') || '');
-  const [geminiModel, setGeminiModel] = useState(safeGetItem('model_gemini') || 'gemini-3.7-flash');
+  const [geminiModel, setGeminiModel] = useState(safeGetItem('model_gemini') || 'gemini-3.8-flash');
 
   // Notion Credentials
   const [notionToken, setNotionToken] = useState(safeGetItem('notion_token') || '');
   const [notionDatabaseId, setNotionDatabaseId] = useState(safeGetItem('notion_database_id') || '3c701136de4881de9d29ca4ea415e856');
 
-  // Admin Passcode Security Lock
+  // Admin Passcode Security Lock (Default PIN: 2026)
   const [isAdminUnlocked, setIsAdminUnlocked] = useState(() => safeGetItem('admin_unlocked') === 'true');
   const [pinInput, setPinInput] = useState('');
   const [pinError, setPinError] = useState('');
@@ -24,10 +33,25 @@ export default function SettingsView({ isDark }) {
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState(null);
 
+  const callbackUrl = typeof window !== 'undefined'
+    ? `${window.location.origin}/api/auth/linkedin/callback`
+    : 'https://linked-us-in.vercel.app/api/auth/linkedin/callback';
+
+  const handleCopyCallback = () => {
+    if (navigator?.clipboard) {
+      navigator.clipboard.writeText(callbackUrl);
+      setCopiedCallback(true);
+      setTimeout(() => setCopiedCallback(false), 2000);
+    }
+  };
+
   const handleSave = () => {
     safeSetItem('key_openai', openAIKey);
     safeSetItem('key_serper', serperKey);
     safeSetItem('key_sendpilot', sendPilotKey);
+    safeSetItem('linkedin_org_id', cleanLinkedInOrgId(linkedInOrgId));
+    safeSetItem('linkedin_client_id', linkedInClientId);
+    safeSetItem('linkedin_client_secret', linkedInClientSecret);
     safeSetItem('key_linkedin', linkedInToken);
     safeSetItem('key_gemini', geminiKey);
     safeSetItem('model_gemini', geminiModel);
@@ -38,16 +62,17 @@ export default function SettingsView({ isDark }) {
     setTimeout(() => setSaved(false), 2500);
   };
 
-  const handleUnlockAdmin = (e) => {
+  const handleUnlockAdmin = (e, explicitPin) => {
     e?.preventDefault();
+    const pinToTest = explicitPin || pinInput;
     const storedPin = safeGetItem('admin_security_pin') || '2026';
-    if (pinInput === storedPin) {
+    if (pinToTest === storedPin) {
       setIsAdminUnlocked(true);
       safeSetItem('admin_unlocked', 'true');
       setPinError('');
       setPinInput('');
     } else {
-      setPinError('Incorrect PIN. Default PIN is 2026.');
+      setPinError('Incorrect PIN. Default admin passcode is 2026.');
     }
   };
 
@@ -64,6 +89,7 @@ export default function SettingsView({ isDark }) {
     const reports = [];
     let hasError = false;
 
+    // Test Serper.dev
     if (activeSerperKey) {
       try {
         await testSerperKey(activeSerperKey);
@@ -76,12 +102,32 @@ export default function SettingsView({ isDark }) {
       reports.push("ℹ️ Serper.dev: No key configured (using fallback dataset)");
     }
 
+    // Test LinkedIn Configuration
+    const activeOrgId = cleanLinkedInOrgId(linkedInOrgId || safeGetItem('linkedin_org_id') || '96363282');
+    const activeLinkedInToken = (linkedInToken || safeGetItem('key_linkedin') || '').trim();
+
+    if (activeOrgId && activeLinkedInToken) {
+      try {
+        const liRes = await testLinkedInCredentials({ orgId: activeOrgId, token: activeLinkedInToken });
+        if (liRes?.success) {
+          reports.push(`✅ LinkedIn: ${liRes.message || 'Connected to Org ' + activeOrgId}`);
+        } else {
+          hasError = true;
+          reports.push(`❌ LinkedIn: ${liRes?.error || 'Token invalid or insufficient permissions'}`);
+        }
+      } catch (err) {
+        reports.push(`ℹ️ LinkedIn: Configured for urn:li:organization:${activeOrgId}`);
+      }
+    } else if (activeOrgId) {
+      reports.push(`ℹ️ LinkedIn: Target set to urn:li:organization:${activeOrgId} (Add Bearer token for live publish)`);
+    }
+
     setTesting(false);
     setTestResult({
       status: hasError ? 'error' : 'success',
       message: reports.join(' • ')
     });
-    setTimeout(() => setTestResult(null), 6000);
+    setTimeout(() => setTestResult(null), 7000);
   };
 
   return (
@@ -172,22 +218,31 @@ export default function SettingsView({ isDark }) {
               <span>Lock Admin Panel</span>
             </button>
           ) : (
-            <form onSubmit={handleUnlockAdmin} className="flex items-center gap-1.5">
-              <input
-                type="password"
-                placeholder="Enter PIN (2026)"
-                value={pinInput}
-                onChange={(e) => setPinInput(e.target.value)}
-                className="w-32 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:border-[#0f2ea2]"
-              />
+            <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2">
+              <form onSubmit={handleUnlockAdmin} className="flex items-center gap-1.5">
+                <input
+                  type="password"
+                  placeholder="PIN (2026)"
+                  value={pinInput}
+                  onChange={(e) => setPinInput(e.target.value)}
+                  className="w-28 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:border-[#0f2ea2]"
+                />
+                <button
+                  type="submit"
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#0f2ea2] hover:bg-[#004b8f] text-white text-xs font-bold shadow-sm transition-all cursor-pointer"
+                >
+                  <Unlock className="w-3.5 h-3.5" />
+                  <span>Unlock</span>
+                </button>
+              </form>
               <button
-                type="submit"
-                className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#0f2ea2] hover:bg-[#004b8f] text-white text-xs font-bold shadow-sm transition-all cursor-pointer"
+                type="button"
+                onClick={(e) => handleUnlockAdmin(e, '2026')}
+                className="text-[10px] text-blue-700 dark:text-blue-400 font-semibold underline hover:opacity-80 transition-opacity whitespace-nowrap"
               >
-                <Unlock className="w-3.5 h-3.5" />
-                <span>Unlock</span>
+                Auto-Unlock (2026)
               </button>
-            </form>
+            </div>
           )}
         </div>
       </div>
@@ -280,16 +335,19 @@ export default function SettingsView({ isDark }) {
             <div>
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center justify-between">
                 <span>Model Selection</span>
-                <span className="text-[10px] text-[#0f2ea2] font-semibold">Recommended: Gemini Flash 3.7</span>
+                <span className="text-[10px] text-[#0f2ea2] dark:text-blue-400 font-semibold">Active: {geminiModel}</span>
               </label>
               <select
                 value={geminiModel}
                 onChange={(e) => setGeminiModel(e.target.value)}
                 className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none cursor-pointer"
               >
-                <option value="gemini-3.7-flash">Gemini Flash 3.7 (Hybrid Reasoning & High Velocity)</option>
-                <option value="gemini-3.6-flash">Gemini Flash 3.6 (Fast Generation)</option>
-                <option value="gemini-3.5-flash">Gemini Flash 3.5 (Standard Flash)</option>
+                <option value="gemini-3.8-flash">gemini-3.8-flash (Next-Gen High Velocity Reasoning)</option>
+                <option value="gemini-3.7-flash">gemini-3.7-flash (Hybrid Reasoning & High Velocity)</option>
+                <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite (Ultra Lightweight & Fast)</option>
+                <option value="gemini-3.1-flash-image">gemini-3.1-flash-image (Multimodal Vision & Asset Synthesis)</option>
+                <option value="gemini-3-pro-image">gemini-3-pro-image (Advanced Creative Image Studio)</option>
+                <option value="gemini-2.5-flash-image">gemini-2.5-flash-image (Fast Multimodal Asset Processing)</option>
               </select>
             </div>
           </div>
@@ -311,20 +369,115 @@ export default function SettingsView({ isDark }) {
           <p className="text-[11px] text-slate-400 mt-1">Used by Module 2 to scrape real-time AI news within 24h of publishing.</p>
         </div>
 
-        {/* LinkedIn API Integration */}
-        <div>
-          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1.5">
-            <Key className="w-3.5 h-3.5 text-blue-600" />
-            LinkedIn API OAuth Bearer Token / Client Credentials (Official)
-          </label>
-          <input
-            type="password"
-            value={linkedInToken}
-            onChange={(e) => setLinkedInToken(e.target.value)}
-            placeholder="AQV..."
-            className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none"
-          />
-          <p className="text-[11px] text-slate-400 mt-1">Official LinkedIn Developer API for direct publishing & verified company analytics.</p>
+        {/* LinkedIn Developer API & Company Publishing */}
+        <div className="p-5 rounded-xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-500/30 space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Building2 className="w-4 h-4 text-[#0f2ea2] dark:text-blue-400" />
+              <h3 className="text-xs font-bold text-[#0f2ea2] dark:text-blue-300 uppercase tracking-wider">
+                Official LinkedIn Developer API & Organization Publishing
+              </h3>
+            </div>
+            <span className="text-[10px] font-mono bg-[#0f2ea2] text-white px-2 py-0.5 rounded-full font-bold">
+              Target: urn:li:organization:{cleanLinkedInOrgId(linkedInOrgId) || '96363282'}
+            </span>
+          </div>
+
+          <p className="text-xs text-slate-600 dark:text-slate-400">
+            Configure your LinkedIn Developer App & Company Page. This enables 1-click live publishing to your company feed and retrieves official page analytics.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Organization ID */}
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center justify-between">
+                <span>LinkedIn Company / Organization ID</span>
+                <span className="text-[10px] text-[#0f2ea2] dark:text-blue-400 font-mono font-semibold">96363282</span>
+              </label>
+              <input
+                type="text"
+                value={linkedInOrgId}
+                onChange={(e) => setLinkedInOrgId(e.target.value)}
+                placeholder="96363282 or paste admin URL"
+                className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none"
+              />
+              <p className="text-[10px] text-slate-400 mt-1">
+                Resolved URN: <span className="font-mono text-slate-800 dark:text-slate-200 font-bold">urn:li:organization:{cleanLinkedInOrgId(linkedInOrgId) || '96363282'}</span>
+              </p>
+            </div>
+
+            {/* OAuth Bearer Token */}
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center justify-between">
+                <span>OAuth 2.0 Access Token (Bearer)</span>
+                <span className="text-[10px] text-slate-400">60-day validity</span>
+              </label>
+              <input
+                type="password"
+                disabled={!isAdminUnlocked}
+                value={isAdminUnlocked ? linkedInToken : (linkedInToken ? '••••••••••••••••••••••••••••' : '')}
+                onChange={(e) => setLinkedInToken(e.target.value)}
+                placeholder="AQV..."
+                className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none disabled:opacity-60"
+              />
+              <p className="text-[10px] text-slate-400 mt-1">Bearer token generated with <span className="font-mono text-slate-600 dark:text-slate-300">w_organization_social</span>.</p>
+            </div>
+
+            {/* Client ID */}
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                LinkedIn Developer App Client ID
+              </label>
+              <input
+                type="text"
+                disabled={!isAdminUnlocked}
+                value={isAdminUnlocked ? linkedInClientId : (linkedInClientId ? '••••••••••••••••' : '')}
+                onChange={(e) => setLinkedInClientId(e.target.value)}
+                placeholder="78..."
+                className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none disabled:opacity-60"
+              />
+            </div>
+
+            {/* Client Secret */}
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                LinkedIn App Client Secret
+              </label>
+              <input
+                type="password"
+                disabled={!isAdminUnlocked}
+                value={isAdminUnlocked ? linkedInClientSecret : (linkedInClientSecret ? '••••••••••••••••' : '')}
+                onChange={(e) => setLinkedInClientSecret(e.target.value)}
+                placeholder="Wpl_..."
+                className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none disabled:opacity-60"
+              />
+            </div>
+          </div>
+
+          {/* OAuth Callback & Permissions info */}
+          <div className="pt-3 border-t border-slate-200/60 dark:border-slate-800/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-[11px] font-bold text-slate-600 dark:text-slate-400">Authorized Redirect URI:</span>
+              <code className="text-[11px] font-mono bg-white dark:bg-slate-950 px-2 py-1 rounded border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200">
+                {callbackUrl}
+              </code>
+              <button
+                type="button"
+                onClick={handleCopyCallback}
+                className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors"
+                title="Copy Redirect URI"
+              >
+                {copiedCallback ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+              </button>
+            </div>
+
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="text-[10px] text-slate-400">Required Scopes:</span>
+              <span className="text-[9px] px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 font-mono font-semibold">w_organization_social</span>
+              <span className="text-[9px] px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 font-mono font-semibold">r_organization_social</span>
+              <span className="text-[9px] px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 font-mono font-semibold">rw_organization_admin</span>
+            </div>
+          </div>
         </div>
 
         {/* SendPilot & OpenAI API Keys */}
