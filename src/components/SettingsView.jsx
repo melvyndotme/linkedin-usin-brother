@@ -146,7 +146,7 @@ export default function SettingsView({ isDark }) {
               System Integrations & AI Engine Settings
             </h2>
             <p className="text-xs text-slate-500 mt-1">
-              Configure credentials for Gemini API, Serper.dev, OpenAI, SendPilot, and LinkedIn APIs.
+              Configure credentials for Gemini API, Serper Keyword Search, LinkedIn API, SendPilot, and Notion.
             </p>
           </div>
 
@@ -269,7 +269,7 @@ export default function SettingsView({ isDark }) {
           </div>
 
           <p className="text-xs text-purple-800 dark:text-purple-300/80">
-            Posts created from MOM Occasions or Serper 24h News are sent directly to this Notion database. Notion Custom Agents generate Draft 1 (Community & Harmony), Draft 2 (Kaizen & Tech), and Strategic Rationale.
+            Posts created from MOM Occasions or Serper Keyword News are sent directly to this Notion database. Notion Custom Agents generate Draft 1 (Community & Harmony), Draft 2 (Kaizen & Tech), and Strategic Rationale.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -353,20 +353,65 @@ export default function SettingsView({ isDark }) {
           </div>
         </div>
 
-        {/* Serper.dev API */}
-        <div>
-          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1.5">
-            <Key className="w-3.5 h-3.5 text-cyan-600" />
-            Serper.dev API Key (24h Real-Time Google Search for AI News)
-          </label>
-          <input
-            type="password"
-            value={serperKey}
-            onChange={(e) => setSerperKey(e.target.value)}
-            placeholder="Paste Serper.dev API Key here"
-            className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none"
-          />
-          <p className="text-[11px] text-slate-400 mt-1">Used by Module 2 to scrape real-time AI news within 24h of publishing.</p>
+        {/* Serper.dev API & Keyword News Intelligence */}
+        <div className="p-5 rounded-xl bg-cyan-50/50 dark:bg-cyan-950/20 border border-cyan-200 dark:border-cyan-500/30 space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Key className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
+              <h3 className="text-xs font-bold text-cyan-900 dark:text-cyan-300 uppercase tracking-wider">
+                Serper.dev API Key (Real-Time Search by Monitored Keywords & Trends)
+              </h3>
+            </div>
+            <span className="text-[10px] font-mono bg-cyan-700 text-white px-2 py-0.5 rounded-full font-bold">
+              Module 2 Engine
+            </span>
+          </div>
+
+          <p className="text-xs text-slate-600 dark:text-slate-400">
+            Used by <strong>Module 2 (News & Trends)</strong> to search real-time Google News across your customizable keywords and brand topics within flexible timeframes (24h, 48h, 7d, 1mo).
+          </p>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+              Serper API Key
+            </label>
+            <input
+              type="password"
+              value={serperKey}
+              onChange={(e) => setSerperKey(e.target.value)}
+              placeholder="Paste Serper.dev API Key for keyword-based tracking"
+              className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none"
+            />
+          </div>
+
+          {/* Active Keywords pills */}
+          <div className="pt-2 border-t border-cyan-200/50 dark:border-cyan-900/40">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                Active Monitored Keywords in Module 2:
+              </span>
+              <span className="text-[10px] text-cyan-700 dark:text-cyan-400 font-semibold">
+                Customizable in News & Trends
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              <span className="text-[10px] px-2 py-0.5 rounded-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 font-medium text-slate-700 dark:text-slate-300">
+                enterprise agentic AI <span className="text-slate-400 font-mono text-[9px]">(24h)</span>
+              </span>
+              <span className="text-[10px] px-2 py-0.5 rounded-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 font-medium text-slate-700 dark:text-slate-300">
+                workplace productivity <span className="text-slate-400 font-mono text-[9px]">(48h)</span>
+              </span>
+              <span className="text-[10px] px-2 py-0.5 rounded-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 font-medium text-slate-700 dark:text-slate-300">
+                smart document automation <span className="text-slate-400 font-mono text-[9px]">(7d)</span>
+              </span>
+              <span className="text-[10px] px-2 py-0.5 rounded-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 font-medium text-slate-700 dark:text-slate-300">
+                Brother Singapore <span className="text-slate-400 font-mono text-[9px]">(24h)</span>
+              </span>
+              <span className="text-[10px] px-2 py-0.5 rounded-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 font-medium text-slate-700 dark:text-slate-300">
+                epson singapore <span className="text-slate-400 font-mono text-[9px]">(1mo)</span>
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* LinkedIn Developer API & Company Publishing */}
