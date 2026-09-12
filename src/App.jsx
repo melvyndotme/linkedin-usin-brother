@@ -186,7 +186,10 @@ export default function App() {
             )}
 
             {activeTab === 'module-1' && (
-              <Module1EventPosts isDark={isDark} />
+              <Module1EventPosts
+                isDark={isDark}
+                onNavigateToDraftStudio={handleNavigateToDraftStudio}
+              />
             )}
 
             {activeTab === 'module-2' && (

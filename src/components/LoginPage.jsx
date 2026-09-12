@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { Mail, Sparkles, Send, CheckCircle2, ShieldCheck, RefreshCw, XCircle, ArrowRight } from 'lucide-react';
+import { safeGetItem } from '../lib/storage.js';
 
 export default function LoginPage({ onLoginSuccess, isDark }) {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [magicSentData, setMagicSentData] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
-
-  const OFFICIAL_LOGO_URL = "https://media.licdn.com/dms/image/v2/C510BAQFFuI6MoUwmVA/company-logo_400_400/company-logo_400_400/0/1630606968981/brother_international_singapore_pte_ltd_logo?e=1788998400&v=beta&t=YC5raNCKcU09QhBEFCYAU3XIIDbjFlC0cm0hxOx-TOU";
 
   const handleSendMagicLink = async (targetEmail = email) => {
     if (!targetEmail || !targetEmail.includes('@')) {
@@ -20,12 +19,15 @@ export default function LoginPage({ onLoginSuccess, isDark }) {
     setMagicSentData(null);
 
     try {
+      const resendKey = safeGetItem('key_resend') || '';
       const res = await fetch('/api/auth/magic-link', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: targetEmail,
-          appUrl: window.location.origin
+          appUrl: window.location.origin,
+          resendKey: resendKey || undefined,
+          fromEmail: 'LinkedUsIn Studio <linkusin@rs.bro-x.org>'
         })
       });
 
@@ -61,23 +63,24 @@ export default function LoginPage({ onLoginSuccess, isDark }) {
           {/* Official Brother Logo Header */}
           <div className="text-center space-y-3 pb-6 border-b dark:border-slate-800">
             <div className="inline-block p-1 rounded-2xl bg-white shadow-md border border-slate-100 dark:border-slate-800">
-              <img
-                src={OFFICIAL_LOGO_URL}
-                alt="Brother Singapore Logo"
-                className="w-14 h-14 rounded-xl object-contain"
-              />
+              <svg viewBox="0 0 200 200" className="w-14 h-14 rounded-xl shadow-inner">
+                <defs>
+                  <linearGradient id="loginLogoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#0f2ea2"/>
+                    <stop offset="100%" stopColor="#071b6e"/>
+                  </linearGradient>
+                </defs>
+                <rect width="200" height="200" rx="42" fill="url(#loginLogoGrad)"/>
+                <rect x="3" y="3" width="194" height="194" rx="39" fill="none" stroke="#ffffff" strokeWidth="2" strokeOpacity="0.15"/>
+                <text x="100" y="110" textAnchor="middle" fill="#ffffff" fontFamily="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" fontWeight="900" fontSize="42" letterSpacing="-0.5">brother</text>
+                <text x="100" y="142" textAnchor="middle" fill="#ffffff" opacity="0.9" fontFamily="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" fontWeight="600" fontSize="13" letterSpacing="1.2">at your side</text>
+                <circle cx="165" cy="35" r="4.5" fill="#EE2737" opacity="0.9"/>
+              </svg>
             </div>
             <div>
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#0f2ea2]/10 text-[#0f2ea2] dark:text-blue-400 text-[10px] font-bold uppercase tracking-wider mb-1">
-                <ShieldCheck className="w-3.5 h-3.5" />
-                Notion Whitelist Protected
-              </div>
               <h1 className="text-xl font-extrabold tracking-tight text-[#0f2ea2] dark:text-white">
                 LinkedUsIn Studio
               </h1>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Brother Singapore • AI Content & Market Intelligence
-              </p>
             </div>
           </div>
 
@@ -149,7 +152,7 @@ export default function LoginPage({ onLoginSuccess, isDark }) {
                 </button>
 
                 <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed text-center">
-                  A magic link has also been sent to <strong>{magicSentData.user?.email || email}</strong>. If your corporate email gateway delays the delivery, use the button above to enter immediately.
+                  A magic link has been dispatched to <strong>{magicSentData.user?.email || email}</strong> from <strong>linkusin@rs.bro-x.org</strong> via Resend. If your corporate email gateway delays delivery, you can use the button above to enter immediately.
                 </p>
 
                 <div className="pt-2 text-[10px] text-slate-400 border-t border-blue-100 dark:border-slate-800 text-center">

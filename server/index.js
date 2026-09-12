@@ -5,6 +5,12 @@ import notionSyncHandler from '../api/notion/sync.js';
 import notionPageHandler from '../api/notion/page.js';
 import notionSeedHandler from '../api/notion/seed.js';
 import serperSearchHandler from '../api/serper/search.js';
+import magicLinkHandler from '../api/auth/magic-link.js';
+import momHolidaysHandler from '../api/mom/holidays.js';
+
+try {
+  process.loadEnvFile();
+} catch (e) {}
 
 const PORT = process.env.PORT || 3001;
 
@@ -86,6 +92,16 @@ const server = http.createServer(async (req, res) => {
 
   if (pathname === '/api/serper/search') {
     adaptVercel(serperSearchHandler)(req, res, parsedUrl);
+    return;
+  }
+
+  if (pathname === '/api/auth/magic-link') {
+    adaptVercel(magicLinkHandler)(req, res, parsedUrl);
+    return;
+  }
+
+  if (pathname === '/api/mom/holidays') {
+    adaptVercel(momHolidaysHandler)(req, res, parsedUrl);
     return;
   }
 

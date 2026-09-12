@@ -4,13 +4,13 @@ import { Home, Calendar, Newspaper, Layers, Edit3, Database, Users, Settings, Su
 export default function Sidebar({ activeTab, setActiveTab, isDark, setIsDark, onLogout, mobileMenuOpen, setMobileMenuOpen }) {
   const menuItems = [
     { id: 'home', label: 'Home', icon: Home, subtitle: 'LinkedIn Stream & Telemetry' },
-    { id: 'module-1', label: 'Event Posts', icon: Calendar, subtitle: 'Module 1 • Festive 2026', badge: 'MOM 2026' },
-    { id: 'module-2', label: 'News & Trends', icon: Newspaper, subtitle: 'Module 2 • Serper 120-Word', badge: '5 Keywords' },
+    { id: 'module-1', label: 'Festive & Calendar', icon: Calendar, subtitle: 'Live MOM API • 2025–2027', badge: 'MOM Live' },
+    { id: 'module-2', label: 'News & Intel', icon: Newspaper, subtitle: 'SERPER.dev 120-Word', badge: 'SERPER' },
     { id: 'template-studio', label: 'Template Ingestion', icon: Layers, subtitle: 'Competitor & Brother Ingest', badge: 'Placeholders' },
-    { id: 'draft-studio', label: 'Draft & Media Studio', icon: Edit3, subtitle: 'Editor, Carousel, Video, Publish', badge: '1-Click' },
-    { id: 'notion-hub', label: 'Notion Database Hub', icon: Database, subtitle: 'Headless DB & Magic Link', badge: 'Notion Sync' },
+    { id: 'draft-studio', label: 'Draft & Image Studio', icon: Edit3, subtitle: 'Editor, SVG Banner, Video', badge: 'Studio' },
+    { id: 'notion-hub', label: 'Notion Database', icon: Database, subtitle: 'Headless Relational DB', badge: 'DB Only' },
     { id: 'team', label: 'Team', icon: Users, subtitle: 'Allan, Chloe, Sean & Melvyn' },
-    { id: 'settings', label: 'Settings', icon: Settings, subtitle: 'API Keys & Gemini Models' },
+    { id: 'settings', label: 'Settings', icon: Settings, subtitle: 'Resend, MOM, Serper, Notion' },
   ];
 
   const handleSelectTab = (id) => {

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <linearGradient id="brotherBlueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f2ea2"/>
+      <stop offset="100%" stop-color="#071b6e"/>
+    </linearGradient>
+  </defs>
+  <!-- Background with subtle inner border -->
+  <rect width="200" height="200" rx="40" fill="url(#brotherBlueGrad)"/>
+  <rect x="3" y="3" width="194" height="194" rx="37" fill="none" stroke="#ffffff" stroke-width="2" stroke-opacity="0.15"/>
+  <!-- Brother lowercase wordmark -->
+  <g transform="translate(100, 108)">
+    <text text-anchor="middle" fill="#ffffff" font-family="'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-weight="900" font-size="42" letter-spacing="-0.5">brother</text>
+  </g>
+  <!-- Tagline: at your side -->
+  <g transform="translate(100, 142)">
+    <text text-anchor="middle" fill="#ffffff" opacity="0.9" font-family="'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-weight="600" font-size="13" letter-spacing="1.2">at your side</text>
+  </g>
+  <!-- Decorative top right accent dot in SG red -->
+  <circle cx="165" cy="35" r="4.5" fill="#EE2737" opacity="0.9"/>
+</svg>

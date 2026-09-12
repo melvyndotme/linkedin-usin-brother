@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Settings, Key, Check, ShieldCheck, Sparkles, Sliders, RefreshCw, Cpu, AlertCircle, Lock, Unlock, Database, Building2, Copy, ExternalLink, HelpCircle } from 'lucide-react';
+import { Settings, Key, Check, ShieldCheck, Sparkles, Sliders, RefreshCw, Cpu, AlertCircle, Lock, Unlock, Database, Building2, Copy, ExternalLink, HelpCircle, Mail, Globe, CheckCircle2, Send } from 'lucide-react';
 import { testSerperKey } from '../lib/serperEngine.js';
 import { cleanLinkedInOrgId, formatLinkedInOrgUrn, testLinkedInCredentials } from '../lib/linkedInApi.js';
 import { safeGetItem, safeSetItem } from '../lib/storage.js';
@@ -8,6 +8,16 @@ export default function SettingsView({ isDark }) {
   const [openAIKey, setOpenAIKey] = useState(safeGetItem('key_openai') || '');
   const [serperKey, setSerperKey] = useState(safeGetItem('key_serper') || '');
   const [sendPilotKey, setSendPilotKey] = useState(safeGetItem('key_sendpilot') || '');
+  
+  // Resend API & Magic Link Configuration (rs.bro-x.org)
+  const [resendKey, setResendKey] = useState(safeGetItem('key_resend') || '');
+  const [resendSender, setResendSender] = useState(safeGetItem('resend_sender') || 'LinkedUsIn Studio <linkusin@rs.bro-x.org>');
+  const [resendTesting, setResendTesting] = useState(false);
+  const [resendTestStatus, setResendTestStatus] = useState(null);
+
+  // MOM Holidays API Test State
+  const [momTesting, setMomTesting] = useState(false);
+  const [momTestStatus, setMomTestStatus] = useState(null);
   
   // LinkedIn Credentials & Organization ID (Defaulted to Befinity / Brother Company ID 96363282)
   const [linkedInOrgId, setLinkedInOrgId] = useState(safeGetItem('linkedin_org_id') || '96363282');
@@ -49,6 +59,8 @@ export default function SettingsView({ isDark }) {
     safeSetItem('key_openai', openAIKey);
     safeSetItem('key_serper', serperKey);
     safeSetItem('key_sendpilot', sendPilotKey);
+    safeSetItem('key_resend', resendKey);
+    safeSetItem('resend_sender', resendSender);
     safeSetItem('linkedin_org_id', cleanLinkedInOrgId(linkedInOrgId));
     safeSetItem('linkedin_client_id', linkedInClientId);
     safeSetItem('linkedin_client_secret', linkedInClientSecret);
@@ -128,6 +140,71 @@ export default function SettingsView({ isDark }) {
       message: reports.join(' • ')
     });
     setTimeout(() => setTestResult(null), 7000);
+  };
+
+  const handleTestResend = async () => {
+    setResendTesting(true);
+    setResendTestStatus(null);
+    try {
+      const res = await fetch('/api/auth/magic-link', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: 'allan.cheng@brother.com.sg',
+          resendKey: resendKey || undefined,
+          fromEmail: resendSender || undefined,
+          appUrl: window.location.origin
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setResendTestStatus({
+          status: 'success',
+          message: data.resendId
+            ? `✅ Resend Dispatched! Message ID: ${data.resendId} to allan.cheng@brother.com.sg from ${resendSender}`
+            : `✅ Magic link generated (${data.message || 'Ready'})`
+        });
+      } else {
+        setResendTestStatus({
+          status: 'error',
+          message: `❌ Resend error: ${data.error || 'Failed to dispatch'}`
+        });
+      }
+    } catch (err) {
+      setResendTestStatus({
+        status: 'error',
+        message: `❌ Network error: ${err.message}`
+      });
+    } finally {
+      setResendTesting(false);
+    }
+  };
+
+  const handleTestMOM = async () => {
+    setMomTesting(true);
+    setMomTestStatus(null);
+    try {
+      const res = await fetch('/api/mom/holidays?year=2026&refresh=true');
+      const data = await res.json();
+      if (data.success) {
+        setMomTestStatus({
+          status: 'success',
+          message: `✅ MOM Scraper OK! ${data.totalCount} holidays parsed directly from ${data.sourceUrl} (${data.source})`
+        });
+      } else {
+        setMomTestStatus({
+          status: 'error',
+          message: `❌ MOM API error: ${data.error || 'Failed parsing'}`
+        });
+      }
+    } catch (err) {
+      setMomTestStatus({
+        status: 'error',
+        message: `❌ MOM network error: ${err.message}`
+      });
+    } finally {
+      setMomTesting(false);
+    }
   };
 
   return (
@@ -254,22 +331,130 @@ export default function SettingsView({ isDark }) {
       <div className={`p-6 rounded-2xl border space-y-6 ${
         isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
       }`}>
-        {/* Notion Workspace & Custom Agent Integration (Primary AI Execution Layer) */}
+        {/* 1. Resend API & Passwordless Magic Link (rs.bro-x.org) */}
+        <div className="p-5 rounded-xl bg-blue-50/60 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-500/30 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <Mail className="w-4 h-4 text-[#0f2ea2] dark:text-blue-400" />
+              <h3 className="text-xs font-bold text-[#0f2ea2] dark:text-blue-300 uppercase tracking-wider">
+                Resend Magic Link Email Dispatcher (rs.bro-x.org)
+              </h3>
+            </div>
+            <span className="text-[10px] font-mono bg-[#0f2ea2] text-white px-2 py-0.5 rounded-full font-bold self-start sm:self-auto">
+              Sender: linkusin@rs.bro-x.org
+            </span>
+          </div>
+
+          <p className="text-xs text-blue-900/80 dark:text-blue-300/80">
+            Passwordless corporate authentication engine using the verified Brother subdomain <code>rs.bro-x.org</code>. Magic links are delivered from <code>linkusin@rs.bro-x.org</code>.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                Resend API Key
+              </label>
+              <input
+                type="password"
+                disabled={!isAdminUnlocked}
+                value={isAdminUnlocked ? resendKey : (resendKey ? '••••••••••••••••••••••••••••' : '')}
+                onChange={(e) => setResendKey(e.target.value)}
+                placeholder="re_..."
+                className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed"
+              />
+              <p className="text-[10px] text-slate-400 mt-1">From resend.com/api-keys. Also supported via RESEND_API_KEY in .env.</p>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                Sender Address (From Field)
+              </label>
+              <input
+                type="text"
+                disabled={!isAdminUnlocked}
+                value={resendSender}
+                onChange={(e) => setResendSender(e.target.value)}
+                placeholder="LinkedUsIn Studio <linkusin@rs.bro-x.org>"
+                className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed"
+              />
+              <p className="text-[10px] text-slate-400 mt-1">Configured on verified subdomain rs.bro-x.org.</p>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-1 border-t border-blue-100 dark:border-blue-900/50">
+            <button
+              onClick={handleTestResend}
+              disabled={resendTesting}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold transition-all disabled:opacity-50 cursor-pointer"
+            >
+              <Send className={`w-3.5 h-3.5 ${resendTesting ? 'animate-pulse' : ''}`} />
+              <span>{resendTesting ? 'Dispatching Test Email...' : 'Send Test Magic Link (Allan Cheng)'}</span>
+            </button>
+
+            {resendTestStatus && (
+              <span className={`text-xs font-semibold ${
+                resendTestStatus.status === 'success' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
+              }`}>
+                {resendTestStatus.message}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* 2. Ministry of Manpower (MOM) Public Holiday Live API */}
+        <div className="p-5 rounded-xl bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-500/30 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <Globe className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+              <h3 className="text-xs font-bold text-emerald-900 dark:text-emerald-300 uppercase tracking-wider">
+                Ministry of Manpower (MOM) Public Holiday Live API (/api/mom/holidays)
+              </h3>
+            </div>
+            <span className="text-[10px] font-mono bg-emerald-700 text-white px-2 py-0.5 rounded-full font-bold self-start sm:self-auto">
+              Live Scraper Active
+            </span>
+          </div>
+
+          <p className="text-xs text-emerald-900/80 dark:text-emerald-300/80">
+            Internal micro-API that parses official Singapore public holiday tables from <code>https://www.mom.gov.sg/employment-practices/public-holidays</code> for 2025, 2026, and 2027. Automatically powers T-10 festive drafting countdowns.
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-1">
+            <button
+              onClick={handleTestMOM}
+              disabled={momTesting}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition-all disabled:opacity-50 cursor-pointer"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${momTesting ? 'animate-spin' : ''}`} />
+              <span>{momTesting ? 'Scraping mom.gov.sg...' : 'Test Live MOM Scraper (/api/mom/holidays)'}</span>
+            </button>
+
+            {momTestStatus && (
+              <span className={`text-xs font-semibold ${
+                momTestStatus.status === 'success' ? 'text-emerald-700 dark:text-emerald-300' : 'text-rose-600 dark:text-rose-400'
+              }`}>
+                {momTestStatus.message}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* 3. Notion Headless Relational Database (Database Only) */}
         <div className="p-5 rounded-xl bg-purple-50/60 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-500/30 space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Database className="w-4 h-4 text-purple-700 dark:text-purple-400" />
               <h3 className="text-xs font-bold text-purple-900 dark:text-purple-300 uppercase tracking-wider">
-                Notion Workspace & Custom AI Agents (AI Execution Layer)
+                Notion Relational Database (Database Store Only)
               </h3>
             </div>
             <span className="text-[10px] font-mono bg-purple-700 text-white px-2 py-0.5 rounded-full font-bold">
-              Active in Notion
+              Database Only
             </span>
           </div>
 
           <p className="text-xs text-purple-800 dark:text-purple-300/80">
-            Posts created from MOM Occasions or Serper Keyword News are sent directly to this Notion database. Notion Custom Agents generate Draft 1 (Community & Harmony), Draft 2 (Kaizen & Tech), and Strategic Rationale.
+            Notion is utilized strictly as a headless database to store posts, team whitelists, and research archives. All generation, drafting, and intelligence are executed directly inside the LinkedUsIn Studio dashboard.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
