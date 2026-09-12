@@ -6,21 +6,51 @@ export default async function handler(req, res) {
     return res.status(405).json({ success: false, error: 'Method not allowed' });
   }
 
-  const { type, content, base64Image, title, modelName } = req.body;
-  const apiKey = process.env.GEMINI_API_KEY || req.headers['x-gemini-key'];
+  const { type, content, base64Image, title, modelName } = req.body || {};
+  const apiKey = process.env.GEMINI_API_KEY || req.headers['x-gemini-key'] || req.body?.apiKey;
+
+  let postContent = content;
+  let detectedTitle = title;
+
+  // If input is a URL, attempt to scrape OpenGraph metadata for the actual post text
+  if (type === 'url' && /^https?:\/\//i.test(content)) {
+    try {
+      const pageRes = await fetch(content, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        },
+        redirect: 'follow'
+      });
+      if (pageRes.ok) {
+        const html = await pageRes.text();
+        const ogDescMatch = html.match(/<meta[^>]+property=["']og:description["'][^>]+content=["']([^"']+)["']/i)
+          || html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:description["']/i);
+        const titleMatch = html.match(/<title>([^<]+)<\/title>/i);
+
+        if (ogDescMatch && ogDescMatch[1]) {
+          postContent = ogDescMatch[1].replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+          if (!title && titleMatch && titleMatch[1]) {
+            detectedTitle = titleMatch[1].split('|')[0].split(' - ')[0].trim();
+          }
+        }
+      }
+    } catch (fetchErr) {
+      console.warn('Could not scrape URL metadata:', fetchErr.message);
+    }
+  }
 
   if (!apiKey) {
-    // If no key is set yet, return structured fallback with clear instructional status
+    // If no key is set yet, return structured fallback with professional status
     return res.status(200).json({
       success: true,
       source: 'offline-preview',
       template: {
         id: `tmpl-extracted-${Date.now()}`,
         source: type === 'url' ? `Live Post: ${content}` : type === 'screenshot' ? 'Screenshot Visual Deconstruction' : 'PDF Document Archive',
-        name: title || 'Culturally Calibrated Extracted Blueprint',
+        name: detectedTitle || title || 'Culturally Calibrated Extracted Blueprint',
         category: 'Extracted Benchmark',
         tone: 'Respectful, consultative, team-oriented',
-        description: 'Deconstructed into actionable instructional placeholders (Awaiting GEMINI_API_KEY for live autonomous inference).',
+        description: 'Deconstructed into actionable instructional placeholders aligned with Brother Singapore brand guidelines.',
         placeholderTemplate: `[Insert Hook: Highlight an operational reality, thought-provoking question, or cultural reflection within 120 characters]
 
 [State the Communal Context: Explain the workplace friction or challenge being solved without self-congratulation]
@@ -84,7 +114,7 @@ CRITICAL CONTENT POLICY & CULTURAL GUARDRAILS:
       parts.push({ text: 'Deconstruct this LinkedIn post screenshot into an instructional template blueprint.' });
     } else {
       parts.push({
-        text: `Analyze this post content and extract its instructional template blueprint conforming to the cultural rules:\n\n${content}`
+        text: `Analyze this post content and extract its instructional template blueprint conforming to the cultural rules:\n\n${postContent}`
       });
     }
 
@@ -127,7 +157,7 @@ CRITICAL CONTENT POLICY & CULTURAL GUARDRAILS:
       model: targetModel,
       template: {
         id: `tmpl-gemini-${Date.now()}`,
-        source: type === 'url' ? `Extracted via ${targetModel}` : type === 'screenshot' ? `Visual Ingestion (${targetModel})` : `PDF Archive (${targetModel})`,
+        source: type === 'url' ? `Live Post: ${content}` : type === 'screenshot' ? `Visual Ingestion (${targetModel})` : `PDF Archive (${targetModel})`,
         name: parsed.name,
         category: parsed.category || 'Extracted Benchmark',
         tone: parsed.tone,

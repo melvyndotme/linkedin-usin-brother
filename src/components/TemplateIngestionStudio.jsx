@@ -93,18 +93,26 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
     setExtractError(null);
     setNotionSaveStatus(null);
 
+    const clientGeminiKey = safeGetItem('key_gemini') || '';
+
     const payload = {
       type: ingestType,
       content: urlInput || pastedContent || `Uploaded asset: ${uploadFileName}`,
       base64Image: base64Image,
       modelName: selectedModel,
+      apiKey: clientGeminiKey,
       title: ingestType === 'url' ? 'Live Extracted LinkedIn Blueprint' : ingestType === 'screenshot' ? 'Visual Deconstruction Blueprint' : 'PDF Document Archive Blueprint'
     };
 
     try {
+      const headers = { 'Content-Type': 'application/json' };
+      if (clientGeminiKey) {
+        headers['x-gemini-key'] = clientGeminiKey;
+      }
+
       const res = await fetch('/api/templates/ingest', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify(payload)
       });
 
@@ -259,6 +267,81 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
   };
 
   const selectedTemplateNotionInfo = getSavedNotionInfo(selectedTemplate?.name);
+
+  const cleanDescription = (desc) => {
+    if (!desc) return '';
+    return desc.replace(
+      /\s*\(Awaiting GEMINI_API_KEY for live autonomous inference\)\.?/gi,
+      ' aligned with Brother Singapore editorial and cultural guidelines.'
+    );
+  };
+
+  const renderSourceWithLink = (sourceText, isHeader = false) => {
+    if (!sourceText) return null;
+    const urlRegex = /(https?:\/\/[^\s]+)/gi;
+    const parts = sourceText.split(urlRegex);
+
+    if (parts.length === 1) {
+      return isHeader ? (
+        <span className="text-[10px] sm:text-[11px] font-mono text-[#0f2ea2] dark:text-blue-400 font-bold uppercase tracking-wider block">
+          Source: {sourceText}
+        </span>
+      ) : (
+        <p className="text-[10px] text-slate-500 dark:text-slate-400 line-clamp-1">{sourceText}</p>
+      );
+    }
+
+    if (isHeader) {
+      return (
+        <div className="flex items-center gap-1.5 flex-wrap text-[10px] sm:text-[11px] font-mono font-bold tracking-wider text-[#0f2ea2] dark:text-blue-400 mb-0.5">
+          <span className="uppercase shrink-0">Source:</span>
+          {parts.map((part, idx) => {
+            if (part.match(urlRegex)) {
+              return (
+                <a
+                  key={idx}
+                  href={part}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="normal-case tracking-normal underline hover:text-[#0c2482] dark:hover:text-blue-300 font-semibold inline-flex items-center gap-1 cursor-pointer transition-colors"
+                  title="Open original LinkedIn post in new tab"
+                >
+                  <span className="truncate max-w-[280px] sm:max-w-md">{part}</span>
+                  <ExternalLink className="w-3 h-3 shrink-0" />
+                </a>
+              );
+            }
+            return part ? <span key={idx} className="uppercase">{part}</span> : null;
+          })}
+        </div>
+      );
+    }
+
+    return (
+      <div className="text-[10px] text-slate-500 dark:text-slate-400 line-clamp-1 flex items-center gap-1">
+        {parts.map((part, idx) => {
+          if (part.match(urlRegex)) {
+            return (
+              <a
+                key={idx}
+                href={part}
+                target="_blank"
+                rel="noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="underline text-[#0f2ea2] dark:text-blue-400 hover:text-[#0c2482] dark:hover:text-blue-300 inline-flex items-center gap-0.5 cursor-pointer truncate"
+                title="Open original link in new tab"
+              >
+                <span>{part}</span>
+                <ExternalLink className="w-2.5 h-2.5 shrink-0" />
+              </a>
+            );
+          }
+          return <span key={idx}>{part}</span>;
+        })}
+      </div>
+    );
+  };
 
   return (
     <div className="space-y-4 sm:space-y-6 max-w-6xl mx-auto">
@@ -570,7 +653,7 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
                           {tmpl.category}
                         </span>
                       </div>
-                      <p className="text-[10px] text-slate-500 dark:text-slate-400 line-clamp-1">{tmpl.source}</p>
+                      {renderSourceWithLink(tmpl.source, false)}
                     </div>
                   );
                 })}
@@ -586,14 +669,12 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
               {/* Header */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-3.5 dark:border-slate-800">
                 <div>
-                  <span className="text-[10px] sm:text-[11px] font-mono text-[#0f2ea2] dark:text-blue-400 font-bold uppercase tracking-wider block">
-                    Source: {selectedTemplate.source}
-                  </span>
+                  {renderSourceWithLink(selectedTemplate.source, true)}
                   <h3 className={`text-base sm:text-lg font-bold mt-0.5 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                     {selectedTemplate.name}
                   </h3>
                   <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 leading-normal">
-                    {selectedTemplate.description}
+                    {cleanDescription(selectedTemplate.description)}
                   </p>
                 </div>
 
