@@ -6,7 +6,7 @@ const DEFAULT_MEMBERS = [
   {
     id: "allan",
     name: "Allan Cheng",
-    role: "Admin / POD Lead",
+    role: "Admin",
     department: "Brother X & HR Function",
     email: "allan.cheng@brother.com.sg",
     badge: "Admin",
@@ -30,7 +30,7 @@ const DEFAULT_MEMBERS = [
   {
     id: "sean",
     name: "Sean",
-    role: "POD Member / Workflow Explorer",
+    role: "Core Team Member",
     department: "Brother X Core Team",
     email: "sean.tan@brother.com.sg",
     badge: "User",
@@ -89,42 +89,49 @@ export default function TeamView({ isDark }) {
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
       {/* Header Banner */}
-      <div className={`p-6 rounded-2xl border transition-colors ${
+      <div className={`p-4 sm:p-6 rounded-2xl border transition-colors ${
         isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
       }`}>
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-[#0f2ea2]/10 text-[#0f2ea2] text-xs font-bold uppercase tracking-wider mb-2">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#0f2ea2]/10 text-[#0f2ea2] dark:text-blue-400 text-[11px] font-bold uppercase tracking-wider mb-1.5">
               <Users className="w-3.5 h-3.5" />
-              POD 5 LinkedUsIn • Team & Access Governance
+              Team
             </div>
-            <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
-              Cross-Functional Team & Review Stakeholders
+            <h2 className={`text-lg sm:text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
+              Team Members
             </h2>
-            <p className="text-xs text-slate-500 mt-1">
-              Live whitelist synced directly from Notion database. Whitelisted members have access to LinkedUsIn Studio.
-              {lastSynced && <span className="ml-2 font-semibold text-emerald-600 dark:text-emerald-400">• Synced at {lastSynced}</span>}
-            </p>
+            <div className="flex items-center gap-2 mt-1">
+              <p className="text-xs text-slate-500">
+                Authorized team members and reviewers.
+              </p>
+              {lastSynced && (
+                <span className="inline-flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  Synced {lastSynced}
+                </span>
+              )}
+            </div>
           </div>
 
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-2 self-start sm:self-center">
             <a
               href="https://app.notion.com/p/brotherap/3c701136de4881869782cd894c6126c5?v=3c701136de488153b10a000c52f0cb21"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
+              className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/80 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold transition-all shadow-sm"
             >
-              <span>Open in Notion</span>
-              <ExternalLink className="w-3.5 h-3.5" />
+              <span>Notion</span>
+              <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
             </a>
 
             <button
               onClick={fetchLiveTeam}
               disabled={loading}
-              className="inline-flex items-center gap-1.5 bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-md transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
+              className="inline-flex items-center gap-1.5 h-9 px-4 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-semibold shadow-sm hover:shadow transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-              <span>{loading ? 'Syncing...' : 'Sync with Notion'}</span>
+              <span>{loading ? 'Syncing...' : 'Sync'}</span>
             </button>
           </div>
         </div>

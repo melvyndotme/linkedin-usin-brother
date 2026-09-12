@@ -49,11 +49,11 @@ export default async function handler(req, res) {
       
       const lowerEmail = email.toLowerCase();
       if (!role) {
-        if (lowerEmail.includes('allan')) role = 'Admin (POD Lead)';
+        if (lowerEmail.includes('allan')) role = 'Admin';
         else if (lowerEmail.includes('chloe')) role = 'Reviewer (HR Lead)';
         else if (lowerEmail.includes('melvyn')) role = 'External Advisor';
-        else if (lowerEmail.includes('sean')) role = 'POD Member / Workflow Explorer';
-        else role = 'User (Brother SG)';
+        else if (lowerEmail.includes('sean')) role = 'Core Team Member';
+        else role = 'Team Member (Brother SG)';
       }
 
       let badge = 'User';
