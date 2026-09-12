@@ -9,11 +9,8 @@ import {
   Users, 
   Sliders, 
   LogOut, 
-  ExternalLink, 
   X, 
-  ChevronsUpDown, 
-  Sparkles, 
-  Building2 
+  ChevronsUpDown 
 } from 'lucide-react';
 import { OFFICIAL_BROTHER_LOGO_URL } from '../lib/svgBrotherWebsiteTemplates.js';
 
@@ -156,50 +153,10 @@ export default function Sidebar({
           </div>
         ))}
 
-        {/* Live Brother LinkedIn stream card */}
-        <div className="p-3 rounded-xl bg-white/10 border border-white/15 text-xs text-white">
-          <div className="flex items-center justify-between mb-1">
-            <span className="font-bold text-[11px] text-white flex items-center gap-1.5">
-              <Building2 className="w-3.5 h-3.5 text-blue-200" />
-              Brother SG Stream
-            </span>
-            <ExternalLink className="w-3 h-3 text-blue-200" />
-          </div>
-          <p className="text-[10px] text-blue-100/80 line-clamp-1">
-            Brother International Singapore
-          </p>
-          <a
-            href="https://www.linkedin.com/company/brother-international-singapore-pte-ltd/posts/"
-            target="_blank"
-            rel="noreferrer"
-            className="text-[10px] font-bold text-white hover:underline mt-1.5 inline-block"
-          >
-            Visit Live Page ↗
-          </a>
-        </div>
       </div>
 
-      {/* Bottom Area: Quota Widget & User Profile with Popover */}
-      <div className="p-3 border-t border-white/10 space-y-2.5 shrink-0 relative" ref={profileMenuRef}>
-        
-        {/* Sendpilot-Style Status / Engine Card */}
-        <div className="p-3 rounded-xl bg-white/10 border border-white/15 text-xs space-y-1.5">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-blue-100 flex items-center gap-1.5">
-              <Sparkles className="w-3 h-3 text-blue-200" />
-              Brother AI Hub
-            </span>
-            <span className="text-[9px] font-bold text-emerald-300 bg-emerald-950/70 px-1.5 py-0.5 rounded border border-emerald-500/40">
-              Active
-            </span>
-          </div>
-          <div className="text-[11px] text-white/95 font-medium">
-            MOM Holiday Scraper & Gemini 3.8
-          </div>
-          <div className="w-full bg-blue-950/50 h-1.5 rounded-full overflow-hidden">
-            <div className="bg-white h-full w-[85%] rounded-full" />
-          </div>
-        </div>
+      {/* Bottom Area: User Profile with Popover */}
+      <div className="p-3 border-t border-white/10 shrink-0 relative" ref={profileMenuRef}>
 
         {/* Floating Popover Menu (Sendpilot Screenshot 2) */}
         {profileMenuOpen && (
