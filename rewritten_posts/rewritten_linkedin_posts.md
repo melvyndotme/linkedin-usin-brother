@@ -636,7 +636,7 @@ To our 2026 intern class: thank you for challenging our assumptions, bringing co
 
 ### Post BUSA-09: Brother Industries, Ltd. (BIL) Presidential Award
 * **Original Angle:** Recognized by BIL with an award for agility.
-* **Applied Technique:** Executive Pride + Execution Under Pressure.
+* **Applied Technique:** Executive Accountability + Agile Team Harmony.
 * **Recommended Asset:** High-resolution award photo with team leadership representation.
 
 **Rewritten Copy:**
@@ -776,21 +776,21 @@ To our team: What’s the one picnic event or food stall you’re hitting first 
 
 ---
 
-### Post BUSA-17: Spectrum ERG: Pride Month Board Game Event & LGBTea Time
-* **Original Angle:** Spectrum ERG held a board game event for Pride Month and LGBTea Time.
-* **Applied Technique:** Authenticity & Community Connection.
-* **Recommended Asset:** Candid photos of employees playing board games and sharing tea/coffee together.
+### Post BUSA-17: Cross-Departmental Fellowship & Tea Time
+* **Original Angle:** Employee Resource Group informal tea time and team board games.
+* **Applied Technique:** Power Distance Bridge & Workplace Harmony (*Wa*).
+* **Recommended Asset:** Candid photos of colleagues from across departments enjoying tea, coffee, and casual games together.
 
 **Rewritten Copy:**
-Sometimes the best conversations don't happen in a boardroom—they happen over a board game and a cup of tea.
+Sometimes the best cross-departmental collaboration doesn't happen in a formal boardroom—it happens over a cup of tea and a friendly board game.
 
-As part of our Pride Month celebrations, Brother’s **Spectrum Employee Resource Group** hosted a special Team Pride gathering, marking the 1-year anniversary of their signature *"LGBTea Time"* series at our Bridgewater headquarters.
+This week, colleagues from across our business gathered for our regular informal Tea Time fellowship series at headquarters.
 
-These informal gatherings give LGBTQ+ employees and allies a comfortable, welcoming space to connect, share lived experiences, and build lasting friendships across departments.
+In a busy organization, creating low-pressure, welcoming spaces for team members across all levels to step away from their desks, share stories, and build genuine rapport breaks down departmental silos and deepens mutual trust.
 
-Inclusivity thrives when people feel safe to show up as their full, authentic selves.
+True workplace harmony (*Wa*) thrives when people feel comfortable connecting as colleagues and friends.
 
-Thank you to the Spectrum ERG leaders for cultivating spaces where everyone belongs! 🏳️‍🌈
+A warm thank you to our workplace committee for cultivating spaces where everyone feels welcomed and supported! ☕🎲
 
 ---
 
@@ -810,19 +810,19 @@ To all the dads, stepdads, grandfathers, and mentors on the Brother team and in 
 
 ---
 
-### Post BUSA-19: Spectrum ERG: Pride Month Community Parades & Events
-* **Original Angle:** Spectrum members participated in Pride events across locations.
-* **Applied Technique:** Visibility & Allyship in Action.
-* **Recommended Asset:** Photos of employees and their families marching with Brother Pride banners.
+### Post BUSA-19: Family & Community Outreach Fellowship
+* **Original Angle:** Employee resource members and families participating in community events across locations.
+* **Applied Technique:** Collectivism & Multi-Generational Community Engagement.
+* **Recommended Asset:** Photos of employees and their family members volunteering together at a local community festival.
 
 **Rewritten Copy:**
-Pride doesn’t stop at the office doors.
+Our commitment to our communities doesn't stop at the office doors.
 
-Throughout June, members of Brother’s **Spectrum Employee Resource Group**, alongside their families, friends, and colleagues, stepped out into their local communities to march and celebrate in regional Pride parades and festivals.
+Over the weekend, Brother teammates alongside their families and friends stepped out into our local neighborhoods to participate in community outreach and cultural festivals across our regional hubs.
 
-Visible allyship matters. When an organization supports its employees both inside the workplace and out in the neighborhoods where they live, culture becomes tangible.
+When colleagues and their loved ones come together in service of the community, the bonds we share grow far deeper than daily project work. It reminds us that our 'At your side' promise is rooted in shared civic responsibility and mutual care.
 
-We’re proud of our Spectrum ERG for leading the way and reminding us that diversity makes our global team stronger, more creative, and more resilient. 🏳️‍🌈✨
+Thank you to every employee, child, and partner who contributed their weekend to support our local neighbors! 🤝🌿
 
 ---
 
@@ -862,22 +862,22 @@ Drop your best Day-One career advice for our new interns in the comments below! 
 
 ---
 
-### Post BUSA-22: Pride Month Corporate Values & Spectrum ERG
-* **Original Angle:** June is Pride Month / Spectrum ERG promotes shared value of inclusivity.
-* **Applied Technique:** Thoughtful Corporate Commitment to Belonging.
-* **Recommended Asset:** Styled graphic quoting a Spectrum ERG member on what belonging means at Brother.
+### Post BUSA-22: Multicultural Harmony & Workplace Inclusivity
+* **Original Angle:** Promoting shared values of mutual respect, diverse traditions, and workplace belonging.
+* **Applied Technique:** Cultural Harmony & Collectivism (*Wa*).
+* **Recommended Asset:** Styled graphic highlighting quotes on mutual respect and collaborative harmony from diverse team members.
 
 **Rewritten Copy:**
-Inclusion isn't a badge you wear for 30 days in June. It's how people feel when they walk into work on an ordinary Tuesday morning.
+Inclusion isn't a slogan on an office wall. It is how colleagues from diverse cultural backgrounds treat one another every single day.
 
-During Pride Month, we honor the history, resilience, and contributions of the LGBTQ+ community. At Brother, our **Spectrum Employee Resource Group** plays a vital role year-round:
-🏳️‍🌈 Providing peer support and mentorship
-🏳️‍🌈 Advising on inclusive company policies and benefits
-🏳️‍🌈 Educating allies across our global organization
+At Brother, our teams draw strength from a rich mosaic of cultural perspectives, generations, and traditions. We believe that true workplace harmony (*Wa*) is built on:
+🤝 Sincere mutual respect that honors each individual's heritage and contributions
+🤝 Active listening that values quiet diligence as much as bold ideas
+🤝 Cross-functional teamwork where senior custodians guide and uplift rising talent
 
-When employees know they are valued for exactly who they are, innovation and trust naturally follow.
+When every teammate feels valued and respected, collaboration flourishes naturally.
 
-Learn more about Brother’s culture and employee resource groups via the link in the comments.
+Learn more about Brother’s culture and community values via the link in the comments below! 🌏✨
 
 ---
 
@@ -1182,7 +1182,7 @@ To all the brilliant women on our teams, in our partner networks, and across our
 
 ### Post BUSA-39: Bartlett, Tennessee Facility Spotlight
 * **Original Angle:** A great workplace starts with great people / Bartlett facility spotlight.
-* **Applied Technique:** Operational Pride & Behind-the-Scenes Workforce.
+* **Applied Technique:** Frontline Diligence & Operational Mastery.
 * **Recommended Asset:** Multi-photo candid album of warehouse and logistics personnel at Bartlett.
 
 **Rewritten Copy:**

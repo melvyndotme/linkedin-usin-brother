@@ -7,6 +7,8 @@ import notionSeedHandler from '../api/notion/seed.js';
 import serperSearchHandler from '../api/serper/search.js';
 import magicLinkHandler from '../api/auth/magic-link.js';
 import momHolidaysHandler from '../api/mom/holidays.js';
+import linkedInPublishHandler from '../api/linkedin/publish.js';
+import linkedInDataHandler from '../api/linkedin/data.js';
 
 try {
   process.loadEnvFile();
@@ -102,6 +104,16 @@ const server = http.createServer(async (req, res) => {
 
   if (pathname === '/api/mom/holidays') {
     adaptVercel(momHolidaysHandler)(req, res, parsedUrl);
+    return;
+  }
+
+  if (pathname === '/api/linkedin/publish') {
+    adaptVercel(linkedInPublishHandler)(req, res, parsedUrl);
+    return;
+  }
+
+  if (pathname === '/api/linkedin/data') {
+    adaptVercel(linkedInDataHandler)(req, res, parsedUrl);
     return;
   }
 

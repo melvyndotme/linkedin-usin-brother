@@ -137,3 +137,14 @@ export async function syncPostsToNotionRepository({ posts, apiKey, databaseId })
   });
   return await res.json();
 }
+
+export async function fetchLiveLinkedInData({ orgId, token }) {
+  const cleanId = cleanLinkedInOrgId(orgId);
+  const res = await fetch('/api/linkedin/data', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ orgId: cleanId, token })
+  });
+  return await res.json();
+}
+

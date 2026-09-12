@@ -210,6 +210,7 @@ export default function App() {
               <HomeFeedAnalytics
                 isDark={isDark}
                 onNavigateToModule={(mod) => setActiveTab(mod)}
+                onSelectTemplateForDrafting={handleSelectTemplateForDrafting}
               />
             )}
 

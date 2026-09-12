@@ -5,21 +5,30 @@ import {
   ChevronRight, X, Layers, AlertCircle, Share2, Award, Calendar
 } from 'lucide-react';
 import { BROTHER_LINKEDIN_ANALYTICS, RECENT_LINKEDIN_POSTS } from '../lib/linkedInApi.js';
+import { BENCHMARK_TEMPLATES } from '../lib/templateExtractor.js';
+import { Briefcase, Compass, ArrowRight, ShieldCheck, HeartHandshake } from 'lucide-react';
 import { generateBrotherWebsiteBannerSVG, generateBrotherWaveCorporateSVG, OFFICIAL_BROTHER_LOGO_URL } from '../lib/svgBrotherWebsiteTemplates.js';
 import { safeGetItem } from '../lib/storage.js';
 
-export default function HomeFeedAnalytics({ isDark, onNavigateToModule }) {
+export default function HomeFeedAnalytics({ isDark, onNavigateToModule, onSelectTemplateForDrafting }) {
   const analytics = BROTHER_LINKEDIN_ANALYTICS;
   const [posts, setPosts] = useState(RECENT_LINKEDIN_POSTS);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState('impressions'); // 'impressions', 'engagement', 'date', 'reactions'
   const [selectedPostDetail, setSelectedPostDetail] = useState(null);
+  const [selectedEbTemplate, setSelectedEbTemplate] = useState(null);
+  const [ebFilter, setEbFilter] = useState('all');
 
   // Syncing to Notion state
   const [syncingAll, setSyncingAll] = useState(false);
   const [syncingSingleId, setSyncingSingleId] = useState(null);
   const [syncResult, setSyncResult] = useState(null);
+
+  // Live LinkedIn API Pulling State
+  const [pullingLiveLinkedIn, setPullingLiveLinkedIn] = useState(false);
+  const [liveLinkedInStatus, setLiveLinkedInStatus] = useState(null);
+  const [orgDetails, setOrgDetails] = useState(null);
 
   const sampleBannerSvg = generateBrotherWebsiteBannerSVG({
     badgeText: "Free NTUC Vouchers!*",
@@ -197,6 +206,62 @@ export default function HomeFeedAnalytics({ isDark, onNavigateToModule }) {
     }
   };
 
+  // Pull Actual Live LinkedIn Data (Posts & Telemetry)
+  const handlePullLiveLinkedIn = async () => {
+    const orgId = safeGetItem('linkedin_org_id') || '808877';
+    const token = safeGetItem('key_linkedin');
+
+    if (!token) {
+      setLiveLinkedInStatus({
+        type: 'warning',
+        message: 'No LinkedIn OAuth token found. Go to Integrations Settings to paste your token or click "Live Sync Settings".'
+      });
+      return;
+    }
+
+    setPullingLiveLinkedIn(true);
+    setLiveLinkedInStatus(null);
+
+    try {
+      const res = await fetch('/api/linkedin/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orgId, token })
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        if (data.organization) {
+          setOrgDetails(data.organization);
+        }
+        if (data.posts && data.posts.length > 0) {
+          setPosts(data.posts);
+          setLiveLinkedInStatus({
+            type: 'success',
+            message: `Successfully pulled ${data.posts.length} live posts & analytics from ${data.organization?.name || 'LinkedIn'} (ID: ${orgId})!`
+          });
+        } else {
+          setLiveLinkedInStatus({
+            type: 'success',
+            message: `Connected to ${data.organization?.name || 'LinkedIn'} (${data.organization?.followers?.toLocaleString()} followers). Ready to sync post updates.`
+          });
+        }
+      } else {
+        setLiveLinkedInStatus({
+          type: 'error',
+          message: data.error || 'Failed to pull live LinkedIn data'
+        });
+      }
+    } catch (e) {
+      setLiveLinkedInStatus({
+        type: 'error',
+        message: e.message || 'Network error connecting to LinkedIn API'
+      });
+    } finally {
+      setPullingLiveLinkedIn(false);
+    }
+  };
+
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
       {/* Welcome Hero / Brand Card */}
@@ -333,6 +398,98 @@ export default function HomeFeedAnalytics({ isDark, onNavigateToModule }) {
         </div>
       </div>
 
+      {/* SECTION: Singapore & Asian Employer Branding Templates Hub (Hofstede Calibrated) */}
+      <div className={`p-4 sm:p-6 rounded-2xl border space-y-5 transition-colors ${
+        isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+      }`}>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b pb-4 dark:border-slate-800">
+          <div>
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 text-[11px] font-bold mb-1">
+              <Sparkles className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+              Employer Branding & Talent Attraction Studio
+            </div>
+            <h3 className={`text-base sm:text-lg font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
+              Asian Cultural & Hofstede-Calibrated Post Templates
+            </h3>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Extracted from high-performing Brother posts and calibrated to Singapore workplace psychology (Power Distance, Harmony <span className="font-semibold italic">Wa</span>, Long-Term Stewardship). Ready for 1-click HR drafting.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => onNavigateToModule('template-studio')}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all cursor-pointer"
+            >
+              <Layers className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
+              <span>Full Template Studio ↗</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Template Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {BENCHMARK_TEMPLATES.map((tmpl) => (
+            <div
+              key={tmpl.id}
+              className={`flex flex-col justify-between p-4 rounded-xl border transition-all hover:shadow-md ${
+                isDark ? 'bg-slate-950 border-slate-800 hover:border-slate-700' : 'bg-slate-50/70 border-slate-200/80 hover:border-blue-300'
+              }`}
+            >
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-[#0f2ea2]/10 text-[#0f2ea2] dark:text-blue-400">
+                    {tmpl.category}
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-mono">
+                    Hofstede Tuned
+                  </span>
+                </div>
+
+                <h4 className={`text-sm font-bold leading-snug ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                  {tmpl.name}
+                </h4>
+
+                <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">
+                  {tmpl.description}
+                </p>
+
+                {/* Example Post Hook Preview */}
+                <div className={`p-2.5 rounded-lg border text-[11px] italic leading-relaxed ${
+                  isDark ? 'bg-slate-900 border-slate-800 text-slate-300' : 'bg-white border-slate-200 text-slate-600'
+                }`}>
+                  "{tmpl.examplePost.split('\n')[0]}"
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="pt-3 mt-3 border-t dark:border-slate-800 flex items-center justify-between gap-2">
+                <button
+                  onClick={() => setSelectedEbTemplate(tmpl)}
+                  className="text-[11px] font-semibold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 flex items-center gap-1 cursor-pointer"
+                >
+                  <span>Inspect Rules</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    if (onSelectTemplateForDrafting) {
+                      onSelectTemplateForDrafting(tmpl);
+                    } else {
+                      onNavigateToModule('draft-studio');
+                    }
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold shadow-sm transition-all active:scale-95 cursor-pointer"
+                >
+                  <Sparkles className="w-3 h-3" />
+                  <span>Draft with this</span>
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* SECTION 2: Granular Post Analytics & Notion Repository Explorer */}
       <div className={`p-4 sm:p-6 rounded-2xl border space-y-4 ${
         isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
@@ -352,17 +509,59 @@ export default function HomeFeedAnalytics({ isDark, onNavigateToModule }) {
             </p>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2 shrink-0 flex-wrap">
+            <button
+              onClick={handlePullLiveLinkedIn}
+              disabled={pullingLiveLinkedIn}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50/80 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 text-[#0f2ea2] dark:text-blue-300 text-xs font-bold transition-all shadow-sm active:scale-95 disabled:opacity-50 cursor-pointer"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${pullingLiveLinkedIn ? 'animate-spin' : ''}`} />
+              <span>{pullingLiveLinkedIn ? 'Pulling from LinkedIn...' : '🌐 Pull Live LinkedIn Feed'}</span>
+            </button>
             <button
               onClick={handleSyncAllToNotion}
               disabled={syncingAll}
               className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold transition-all shadow-md active:scale-95 disabled:opacity-50 cursor-pointer"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${syncingAll ? 'animate-spin' : ''}`} />
-              <span>{syncingAll ? 'Syncing All to Notion...' : '⚡ Pull & Sync Analytics to Notion'}</span>
+              <span>{syncingAll ? 'Syncing All to Notion...' : '⚡ Sync Analytics to Notion'}</span>
             </button>
           </div>
         </div>
+
+        {/* Live LinkedIn Pull Status Banner */}
+        {liveLinkedInStatus && (
+          <div className={`p-3.5 rounded-xl text-xs flex items-center justify-between gap-3 ${
+            liveLinkedInStatus.type === 'success'
+              ? 'bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-200'
+              : liveLinkedInStatus.type === 'warning'
+                ? 'bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-500/30 text-amber-800 dark:text-amber-200'
+                : 'bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-500/30 text-rose-800 dark:text-rose-200'
+          }`}>
+            <div className="flex items-center gap-2">
+              {liveLinkedInStatus.type === 'success' ? (
+                <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+              ) : (
+                <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" />
+              )}
+              <span className="font-semibold">{liveLinkedInStatus.message}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => onNavigateToModule('settings')}
+                className="text-[11px] font-bold underline hover:opacity-80 cursor-pointer"
+              >
+                Configure Settings →
+              </button>
+              <button
+                onClick={() => setLiveLinkedInStatus(null)}
+                className="opacity-60 hover:opacity-100 p-1 cursor-pointer"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Sync Notification Banner */}
         {syncResult && (
@@ -721,6 +920,100 @@ export default function HomeFeedAnalytics({ isDark, onNavigateToModule }) {
           </div>
         </div>
       </div>
+
+      {/* EB Template Detail Modal */}
+      {selectedEbTemplate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
+          <div className={`w-full max-w-2xl rounded-2xl border p-5 sm:p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto ${
+            isDark ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'
+          }`}>
+            <div className="flex items-start justify-between gap-3 border-b pb-3 dark:border-slate-800">
+              <div>
+                <span className="text-[10px] font-mono uppercase tracking-wider text-[#0f2ea2] dark:text-blue-400 font-bold">
+                  Hofstede-Calibrated Employer Branding Template
+                </span>
+                <h3 className="text-base font-bold mt-0.5 leading-snug">
+                  {selectedEbTemplate.name}
+                </h3>
+                <div className="flex items-center gap-2 text-xs text-slate-400 mt-1">
+                  <span>Category: {selectedEbTemplate.category}</span>
+                  <span>•</span>
+                  <span>Tone: {selectedEbTemplate.tone}</span>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedEbTemplate(null)}
+                className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Cultural Alignment Callout */}
+            <div className={`p-3 rounded-xl border space-y-1 text-xs ${
+              isDark ? 'bg-slate-950 border-slate-800' : 'bg-blue-50/50 border-blue-100'
+            }`}>
+              <div className="font-bold text-[#0f2ea2] dark:text-blue-400 flex items-center gap-1.5">
+                <HeartHandshake className="w-3.5 h-3.5" />
+                <span>Asian Cultural & Hofstede Calibration:</span>
+              </div>
+              <p className="text-slate-600 dark:text-slate-300">
+                {selectedEbTemplate.description}
+              </p>
+            </div>
+
+            {/* Instructional Placeholders */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                HR Instructional Placeholder Blueprint
+              </label>
+              <pre className={`p-3.5 rounded-xl border font-mono text-[11px] whitespace-pre-wrap leading-relaxed max-h-48 overflow-y-auto ${
+                isDark ? 'bg-slate-950 border-slate-800 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-700'
+              }`}>
+                {selectedEbTemplate.placeholderTemplate}
+              </pre>
+            </div>
+
+            {/* Ready-to-Publish Example */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                Ready-to-Publish Model Example
+              </label>
+              <div className={`p-3.5 rounded-xl border text-xs whitespace-pre-wrap leading-relaxed max-h-48 overflow-y-auto ${
+                isDark ? 'bg-slate-950 border-slate-800 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-700'
+              }`}>
+                {selectedEbTemplate.examplePost}
+              </div>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="flex items-center justify-between gap-3 pt-3 border-t dark:border-slate-800">
+              <button
+                onClick={() => setSelectedEbTemplate(null)}
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 cursor-pointer"
+              >
+                Close
+              </button>
+
+              <button
+                onClick={() => {
+                  const tmpl = selectedEbTemplate;
+                  setSelectedEbTemplate(null);
+                  if (onSelectTemplateForDrafting) {
+                    onSelectTemplateForDrafting(tmpl);
+                  } else {
+                    onNavigateToModule('draft-studio');
+                  }
+                }}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold shadow-md transition-all active:scale-95 cursor-pointer"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Load Template in Draft Studio</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Detail Inspection Modal */}
       {selectedPostDetail && (

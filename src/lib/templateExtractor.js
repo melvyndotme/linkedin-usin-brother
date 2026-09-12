@@ -1,395 +1,291 @@
-// Template Library Extractor & Instructional Placeholder Engine
+// Template Library Extractor & Instructional Placeholder Engine (Calibrated for Asia-Pacific & Singapore Hofstede Framework)
 
 export const BENCHMARK_TEMPLATES = [
   {
-    id: "tmpl-eb-flexibility",
-    source: "Brother USA Post Archive Benchmark",
-    name: "Tangible Perk & Flexibility (Burnout Prevention)",
+    id: "tmpl-eb-flexibility-sg",
+    source: "Brother Asia-Pacific Cultural Benchmark",
+    name: "Workplace Flexibility & Family Wellbeing",
     category: "Employer Branding & Culture",
-    tone: "Human, refreshing, authentic, empathetic",
-    description: "Transforms HR policies (like Flexible Fridays & 401k day-one) into candidate-focused freedom and wellness stories.",
+    tone: "Warm, respectful, grounded, empathetic",
+    description: "Calibrated for Asian work-life harmony \u2014 framing flexibility as responsible self-management and dedication to family care rather than mere casualness.",
     frontmatterYaml: `---
 id: "eb_tangible_perk_flexibility"
-source_account: "Brother USA Archive Benchmark"
+source_account: "Brother Asia-Pacific Benchmark"
 category: "Employer Branding & Culture"
-tone: "Human, refreshing, empathetic"
-target_audience: "Passive job seekers, professionals seeking work-life balance"
-hook_archetype: "Contrarian Workplace Truth Hook"
+tone: "Warm, respectful, empathetic"
+target_audience: "Singapore professionals, working parents, talent seeking sustainable work-life integration"
+hofstede_alignment:
+  collectivism: "Honors family harmony and personal wellbeing, recognizing employees as holistic community members"
+  long_term_orientation: "Prevents burnout to sustain multi-year loyalty, health, and consistent excellence"
+  power_distance: "Demonstrates managerial trust; leadership empowers teams rather than policing face-time"
 ---`,
-    placeholderTemplate: `[Insert Hook: Challenge a common workplace friction or hollow corporate perk, e.g. "Lots of companies offer 'Summer Fridays.' Then September hits, and the flexibility vanishes."]
+    placeholderTemplate: `[Insert Hook: Acknowledge the intense pace of modern professional life in Singapore and the pressure of meeting fatigue, e.g. "In a fast-paced business hub like Singapore, sustainable performance requires space to breathe."]
 
-[State the Cultural Truth: Explain why rigid face-time or meeting fatigue is hurting modern professionals]
+[State the Cultural Reality: Reflect on the struggle between demanding professional goals and precious family/personal commitments]
 
-At Brother, flexibility isn’t a seasonal perk. It’s a year-round commitment:
-• [Perk Detail 1: Describe protected focus time, e.g. zero meeting invites after 1:00 PM on Friday]
-• [Perk Detail 2: Detail the autonomy granted to employees when deliverables are completed]
-• [Perk Detail 3: Highlight how leadership measures impact over chair time]
+At Brother, our 'At your side' philosophy begins with our own team. Flexibility is designed into our rhythm year-round:
+• [Protected Focus Block: Describe meeting-free Friday afternoons dedicated to uninterrupted deep work]
+• [Autonomy & Trust: Detail how teams are trusted to depart early for family commitments once goals are met]
+• [Holistic Well-being: Emphasize that management evaluates outcomes, care, and quality — never mere chair-time]
 
-[The Tuesday Afternoon Test: Describe what this looks like in practice — leaving early for a kid's game, recharging without guilt, or working without Slack pings]
+[Everyday Life Reflection: Describe what this looks like in practice — beating the evening commute, having dinner with family, or recharging mindfully for the week ahead]
 
-[Insert Call to Action: Engaging question asking followers what true flexibility means to them, or inviting them to explore open roles 👇]
+[Insert Call to Action: Invite fellow professionals to share how their teams support work-life integration 👇]
 
-#LifeAtBrother #AtYourSide #WorkLifeBalance #CompanyCulture #FlexibleWork #EmployerBranding`,
-    examplePost: `Lots of companies offer 'Summer Fridays.' Then September hits, and the flexibility vanishes.
+#BrotherSingapore #AtYourSide #LifeAtBrother #WorkLifeHarmony #FutureOfWork #PeopleFirst`,
+    examplePost: `In a fast-paced business hub like Singapore, sustainable performance requires space to breathe.
 
-At Brother, flexibility isn't a seasonal perk. It's a year-round policy.
+Many organizations speak about work-life harmony, but in the thick of busy project sprints, personal time is often the first thing compromised.
 
-Through our Flexible Fridays program, employees who wrap up their deliverables can step away a few hours early to beat weekend traffic, attend their kid's soccer game, or simply recharge.
+At Brother, our 'At your side' philosophy starts by taking care of our people. Flexibility isn't a seasonal privilege — it is a year-round commitment to sustainable excellence.
 
-And for those putting final touches on a project? Friday afternoons are protected: no meetings, no pings, just uninterrupted focus time.
+Through our Flexible Fridays approach:
+• Friday afternoons are protected focus time: no internal meeting invites, allowing teams to wrap up their week with clarity and calm.
+• Teammates who complete their weekly deliverables have the autonomy to sign off early to beat the commute, care for their parents or children, or simply recharge.
+• We measure success by the quality of our outcomes and the care we bring to our partners — not by how late an office light stays on.
 
-Because trust isn't measured by how long you sit in an office chair on a Friday afternoon. It's measured by the impact you deliver.
+When employees are supported as whole individuals, dedication and creativity naturally follow.
 
-What does your company's ideal Friday look like? Let us know below! 👇
+How does your team cultivate balance at the end of a demanding week? Let us know below! 👇
 
-#LifeAtBrother #AtYourSide #WorkLifeBalance #CompanyCulture #FlexibleWork #EmployerBranding`
+#BrotherSingapore #AtYourSide #LifeAtBrother #WorkLifeHarmony #FutureOfWork #PeopleFirst`
   },
   {
-    id: "tmpl-eb-early-career",
-    source: "Brother USA Internship Program Benchmark",
-    name: "Early Career & Hands-On Ownership",
+    id: "tmpl-eb-early-career-sg",
+    source: "Brother Asia Early Talent & Mentorship Archive",
+    name: "Early Career Mentorship & Real Ownership",
     category: "Talent Acquisition & Internships",
-    tone: "Empowering, energetic, aspirational, authentic",
-    description: "Busts the menial intern stereotype by proving undergraduate and graduate students get real project ownership and executive access.",
+    tone: "Nurturing, inspiring, grounded, empowering",
+    description: "Aligns with the Asian Senpai-Kohai mentorship dynamic \u2014 pairing young talent with senior leaders for foundational skill-building (Kaizen).",
     frontmatterYaml: `---
 id: "eb_real_work_early_career"
-source_account: "Brother USA Internship Program"
+source_account: "Brother Asia Mentorship Archive"
 category: "Talent Acquisition & Early Career"
-tone: "Empowering, energetic, authentic"
-target_audience: "Students, recent grads, early-career innovators"
-hook_archetype: "Trope-Busting Ownership Hook"
+tone: "Nurturing, inspiring, empowering"
+target_audience: "Polytechnic & university students, fresh graduates, early-career professionals"
+hofstede_alignment:
+  power_distance: "Senior leaders act as accessible mentors (Senpai-Kohai), bridging hierarchy with guidance"
+  long_term_orientation: "Invests in foundational skill-building (Kaizen) and future-readiness for a lifelong career"
+  collectivism: "Welcomes young talent warmly into the Brother team family with genuine cross-functional support"
 ---`,
-    placeholderTemplate: `[Insert Hook: Bust the cliché intern stereotype, e.g. "They didn't fetch coffee. They didn't run paper shredders."]
+    placeholderTemplate: `[Insert Hook: Challenge the stereotype of passive training or menial administrative tasks, e.g. "A meaningful internship shouldn't just be an observation exercise. It should be a launchpad for real capability."]
 
-[Context: Highlight the cohort size, locations, and scope of the early career program]
+[Cohort Context: Introduce the young talent cohort joining across technical, supply chain, marketing, or legal functions]
 
-Over the last [X weeks/months], our early-career innovators took on real business stakes:
-🔹 [Ownership Area 1: High-impact project in data, code, marketing, or engineering]
-🔹 [Ownership Area 2: Direct presentations and strategy reviews with executive leaders]
-🔹 [Ownership Area 3: Hands-on career workshops, e.g. personal branding with talent recruiters]
+From Day One, our senior leaders and teams walk alongside them to provide real ownership:
+🔹 [Hands-On Contribution 1: Delivering real customer workflows, data analytics, or supply chain enhancements]
+🔹 [Mentorship Touchpoint 2: Direct guidance and feedback from experienced department heads]
+🔹 [Capability Workshop 3: Structured learning sessions on professional branding, industry standards, and teamwork]
 
-[The Fun & Camaderie: Mention off-site culture moments — go-karts, VR, or team sports]
+[Gratitude to the Youth: Praise their curiosity, diligent work ethic, and fresh perspectives that enrich the wider team]
 
-[Value Takeaway: Emphasize that Brother invests in long-term career growth, not temporary support]
+[Insert Call to Action: Invite aspiring graduates and students to connect or explore early-career opportunities 👇]
 
-[Insert Call to Action: Tag an ambitious student or encourage applications for the next cohort 👇]
+#BrotherSingapore #EarlyCareer #MentorshipInAction #Kaizen #FutureLeaders #LifeAtBrother`,
+    examplePost: `A meaningful internship shouldn't just be an observation exercise. It should be a launchpad for real capability.
 
-#BrotherInterns #EarlyCareer #TalentAcquisition #LifeAtBrother #FutureLeaders #NextGenTalent`,
-    examplePost: `They didn't fetch coffee. They didn't run paper shredders.
+When young talent is entrusted with real projects and guided by experienced mentors, breakthrough learning happens.
 
-Over the last 10 weeks, our Summer Interns deployed real code, revamped supply chain workflows, analyzed marketing campaigns, and presented strategic proposals directly to executive leadership.
+Over the past semester, our student interns didn't sit on the sidelines. Embedded directly within our engineering, supply chain, and business development teams, they:
+🔹 Contributed to real automation projects and client workflow optimizations
+🔹 Received close, one-on-one mentorship from senior department leaders on problem-solving and professional communication
+🔹 Participated in tailored professional growth workshops to sharpen their career navigation and industry readiness
 
-And yes — they also crushed each other in go-kart races, tested VR tech, and made a glorious mess in a splatter paint room.
+In the spirit of Kaizen, investing in the next generation is how we build long-term resilience for our industry.
 
-Investing in early career talent means giving students real skin in the game while building memories they'll carry throughout their professional journey.
+To our latest cohort: thank you for your curiosity, diligence, and positive energy. We are honored to be part of your growth journey! 🎓🌟
 
-To our intern class: thank you for challenging our assumptions, bringing contagious energy, and leaving an indelible mark on Brother. The future is yours! 🚀
-
-#BrotherInterns #EarlyCareer #TalentAcquisition #LifeAtBrother #FutureLeaders #NextGenTalent`
+#BrotherSingapore #EarlyCareer #MentorshipInAction #Kaizen #FutureLeaders #LifeAtBrother`
   },
   {
-    id: "tmpl-eb-recruiter-desk",
-    source: "Brother USA Talent Acquisition Benchmark",
-    name: "From the Recruiter's Desk (Candidate Coaching)",
+    id: "tmpl-eb-recruiter-advice-sg",
+    source: "Brother Regional Talent Acquisition Benchmark",
+    name: "From the Talent Desk (Candidate Guidance & Mutual Fit)",
     category: "Candidate Experience & Coaching",
-    tone: "Supportive, transparent, insider, authoritative",
-    description: "Positions HR recruiters as supportive career allies, sharing actionable interview tips that build massive trust with prospective hires.",
+    tone: "Sincere, encouraging, transparent, consultative",
+    description: "Demystifies the Asian corporate hiring process, presenting recruiters as supportive career allies and emphasizing mutual cultural harmony.",
     frontmatterYaml: `---
 id: "eb_unfiltered_recruiter_advice"
-source_account: "Brother USA Talent Acquisition"
-category: "Candidate Experience & Recruiting"
-tone: "Supportive, transparent, authoritative"
-target_audience: "Job seekers, interviewees, active talent pool"
-hook_archetype: "Insider Career Coach Hook"
+source_account: "Brother Talent Acquisition"
+category: "Candidate Experience & Coaching"
+tone: "Sincere, consultative, transparent"
+target_audience: "Singapore job seekers, mid-career professionals, talent seeking supportive leadership"
+hofstede_alignment:
+  power_distance: "Lowers applicant anxiety by framing interviews as mutual, respectful career consultations"
+  uncertainty_avoidance: "Provides transparent guidance and clear criteria, helping candidates feel prepared"
+  collectivism: "Emphasizes team harmony, shared values, and mutual fit over boastful self-promotion"
 ---`,
-    placeholderTemplate: `[Insert Hook: Challenge a generic interview question or resume myth, e.g. "The best interview question you can ask an employer isn't: 'What does a typical day look like?'"]
+    placeholderTemplate: `[Insert Hook: Frame the interview process as a two-way respectful conversation, e.g. "An interview isn't an interrogation. It's a mutual conversation about shared values and long-term fit."]
 
-In our latest edition of 'From the Desk of the Recruiter,' our talent acquisition team is sharing what genuinely makes candidates stand out during our hiring process:
+In our latest note from the Talent Acquisition team, we want to share what our hiring managers genuinely look for beyond what's written on a resume:
 
-1. [Tip / Question 1: Focused on business impact and 90-day problem solving]
-2. [Tip / Question 2: Focused on cultural alignment and company values in action]
-3. [Tip / Question 3: Focused on team dynamics and navigating workplace challenges]
+1. [Question / Trait 1: Curiosity and enthusiasm for continuous learning and skill adaptation]
+2. [Question / Trait 2: Ability to foster cross-team harmony, collaboration, and mutual respect]
+3. [Question / Trait 3: Genuine alignment with customer care and long-term accountability]
 
-[HR Insight: Explain why asking thoughtful questions turns an interrogation into an authentic, two-way career conversation]
+[HR Guidance: Explain why humility, practical problem-solving, and a team-first mindset shine brightest at Brother]
 
-[Insert Call to Action: Invite candidates to share their go-to interview questions or check open roles via pinned link 👇]
+[Insert Call to Action: Encourage job seekers to ask questions or explore career pathways with us 👇]
 
-#RecruitingAdvice #InterviewTips #CareerGrowth #LifeAtBrother #JobSearch #HiringTrends`,
-    examplePost: `The best interview question you can ask an employer isn't: 'What does a typical day look like?'
+#CareerAdvice #JobSearchSG #HiringInSingapore #LifeAtBrother #AtYourSide #TeamCulture`,
+    examplePost: `An interview isn't an interrogation. It's a mutual conversation about shared values and long-term fit.
 
-In our latest edition of 'From the Desk of the Recruiter,' Brother's in-house talent team reveals the questions that genuinely make candidates stand out:
+When exploring your next career chapter in Singapore, finding the right cultural environment is just as important as the job title.
 
-1. 'What is the single biggest challenge this department needs solved in the first 90 days?'
-2. 'How does this team embody Brother's 'At your side' philosophy when things don't go according to plan?'
-3. 'What kind of person thrives in this culture — and who typically struggles?'
+At Brother, our talent team is often asked what hiring managers value most. It rarely comes down to rehearsed buzzwords. Instead, we look for:
 
-When you ask strategic questions, you shift the interview from an interrogation to an executive conversation.
+1. **A Kaizen Mindset:** A genuine passion for continuous learning, curiosity to ask 'how can we improve this?', and openness to feedback.
+2. **Team Harmony (Wa):** How you listen, collaborate with colleagues from diverse backgrounds, and support collective team goals.
+3. **Customer-Centric Care:** A natural instinct to put yourself in the shoes of the person you are helping — embodying our 'At your side' promise.
 
-Swipe through for 5 insider tips directly from our hiring team 👇
-Which question do you always make sure to ask in an interview?
+We believe in hiring for character and integrity, and nurturing technical capabilities together.
 
-#RecruitingAdvice #InterviewTips #CareerGrowth #LifeAtBrother #JobSearch #HiringTrends`
+What is one question you always make sure to ask prospective employers during an interview? Share with us below! 👇
+
+#CareerAdvice #JobSearchSG #HiringInSingapore #LifeAtBrother #AtYourSide #TeamCulture`
   },
   {
-    id: "tmpl-eb-career-loyalty",
-    source: "Brother USA Employee Milestones Benchmark",
-    name: "Career Arc & Longevity (Anti-Churn Culture)",
-    category: "Employee Recognition & Loyalty",
-    tone: "Inspiring, deep storytelling, grateful, grounded",
-    description: "Showcases long-tenured employees (10 to 40 years) to prove Brother provides psychological safety, continuous mentorship, and internal mobility.",
+    id: "tmpl-eb-career-loyalty-sg",
+    source: "Brother Heritage & Long-Service Recognition Archive",
+    name: "Career Longevity & Multigenerational Stewardship",
+    category: "Employee Recognition & Retention",
+    tone: "Respectful, deeply appreciative, humble, storytelling-driven",
+    description: "Deeply honors Asian long-term orientation and filial loyalty, celebrating multi-decade milestones, institutional wisdom, and generational continuity.",
     frontmatterYaml: `---
 id: "eb_longterm_career_loyalty"
-source_account: "Brother USA Milestones Benchmark"
+source_account: "Brother Long-Service Archive"
 category: "Employee Recognition & Culture"
-tone: "Inspiring, storytelling-driven, appreciative"
-target_audience: "Mid-career talent, experienced hires looking for stability and growth"
-hook_archetype: "Storytelling Arc Hook"
+tone: "Respectful, appreciative, grounded"
+target_audience: "Experienced professionals, mid-career talent seeking stability, leadership candidates"
+hofstede_alignment:
+  long_term_orientation: "Deeply honors multi-decade dedication, institutional wisdom, and generational continuity"
+  collectivism: "Celebrates the mutual commitment between organization and individual — loyalty as a shared bond"
+  power_distance: "Respectful deference for senior leaders and long-serving contributors who laid the team's foundations"
 ---`,
-    placeholderTemplate: `[Insert Hook: Contrast tech industry job-hopping with extraordinary loyalty, e.g. "In an era where the average employee leaves after 2 years, what makes someone stay for 40?"]
+    placeholderTemplate: `[Insert Hook: Reflect on the rarity of multi-decade loyalty in today's fast-moving job market, e.g. "In a modern workforce where two-year job transitions are common, what inspires someone to dedicate decades to one organization?"]
 
-[The Unexpected Beginning: Describe how [Name] started (e.g. a short-term contract, an entry-level role, or an unexpected career pivot)]
+[The Humble Beginning: Describe how [Name] first joined the organization (a junior assignment, a specialized technical role, or an unexpected opportunity)]
 
-[The Growth Journey: Summarize how they evolved across departments, led innovations, and mentored the next generation]
+[The Decades of Quiet Impact: Chronicle their journey across business evolutions, product transformations, and mentoring younger generations]
 
-In [Name]'s own words:
-"[Quote from employee about why they stayed — the trust, the teamwork, the freedom to innovate without fear of failure]"
+In [Name]'s own reflection:
+"[Quote on the enduring culture of mutual respect, teamwork, and standing by one another through challenging seasons]"
 
-[The Brother Promise: Reaffirm that loyalty is earned through psychological safety, mentorship, and respecting people through all stages of life]
+[Corporate Gratitude: Express sincere corporate gratitude for their decades of stewardship, wisdom, and foundation-building]
 
-[Insert Call to Action: Congratulate the colleague or ask followers what makes a workplace worth staying at for the long haul 👇]
+[Insert Call to Action: Invite colleagues and industry friends to extend their warmest blessings and congratulations 👇]
 
-#LifeAtBrother #CareerLongevity #WorkplaceCulture #Mentorship #AtYourSide #EmployeeSpotlight`,
-    examplePost: `In 1985, a young professional named Bill Henderson took a short-term contract with Brother in Japan.
+#BrotherSingapore #LongServiceAward #CareerMilestone #GenerationalStewardship #AtYourSide #LifeAtBrother`,
+    examplePost: `In a modern workforce where two-year job transitions are common, what inspires someone to dedicate decades to one organization?
 
-He planned to stay for a few months.
-He stayed for nearly 40 years.
+What began as a short-term overseas assignment grew into nearly 40 years of dedicated service, leadership, and enduring impact.
 
-From those early days in Nagoya to serving as our Senior Vice President of Marketing & Customer Experience and Board Member, Bill shaped Brother into the household brand it is today. Over decades, he championed our labeling business from its infancy, mentored generations of leaders, and defined what customer centricity truly means.
+Throughout decades of technological shifts — from mechanical typing to digital thermal printing and industrial automation — veteran leaders like Bill Henderson helped build our global organization with quiet diligence and deep customer care.
 
-In Bill’s own words:
-"From the moment I arrived, I loved everything about the company — the people, the culture, the sense of teamwork. Brother gave me the opportunity to build a career I never could have planned for."
+Reflecting on this multi-decade journey, he shared:
+'From the moment I arrived, what stood out was the spirit of mutual respect and teamwork. Brother gave me the foundation to build a meaningful career surrounded by colleagues who truly look out for one another.'
 
-People don't stay at a company for decades because of the logo on their badge. They stay because they are trusted, challenged, and supported through every chapter of their lives.
+An organization's true strength is built on the shoulders of dedicated custodians who invest in the people around them.
 
-Thank you, Bill, for four decades of dedication! Enjoy your well-earned retirement. 🥂👏
+Please join us in expressing our deepest gratitude for four decades of exemplary stewardship, mentorship, and vision! 👏💐
 
-#LifeAtBrother #CareerLongevity #WorkplaceCulture #Mentorship #AtYourSide #EmployeeSpotlight`
+#BrotherSingapore #LongServiceAward #CareerMilestone #GenerationalStewardship #AtYourSide #LifeAtBrother`
   },
   {
-    id: "tmpl-eb-mission-erg",
-    source: "Brother USA ERG & Social Impact Benchmark",
-    name: "Mission in Action & Employee Resource Groups",
-    category: "DE&I and Social Responsibility",
-    tone: "Passionate, authentic, community-first, proud",
-    description: "Highlights employee-driven ERGs (Spectrum, WAYS, WeAreBRAAVE) and environmental actions to prove inclusion is an active practice, not corporate lip-service.",
+    id: "tmpl-eb-community-care-sg",
+    source: "Brother Singapore CSR & Multicultural Harmony Archive",
+    name: "Multicultural Harmony & Community Stewardship (CSR)",
+    category: "Culture & Community Impact",
+    tone: "Heartfelt, humble, harmonious, community-minded",
+    description: "Calibrated for Singapore's multiracial context and Asian communal responsibility \u2014 celebrating shared festivals, team harmony, and quiet charitable service.",
     frontmatterYaml: `---
-id: "eb_mission_in_action_erg"
-source_account: "Brother USA ERG Archive"
-category: "DE&I and Community Impact"
-tone: "Passionate, authentic, community-first"
-target_audience: "Values-driven professionals, diverse candidates, community partners"
-hook_archetype: "Action-Over-Slogans Hook"
+id: "eb_multicultural_community_care"
+source_account: "Brother Singapore CSR Archive"
+category: "Culture & Community Stewardship"
+tone: "Heartfelt, humble, harmonious"
+target_audience: "Singapore workforce, community partners, talent valuing social responsibility and harmony"
+hofstede_alignment:
+  collectivism: "Celebrates Singapore's multiracial harmony, team solidarity, and mutual responsibility toward society"
+  long_term_orientation: "Environmental stewardship and social contribution creating lasting benefits for future generations"
+  power_distance: "Leadership and staff roll up their sleeves together in volunteer service, reinforcing shared humility"
 ---`,
-    placeholderTemplate: `[Insert Hook: Contrast corporate virtue signaling with grass-roots employee action, e.g. "Inclusion isn't a badge you wear for 30 days in June. It's how people feel on an ordinary Tuesday morning."]
+    placeholderTemplate: `[Insert Hook: Reflect on the shared strength of mutual respect, diverse cultural traditions, and community care, e.g. "Our shared strength as a team in Singapore is rooted in mutual respect, diverse traditions, and caring for the community around us."]
 
-[The Employee-Led Initiative: Detail the specific event or cause spearheaded by an ERG (Spectrum, WAYS, WeAreBRAAVE) or volunteering team]
+[Communal Initiative: Describe a concrete team volunteer initiative (nature reserve trail restoration, coastal conservation, or charitable outreach)]
 
-What our team made happen:
-🌱 [Action Metric 1: Funds raised, bags of litter collected, or students mentored]
-🌱 [Action Metric 2: Reinvesting corporate budgets directly into local minority- or women-owned businesses]
-🌱 [Action Metric 3: Safe, supportive community dialogue inside the workplace]
+Working side-by-side across departments and backgrounds:
+🌿 [Action 1: Environmental protection protecting green spaces for future generations]
+🤝 [Action 2: Partnering with local community welfare groups to support underserved families]
+🍱 [Action 3: Coming together across Chinese, Malay, Indian, and Eurasian cultural traditions in mutual celebration]
 
-[The Cultural Proof: Explain that at Brother, employees have real budget and executive sponsorship to lead causes they believe in]
+[The Philosophy: Reaffirm Brother's 'At your side' commitment — being a responsible corporate citizen dedicated to societal harmony]
 
-[Insert Call to Action: Shout out community partners and ask followers how their teams turn values into action 👇]
+[Insert Call to Action: Thank partner non-profits and invite followers to share how their teams give back to the community 👇]
 
-#DiversityInTech #EmployeeResourceGroups #SocialResponsibility #LifeAtBrother #AtYourSide #DEI`,
-    examplePost: `Inclusion isn't a badge you wear for 30 days in June. It's how people feel when they walk into work on an ordinary Tuesday morning.
+#BrotherSingapore #BrotherEarth #MulticulturalHarmony #CommunityCare #CSRSingapore #AtYourSide #SGTogether`,
+    examplePost: `Our shared strength as a team in Singapore is rooted in mutual respect, diverse traditions, and caring for the community around us.
 
-During Pride Month, we honor the history, resilience, and contributions of the LGBTQ+ community. At Brother, our Spectrum Employee Resource Group plays a vital role year-round:
-🏳️‍🌈 Providing peer support, coffee roundtables, and mentorship
-🏳️‍🌈 Advising on inclusive company policies and employee benefits
-🏳️‍🌈 Organizing community volunteer events with local non-profits
+Corporate responsibility isn't about grand slogans. It's about showing up quietly for our environment and our neighbors.
 
-When employees know they are valued for exactly who they are, innovation and trust naturally follow.
+Recently, colleagues from across our business came together alongside local environmental partners to clear debris and maintain natural habitats along our local coastlines and reserves.
 
-Culture isn't dictated from the top down. It's built by passionate employees who feel empowered to lead.
+Rolling up our sleeves side-by-side — managers, technicians, and administrative teammates alike — reinforced what truly unites us:
+🌿 Caring for our shared natural heritage so future generations can enjoy it
+🤝 Deepening bonds of mutual respect and teamwork outside the office
+💡 Living our 'At your side' promise not just for our customers, but for our wider Singapore community
 
-Learn more about Brother’s culture and employee resource groups via the link in the comments.
+True team harmony is forged through shared service and mutual care.
 
-#DiversityInTech #EmployeeResourceGroups #SocialResponsibility #LifeAtBrother #AtYourSide #DEI`
+A heartfelt thank you to all our team members and community partners who contributed their time and energy! 🌏💚
+
+#BrotherSingapore #BrotherEarth #MulticulturalHarmony #CommunityCare #CSRSingapore #AtYourSide #SGTogether`
   },
   {
-    id: "tmpl-eb-frontline-pride",
-    source: "Brother USA / BMS Operations Benchmark",
-    name: "Behind-The-Scenes Frontline & Tech Pride",
-    category: "Operational & Engineering Pride",
-    tone: "Proud, curious, technical yet accessible, energizing",
-    description: "Showcases the quiet engineering marvels and logistics heroes behind Brother products, making prospective engineers and operations candidates proud to join.",
+    id: "tmpl-eb-craftsmanship-sg",
+    source: "Brother Monozukuri & Precision Engineering Archive",
+    name: "Precision Craftsmanship & Frontline Dedication (Monozukuri)",
+    category: "Engineering & Operational Excellence",
+    tone: "Respectful, understated, precise, quietly confident",
+    description: "Tuned to the Japanese spirit of Monozukuri (craft mastery) and Asian work ethic \u2014 honoring the quiet, unsung technicians and warehouse logistics teams.",
     frontmatterYaml: `---
-id: "eb_behind_the_scenes_pride"
-source_account: "Brother Operational Hubs"
-category: "Engineering & Operations Pride"
-tone: "Proud, curious, energizing"
-target_audience: "Operations specialists, supply chain professionals, engineers"
-hook_archetype: "Unexpected Curiosity Hook"
+id: "eb_craftsmanship_frontline_excellence"
+source_account: "Brother Monozukuri Engineering"
+category: "Engineering & Operations Excellence"
+tone: "Respectful, understated, precise"
+target_audience: "Engineers, supply chain specialists, operations managers, technical candidates"
+hofstede_alignment:
+  uncertainty_avoidance: "Commitment to zero-defect precision, rigorous testing, and mission-critical reliability"
+  long_term_orientation: "Respect for foundational engineering mastery (Monozukuri) and continuous refinement (Kaizen)"
+  collectivism: "Recognizes the unsung operations, fulfillment, and field technicians whose collective diligence keeps industries moving"
 ---`,
-    placeholderTemplate: `[Insert Hook: Reveal an unexpected, high-stakes fact about what Brother actually builds or powers, e.g. "Think Brother only makes desktop printers? Look closer at the next automated warehouse you visit."]
+    placeholderTemplate: `[Insert Hook: Highlight an unseen, mission-critical operational system that society quietly depends on, e.g. "The most reliable technology is often the kind that works so seamlessly, you never have to think about it."]
 
-[Behind the Curtain: Take readers into the facility where the magic happens — robotics labs, high-speed fulfillment hubs, or extreme durability testing]
+[Behind the Scenes: Take readers into the technical discipline behind the scenes — precision gearmotors, industrial fulfillment, or extreme durability testing]
 
-Here is what our technical and operational teams make possible every single day:
-⚡ [Impact 1: Precision engineering powering automation, robotics, or healthcare]
-⚡ [Impact 2: Supply chain choreography delivering thousands of mission-critical parts overnight]
-⚡ [Impact 3: Rugged testing to ensure equipment never fails frontline workers in the field]
+Behind every automated distribution line, hospital specimen workflow, and commercial delivery:
+⚡ [Precision Mastery 1: Engineering compact, high-torque systems designed for 24/7 industrial dependability]
+⚡ [Operational Diligence 2: Supply chain precision ensuring mission-critical hardware reaches frontline workers without delay]
+⚡ [The Monozukuri Standard 3: Rigorous quality checks reflecting our heritage of zero-defect craftsmanship]
 
-[The Pride Factor: Emphasize that working at Brother means solving problems that directly keep essential businesses running]
+[Gratitude to the Frontline: Honor the quiet dedication of warehouse coordinators, technicians, and field service specialists]
 
-[Insert Call to Action: Shout out the operations and engineering crews, and invite candidates to view open technical roles 👇]
+[Insert Call to Action: Invite technical, logistics, and engineering minds to explore careers rooted in craft mastery 👇]
 
-#EngineeringExcellence #SupplyChain #WarehouseOperations #LifeAtBrother #InnovationInAction #ProudToWorkHere`,
-    examplePost: `Think Brother only makes desktop printers? Look closer at the next automated warehouse you visit.
+#Monozukuri #EngineeringExcellence #SupplyChainPrecision #BrotherSingapore #AtYourSide #IndustrialInnovation`,
+    examplePost: `The most reliable technology is often the kind that works so seamlessly, you never have to think about it.
 
-Hidden inside high-speed conveyor systems, precision medical robotics, and automated guided vehicles (AGVs), you’ll find Brother Gearmotors.
+Behind high-speed airport sorting systems, medical laboratory robotics, and automated manufacturing lines across Asia, you will often find quiet Brother gearmotors and industrial identification systems working around the clock.
 
-For decades, our engineers have crafted high-torque, sub-fractional gearmotors designed for 24/7 industrial uptime:
-⚡ Powers high-speed sorting and fulfillment hubs worldwide
-⚡ Compact hypoid gearing engineered for whisper-quiet efficiency
-⚡ Precision-tested to withstand extreme continuous industrial cycles
+In an era of disposable hardware, our engineering philosophy remains rooted in **Monozukuri** — the art of purposeful, precision craftsmanship:
+⚡ High-efficiency, sub-fractional gearmotors engineered for whisper-quiet endurance
+⚡ Industrial labeling tested to withstand extreme heat, chemicals, and humidity
+⚡ A dedicated logistics and fulfillment team ensuring critical parts reach regional enterprises without disruption
 
-Innovation takes many forms. Sometimes, it’s the quiet motor powering the robotic future.
+World-class technology is only possible through the quiet diligence and pride of our frontline technicians, engineers, and supply chain coordinators.
 
-Shout out to our engineering and manufacturing teams for keeping global industry moving forward! 🤖⚙️
+To our operations and engineering colleagues across the region: thank you for keeping essential industries moving forward with reliability and integrity! ⚙️🤝
 
-#EngineeringExcellence #SupplyChain #WarehouseOperations #LifeAtBrother #InnovationInAction #ProudToWorkHere`
-  },
-  {
-    id: "tmpl-brother-kaizen",
-    source: "Brother Global / Brother AP Benchmark",
-    name: "Kaizen Innovation & Precision Superpowers",
-    category: "Productivity & Solutions",
-    tone: "Inspiring, authoritative, human-centric, Kaizen-grounded",
-    description: "Deconstructed from top-performing Brother Global posts on continuous improvement and digital ease.",
-    frontmatterYaml: `---
-id: "brother_kaizen_productivity"
-source_account: "Brother Global / AP Benchmark"
-category: "Workplace Innovation"
-tone: "Inspiring, authoritative, human-centric"
-target_audience: "Singapore Enterprise Leaders & Operations Managers"
-hook_archetype: "Pain-to-Superpower Transition"
----`,
-    placeholderTemplate: `[Insert Hook: Provocative question challenging manual friction, e.g. "What if your team could eliminate 5 hours of administrative coordination every week? ⏳"]
-
-[State the Workplace Problem: Describe the 1-2 repetitive friction points draining team focus in Singapore enterprises]
-
-At Brother Singapore, our 'At your side' philosophy is rooted in Kaizen — continuous, human-centered improvement. Here is how modern workplaces are unlocking breakthrough efficiency:
-
-• [Superpower 1: Automated task ingestion & document synthesis]
-• [Superpower 2: Zero-defect verification maintaining quality with zero fatigue]
-• [Superpower 3: Seamless cross-departmental handoffs without manual re-entry]
-
-[Brother Connection: How Brother Singapore solutions/printers/scanners/AI workflows stand beside local teams to make this a reality]
-
-[Insert Call to Action: Conversational question inviting followers to share their biggest workflow bottleneck 👇]
-
-#BrotherSingapore #AtYourSide #Kaizen #WorkplaceInnovation #FutureOfWork #DigitalTransformation`,
-    examplePost: `What if your team could eliminate 5 hours of administrative coordination every week? ⏳
-
-In today's fast-moving business landscape, high-performing teams shouldn't be bogged down by manual data re-entry and fragmented approvals.
-
-At Brother Singapore, our 'At your side' philosophy is rooted in Kaizen — continuous, human-centered improvement. Here is how modern workplaces are unlocking breakthrough efficiency:
-
-• Automated document ingestion transforming paper workflows into real-time digital actions
-• Intelligent verification maintaining high precision with near-zero error rates
-• Frictionless cross-team collaboration empowering employees to focus on strategic creativity
-
-When technology takes care of the routine, your people are free to innovate.
-
-What is one repetitive workflow task your team would love to automate this quarter? Share with us below! 👇
-
-#BrotherSingapore #AtYourSide #Kaizen #WorkplaceInnovation #FutureOfWork #DigitalTransformation`
-  },
-  {
-    id: "tmpl-competitor-b2b-case",
-    source: "Canon / Epson Singapore Competitor Benchmark",
-    name: "Enterprise Cost & Waste Reduction Case",
-    category: "B2B Sustainability & ROI",
-    tone: "Data-driven, persuasive, practical, eco-conscious",
-    description: "Reverse-engineered from top competitor B2B campaign posts highlighting total cost of ownership and green office credentials.",
-    frontmatterYaml: `---
-id: "b2b_sustainability_roi"
-source_account: "Competitor Market Benchmark"
-category: "B2B Sustainability & Solutions"
-tone: "Data-driven, persuasive, eco-conscious"
-target_audience: "Procurement & Sustainability Heads"
-hook_archetype: "Surprising Data Metric Hook"
----`,
-    placeholderTemplate: `[Insert Hook: Start with a hard-hitting data point, e.g. "Did you know that 30% of enterprise print and energy waste is completely preventable? 🌿📊"]
-
-[State the Hidden Cost: Explain how legacy equipment and unmonitored consumables drain budgets and increase carbon footprint]
-
-Smart businesses across Singapore are rethinking workplace infrastructure:
-✔️ [Benefit 1: High-yield genuine consumables cutting replacement cycles by X%]
-✔️ [Benefit 2: Low-energy standby modes certified under global eco standards]
-✔️ [Benefit 3: Centralized fleet management tracking usage metrics in real time]
-
-[Brother Earth Connection: Reaffirm Brother Singapore's 5R environmental commitments and local e-waste recycling programs]
-
-[Insert Call to Action: Invite readers to download a green office audit checklist or discuss sustainability goals 👇]
-
-#BrotherSingapore #BrotherEarth #SustainabilityInAction #GreenOfficeSG #SmartOperations`,
-    examplePost: `Did you know that 30% of enterprise print and energy waste is completely preventable? 🌿📊
-
-As Singapore organizations accelerate their green transition, sustainable workplace technology is no longer optional — it is a smart business advantage.
-
-By modernizing your office fleet with high-efficiency hardware:
-✔️ High-yield consumables reduce packaging waste and operational downtime
-✔️ Intelligent eco-modes lower energy consumption by up to 40%
-✔️ Smart monitoring provides transparent visibility over departmental usage
-
-At Brother Singapore, our Brother Earth initiative is dedicated to walking beside you on your ESG journey.
-
-How is your office reducing carbon footprint this year? Let's discuss below! 👇
-
-#BrotherSingapore #BrotherEarth #SustainabilityInAction #GreenOfficeSG #SmartOperations`
-  },
-  {
-    id: "tmpl-brother-festive-spotlight",
-    source: "Brother AP Social Community Benchmark",
-    name: "Multicultural Community & Team Spotlight",
-    category: "Culture & Employer Branding",
-    tone: "Warm, authentic, inclusive, celebratory",
-    description: "Derived from high-engagement Brother regional holiday and employee culture stories.",
-    frontmatterYaml: `---
-id: "brother_community_spotlight"
-source_account: "Brother AP Community Benchmark"
-category: "Culture & Celebrations"
-tone: "Warm, authentic, inclusive"
-target_audience: "Singapore Community, Employees, Prospective Talent"
-hook_archetype: "Festive Multiracial Celebration Hook"
----`,
-    placeholderTemplate: `[Insert Festive Hook: Energetic celebration greeting for the occasion, e.g. "Happy [Occasion Name] to all our friends, partners, and colleagues across Singapore! 🌟✨"]
-
-[Cultural Reflection: Briefly highlight the core value of the holiday — unity, gratitude, renewal, or family bonding]
-
-[Brother Singapore Office Moment: Share a glimpse of how our diverse team is marking the festival together (pantry treats, decorations, cultural sharing)]
-
-[People-First Message: Emphasize that our team's diverse strengths and shared respect are what power our 'At your side' promise every day]
-
-[Insert Call to Action: Ask followers how their teams and families are celebrating this special day 👇]
-
-#BrotherSingapore #LifeAtBrother #CelebrateTogether #AtYourSide #PeopleFirst #[OccasionHashtag]`,
-    examplePost: `Happy Singapore National Day to all our friends, partners, and colleagues across the nation! 🇸🇬✨
-
-61 years of sovereignty, resilience, and forward progress — built on the united strength of our multicultural community.
-
-At Brother Singapore, we are proud to stand 'At your side' as local businesses and communities continue to pioneer new heights.
-
-From our Brother family to yours, we wish everyone a vibrant and joyous National Day celebration with your loved ones! 🎉
-
-Majulah Singapura! 
-
-#BrotherSingapore #NDP2026 #NationalDay2026 #MajulahSingapura #AtYourSide #LifeAtBrother`
+#Monozukuri #EngineeringExcellence #SupplyChainPrecision #BrotherSingapore #AtYourSide #IndustrialInnovation`
   }
 ];
 
@@ -398,30 +294,32 @@ export function extractTemplateFromInput({ type, content, title = "Custom Extrac
     id: `tmpl-extracted-${Date.now()}`,
     source: type === 'url' ? `Live Post: ${content}` : type === 'screenshot' ? 'Screenshot Image Analysis' : 'PDF Document Archive',
     name: title,
-    category: "Extracted Competitive Benchmark",
-    tone: "Persuasive, structured, instructional",
-    description: "Reverse-engineered using Gemini Multimodal Vision & Structure Extractor.",
+    category: "Extracted Benchmark",
+    tone: "Culturally Calibrated, Respectful, Structured",
+    description: "Reverse-engineered and calibrated to Hofstede Asian dimensions (Harmony, Monozukuri, Long-term Stewardship).",
     frontmatterYaml: `---
 id: "custom_extracted_${Date.now()}"
 source_type: "${type}"
 extracted_at: "${new Date().toISOString().slice(0, 10)}"
 category: "Extracted Benchmark"
-tone: "Structured, high-impact"
+tone: "Respectful, grounded, team-oriented"
+hofstede_calibration: "Singapore / Asian Cultural Alignment"
 ---`,
-    placeholderTemplate: `[Insert Hook: Highlight the core insight or compelling question that stops the scroll within 120 characters]
+    placeholderTemplate: `[Insert Culturally Calibrated Hook: Respectful observation, communal value reflection, or operational insight]
 
-[State the Context: Introduce the key challenge or announcement relevant to Singapore enterprise audiences]
+[State the Communal Context: Highlight how the initiative supports customer care, employee well-being, or team harmony]
 
-Key Highlights & Takeaways:
-🔹 [Point 1: Describe the primary achievement, feature, or metric]
-🔹 [Point 2: Explain why this matters for operational velocity]
-🔹 [Point 3: Connect to human empowerment and practical utility]
+Key Reflections & Takeaways:
+🔹 [Point 1: Concrete achievement or craft precision upholding quality standards]
+🔹 [Point 2: Team collaboration and cross-functional harmony]
+🔹 [Point 3: Long-term value creation for partners and community]
 
-[Brother Singapore Angle: Reiterate how Brother stands 'At your side' with trusted local support]
+[Brother Connection: Emphasize 'At your side' dedication with quiet reliability and integrity]
 
-[Insert Call to Action: Invite comments, questions, or perspectives from the community 👇]
+[Insert Call to Action: Sincere, respectful question inviting peer perspectives 👇]
 
-#BrotherSingapore #AtYourSide #WorkplaceInnovation #SingaporeBusiness`,
-    examplePost: content ? `Extracted sample post inspired by:\n${content.slice(0, 280)}...` : "Sample post ready to be drafted with this new template."
+#BrotherSingapore #AtYourSide #LifeAtBrother #WorkplaceHarmony`,
+    examplePost: content ? `Extracted post aligned with Asian cultural calibration:
+${content.slice(0, 280)}...` : "Sample post ready to be drafted with this new template."
   };
 }

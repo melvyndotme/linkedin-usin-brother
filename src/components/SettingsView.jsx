@@ -25,6 +25,8 @@ export default function SettingsView({ isDark }) {
   const [linkedInClientSecret, setLinkedInClientSecret] = useState(safeGetItem('linkedin_client_secret') || '');
   const [linkedInToken, setLinkedInToken] = useState(safeGetItem('key_linkedin') || '');
   const [copiedCallback, setCopiedCallback] = useState(false);
+  const [liTesting, setLiTesting] = useState(false);
+  const [liDataResult, setLiDataResult] = useState(null);
 
   // Gemini API Configuration
   const [geminiKey, setGeminiKey] = useState(safeGetItem('key_gemini') || '');
@@ -163,6 +165,40 @@ export default function SettingsView({ isDark }) {
       message: reports.join(' • ')
     });
     setTimeout(() => setTestResult(null), 7000);
+  };
+
+  const handleTestFetchLiveLinkedIn = async () => {
+    setLiTesting(true);
+    setLiDataResult(null);
+
+    const activeOrgId = cleanLinkedInOrgId(linkedInOrgId || safeGetItem('linkedin_org_id') || '808877');
+    const activeToken = (linkedInToken || safeGetItem('key_linkedin') || '').trim();
+
+    if (!activeToken) {
+      setLiTesting(false);
+      setLiDataResult({
+        success: false,
+        error: 'Please enter your OAuth 2.0 Access Token first. Unlock the admin panel to paste the token.'
+      });
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/linkedin/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orgId: activeOrgId, token: activeToken })
+      });
+      const data = await res.json();
+      setLiDataResult(data);
+    } catch (e) {
+      setLiDataResult({
+        success: false,
+        error: e.message || 'Network error connecting to /api/linkedin/data'
+      });
+    } finally {
+      setLiTesting(false);
+    }
   };
 
   const handleTestResend = async () => {
@@ -707,6 +743,74 @@ export default function SettingsView({ isDark }) {
               <span className="text-[9px] px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 font-mono font-semibold">rw_organization_admin</span>
             </div>
           </div>
+
+          {/* Test & Fetch Live LinkedIn Data Button */}
+          <div className="pt-3 border-t border-slate-200/60 dark:border-slate-800/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <button
+              type="button"
+              onClick={handleTestFetchLiveLinkedIn}
+              disabled={liTesting}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold transition-all disabled:opacity-50 cursor-pointer shadow-sm active:scale-95"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${liTesting ? 'animate-spin' : ''}`} />
+              <span>{liTesting ? 'Connecting to LinkedIn REST API...' : '⚡ Test & Fetch Live LinkedIn Data'}</span>
+            </button>
+
+            <span className="text-[11px] text-slate-500">
+              Validates credentials and retrieves official company name, followers, and live posts.
+            </span>
+          </div>
+
+          {/* Live LinkedIn Data Results Card */}
+          {liDataResult && (
+            <div className={`p-4 rounded-xl border text-xs space-y-2 ${
+              liDataResult.success
+                ? 'bg-emerald-50/80 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200'
+                : 'bg-rose-50/80 dark:bg-rose-950/40 border-rose-300 dark:border-rose-800 text-rose-900 dark:text-rose-200'
+            }`}>
+              <div className="flex items-center justify-between font-bold">
+                <div className="flex items-center gap-2">
+                  {liDataResult.success ? (
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  ) : (
+                    <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                  )}
+                  <span>{liDataResult.success ? '✅ Live LinkedIn API Connection Verified!' : '❌ LinkedIn Connection Failed'}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setLiDataResult(null)}
+                  className="opacity-60 hover:opacity-100 p-0.5"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {liDataResult.success ? (
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 font-mono text-[11px]">
+                  <div className="p-2 rounded-lg bg-white/70 dark:bg-slate-900/60 border border-emerald-200 dark:border-emerald-900">
+                    <span className="text-slate-500 block text-[10px]">Company Name</span>
+                    <strong className="text-slate-900 dark:text-white">{liDataResult.organization?.name}</strong>
+                  </div>
+                  <div className="p-2 rounded-lg bg-white/70 dark:bg-slate-900/60 border border-emerald-200 dark:border-emerald-900">
+                    <span className="text-slate-500 block text-[10px]">Live Follower Count</span>
+                    <strong className="text-emerald-700 dark:text-emerald-300">{liDataResult.organization?.followers?.toLocaleString()} followers</strong>
+                  </div>
+                  <div className="p-2 rounded-lg bg-white/70 dark:bg-slate-900/60 border border-emerald-200 dark:border-emerald-900">
+                    <span className="text-slate-500 block text-[10px]">Recent Posts Synced</span>
+                    <strong className="text-[#0f2ea2] dark:text-blue-400">{liDataResult.totalPostsRetrieved || 0} live posts</strong>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-1">
+                  <p className="font-semibold">{liDataResult.error}</p>
+                  {liDataResult.rawError && (
+                    <p className="font-mono text-[10px] opacity-75">{liDataResult.rawError}</p>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* SendPilot & OpenAI Fallback Integrations */}

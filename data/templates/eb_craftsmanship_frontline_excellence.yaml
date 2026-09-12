@@ -1,0 +1,22 @@
+---
+id: "eb_craftsmanship_frontline_excellence"
+name: "Precision Craftsmanship & Frontline Dedication (Monozukuri)"
+category: "Engineering & Operational Excellence"
+target_audience: "Engineers, supply chain specialists, operations managers, technical talent"
+tone: "Respectful, understated, precise, quietly confident"
+hofstede_alignment:
+  uncertainty_avoidance: "Commitment to zero-defect precision, rigorous testing, and mission-critical reliability"
+  long_term_orientation: "Respect for foundational engineering mastery (Monozukuri) and continuous refinement (Kaizen)"
+  collectivism: "Recognizes the unsung operations, fulfillment, and field technicians whose collective diligence keeps industries moving"
+structure_rules:
+  hook: "Highlight an unseen, critical operational system that businesses and communities quietly depend on every day."
+  behind_the_scenes: "Walk through the dedicated craftsmanship — logistics coordination, robotics engineering, or durability testing."
+  the_monozukuri_spirit: "Emphasize Japanese heritage of precision and the Asian work ethic of thoroughness and quiet excellence."
+  gratitude_to_frontline: "Sincerely acknowledge the unsung frontline professionals who make this reliability possible."
+  cta: "Invite operational and technical professionals to explore careers rooted in craft mastery."
+hook_style: "Quiet Craftsmanship Hook"
+sample_hooks:
+  - "The most reliable technology is often the kind that works so seamlessly, you never have to think about it."
+  - "Behind every automated logistics line and critical hospital workflow is a quiet commitment to zero-defect precision."
+  - "In an era of disposable gadgets, we remain dedicated to the art of durable, purposeful engineering (Monozukuri)."
+---
