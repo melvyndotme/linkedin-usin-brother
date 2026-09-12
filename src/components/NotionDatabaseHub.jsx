@@ -184,9 +184,10 @@ export default function NotionDatabaseHub({ isDark }) {
           url: data.notionUrl
         });
       } else {
+        const errorMsg = data.error || (data.results && data.results.find(r => !r.success)?.error) || 'Failed to seed templates to Notion. Please check your NOTION_API_KEY.';
         setTemplateSeedResult({
           status: 'error',
-          message: data.error || 'Failed to seed templates to Notion. Please check your NOTION_API_KEY.'
+          message: errorMsg
         });
       }
     } catch (e) {

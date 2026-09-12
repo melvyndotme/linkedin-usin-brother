@@ -51,6 +51,7 @@ export default async function handler(req, res) {
   try {
     // 1. Locate or Auto-Discover the "LinkedUsIn: Template Library" Database
     let templateDbId = null;
+    let dbProps = {};
 
     // Search via Notion Search API
     const searchRes = await fetch('https://api.notion.com/v1/search', {
@@ -71,6 +72,7 @@ export default async function handler(req, res) {
       });
       if (foundDb) {
         templateDbId = foundDb.id;
+        dbProps = foundDb.properties || {};
       }
     }
 
@@ -107,13 +109,86 @@ export default async function handler(req, res) {
       if (createDbRes.ok) {
         const createdDb = await createDbRes.json();
         templateDbId = createdDb.id;
+        dbProps = createdDb.properties || {};
       } else {
         const errData = await createDbRes.json();
         throw new Error(`Failed to create Template Library database in Notion: ${errData.message || createDbRes.statusText}`);
       }
+    } else if (Object.keys(dbProps).length === 0) {
+      // If we found a templateDbId but don't have its properties yet, fetch them
+      try {
+        const dbMetaRes = await fetch(`https://api.notion.com/v1/databases/${templateDbId}`, {
+          method: 'GET',
+          headers
+        });
+        if (dbMetaRes.ok) {
+          const dbMeta = await dbMetaRes.json();
+          dbProps = dbMeta.properties || {};
+        }
+      } catch (e) {
+        console.warn('Could not fetch template db metadata:', e.message);
+      }
     }
 
-    // 2. Insert each template into the database
+    // 2. Ensure database schema has all required properties (PATCH database schema if missing)
+    try {
+      const missingProps = {};
+      const lowerPropKeys = Object.keys(dbProps).map(k => k.toLowerCase());
+
+      if (!lowerPropKeys.includes('category')) {
+        missingProps['Category'] = {
+          select: {
+            options: [
+              { name: 'Employer Branding & Culture', color: 'blue' },
+              { name: 'Talent Acquisition & Internships', color: 'purple' },
+              { name: 'Innovation & Kaizen', color: 'green' },
+              { name: 'Sustainability & ESG', color: 'emerald' },
+              { name: 'Leadership & Vision', color: 'orange' },
+              { name: 'Customer Partnership', color: 'pink' }
+            ]
+          }
+        };
+      }
+      if (!lowerPropKeys.includes('tone')) {
+        missingProps['Tone'] = { rich_text: {} };
+      }
+      if (!lowerPropKeys.includes('source')) {
+        missingProps['Source'] = { rich_text: {} };
+      }
+      if (!lowerPropKeys.includes('description')) {
+        missingProps['Description'] = { rich_text: {} };
+      }
+
+      if (Object.keys(missingProps).length > 0) {
+        const patchRes = await fetch(`https://api.notion.com/v1/databases/${templateDbId}`, {
+          method: 'PATCH',
+          headers,
+          body: JSON.stringify({ properties: missingProps })
+        });
+        if (patchRes.ok) {
+          const updatedMeta = await patchRes.json();
+          dbProps = updatedMeta.properties || dbProps;
+        }
+      }
+    } catch (e) {
+      console.warn('Could not auto-add properties to database schema:', e.message);
+    }
+
+    // Identify actual property keys in the database schema
+    const titleEntry = Object.entries(dbProps).find(([_, val]) => val?.type === 'title');
+    const titleKey = titleEntry ? titleEntry[0] : 'Template Name';
+
+    const findPropKey = (desiredName) => {
+      const lower = desiredName.toLowerCase();
+      return Object.keys(dbProps).find(k => k.toLowerCase() === lower);
+    };
+
+    const catKey = findPropKey('Category');
+    const toneKey = findPropKey('Tone');
+    const sourceKey = findPropKey('Source');
+    const descKey = findPropKey('Description');
+
+    // 3. Insert each template into the database
     const results = [];
     for (const item of itemsToSave) {
       const name = item.name || 'Custom Ingested Template';
@@ -149,26 +224,37 @@ export default async function handler(req, res) {
         }))
       ];
 
+      const pageProperties = {
+        [titleKey]: {
+          title: [{ text: { content: name } }]
+        }
+      };
+
+      if (catKey) {
+        pageProperties[catKey] = {
+          select: { name: category.substring(0, 95) }
+        };
+      }
+      if (toneKey) {
+        pageProperties[toneKey] = {
+          rich_text: [{ text: { content: tone.substring(0, 1000) } }]
+        };
+      }
+      if (sourceKey) {
+        pageProperties[sourceKey] = {
+          rich_text: [{ text: { content: source.substring(0, 1000) } }]
+        };
+      }
+      if (descKey) {
+        pageProperties[descKey] = {
+          rich_text: [{ text: { content: description.substring(0, 1000) } }]
+        };
+      }
+
       const pagePayload = {
         parent: { database_id: templateDbId },
         icon: { type: 'emoji', emoji: '📄' },
-        properties: {
-          'Template Name': {
-            title: [{ text: { content: name } }]
-          },
-          'Category': {
-            select: { name: category.substring(0, 95) }
-          },
-          'Tone': {
-            rich_text: [{ text: { content: tone.substring(0, 1000) } }]
-          },
-          'Source': {
-            rich_text: [{ text: { content: source.substring(0, 1000) } }]
-          },
-          'Description': {
-            rich_text: [{ text: { content: description.substring(0, 1000) } }]
-          }
-        },
+        properties: pageProperties,
         children: childrenBlocks
       };
 
@@ -188,6 +274,7 @@ export default async function handler(req, res) {
     }
 
     const successfulCount = results.filter(r => r.success).length;
+    const firstError = results.find(r => !r.success)?.error;
     const lastSavedUrl = results.find(r => r.success)?.url || `https://notion.so/${templateDbId.replace(/-/g, '')}`;
 
     return res.status(200).json({
@@ -196,6 +283,7 @@ export default async function handler(req, res) {
       total: itemsToSave.length,
       databaseId: templateDbId,
       notionUrl: lastSavedUrl,
+      error: successfulCount === 0 ? (firstError || 'Failed to save templates to Notion') : undefined,
       results
     });
 

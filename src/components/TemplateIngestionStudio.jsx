@@ -104,9 +104,10 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
         }
         setSelectedTemplate(tmplToSave);
       } else {
+        const errorMsg = data.error || (data.results && data.results.find(r => !r.success)?.error) || 'Failed to save to Notion. Please check your NOTION_API_KEY in Settings.';
         setNotionSaveStatus({
           status: 'error',
-          message: data.error || 'Failed to save to Notion. Please check your NOTION_API_KEY in Settings.'
+          message: errorMsg
         });
       }
     } catch (err) {
@@ -145,9 +146,10 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
           url: data.notionUrl
         });
       } else {
+        const errorMsg = data.error || (data.results && data.results.find(r => !r.success)?.error) || 'Failed to seed templates to Notion. Please verify NOTION_API_KEY in Settings.';
         setSeedStatus({
           status: 'error',
-          message: data.error || 'Failed to seed templates to Notion. Please verify NOTION_API_KEY in Settings.'
+          message: errorMsg
         });
       }
     } catch (err) {
