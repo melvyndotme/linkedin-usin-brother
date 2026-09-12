@@ -695,12 +695,10 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
 
                   <div
                     ref={blueprintRef}
-                    className={`blueprint-box p-5 pr-28 rounded-xl font-mono text-xs whitespace-pre-wrap leading-relaxed border min-h-[320px] max-h-[500px] overflow-y-auto custom-scrollbar transition-all duration-200 ${
-                      copied
-                        ? 'ring-2 ring-[#0f2ea2] border-[#0f2ea2] bg-blue-50/40 dark:bg-blue-950/40 text-slate-900 dark:text-white'
-                        : isDark
-                        ? 'bg-slate-950 border-slate-800 text-slate-200 shadow-inner'
-                        : 'bg-slate-50 border-slate-200 text-slate-800 shadow-inner'
+                    className={`blueprint-box p-5 pr-20 rounded-xl font-mono text-xs whitespace-pre-wrap leading-relaxed border min-h-[320px] max-h-[500px] overflow-y-auto custom-scrollbar transition-colors ${
+                      isDark
+                        ? 'bg-slate-950 border-slate-800 text-slate-200'
+                        : 'bg-slate-50 border-slate-200 text-slate-800'
                     } selection:bg-[#0f2ea2] selection:text-white dark:selection:bg-blue-600 dark:selection:text-white`}
                   >
                     {selectedTemplate.placeholderTemplate}
