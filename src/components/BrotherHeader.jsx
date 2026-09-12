@@ -1,76 +1,141 @@
 import React from 'react';
-import { Sun, Moon, LogOut, Menu, X } from 'lucide-react';
-import { OFFICIAL_BROTHER_LOGO_URL } from '../lib/svgBrotherWebsiteTemplates.js';
+import { 
+  Menu, 
+  X, 
+  Sun, 
+  Moon, 
+  Bell, 
+  ExternalLink, 
+  ChevronDown, 
+  LayoutDashboard, 
+  Calendar, 
+  Newspaper, 
+  Edit3, 
+  Layers, 
+  Database, 
+  Users, 
+  Sliders,
+  Share2
+} from 'lucide-react';
 
-export default function BrotherHeader({ isDark, setIsDark, currentUser, onLogout, mobileMenuOpen, setMobileMenuOpen }) {
+const TAB_CONFIG = {
+  'home': { label: 'Overview', icon: LayoutDashboard },
+  'module-1': { label: 'Festive & Calendar', icon: Calendar },
+  'module-2': { label: 'News & Intel', icon: Newspaper },
+  'draft-studio': { label: 'Draft & Image Studio', icon: Edit3 },
+  'template-studio': { label: 'Template Ingestion', icon: Layers },
+  'notion-hub': { label: 'Notion Database Hub', icon: Database },
+  'team': { label: 'Team Members', icon: Users },
+  'settings': { label: 'Integrations', icon: Sliders }
+};
+
+export default function BrotherHeader({ 
+  isDark, 
+  setIsDark, 
+  activeTab = 'home',
+  currentUser, 
+  mobileMenuOpen, 
+  setMobileMenuOpen 
+}) {
+  const currentTabInfo = TAB_CONFIG[activeTab] || { label: 'Dashboard', icon: LayoutDashboard };
+  const TabIcon = currentTabInfo.icon;
+
   return (
-    <header className="w-full bg-[#0f2ea2] text-white shadow-sm select-none sticky top-0 z-50">
-      <div className="max-w-[1536px] mx-auto px-3 sm:px-6 lg:px-8">
+    <header className={`w-full border-b select-none sticky top-0 z-30 transition-colors ${
+      isDark 
+        ? 'bg-[#111319] border-slate-800 text-slate-100' 
+        : 'bg-white border-slate-200/90 text-slate-800 shadow-[0_1px_2px_rgba(0,0,0,0.03)]'
+    }`}>
+      <div className="px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14 sm:h-16">
           
-          {/* Left: Mobile Menu Toggle + Official Brother Logo & Title */}
-          <div className="flex items-center gap-2 sm:gap-4">
-            {/* Mobile Hamburger Button */}
+          {/* Left: Mobile Toggle & Sendpilot-Style Breadcrumbs */}
+          <div className="flex items-center gap-3">
+            {/* Mobile Menu Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-1.5 -ml-1 text-white hover:bg-white/10 rounded-lg lg:hidden transition-colors"
+              className="p-1.5 -ml-1 text-slate-500 hover:text-slate-800 dark:hover:text-white rounded-lg lg:hidden transition-colors cursor-pointer"
               aria-label="Toggle navigation menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
 
-            <img
-              src={OFFICIAL_BROTHER_LOGO_URL}
-              alt="Brother Singapore Logo"
-              className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg object-contain bg-white p-0.5 shadow-sm shrink-0"
-              onError={(e) => {
-                e.target.style.display = 'none';
-              }}
-            />
-            
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="flex flex-col">
-                <span className="font-black text-xl sm:text-2xl tracking-tighter leading-none text-white">brother</span>
-                <span className="text-[9px] sm:text-[11px] font-normal italic tracking-wide text-blue-100 leading-none mt-0.5">at your side</span>
-              </div>
-              <div className="h-5 sm:h-6 w-px bg-white/20 mx-0.5 sm:mx-1 hidden xs:block" />
-              <div className="hidden xs:flex flex-col">
-                <span className="text-[11px] sm:text-xs font-bold text-white tracking-tight leading-none">LinkedUsIn</span>
-                <span className="text-[9px] sm:text-[10px] text-blue-200 leading-none mt-0.5">Brother Xplorer</span>
-              </div>
+            {/* Breadcrumb Trail */}
+            <div className="flex items-center gap-2 text-xs font-semibold">
+              <span className="hidden sm:flex items-center gap-1.5 text-slate-400 dark:text-slate-400">
+                <span>Dashboard</span>
+                <span className="text-slate-300 dark:text-slate-600">/</span>
+              </span>
+              <span className="flex items-center gap-1.5 text-slate-900 dark:text-white font-bold text-xs sm:text-sm">
+                <TabIcon className="w-4 h-4 text-[#0f2ea2] dark:text-blue-400 shrink-0" />
+                <span>{currentTabInfo.label}</span>
+              </span>
             </div>
           </div>
 
-          {/* Right: User Profile, Theme Toggle & Logout */}
-          <div className="flex items-center gap-1.5 sm:gap-3">
-            {/* Dark / Light Theme Toggle */}
-            <button
-              onClick={() => setIsDark(!isDark)}
-              className="p-1.5 sm:p-2 text-white/90 hover:text-white hover:bg-white/10 rounded-lg transition-colors flex items-center gap-1 text-xs font-semibold"
-              title="Toggle Light / Dark Mode"
+          {/* Right: Workspace Selector, Notification & Controls */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Share / Live Stream Link Button */}
+            <a
+              href="https://www.linkedin.com/company/brother-international-singapore-pte-ltd/posts/"
+              target="_blank"
+              rel="noreferrer"
+              className={`hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
+                isDark
+                  ? 'bg-slate-900 hover:bg-slate-800 border-slate-700 text-slate-300'
+                  : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700'
+              }`}
             >
-              {isDark ? <Sun className="w-4 h-4 text-amber-300" /> : <Moon className="w-4 h-4 text-blue-100" />}
-              <span className="hidden md:inline">{isDark ? 'Light' : 'Dark'}</span>
-            </button>
+              <Share2 className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
+              <span>Live Page</span>
+            </a>
 
-            {/* User Profile / Status */}
-            <div className="flex items-center gap-2 pl-1.5 sm:pl-2 border-l border-white/20">
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/20 flex items-center justify-center font-bold text-xs text-white border border-white/30 shrink-0">
-                {currentUser?.name?.slice(0, 1) || 'A'}
+            {/* Sendpilot-Style Workspace Dropdown Pill */}
+            <div className={`flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl border transition-colors ${
+              isDark 
+                ? 'bg-slate-900/90 border-slate-800 hover:border-slate-700' 
+                : 'bg-slate-50 border-slate-200/90 hover:bg-slate-100/80'
+            }`}>
+              <div className="w-6 h-6 rounded-lg bg-[#0f2ea2] text-white flex items-center justify-center font-bold text-[10px] shrink-0 shadow-sm">
+                BS
               </div>
-              <div className="hidden sm:block text-left">
-                <div className="text-xs font-bold leading-none truncate max-w-[100px]">{currentUser?.name || 'Allan Cheng'}</div>
-                <div className="text-[10px] text-blue-200 leading-none mt-0.5">{currentUser?.role?.slice(0, 15) || 'Admin'}</div>
+              <div className="hidden sm:flex flex-col text-left leading-none">
+                <span className="text-xs font-bold text-slate-900 dark:text-white">
+                  Brother Singapore
+                </span>
+                <span className="text-[9px] text-slate-400 font-medium mt-0.5">
+                  Enterprise Workspace
+                </span>
               </div>
+              <ChevronDown className="w-3 h-3 text-slate-400 ml-0.5 shrink-0" />
             </div>
 
-            {/* Logout / Switch User */}
+            {/* Notification Bell */}
             <button
-              onClick={onLogout}
-              className="p-1.5 sm:p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
-              title="Switch User / Logout"
+              type="button"
+              className={`p-2 rounded-xl border transition-colors relative cursor-pointer ${
+                isDark 
+                  ? 'bg-slate-900 border-slate-800 hover:bg-slate-800 text-slate-300' 
+                  : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-600'
+              }`}
+              title="System Notifications (MOM & LinkedIn Stream)"
             >
-              <LogOut className="w-4 h-4" />
+              <Bell className="w-4 h-4" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-900" />
+            </button>
+
+            {/* Theme Toggle Button */}
+            <button
+              type="button"
+              onClick={() => setIsDark(!isDark)}
+              className={`p-2 rounded-xl border transition-colors cursor-pointer ${
+                isDark 
+                  ? 'bg-slate-900 border-slate-800 hover:bg-slate-800 text-amber-300' 
+                  : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-700'
+              }`}
+              title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            >
+              {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
           </div>
 

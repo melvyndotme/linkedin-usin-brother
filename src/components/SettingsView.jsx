@@ -239,14 +239,14 @@ export default function SettingsView({ isDark }) {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-[#0f2ea2]/10 text-[#0f2ea2] text-xs font-bold uppercase tracking-wider mb-2">
-              <Settings className="w-3.5 h-3.5" />
-              API Key Management & Model Orchestration
+              <Sliders className="w-3.5 h-3.5" />
+              Connected Integrations & Workspaces
             </div>
             <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
-              System Integrations & AI Engine Settings
+              Workspace Integrations & Connected Services
             </h2>
             <p className="text-xs text-slate-500 mt-1">
-              Configure credentials for Gemini API, Serper Keyword Search, LinkedIn API, SendPilot, and Notion.
+              Manage and verify active connections for Google Search, Gemini AI Models, Notion Headless DB, and LinkedIn Publishing.
             </p>
           </div>
 
@@ -262,7 +262,7 @@ export default function SettingsView({ isDark }) {
               className="flex items-center gap-2 bg-[#0f2ea2] hover:bg-[#004b8f] text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-md transition-all cursor-pointer shrink-0 active:scale-95"
             >
               {saved ? <Check className="w-4 h-4 text-emerald-300" /> : <ShieldCheck className="w-4 h-4" />}
-              {saved ? 'Saved Successfully!' : 'Save Settings'}
+              {saved ? 'Saved Successfully!' : 'Save Integrations'}
             </button>
           </div>
         </div>
@@ -368,7 +368,7 @@ export default function SettingsView({ isDark }) {
             <div className="flex items-center gap-2">
               <Mail className="w-4 h-4 text-[#0f2ea2] dark:text-blue-400" />
               <h3 className="text-xs font-bold text-[#0f2ea2] dark:text-blue-300 uppercase tracking-wider">
-                Resend Magic Link Email Dispatcher (rs.bro-x.org)
+                Resend Email Dispatcher Integration (rs.bro-x.org)
               </h3>
             </div>
             <span className="text-[10px] font-mono bg-[#0f2ea2] text-white px-2 py-0.5 rounded-full font-bold self-start sm:self-auto">
@@ -383,7 +383,7 @@ export default function SettingsView({ isDark }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                Resend API Key
+                Resend Integration Token
               </label>
               <input
                 type="password"
@@ -393,7 +393,7 @@ export default function SettingsView({ isDark }) {
                 placeholder="re_..."
                 className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed"
               />
-              <p className="text-[10px] text-slate-400 mt-1">From resend.com/api-keys. Also supported via RESEND_API_KEY in .env.</p>
+              <p className="text-[10px] text-slate-400 mt-1">From resend.com/api-keys. Also supported via RESEND_API_KEY in environment variables.</p>
             </div>
 
             <div>
@@ -438,7 +438,7 @@ export default function SettingsView({ isDark }) {
             <div className="flex items-center gap-2">
               <Globe className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
               <h3 className="text-xs font-bold text-emerald-900 dark:text-emerald-300 uppercase tracking-wider">
-                Ministry of Manpower (MOM) Public Holiday Live API (/api/mom/holidays)
+                Singapore MOM Public Holidays Integration (/api/mom/holidays)
               </h3>
             </div>
             <span className="text-[10px] font-mono bg-emerald-700 text-white px-2 py-0.5 rounded-full font-bold self-start sm:self-auto">
@@ -457,7 +457,7 @@ export default function SettingsView({ isDark }) {
               className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition-all disabled:opacity-50 cursor-pointer"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${momTesting ? 'animate-spin' : ''}`} />
-              <span>{momTesting ? 'Scraping mom.gov.sg...' : 'Test Live MOM Scraper (/api/mom/holidays)'}</span>
+              <span>{momTesting ? 'Scraping mom.gov.sg...' : 'Test Live MOM Integration (/api/mom/holidays)'}</span>
             </button>
 
             {momTestStatus && (
@@ -476,7 +476,7 @@ export default function SettingsView({ isDark }) {
             <div className="flex items-center gap-2">
               <Database className="w-4 h-4 text-purple-700 dark:text-purple-400" />
               <h3 className="text-xs font-bold text-purple-900 dark:text-purple-300 uppercase tracking-wider">
-                Notion Relational Database (Database Store Only)
+                Notion Database Integration (Store Only)
               </h3>
             </div>
             <span className="text-[10px] font-mono bg-purple-700 text-white px-2 py-0.5 rounded-full font-bold">
@@ -506,7 +506,7 @@ export default function SettingsView({ isDark }) {
 
             <div>
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                Notion Posts & Drafts Database ID
+                Notion Database ID
               </label>
               <input
                 type="text"
@@ -526,7 +526,7 @@ export default function SettingsView({ isDark }) {
             <div className="flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-[#0f2ea2] dark:text-blue-400" />
               <h3 className="text-xs font-bold text-[#0f2ea2] dark:text-blue-300 uppercase tracking-wider">
-                Google Gemini API Configuration (Primary LLM Engine)
+                Google Gemini AI Engine Integration (Primary LLM)
               </h3>
             </div>
             <span className="text-[10px] font-mono bg-[#0f2ea2] text-white px-2 py-0.5 rounded-full font-bold">
@@ -537,7 +537,7 @@ export default function SettingsView({ isDark }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                Gemini API Key
+                Gemini Engine Key
               </label>
               <input
                 type="password"
@@ -575,7 +575,7 @@ export default function SettingsView({ isDark }) {
             <div className="flex items-center gap-2">
               <Key className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
               <h3 className="text-xs font-bold text-cyan-900 dark:text-cyan-300 uppercase tracking-wider">
-                Serper.dev API Key (Real-Time Search by Monitored Keywords & Trends)
+                Serper Google News & Search Integration
               </h3>
             </div>
             <span className="text-[10px] font-mono bg-cyan-700 text-white px-2 py-0.5 rounded-full font-bold">
@@ -589,13 +589,13 @@ export default function SettingsView({ isDark }) {
 
           <div>
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-              Serper API Key
+              Serper Search Connection Key
             </label>
             <input
               type="password"
               value={serperKey}
               onChange={(e) => updateSetting('key_serper', e.target.value, setSerperKey)}
-              placeholder="Paste Serper.dev API Key for keyword-based tracking"
+              placeholder="Paste Serper Search Connection Key"
               className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none"
             />
           </div>
@@ -636,7 +636,7 @@ export default function SettingsView({ isDark }) {
             <div className="flex items-center gap-2">
               <Building2 className="w-4 h-4 text-[#0f2ea2] dark:text-blue-400" />
               <h3 className="text-xs font-bold text-[#0f2ea2] dark:text-blue-300 uppercase tracking-wider">
-                Official LinkedIn Developer API & Organization Publishing
+                LinkedIn Organization & Company Page Integration
               </h3>
             </div>
             <span className="text-[10px] font-mono bg-[#0f2ea2] text-white px-2 py-0.5 rounded-full font-bold">
@@ -645,14 +645,14 @@ export default function SettingsView({ isDark }) {
           </div>
 
           <p className="text-xs text-slate-600 dark:text-slate-400">
-            Configure your LinkedIn Developer App & Company Page. This enables 1-click live publishing to your company feed and retrieves official page analytics.
+            Configure your LinkedIn Developer App & Company Page connection. This enables 1-click live publishing to your company feed and retrieves official page analytics.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Organization ID */}
             <div>
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center justify-between">
-                <span>LinkedIn Company / Organization ID</span>
+                <span>LinkedIn Organization ID</span>
                 <span className="text-[10px] text-[#0f2ea2] dark:text-blue-400 font-mono font-semibold">96363282</span>
               </label>
               <input
@@ -670,7 +670,7 @@ export default function SettingsView({ isDark }) {
             {/* OAuth Bearer Token */}
             <div>
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center justify-between">
-                <span>OAuth 2.0 Access Token (Bearer)</span>
+                <span>OAuth 2.0 Access Token</span>
                 <span className="text-[10px] text-slate-400">60-day validity</span>
               </label>
               <input
@@ -687,7 +687,7 @@ export default function SettingsView({ isDark }) {
             {/* Client ID */}
             <div>
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                LinkedIn Developer App Client ID
+                LinkedIn App Client ID
               </label>
               <input
                 type="text"
@@ -741,12 +741,12 @@ export default function SettingsView({ isDark }) {
           </div>
         </div>
 
-        {/* SendPilot & OpenAI API Keys */}
+        {/* SendPilot & OpenAI Fallback Integrations */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1.5">
               <Key className="w-3.5 h-3.5 text-purple-600" />
-              SendPilot API Key (Notification & Approval Dispatch)
+              SendPilot Notification Integration Key
             </label>
             <input
               type="password"
@@ -760,7 +760,7 @@ export default function SettingsView({ isDark }) {
           <div>
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1.5">
               <Key className="w-3.5 h-3.5 text-emerald-600" />
-              OpenAI API Key (Secondary Fallback)
+              OpenAI Fallback Integration Key
             </label>
             <input
               type="password"
@@ -777,10 +777,10 @@ export default function SettingsView({ isDark }) {
           <button
             onClick={handleTestConnection}
             disabled={testing}
-            className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-white text-xs font-bold px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 transition-all disabled:opacity-50"
+            className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-white text-xs font-bold px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 transition-all disabled:opacity-50 cursor-pointer"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${testing ? 'animate-spin' : ''}`} />
-            {testing ? 'Testing Endpoints...' : 'Test All API Connections'}
+            <span>{testing ? 'Testing Active Integrations...' : 'Test All Connected Integrations'}</span>
           </button>
 
           <button

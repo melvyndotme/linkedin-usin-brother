@@ -147,11 +147,13 @@ export default function App() {
   }
 
   return (
-    <div className={`min-h-screen flex flex-col font-['Plus_Jakarta_Sans',sans-serif] overflow-x-hidden ${
+    <div className={`min-h-screen flex font-['Plus_Jakarta_Sans',sans-serif] overflow-hidden ${
       isDark ? 'bg-[#090D16] text-slate-100' : 'bg-[#F4F6F9] text-slate-900'
     }`}>
-      {/* Official Brother Singapore Header */}
-      <BrotherHeader
+      {/* Full-Height Left Sidebar */}
+      <Sidebar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
         isDark={isDark}
         setIsDark={setIsDark}
         currentUser={currentUser}
@@ -160,21 +162,20 @@ export default function App() {
         setMobileMenuOpen={setMobileMenuOpen}
       />
 
-      {/* Main App Layout: Left Sidebar + Dynamic Main Workspace */}
-      <div className="flex-1 flex max-w-[1536px] w-full mx-auto relative">
-        {/* Responsive Sidebar */}
-        <Sidebar
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
+      {/* Main Column: Top Breadcrumb Bar + Dynamic Workspace */}
+      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
+        {/* Sendpilot-Style Top Header Bar */}
+        <BrotherHeader
           isDark={isDark}
           setIsDark={setIsDark}
-          onLogout={handleLogout}
+          activeTab={activeTab}
+          currentUser={currentUser}
           mobileMenuOpen={mobileMenuOpen}
           setMobileMenuOpen={setMobileMenuOpen}
         />
 
         {/* Dynamic Main Workspace Content */}
-        <main className={`flex-1 p-3 sm:p-6 lg:p-8 overflow-y-auto max-h-[calc(100vh-56px)] sm:max-h-[calc(100vh-64px)] pb-20 lg:pb-8 custom-scrollbar ${
+        <main className={`flex-1 p-3 sm:p-6 lg:p-8 overflow-y-auto custom-scrollbar ${
           isDark ? 'bg-[#090D16]' : 'bg-[#F4F6F9]'
         }`}>
           <ErrorBoundary key={activeTab} onReset={() => setActiveTab('home')}>
