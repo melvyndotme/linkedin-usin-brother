@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   Menu, 
   X, 
@@ -13,7 +13,9 @@ import {
   Database, 
   Users, 
   Sliders,
-  Share2
+  Share2,
+  CheckCircle2,
+  Sparkles
 } from 'lucide-react';
 
 const TAB_CONFIG = {
@@ -31,10 +33,26 @@ export default function BrotherHeader({
   isDark, 
   setIsDark, 
   activeTab = 'home',
+  setActiveTab,
   currentUser, 
   mobileMenuOpen, 
   setMobileMenuOpen 
 }) {
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [unread, setUnread] = useState(true);
+  const notificationRef = useRef(null);
+
+  // Close notifications on click outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+        setNotificationsOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const currentTabInfo = TAB_CONFIG[activeTab] || { label: 'Dashboard', icon: LayoutDashboard };
   const TabIcon = currentTabInfo.icon;
 
@@ -108,19 +126,124 @@ export default function BrotherHeader({
               <ChevronDown className="w-3 h-3 text-slate-400 ml-0.5 shrink-0" />
             </div>
 
-            {/* Notification Bell */}
-            <button
-              type="button"
-              className={`p-2 rounded-xl border transition-colors relative cursor-pointer ${
-                isDark 
-                  ? 'bg-slate-900 border-slate-800 hover:bg-slate-800 text-slate-300' 
-                  : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-600'
-              }`}
-              title="System Notifications (MOM & LinkedIn Stream)"
-            >
-              <Bell className="w-4 h-4" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-900" />
-            </button>
+            {/* Notification Bell with Dropdown Popover */}
+            <div className="relative" ref={notificationRef}>
+              <button
+                type="button"
+                onClick={() => setNotificationsOpen(!notificationsOpen)}
+                className={`p-2 rounded-xl border transition-colors relative cursor-pointer ${
+                  notificationsOpen
+                    ? 'bg-blue-50 border-[#0f2ea2]/40 text-[#0f2ea2]'
+                    : isDark 
+                      ? 'bg-slate-900 border-slate-800 hover:bg-slate-800 text-slate-300' 
+                      : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-600'
+                }`}
+                title="System Notifications"
+              >
+                <Bell className="w-4 h-4" />
+                {unread && (
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-900" />
+                )}
+              </button>
+
+              {/* Notification Popover Dropdown */}
+              {notificationsOpen && (
+                <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 p-3 z-50 animate-in fade-in slide-in-from-top-2 duration-150 text-left">
+                  <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-100 dark:border-slate-800">
+                    <div className="flex items-center gap-1.5 font-bold text-xs text-slate-900 dark:text-white">
+                      <span>Notifications</span>
+                      {unread && (
+                        <span className="text-[10px] bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 px-1.5 py-0.2 rounded-full font-semibold">
+                          3 new
+                        </span>
+                      )}
+                    </div>
+                    {unread && (
+                      <button
+                        onClick={() => setUnread(false)}
+                        className="text-[11px] font-semibold text-[#0f2ea2] dark:text-blue-400 hover:underline cursor-pointer"
+                      >
+                        Mark all as read
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="space-y-1.5 max-h-80 overflow-y-auto custom-scrollbar">
+                    {/* Item 1: MOM Calendar */}
+                    <div
+                      onClick={() => {
+                        setNotificationsOpen(false);
+                        if (setActiveTab) setActiveTab('module-1');
+                      }}
+                      className="p-2.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer border border-transparent hover:border-slate-200 dark:hover:border-slate-700/60 flex items-start gap-2.5 text-left"
+                    >
+                      <div className="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-[#0f2ea2] dark:text-blue-400 flex items-center justify-center shrink-0 mt-0.5">
+                        <Calendar className="w-3.5 h-3.5" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                          MOM Festive Calendar Ready
+                        </div>
+                        <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                          Official Singapore public holidays loaded. Automated T-10 countdowns active.
+                        </p>
+                        <span className="text-[10px] text-[#0f2ea2] dark:text-blue-400 font-semibold mt-1 inline-block">
+                          View Calendar →
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Item 2: Notion Team Whitelist */}
+                    <div
+                      onClick={() => {
+                        setNotificationsOpen(false);
+                        if (setActiveTab) setActiveTab('team');
+                      }}
+                      className="p-2.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer border border-transparent hover:border-slate-200 dark:hover:border-slate-700/60 flex items-start gap-2.5 text-left"
+                    >
+                      <div className="w-7 h-7 rounded-lg bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0 mt-0.5">
+                        <Users className="w-3.5 h-3.5" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                          Notion Whitelist Synced
+                        </div>
+                        <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                          Live team whitelist connected directly to Notion database.
+                        </p>
+                        <span className="text-[10px] text-purple-600 dark:text-purple-400 font-semibold mt-1 inline-block">
+                          View Team →
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Item 3: Google News & Serper */}
+                    <div
+                      onClick={() => {
+                        setNotificationsOpen(false);
+                        if (setActiveTab) setActiveTab('module-2');
+                      }}
+                      className="p-2.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer border border-transparent hover:border-slate-200 dark:hover:border-slate-700/60 flex items-start gap-2.5 text-left"
+                    >
+                      <div className="w-7 h-7 rounded-lg bg-cyan-50 dark:bg-cyan-950/60 text-cyan-600 dark:text-cyan-400 flex items-center justify-center shrink-0 mt-0.5">
+                        <Newspaper className="w-3.5 h-3.5" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                          News Intelligence Stream
+                        </div>
+                        <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                          Google News search active for Singapore industry topics & workplace AI.
+                        </p>
+                        <span className="text-[10px] text-cyan-600 dark:text-cyan-400 font-semibold mt-1 inline-block">
+                          Browse Intel →
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
         </div>

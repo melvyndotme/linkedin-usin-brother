@@ -169,6 +169,7 @@ export default function App() {
           isDark={isDark}
           setIsDark={setIsDark}
           activeTab={activeTab}
+          setActiveTab={setActiveTab}
           currentUser={currentUser}
           mobileMenuOpen={mobileMenuOpen}
           setMobileMenuOpen={setMobileMenuOpen}
