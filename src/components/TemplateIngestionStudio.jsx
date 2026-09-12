@@ -56,15 +56,11 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
           <div>
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#0f2ea2]/10 text-[#0f2ea2] dark:text-blue-400 text-[11px] font-bold uppercase tracking-wider mb-1.5 sm:mb-2">
               <Layers className="w-3.5 h-3.5" />
-              Template Ingestion & Competitive Learning Studio
+              Template Ingestion
             </div>
             <h2 className={`text-lg sm:text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
-              Brother Group & Competitor Post Template Library
+              Brother Singapore LinkedIn Post Templates Library
             </h2>
-            <p className="text-xs text-slate-500 mt-1 max-w-2xl">
-              Reverse-engineer high-performing posts from Brother Global, Brother AP, Canon SG, Epson SG, and HP SG into 
-              <strong className="text-[#0f2ea2] dark:text-blue-400"> instructional placeholder templates</strong> ready for AI drafting.
-            </p>
           </div>
 
           <div className="flex items-center gap-2 w-full sm:w-auto">
