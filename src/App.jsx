@@ -248,7 +248,11 @@ export default function App() {
             )}
 
             {activeTab === 'team' && (
-              <TeamView isDark={isDark} />
+              <TeamView
+                isDark={isDark}
+                currentUser={currentUser}
+                onNavigateToProfile={() => setActiveTab('profile')}
+              />
             )}
 
             {activeTab === 'profile' && (
