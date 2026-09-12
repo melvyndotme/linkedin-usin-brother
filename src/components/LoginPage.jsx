@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, Sparkles, Send, CheckCircle2, ShieldCheck, RefreshCw, XCircle, ArrowRight } from 'lucide-react';
 import { safeGetItem } from '../lib/storage.js';
+import brotherLogo from '../assets/brother-logo.png';
 
 export default function LoginPage({ onLoginSuccess, isDark }) {
   const [email, setEmail] = useState('');
@@ -62,20 +63,12 @@ export default function LoginPage({ onLoginSuccess, isDark }) {
         }`}>
           {/* Official Brother Logo Header */}
           <div className="text-center space-y-3 pb-6 border-b dark:border-slate-800">
-            <div className="inline-block p-1 rounded-2xl bg-white shadow-md border border-slate-100 dark:border-slate-800">
-              <svg viewBox="0 0 200 200" className="w-14 h-14 rounded-xl shadow-inner">
-                <defs>
-                  <linearGradient id="loginLogoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#0f2ea2"/>
-                    <stop offset="100%" stopColor="#071b6e"/>
-                  </linearGradient>
-                </defs>
-                <rect width="200" height="200" rx="42" fill="url(#loginLogoGrad)"/>
-                <rect x="3" y="3" width="194" height="194" rx="39" fill="none" stroke="#ffffff" strokeWidth="2" strokeOpacity="0.15"/>
-                <text x="100" y="110" textAnchor="middle" fill="#ffffff" fontFamily="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" fontWeight="900" fontSize="42" letterSpacing="-0.5">brother</text>
-                <text x="100" y="142" textAnchor="middle" fill="#ffffff" opacity="0.9" fontFamily="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" fontWeight="600" fontSize="13" letterSpacing="1.2">at your side</text>
-                <circle cx="165" cy="35" r="4.5" fill="#EE2737" opacity="0.9"/>
-              </svg>
+            <div className="inline-block p-1.5 rounded-2xl bg-white shadow-md border border-slate-100 dark:border-slate-800">
+              <img
+                src={brotherLogo}
+                alt="Brother Logo"
+                className="w-16 h-16 rounded-xl object-contain"
+              />
             </div>
             <div>
               <h1 className="text-xl font-extrabold tracking-tight text-[#0f2ea2] dark:text-white">

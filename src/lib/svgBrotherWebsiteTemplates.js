@@ -1,5 +1,5 @@
-// Official Brother Singapore Vector Logo (Self-contained SVG data URI - immune to CDN hotlink blocking)
-export const OFFICIAL_BROTHER_LOGO_URL = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200' width='200' height='200'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%230f2ea2'/%3E%3Cstop offset='100%25' stop-color='%23071b6e'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='200' height='200' rx='42' fill='url(%23bg)'/%3E%3Crect x='3' y='3' width='194' height='194' rx='39' fill='none' stroke='%23ffffff' stroke-width='2' stroke-opacity='0.15'/%3E%3Ctext x='100' y='110' text-anchor='middle' fill='%23ffffff' font-family='-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif' font-weight='900' font-size='42' letter-spacing='-0.5'%3Ebrother%3C/text%3E%3Ctext x='100' y='142' text-anchor='middle' fill='%23ffffff' opacity='0.9' font-family='-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif' font-weight='600' font-size='13' letter-spacing='1.2'%3Eat your side%3C/text%3E%3Ccircle cx='165' cy='35' r='4.5' fill='%23EE2737' opacity='0.9'/%3E%3C/svg%3E";
+// Official Brother Singapore Logo (Downloaded from storage.googleapis.com)
+export const OFFICIAL_BROTHER_LOGO_URL = "/brother-logo.png";
 
 /**
  * Template 1: Brother Singapore Website Hero Banner Style (From User Screenshots)
