@@ -15,34 +15,70 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
   const [uploadFileName, setUploadFileName] = useState('');
   const [analyzing, setAnalyzing] = useState(false);
 
+  const [selectedModel, setSelectedModel] = useState('gemini-3.1-flash-lite');
+  const [base64Image, setBase64Image] = useState('');
+  const [extractError, setExtractError] = useState(null);
+
   const handleCopy = (text) => {
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleSimulateExtraction = () => {
+  const handleSimulateExtraction = async () => {
     setAnalyzing(true);
-    setTimeout(() => {
-      setAnalyzing(false);
-      const newTmpl = extractTemplateFromInput({
-        type: ingestType,
-        content: urlInput || pastedContent || `Uploaded asset: ${uploadFileName}`,
-        title: ingestType === 'url' ? 'Extracted Social Post Strategy' : ingestType === 'screenshot' ? 'Screenshot Vision Template' : 'PDF Archive Template'
+    setExtractError(null);
+
+    const payload = {
+      type: ingestType,
+      content: urlInput || pastedContent || `Uploaded asset: ${uploadFileName}`,
+      base64Image: base64Image,
+      modelName: selectedModel,
+      title: ingestType === 'url' ? 'Live Extracted LinkedIn Blueprint' : ingestType === 'screenshot' ? 'Visual Deconstruction Blueprint' : 'PDF Document Archive Blueprint'
+    };
+
+    try {
+      const res = await fetch('/api/templates/ingest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
       });
-      setTemplates([newTmpl, ...templates]);
-      setSelectedTemplate(newTmpl);
+
+      const data = await res.json();
+      if (res.ok && data.template) {
+        setTemplates([data.template, ...templates]);
+        setSelectedTemplate(data.template);
+        setActiveTab('library');
+        setUrlInput('');
+        setPastedContent('');
+        setUploadFileName('');
+        setBase64Image('');
+      } else {
+        throw new Error(data.error || 'Failed to extract template');
+      }
+    } catch (err) {
+      console.warn('Extraction fallback to local engine:', err.message);
+      // Fallback to local parsing if offline or no network
+      const fallbackTmpl = extractTemplateFromInput(payload);
+      setTemplates([fallbackTmpl, ...templates]);
+      setSelectedTemplate(fallbackTmpl);
       setActiveTab('library');
-      setUrlInput('');
-      setPastedContent('');
-      setUploadFileName('');
-    }, 1200);
+    } finally {
+      setAnalyzing(false);
+    }
   };
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
       setUploadFileName(file.name);
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          setBase64Image(reader.result);
+        };
+        reader.readAsDataURL(file);
+      }
     }
   };
 
@@ -84,7 +120,7 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
             <h3 className={`text-sm sm:text-base font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
               Ingest Post, Screenshot, or PDF to Train Templates
             </h3>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 font-['Inter',sans-serif] mt-0.5">
               The multimodal engine analyzes structure, hook formula, tone, and formatting to extract reusable instructional placeholders.
             </p>
           </div>
@@ -178,14 +214,46 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
             </div>
           )}
 
+          {/* Model Engine Selector */}
+          <div className="flex items-center justify-between p-3 rounded-xl border bg-slate-50/50 dark:bg-slate-950/50 dark:border-slate-800 text-xs">
+            <div className="space-y-0.5">
+              <span className="font-bold text-slate-800 dark:text-slate-200 block">AI Ingestion Engine</span>
+              <span className="text-[11px] text-slate-500">Autonomous multimodal extraction & Hofstede calibration</span>
+            </div>
+            <div className="flex items-center gap-1 bg-slate-200/80 dark:bg-slate-900 p-1 rounded-lg">
+              <button
+                type="button"
+                onClick={() => setSelectedModel('gemini-3.1-flash-lite')}
+                className={`px-2.5 py-1 rounded text-[11px] font-bold transition-all ${
+                  selectedModel === 'gemini-3.1-flash-lite'
+                    ? 'bg-[#0f2ea2] text-white shadow-xs'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                }`}
+              >
+                Gemini 3.1 Flash-Lite
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedModel('gemini-3.1-pro-preview')}
+                className={`px-2.5 py-1 rounded text-[11px] font-bold transition-all ${
+                  selectedModel === 'gemini-3.1-pro-preview'
+                    ? 'bg-[#0f2ea2] text-white shadow-xs'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                }`}
+              >
+                Gemini 3.1 Pro-Preview
+              </button>
+            </div>
+          </div>
+
           {/* Action Button */}
           <button
             onClick={handleSimulateExtraction}
             disabled={analyzing}
-            className="w-full flex items-center justify-center gap-2 bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold py-3 rounded-xl shadow-md transition-all disabled:opacity-50 active:scale-95"
+            className="w-full flex items-center justify-center gap-2 bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold py-3 rounded-xl shadow-md transition-all disabled:opacity-50 active:scale-95 cursor-pointer"
           >
             <Sparkles className={`w-4 h-4 ${analyzing ? 'animate-spin' : ''}`} />
-            {analyzing ? 'Deconstructing Structure & Extracting Template...' : 'Extract Instructional Template'}
+            {analyzing ? `Analyzing with ${selectedModel}...` : 'Extract Instructional Template'}
           </button>
         </div>
       ) : (
@@ -228,7 +296,7 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
                           {tmpl.category}
                         </span>
                       </div>
-                      <p className="text-[10px] text-slate-500 line-clamp-1">{tmpl.source}</p>
+                      <p className="text-[11px] text-slate-600 dark:text-slate-400 font-['Inter',sans-serif] line-clamp-1">{tmpl.source}</p>
                     </div>
                   );
                 })}
@@ -250,7 +318,9 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
                   <h3 className={`text-base sm:text-lg font-bold mt-0.5 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                     {selectedTemplate.name}
                   </h3>
-                  <p className="text-xs text-slate-500 mt-0.5">{selectedTemplate.description}</p>
+                  <p className="text-sm font-medium text-slate-700 dark:text-slate-300 font-['Inter',sans-serif] leading-relaxed mt-1">
+                    {selectedTemplate.description}
+                  </p>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -278,7 +348,7 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
                   <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                     Post Template Blueprint
                   </span>
-                  <span className="text-[11px] text-slate-400">
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400 font-['Inter',sans-serif]">
                     Use this structure to guide your post draft
                   </span>
                 </div>
