@@ -178,48 +178,9 @@ export default function TeamView({ isDark, currentUser, onNavigateToProfile }) {
             <h2 className={`text-lg sm:text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
               Team Members
             </h2>
-            <div className="flex items-center gap-2 mt-1">
-              <p className="text-xs text-slate-500">
-                Authorized team members and reviewers.
-              </p>
-              {lastSynced && (
-                <span className="inline-flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                  Synced {lastSynced}
-                </span>
-              )}
-            </div>
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3 flex-wrap self-start sm:self-center">
-            {/* Sort Controls */}
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 text-xs">
-              <span className="text-slate-400 font-medium hidden md:inline">Sort:</span>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="bg-transparent text-slate-700 dark:text-slate-200 font-semibold focus:outline-none cursor-pointer pr-1"
-                aria-label="Sort team members by"
-              >
-                <option value="name" className="dark:bg-slate-900">Name</option>
-                <option value="department" className="dark:bg-slate-900">Department</option>
-                <option value="email" className="dark:bg-slate-900">Email</option>
-              </select>
-              <button
-                type="button"
-                onClick={() => setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'))}
-                className="p-1 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors cursor-pointer"
-                title={`Sort order: ${sortOrder === 'asc' ? 'Ascending (A-Z)' : 'Descending (Z-A)'}`}
-                aria-label={`Toggle sort order, currently ${sortOrder}`}
-              >
-                {sortOrder === 'asc' ? (
-                  <ArrowUp className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
-                ) : (
-                  <ArrowDown className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
-                )}
-              </button>
-            </div>
-
             {/* View Mode Toggle: Cards vs List */}
             <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80">
               <button

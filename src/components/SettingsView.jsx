@@ -275,9 +275,6 @@ export default function SettingsView({ isDark }) {
             <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
               Workspace Integrations & Connected Services
             </h2>
-            <p className="text-xs text-slate-500 mt-1">
-              Manage and verify active connections for Google Search, Gemini AI Models, Notion Headless DB, and LinkedIn Publishing.
-            </p>
           </div>
 
           <div className="flex items-center gap-3 self-end sm:self-auto">
