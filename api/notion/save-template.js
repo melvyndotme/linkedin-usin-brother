@@ -13,22 +13,23 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
-  const apiKey = req.body?.apiKey || process.env.NOTION_API_KEY;
-  let pageId = req.body?.pageId || process.env.NOTION_PAGE_ID || '3c701136-de48-8101-b258-000b3c706126';
+  const apiKey = req.query?.apiKey || req.body?.apiKey || process.env.NOTION_API_KEY;
+  let pageId = req.query?.pageId || req.body?.pageId || process.env.NOTION_PAGE_ID || '3c701136-de48-8101-b258-000b3c706126';
   const template = req.body?.template; // Single template object to save
   const templates = req.body?.templates; // Array of templates to seed in bulk
+  const isListRequest = req.method === 'GET' || req.body?.action === 'list' || req.query?.action === 'list';
+  const cleanupOnly = Boolean(req.body?.cleanupOnly || req.body?.deduplicate || req.query?.cleanup);
 
   if (!apiKey) {
     return res.status(400).json({
       success: false,
-      error: 'Missing Notion Secret Token. Please configure NOTION_API_KEY or provide apiKey in request.'
+      error: 'Missing Notion Secret Token. Please configure NOTION_API_KEY in Vercel or Settings.'
     });
   }
 
-  const cleanupOnly = Boolean(req.body?.cleanupOnly || req.body?.deduplicate || req.query?.cleanup);
   const itemsToSave = templates && Array.isArray(templates) ? templates : (template ? [template] : []);
 
-  if (itemsToSave.length === 0 && !cleanupOnly) {
+  if (!isListRequest && !cleanupOnly && itemsToSave.length === 0) {
     return res.status(400).json({
       success: false,
       error: 'No template provided to save.'
@@ -255,6 +256,30 @@ export default async function handler(req, res) {
         message: `Successfully cleaned up and archived ${duplicatesToArchive.length} duplicate templates.`,
         databaseId: templateDbId,
         notionUrl: `https://notion.so/${templateDbId.replace(/-/g, '')}`
+      });
+    }
+
+    if (isListRequest) {
+      const templatesList = existingPages.map(page => {
+        const name = getPageTitle(page);
+        const catProp = page.properties?.[catKey] || Object.values(page.properties || {}).find(pr => pr.type === 'select');
+        const sourceProp = page.properties?.[sourceKey] || Object.values(page.properties || {}).find(pr => pr.type === 'rich_text');
+        return {
+          id: page.id,
+          name,
+          category: catProp?.select?.name || '',
+          source: sourceProp?.rich_text?.map(t => t.plain_text).join('') || '',
+          url: page.url,
+          lastEdited: page.last_edited_time
+        };
+      }).filter(t => Boolean(t.name));
+
+      return res.status(200).json({
+        success: true,
+        databaseId: templateDbId,
+        notionUrl: `https://notion.so/${templateDbId.replace(/-/g, '')}`,
+        templates: templatesList,
+        total: templatesList.length
       });
     }
 

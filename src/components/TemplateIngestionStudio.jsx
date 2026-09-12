@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Layers, Upload, Link2, FileText, Image as ImageIcon, Sparkles, Copy, Check, 
-  ArrowRight, BookOpen, Eye, Database, ExternalLink, Loader2, AlertCircle, CheckCircle2 
+  ArrowRight, BookOpen, Eye, Database, ExternalLink, Loader2, AlertCircle, CheckCircle2,
+  RefreshCw, Filter
 } from 'lucide-react';
 import { BENCHMARK_TEMPLATES, extractTemplateFromInput } from '../lib/templateExtractor.js';
 import { safeGetItem } from '../lib/storage.js';
@@ -29,6 +30,45 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
   const [notionSaveStatus, setNotionSaveStatus] = useState(null); // { status: 'success' | 'error', message, url }
   const [seedingBenchmarkToNotion, setSeedingBenchmarkToNotion] = useState(false);
   const [seedStatus, setSeedStatus] = useState(null);
+
+  // Notion Sync Status & Deduplication Tracking
+  const [notionTemplates, setNotionTemplates] = useState([]);
+  const [loadingNotionTemplates, setLoadingNotionTemplates] = useState(false);
+  const [filterMode, setFilterMode] = useState('all'); // 'all', 'unsaved', 'saved'
+
+  const fetchNotionTemplates = async () => {
+    setLoadingNotionTemplates(true);
+    const token = safeGetItem('notion_token');
+    const pageId = safeGetItem('notion_page_id') || '3c701136-de48-8101-b258-000b3c706126';
+    try {
+      const queryParams = new URLSearchParams();
+      queryParams.set('action', 'list');
+      if (token) queryParams.set('apiKey', token);
+      if (pageId) queryParams.set('pageId', pageId);
+
+      const res = await fetch(`/api/notion/save-template?${queryParams.toString()}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && Array.isArray(data.templates)) {
+          setNotionTemplates(data.templates);
+        }
+      }
+    } catch (e) {
+      console.warn('Could not fetch Notion templates list:', e);
+    } finally {
+      setLoadingNotionTemplates(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotionTemplates();
+  }, []);
+
+  const getSavedNotionInfo = (tmplName) => {
+    if (!tmplName) return null;
+    const norm = tmplName.trim().toLowerCase();
+    return notionTemplates.find(nt => nt.name?.trim().toLowerCase() === norm) || null;
+  };
 
   const handleCopy = (text) => {
     navigator.clipboard.writeText(text);
@@ -98,6 +138,18 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
           url: data.notionUrl
         });
 
+        // Update notionTemplates state immediately
+        const newEntry = {
+          name: tmplToSave.name,
+          url: data.notionUrl,
+          id: data.results?.[0]?.id || Date.now().toString()
+        };
+        setNotionTemplates(prev => {
+          const norm = tmplToSave.name.trim().toLowerCase();
+          const filtered = prev.filter(t => t.name?.trim().toLowerCase() !== norm);
+          return [...filtered, newEntry];
+        });
+
         // Add to local state if not already present
         if (!templates.some(t => t.id === tmplToSave.id)) {
           setTemplates([tmplToSave, ...templates]);
@@ -145,6 +197,8 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
           message: `Successfully seeded all ${data.savedCount} Brother benchmark templates into Notion!`,
           url: data.notionUrl
         });
+        // Re-fetch Notion templates to update all status pills
+        fetchNotionTemplates();
       } else {
         const errorMsg = data.error || (data.results && data.results.find(r => !r.success)?.error) || 'Failed to seed templates to Notion. Please verify NOTION_API_KEY in Settings.';
         setSeedStatus({
@@ -192,6 +246,19 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
     }
   };
 
+  const savedCount = templates.filter(t => Boolean(getSavedNotionInfo(t.name))).length;
+  const unsavedCount = Math.max(0, templates.length - savedCount);
+  const allBenchmarkSaved = BENCHMARK_TEMPLATES.length > 0 && BENCHMARK_TEMPLATES.every(bt => Boolean(getSavedNotionInfo(bt.name)));
+
+  const filteredTemplates = templates.filter(tmpl => {
+    const isSaved = Boolean(getSavedNotionInfo(tmpl.name));
+    if (filterMode === 'unsaved') return !isSaved;
+    if (filterMode === 'saved') return isSaved;
+    return true;
+  });
+
+  const selectedTemplateNotionInfo = getSavedNotionInfo(selectedTemplate?.name);
+
   return (
     <div className="space-y-4 sm:space-y-6 max-w-6xl mx-auto">
       {/* Header Banner */}
@@ -213,11 +280,29 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
             <button
               onClick={handleSeedAllToNotion}
               disabled={seedingBenchmarkToNotion}
-              title="Save all 6 core Brother benchmark templates directly into your Notion Template Library"
-              className="flex items-center justify-center gap-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-semibold px-3.5 py-2.5 rounded-xl transition-all disabled:opacity-50"
+              title={allBenchmarkSaved ? "All 6 benchmark templates are already saved in Notion. Click to re-sync or update." : "Save all core Brother benchmark templates directly into your Notion Template Library"}
+              className={`flex items-center justify-center gap-1.5 border text-xs font-semibold px-3.5 py-2.5 rounded-xl transition-all disabled:opacity-50 cursor-pointer ${
+                allBenchmarkSaved
+                  ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900/40'
+                  : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-slate-700'
+              }`}
             >
-              {seedingBenchmarkToNotion ? <Loader2 className="w-3.5 h-3.5 animate-spin text-[#0f2ea2]" /> : <Database className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />}
-              <span>{seedingBenchmarkToNotion ? 'Syncing to Notion...' : 'Seed All to Notion'}</span>
+              {seedingBenchmarkToNotion ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-[#0f2ea2]" />
+              ) : allBenchmarkSaved ? (
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+              ) : (
+                <Database className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
+              )}
+              <span>
+                {seedingBenchmarkToNotion
+                  ? 'Syncing to Notion...'
+                  : allBenchmarkSaved
+                    ? '✓ All Synced to Notion'
+                    : unsavedCount > 0
+                      ? `Seed All to Notion (${unsavedCount} new)`
+                      : 'Seed All to Notion'}
+              </span>
             </button>
 
             <button
@@ -480,42 +565,115 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
             <div className={`p-3.5 sm:p-4 rounded-2xl border ${
               isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
             }`}>
-              <div className="flex items-center justify-between mb-2.5">
-                <h3 className={`text-xs font-bold uppercase tracking-wider ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                  Template Library ({templates.length})
-                </h3>
-                <span className="text-[10px] font-mono text-[#0f2ea2] dark:text-blue-400">Ready for AI</span>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <h3 className={`text-xs font-bold uppercase tracking-wider ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+                    Template Library ({templates.length})
+                  </h3>
+                  {loadingNotionTemplates && (
+                    <Loader2 className="w-3 h-3 animate-spin text-[#0f2ea2]" />
+                  )}
+                </div>
+                <button
+                  onClick={fetchNotionTemplates}
+                  title="Refresh Notion Sync Status"
+                  className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
+                >
+                  <RefreshCw className={`w-3 h-3 ${loadingNotionTemplates ? 'animate-spin text-[#0f2ea2]' : ''}`} />
+                </button>
+              </div>
+
+              {/* Filter Pills */}
+              <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-950 rounded-xl mb-3 border border-slate-200/60 dark:border-slate-800 text-[11px]">
+                <button
+                  type="button"
+                  onClick={() => setFilterMode('all')}
+                  className={`flex-1 py-1 px-1.5 rounded-lg font-bold transition-all text-center cursor-pointer ${
+                    filterMode === 'all'
+                      ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs'
+                      : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                  }`}
+                >
+                  All ({templates.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFilterMode('unsaved')}
+                  className={`flex-1 py-1 px-1.5 rounded-lg font-bold transition-all text-center cursor-pointer ${
+                    filterMode === 'unsaved'
+                      ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs'
+                      : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                  }`}
+                >
+                  Unsaved ({unsavedCount})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFilterMode('saved')}
+                  className={`flex-1 py-1 px-1.5 rounded-lg font-bold transition-all text-center cursor-pointer ${
+                    filterMode === 'saved'
+                      ? 'bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 shadow-xs'
+                      : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                  }`}
+                >
+                  In Notion ({savedCount})
+                </button>
               </div>
 
               <div className="space-y-2 max-h-[540px] overflow-y-auto pr-1 custom-scrollbar">
-                {templates.map((tmpl) => {
-                  const isSelected = selectedTemplate.id === tmpl.id;
-                  return (
-                    <div
-                      key={tmpl.id}
-                      onClick={() => setSelectedTemplate(tmpl)}
-                      className={`p-3.5 rounded-xl border cursor-pointer transition-all ${
-                        isSelected
-                          ? 'bg-blue-50/80 border-[#0f2ea2] dark:bg-blue-950/50 dark:border-blue-500 shadow-sm'
-                          : isDark
-                            ? 'bg-slate-950/60 border-slate-800 hover:border-slate-700'
-                            : 'bg-slate-50 border-slate-200 hover:border-slate-300'
-                      }`}
+                {filteredTemplates.length === 0 ? (
+                  <div className="p-6 text-center text-xs text-slate-400 space-y-2 rounded-xl bg-slate-50/50 dark:bg-slate-950/40 border border-dashed border-slate-200 dark:border-slate-800">
+                    <CheckCircle2 className="w-8 h-8 text-emerald-500 mx-auto opacity-80" />
+                    <p className="font-semibold text-slate-600 dark:text-slate-300">
+                      {filterMode === 'unsaved' 
+                        ? 'All templates are saved in Notion!' 
+                        : 'No templates match this filter.'}
+                    </p>
+                    <button
+                      onClick={() => setFilterMode('all')}
+                      className="text-[11px] font-bold text-[#0f2ea2] dark:text-blue-400 underline cursor-pointer"
                     >
-                      <div className="flex items-center justify-between mb-1">
-                        <span className={`text-xs font-bold line-clamp-1 ${
-                          isSelected ? 'text-[#0f2ea2] dark:text-blue-300' : isDark ? 'text-white' : 'text-slate-900'
-                        }`}>
-                          {tmpl.name}
-                        </span>
-                        <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 shrink-0">
-                          {tmpl.category}
-                        </span>
+                      Show All Templates
+                    </button>
+                  </div>
+                ) : (
+                  filteredTemplates.map((tmpl) => {
+                    const isSelected = selectedTemplate?.id === tmpl.id;
+                    const notionInfo = getSavedNotionInfo(tmpl.name);
+                    return (
+                      <div
+                        key={tmpl.id}
+                        onClick={() => setSelectedTemplate(tmpl)}
+                        className={`p-3.5 rounded-xl border cursor-pointer transition-all ${
+                          isSelected
+                            ? 'bg-blue-50/80 border-[#0f2ea2] dark:bg-blue-950/50 dark:border-blue-500 shadow-sm'
+                            : isDark
+                              ? 'bg-slate-950/60 border-slate-800 hover:border-slate-700'
+                              : 'bg-slate-50 border-slate-200 hover:border-slate-300'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between gap-1.5 mb-1">
+                          <span className={`text-xs font-bold line-clamp-1 ${
+                            isSelected ? 'text-[#0f2ea2] dark:text-blue-300' : isDark ? 'text-white' : 'text-slate-900'
+                          }`}>
+                            {tmpl.name}
+                          </span>
+                          <div className="flex items-center gap-1 shrink-0">
+                            {notionInfo && (
+                              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-bold flex items-center gap-0.5">
+                                <Check className="w-2.5 h-2.5" /> In Notion
+                              </span>
+                            )}
+                            <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                              {tmpl.category}
+                            </span>
+                          </div>
+                        </div>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 line-clamp-1">{tmpl.source}</p>
                       </div>
-                      <p className="text-[10px] text-slate-500 dark:text-slate-400 line-clamp-1">{tmpl.source}</p>
-                    </div>
-                  );
-                })}
+                    );
+                  })
+                )}
               </div>
             </div>
           </div>
@@ -528,9 +686,16 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
               {/* Header */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-3.5 dark:border-slate-800">
                 <div>
-                  <span className="text-[10px] sm:text-[11px] font-mono text-[#0f2ea2] dark:text-blue-400 font-bold uppercase tracking-wider block">
-                    Source: {selectedTemplate.source}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] sm:text-[11px] font-mono text-[#0f2ea2] dark:text-blue-400 font-bold uppercase tracking-wider block">
+                      Source: {selectedTemplate.source}
+                    </span>
+                    {selectedTemplateNotionInfo && (
+                      <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-bold flex items-center gap-0.5">
+                        <Check className="w-2.5 h-2.5" /> Synced with Notion
+                      </span>
+                    )}
+                  </div>
                   <h3 className={`text-base sm:text-lg font-bold mt-0.5 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                     {selectedTemplate.name}
                   </h3>
@@ -540,15 +705,42 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
-                  <button
-                    onClick={() => handleSaveToNotion(selectedTemplate)}
-                    disabled={savingToNotion}
-                    title="Save this specific template to your Notion Template Library"
-                    className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-700 transition-all disabled:opacity-50 cursor-pointer"
-                  >
-                    {savingToNotion ? <Loader2 className="w-3.5 h-3.5 animate-spin text-[#0f2ea2]" /> : <Database className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />}
-                    <span>{savingToNotion ? 'Saving...' : 'Save to Notion'}</span>
-                  </button>
+                  {selectedTemplateNotionInfo ? (
+                    <>
+                      <button
+                        onClick={() => handleSaveToNotion(selectedTemplate)}
+                        disabled={savingToNotion}
+                        title="Already saved in Notion. Click to re-sync/update this template in Notion"
+                        className="flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-950/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 px-3.5 py-2 rounded-xl text-xs font-semibold border border-emerald-300 dark:border-emerald-800 transition-all disabled:opacity-50 cursor-pointer"
+                      >
+                        {savingToNotion ? <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-600" /> : <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />}
+                        <span>{savingToNotion ? 'Updating...' : 'Saved in Notion'}</span>
+                      </button>
+
+                      {selectedTemplateNotionInfo.url && (
+                        <a
+                          href={selectedTemplateNotionInfo.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          title="Open this template directly in Notion"
+                          className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-2 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-700 transition-all cursor-pointer"
+                        >
+                          <span>Open in Notion</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      )}
+                    </>
+                  ) : (
+                    <button
+                      onClick={() => handleSaveToNotion(selectedTemplate)}
+                      disabled={savingToNotion}
+                      title="Save this specific template to your Notion Template Library"
+                      className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-700 transition-all disabled:opacity-50 cursor-pointer"
+                    >
+                      {savingToNotion ? <Loader2 className="w-3.5 h-3.5 animate-spin text-[#0f2ea2]" /> : <Database className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />}
+                      <span>{savingToNotion ? 'Saving...' : 'Save to Notion'}</span>
+                    </button>
+                  )}
 
                   <button
                     onClick={() => handleCopy(selectedTemplate.placeholderTemplate)}
