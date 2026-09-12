@@ -25,9 +25,10 @@ export default async function handler(req, res) {
     });
   }
 
+  const cleanupOnly = Boolean(req.body?.cleanupOnly || req.body?.deduplicate || req.query?.cleanup);
   const itemsToSave = templates && Array.isArray(templates) ? templates : (template ? [template] : []);
 
-  if (itemsToSave.length === 0) {
+  if (itemsToSave.length === 0 && !cleanupOnly) {
     return res.status(400).json({
       success: false,
       error: 'No template provided to save.'
@@ -188,41 +189,85 @@ export default async function handler(req, res) {
     const sourceKey = findPropKey('Source');
     const descKey = findPropKey('Description');
 
-    // 3. Insert each template into the database
+    // 3. Query existing template pages to detect and clean up duplicates
+    let existingPages = [];
+    try {
+      const queryDbRes = await fetch(`https://api.notion.com/v1/databases/${templateDbId}/query`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ page_size: 100 })
+      });
+      if (queryDbRes.ok) {
+        const queryData = await queryDbRes.json();
+        existingPages = queryData.results || [];
+      }
+    } catch (e) {
+      console.warn('Could not query existing template pages:', e.message);
+    }
+
+    const getPageTitle = (p) => {
+      const prop = p.properties?.[titleKey] || Object.values(p.properties || {}).find(pr => pr.type === 'title');
+      return prop?.title?.map(t => t.plain_text).join('').trim() || '';
+    };
+
+    // Group existing pages by title and archive existing duplicates
+    const pagesByName = new Map();
+    const duplicatesToArchive = [];
+
+    for (const page of existingPages) {
+      const pageTitle = getPageTitle(page).toLowerCase();
+      if (!pageTitle) continue;
+
+      if (!pagesByName.has(pageTitle)) {
+        pagesByName.set(pageTitle, [page]);
+      } else {
+        pagesByName.get(pageTitle).push(page);
+      }
+    }
+
+    for (const [title, pages] of pagesByName.entries()) {
+      if (pages.length > 1) {
+        // Keep the latest edited page, archive older duplicates
+        pages.sort((a, b) => new Date(b.last_edited_time) - new Date(a.last_edited_time));
+        const [keep, ...dups] = pages;
+        duplicatesToArchive.push(...dups.map(p => p.id));
+        pagesByName.set(title, [keep]);
+      }
+    }
+
+    // Archive duplicates in Notion
+    if (duplicatesToArchive.length > 0) {
+      await Promise.allSettled(
+        duplicatesToArchive.map(dupId =>
+          fetch(`https://api.notion.com/v1/pages/${dupId}`, {
+            method: 'PATCH',
+            headers,
+            body: JSON.stringify({ archived: true })
+          })
+        )
+      );
+    }
+
+    if (cleanupOnly) {
+      return res.status(200).json({
+        success: true,
+        archivedCount: duplicatesToArchive.length,
+        message: `Successfully cleaned up and archived ${duplicatesToArchive.length} duplicate templates.`,
+        databaseId: templateDbId,
+        notionUrl: `https://notion.so/${templateDbId.replace(/-/g, '')}`
+      });
+    }
+
+    // 4. Insert or Update each template in the database (Upsert)
     const results = [];
     for (const item of itemsToSave) {
       const name = item.name || 'Custom Ingested Template';
+      const normName = name.trim().toLowerCase();
       const category = item.category || 'Employer Branding & Culture';
       const tone = item.tone || 'Grounded, Professional';
       const source = item.source || 'AI Ingestion Engine';
       const description = item.description || '';
       const blueprint = item.placeholderTemplate || '';
-
-      // Break long blueprint into Notion paragraph blocks (Notion allows max 2000 chars per text block)
-      const chunks = [];
-      let remaining = blueprint;
-      while (remaining.length > 0) {
-        chunks.push(remaining.substring(0, 1900));
-        remaining = remaining.substring(1900);
-      }
-
-      const childrenBlocks = [
-        {
-          object: 'block',
-          type: 'heading_3',
-          heading_3: {
-            rich_text: [{ type: 'text', text: { content: '📋 Post Template Blueprint' } }]
-          }
-        },
-        ...chunks.map(chunk => ({
-          object: 'block',
-          type: 'code',
-          code: {
-            rich_text: [{ type: 'text', text: { content: chunk } }],
-            language: 'markdown'
-          }
-        }))
-      ];
 
       const pageProperties = {
         [titleKey]: {
@@ -251,25 +296,71 @@ export default async function handler(req, res) {
         };
       }
 
-      const pagePayload = {
-        parent: { database_id: templateDbId },
-        icon: { type: 'emoji', emoji: '📄' },
-        properties: pageProperties,
-        children: childrenBlocks
-      };
+      const existingMatch = pagesByName.get(normName)?.[0];
 
-      const saveRes = await fetch('https://api.notion.com/v1/pages', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(pagePayload)
-      });
+      if (existingMatch) {
+        // Template already exists in Notion: Update existing row properties
+        const updateRes = await fetch(`https://api.notion.com/v1/pages/${existingMatch.id}`, {
+          method: 'PATCH',
+          headers,
+          body: JSON.stringify({ properties: pageProperties })
+        });
 
-      if (saveRes.ok) {
-        const savedPage = await saveRes.json();
-        results.push({ success: true, id: savedPage.id, url: savedPage.url, name });
+        if (updateRes.ok) {
+          const updatedPage = await updateRes.json();
+          results.push({ success: true, id: updatedPage.id, url: updatedPage.url, name, action: 'updated' });
+        } else {
+          const errJson = await updateRes.json();
+          results.push({ success: false, name, error: errJson.message || updateRes.statusText });
+        }
       } else {
-        const errJson = await saveRes.json();
-        results.push({ success: false, name, error: errJson.message || saveRes.statusText });
+        // Template does not exist: Create new page with blueprint blocks
+        const chunks = [];
+        let remaining = blueprint;
+        while (remaining.length > 0) {
+          chunks.push(remaining.substring(0, 1900));
+          remaining = remaining.substring(1900);
+        }
+
+        const childrenBlocks = [
+          {
+            object: 'block',
+            type: 'heading_3',
+            heading_3: {
+              rich_text: [{ type: 'text', text: { content: '📋 Post Template Blueprint' } }]
+            }
+          },
+          ...chunks.map(chunk => ({
+            object: 'block',
+            type: 'code',
+            code: {
+              rich_text: [{ type: 'text', text: { content: chunk } }],
+              language: 'markdown'
+            }
+          }))
+        ];
+
+        const pagePayload = {
+          parent: { database_id: templateDbId },
+          icon: { type: 'emoji', emoji: '📄' },
+          properties: pageProperties,
+          children: childrenBlocks
+        };
+
+        const saveRes = await fetch('https://api.notion.com/v1/pages', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(pagePayload)
+        });
+
+        if (saveRes.ok) {
+          const savedPage = await saveRes.json();
+          results.push({ success: true, id: savedPage.id, url: savedPage.url, name, action: 'created' });
+          pagesByName.set(normName, [savedPage]);
+        } else {
+          const errJson = await saveRes.json();
+          results.push({ success: false, name, error: errJson.message || saveRes.statusText });
+        }
       }
     }
 
@@ -281,6 +372,7 @@ export default async function handler(req, res) {
       success: successfulCount > 0,
       savedCount: successfulCount,
       total: itemsToSave.length,
+      archivedDuplicates: duplicatesToArchive.length,
       databaseId: templateDbId,
       notionUrl: lastSavedUrl,
       error: successfulCount === 0 ? (firstError || 'Failed to save templates to Notion') : undefined,
