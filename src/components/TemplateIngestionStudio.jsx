@@ -318,7 +318,7 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
                   <h3 className={`text-base sm:text-lg font-bold mt-0.5 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                     {selectedTemplate.name}
                   </h3>
-                  <p className="text-sm font-medium text-slate-700 dark:text-slate-300 font-['Inter',sans-serif] leading-relaxed mt-1">
+                  <p className="text-sm sm:text-[14.5px] font-semibold text-slate-800 dark:text-slate-100 font-['Inter',sans-serif] leading-relaxed mt-1 tracking-tight">
                     {selectedTemplate.description}
                   </p>
                 </div>

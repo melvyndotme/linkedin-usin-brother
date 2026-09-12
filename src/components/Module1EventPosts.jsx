@@ -188,6 +188,7 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
   const [selectedOccasion, setSelectedOccasion] = useState(null);
   const [selectedDraftIndex, setSelectedDraftIndex] = useState(0);
   const [copied, setCopied] = useState(false);
+  const [copiedIndex, setCopiedIndex] = useState(null);
 
   // Category Filter: 'all', 'public_holiday', 'custom'
   const [eventCategoryFilter, setEventCategoryFilter] = useState('all');
@@ -367,11 +368,16 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
     theme: selectedOccasion.theme || 'blue'
   }) : '';
 
-  const handleCopy = () => {
-    if (currentDraft?.post) {
-      navigator.clipboard.writeText(currentDraft.post);
+  const handleCopy = (text, index) => {
+    const postToCopy = typeof text === 'string' ? text : currentDraft?.post;
+    if (postToCopy) {
+      navigator.clipboard.writeText(postToCopy);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      setCopiedIndex(typeof index === 'number' ? index : selectedDraftIndex);
+      setTimeout(() => {
+        setCopied(false);
+        setCopiedIndex(null);
+      }, 2000);
     }
   };
 
@@ -638,7 +644,7 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
 
                 <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
                   <button
-                    onClick={() => handleCopy(currentDraft.post, selectedDraftIndex)}
+                    onClick={() => handleCopy(currentDraft?.post, selectedDraftIndex)}
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm cursor-pointer"
                   >
                     {copiedIndex === selectedDraftIndex ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
