@@ -56,9 +56,9 @@ export default function Sidebar({
       ]
     },
     {
-      title: 'TEAM & COLLABORATION',
+      title: 'TEAM',
       items: [
-        { id: 'team', label: 'Team Members', icon: Users }
+        { id: 'team', label: 'Team', icon: Users }
       ]
     },
     {

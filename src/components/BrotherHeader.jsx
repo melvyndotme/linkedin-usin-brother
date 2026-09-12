@@ -23,7 +23,7 @@ const TAB_CONFIG = {
   'draft-studio': { label: 'Draft & Image Studio', icon: Edit3 },
   'template-studio': { label: 'Template Ingestion', icon: Layers },
   'notion-hub': { label: 'Notion Database Hub', icon: Database },
-  'team': { label: 'Team Members', icon: Users },
+  'team': { label: 'Team', icon: Users },
   'settings': { label: 'Integrations', icon: Sliders }
 };
 
