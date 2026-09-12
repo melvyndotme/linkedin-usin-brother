@@ -440,9 +440,6 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
             <h2 className={`text-lg sm:text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
               Singapore Public Holidays & Events
             </h2>
-            <p className="text-xs text-slate-500 mt-1">
-              Official Singapore public holidays and custom promotional campaigns with AI copy angles and banner graphics.
-            </p>
           </div>
         </div>
       </div>
