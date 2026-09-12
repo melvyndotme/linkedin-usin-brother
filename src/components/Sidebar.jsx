@@ -95,10 +95,17 @@ export default function Sidebar({
       {/* Top: Compact Brand Logo & Expand Toggle */}
       <div className="flex flex-col items-center gap-3 shrink-0 pb-3 border-b border-white/10 w-full px-2">
         <div 
-          className="w-9 h-9 rounded-xl bg-white text-[#0e2ea0] flex items-center justify-center font-black text-base shadow-sm shrink-0 cursor-default"
+          className="w-10 h-10 rounded-xl bg-white flex items-center justify-center p-1 shadow-sm shrink-0 overflow-hidden cursor-default border border-white/20"
           title="Brother • at your side"
         >
-          b
+          <img
+            src="https://storage.googleapis.com/popcastai-prod-bucket/6948b8af4ad978001878bbeb/Chatbot_Brother_logo_white_bg.png"
+            alt="Brother • at your side"
+            className="w-full h-full object-contain rounded-lg"
+            onError={(e) => {
+              e.target.src = '/brother-collapsed-logo.png';
+            }}
+          />
         </div>
         {onToggleCollapse && (
           <button
