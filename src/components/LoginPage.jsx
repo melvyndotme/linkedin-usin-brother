@@ -21,6 +21,7 @@ export default function LoginPage({ onLoginSuccess, isDark }) {
 
     try {
       const resendKey = safeGetItem('key_resend') || '';
+      const notionKey = safeGetItem('token_notion') || '';
       const res = await fetch('/api/auth/magic-link', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -28,6 +29,7 @@ export default function LoginPage({ onLoginSuccess, isDark }) {
           email: targetEmail,
           appUrl: window.location.origin,
           resendKey: resendKey || undefined,
+          notionKey: notionKey || undefined,
           fromEmail: 'LinkedUsIn Studio <linkusin@rs.bro-x.org>'
         })
       });
@@ -39,14 +41,7 @@ export default function LoginPage({ onLoginSuccess, isDark }) {
         setErrorMsg(data.error || 'Failed to dispatch magic link. Please check your email.');
       }
     } catch (err) {
-      setMagicSentData({
-        success: true,
-        user: {
-          name: targetEmail.includes('melvyn') ? 'Melvyn Tan' : targetEmail.includes('allan') ? 'Allan Cheng' : targetEmail.includes('chloe') ? 'Chloe Lee' : 'Sean',
-          email: targetEmail,
-          role: targetEmail.includes('melvyn') ? 'External Advisor' : targetEmail.includes('allan') ? 'Admin (POD Lead)' : targetEmail.includes('chloe') ? 'Reviewer (HR Lead)' : 'User'
-        }
-      });
+      setErrorMsg('Connection error: unable to verify account against Notion database. Please try again.');
     } finally {
       setLoading(false);
     }

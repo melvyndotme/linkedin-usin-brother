@@ -13,7 +13,7 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
-  const { email, resendKey, appUrl } = req.body || {};
+  const { email, resendKey, notionKey, appUrl } = req.body || {};
 
   if (!email || !email.includes('@')) {
     return res.status(400).json({ success: false, error: 'Please enter a valid corporate email address.' });
@@ -21,32 +21,73 @@ export default async function handler(req, res) {
 
   const normalizedEmail = email.trim().toLowerCase();
 
-  // Known Notion Team Whitelist members
-  const teamWhitelist = [
-    { name: 'Allan Cheng', email: 'allan.cheng@brother.com.sg', role: 'Admin (POD Lead)' },
-    { name: 'Chloe Lee', email: 'chloe.lee@brother.com.sg', role: 'Reviewer (HR Lead)' },
-    { name: 'Sean', email: 'sean.tan@brother.com.sg', role: 'User (POD Member)' },
-    { name: 'Melvyn Tan', email: 'melvyn@befinityai.com', role: 'External Advisor' }
-  ];
+  const activeNotionKey = notionKey || process.env.NOTION_API_KEY;
+  let matchedUser = null;
 
-  // 1. Check Whitelist
-  let matchedUser = teamWhitelist.find(u => u.email.toLowerCase() === normalizedEmail);
+  // 1. Live Query to Official Notion Team Whitelist Database (3c701136de4881869782cd894c6126c5)
+  if (activeNotionKey) {
+    try {
+      const notionRes = await fetch('https://api.notion.com/v1/databases/3c701136de4881869782cd894c6126c5/query', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${activeNotionKey}`,
+          'Notion-Version': '2022-06-28',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          filter: {
+            or: [
+              {
+                property: 'Email',
+                email: {
+                  equals: normalizedEmail
+                }
+              },
+              {
+                property: 'Email',
+                rich_text: {
+                  equals: normalizedEmail
+                }
+              }
+            ]
+          }
+        })
+      });
 
-  // If email domain is brother.com.sg or brother.co.id, allow with User role
-  if (!matchedUser && (normalizedEmail.endsWith('@brother.com.sg') || normalizedEmail.endsWith('@brother.co.id') || normalizedEmail.endsWith('@brother.com'))) {
-    const rawName = normalizedEmail.split('@')[0].replace(/\./g, ' ');
-    const formattedName = rawName.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-    matchedUser = {
-      name: formattedName,
-      email: normalizedEmail,
-      role: 'User (Brother SG)'
-    };
+      if (notionRes.ok) {
+        const notionData = await notionRes.json();
+        const page = notionData.results?.[0];
+        if (page) {
+          const nameProp = page.properties['Name']?.title?.[0]?.plain_text || page.properties['Name']?.title?.[0]?.text?.content;
+          const roleProp = page.properties['Role']?.select?.name;
+          matchedUser = {
+            name: nameProp || normalizedEmail.split('@')[0],
+            email: normalizedEmail,
+            role: roleProp || 'User (Brother SG)'
+          };
+        }
+      }
+    } catch (notionErr) {
+      console.warn('Live Notion Team lookup error:', notionErr.message);
+    }
   }
 
+  // 2. Fallback to known core team whitelist if Notion is offline
+  if (!matchedUser) {
+    const teamWhitelist = [
+      { name: 'Allan Cheng', email: 'allan.cheng@brother.com.sg', role: 'Admin (POD Lead)' },
+      { name: 'Chloe Lee', email: 'chloe.lee@brother.com.sg', role: 'Reviewer (HR Lead)' },
+      { name: 'Sean', email: 'sean.tan@brother.com.sg', role: 'User (POD Member)' },
+      { name: 'Melvyn Tan', email: 'melvyn@befinityai.com', role: 'External Advisor' }
+    ];
+    matchedUser = teamWhitelist.find(u => u.email.toLowerCase() === normalizedEmail);
+  }
+
+  // STRICT REJECTION: If not on Notion Team Whitelist or designated team list, block login!
   if (!matchedUser) {
     return res.status(403).json({
       success: false,
-      error: `Access Restricted: ${email} is not on the Notion Team Whitelist. Please contact Allan Cheng or Chloe Lee for access.`
+      error: `Access Restricted: ${email} is not listed on the Brother Notion Team Whitelist. Please contact Allan Cheng or Chloe Lee to be added.`
     });
   }
 
