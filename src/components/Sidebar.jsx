@@ -95,15 +95,15 @@ export default function Sidebar({
       {/* Top: Compact Brand Logo & Expand Toggle */}
       <div className="flex flex-col items-center gap-3 shrink-0 pb-3 border-b border-white/10 w-full px-2">
         <div 
-          className="w-10 h-10 flex items-center justify-center shrink-0 cursor-default"
+          className="w-12 h-10 flex items-center justify-center shrink-0 cursor-default px-1"
           title="Brother • at your side"
         >
           <img
-            src="/favicon.png"
-            alt="Brother • at your side"
-            className="w-9 h-9 rounded-xl object-contain drop-shadow-sm"
+            src="/brother-wordmark-white.svg"
+            alt="Brother"
+            className="w-full h-auto object-contain drop-shadow-xs"
             onError={(e) => {
-              e.target.src = '/favicon.ico';
+              e.target.src = '/brother-favicon-transparent.png';
             }}
           />
         </div>
