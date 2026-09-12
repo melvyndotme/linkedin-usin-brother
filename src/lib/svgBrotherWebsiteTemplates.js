@@ -25,6 +25,12 @@ export function generateBrotherWebsiteBannerSVG({
     skyGlow = "#10B981";
   } else if (theme === "ai-tech") {
     skyGlow = "#00D4FF";
+  } else if (theme === "promotion") {
+    skyGlow = "#FF6B00";
+  } else if (theme === "sustainability") {
+    skyGlow = "#10B981";
+  } else if (theme === "corporate") {
+    skyGlow = "#3B82F6";
   }
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 500" width="100%" height="100%" style="border-radius: 20px; font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;">

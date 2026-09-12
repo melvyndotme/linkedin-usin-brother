@@ -20,7 +20,7 @@ import {
 
 const TAB_CONFIG = {
   'home': { label: 'Overview', icon: LayoutDashboard },
-  'module-1': { label: 'Festive & Calendar', icon: Calendar },
+  'module-1': { label: 'Events', icon: Calendar },
   'module-2': { label: 'News & Intel', icon: Newspaper },
   'draft-studio': { label: 'Draft & Image Studio', icon: Edit3 },
   'template-studio': { label: 'Template Ingestion', icon: Layers },
@@ -182,13 +182,13 @@ export default function BrotherHeader({
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="text-xs font-bold text-slate-900 dark:text-white truncate">
-                          MOM Festive Calendar Ready
+                          Singapore Public Holidays & Events Ready
                         </div>
                         <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
-                          Official Singapore public holidays loaded. Automated T-10 countdowns active.
+                          Official Singapore public holidays and custom event calendar loaded. Automated countdowns active.
                         </p>
                         <span className="text-[10px] text-[#0f2ea2] dark:text-blue-400 font-semibold mt-1 inline-block">
-                          View Calendar →
+                          View Events →
                         </span>
                       </div>
                     </div>

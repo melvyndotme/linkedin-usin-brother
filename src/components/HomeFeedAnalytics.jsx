@@ -176,7 +176,7 @@ export default function HomeFeedAnalytics({ isDark, onNavigateToModule }) {
               onClick={() => onNavigateToModule('module-1')}
               className="text-[#0f2ea2] dark:text-blue-400 hover:underline"
             >
-              Draft Festive Post (Mod 1) →
+              View Events →
             </button>
           </div>
         </div>

@@ -43,7 +43,7 @@ export default function Sidebar({
       title: 'WORKSPACE',
       items: [
         { id: 'home', label: 'Dashboard', icon: LayoutDashboard },
-        { id: 'module-1', label: 'Festive & Calendar', icon: Calendar },
+        { id: 'module-1', label: 'Events', icon: Calendar },
         { id: 'module-2', label: 'News & Intel', icon: Newspaper }
       ]
     },
