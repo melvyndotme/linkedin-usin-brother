@@ -268,9 +268,9 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
 
                   <button
                     onClick={() => onSelectTemplateForDrafting(selectedTemplate)}
-                    className="flex items-center gap-1.5 bg-[#0f2ea2] hover:bg-[#0c2482] text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md transition-all active:scale-95"
+                    className="whitespace-nowrap inline-flex items-center gap-1.5 bg-[#0f2ea2] hover:bg-[#0c2482] text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md transition-all active:scale-95 shrink-0 cursor-pointer"
                   >
-                    <span>Use Template to Draft Post</span>
+                    <span>Use Template</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
