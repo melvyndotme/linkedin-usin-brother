@@ -31,14 +31,14 @@ export default function Sidebar({
   onToggleCollapse
 }) {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
-  const profileMenuRef = useRef(null);
 
-  // Close profile popup when clicking outside
+  // Close profile popup when clicking outside (using data-profile-menu attribute to prevent ref collision)
   useEffect(() => {
     function handleClickOutside(event) {
-      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
-        setProfileMenuOpen(false);
+      if (event.target?.closest && event.target.closest('[data-profile-menu="true"]')) {
+        return;
       }
+      setProfileMenuOpen(false);
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -148,10 +148,20 @@ export default function Sidebar({
       </div>
 
       {/* Bottom: Compact Profile Button with Popover */}
-      <div className="pt-3 border-t border-white/10 shrink-0 relative flex justify-center w-full px-2" ref={profileMenuRef}>
+      <div className="pt-3 border-t border-white/10 shrink-0 relative flex justify-center w-full px-2" data-profile-menu="true">
         {profileMenuOpen && (
-          <div className="absolute bottom-2 left-full ml-3 w-64 bg-white rounded-2xl shadow-2xl border border-slate-200 p-2.5 z-50 text-slate-900 animate-in fade-in slide-in-from-left-2 duration-150">
-            <div className="flex items-center gap-2.5 p-2 pb-2">
+          <div 
+            data-profile-menu="true"
+            className="absolute bottom-2 left-full ml-3 w-64 bg-white rounded-2xl shadow-2xl border border-slate-200 p-2.5 z-50 text-slate-900 animate-in fade-in slide-in-from-left-2 duration-150"
+          >
+            <div 
+              onClick={(e) => {
+                e.stopPropagation();
+                handleSelectTab('profile');
+              }}
+              className="flex items-center gap-2.5 p-2 pb-2 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors"
+              title="Edit Profile"
+            >
               <div className="w-8 h-8 rounded-full bg-[#0e2ea0] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-sm">
                 {userInitials}
               </div>
@@ -169,7 +179,12 @@ export default function Sidebar({
 
             <div className="space-y-0.5">
               <button
-                onClick={() => handleSelectTab('profile')}
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleSelectTab('profile');
+                }}
                 className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-colors text-left cursor-pointer ${
                   activeTab === 'profile'
                     ? 'bg-blue-50 text-[#0e2ea0]'
@@ -183,7 +198,10 @@ export default function Sidebar({
               <div className="h-px bg-slate-100 my-1" />
 
               <button
-                onClick={() => {
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
                   setProfileMenuOpen(false);
                   onLogout();
                 }}
@@ -290,10 +308,20 @@ export default function Sidebar({
       </div>
 
       {/* Bottom Area: User Profile with Popover */}
-      <div className="p-3 border-t border-white/10 shrink-0 relative" ref={profileMenuRef}>
+      <div className="p-3 border-t border-white/10 shrink-0 relative" data-profile-menu="true">
         {profileMenuOpen && (
-          <div className="absolute bottom-full mb-2 left-3 right-3 bg-white rounded-2xl shadow-2xl border border-slate-200 p-2 z-50 text-slate-900 animate-in fade-in slide-in-from-bottom-2 duration-150">
-            <div className="flex items-center gap-2.5 p-2 pb-2">
+          <div 
+            data-profile-menu="true"
+            className="absolute bottom-full mb-2 left-3 right-3 bg-white rounded-2xl shadow-2xl border border-slate-200 p-2 z-50 text-slate-900 animate-in fade-in slide-in-from-bottom-2 duration-150"
+          >
+            <div 
+              onClick={(e) => {
+                e.stopPropagation();
+                handleSelectTab('profile');
+              }}
+              className="flex items-center gap-2.5 p-2 pb-2 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors"
+              title="Edit Profile"
+            >
               <div className="w-8 h-8 rounded-full bg-[#0e2ea0] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-sm">
                 {userInitials}
               </div>
@@ -311,7 +339,12 @@ export default function Sidebar({
 
             <div className="space-y-0.5">
               <button
-                onClick={() => handleSelectTab('profile')}
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleSelectTab('profile');
+                }}
                 className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-colors text-left cursor-pointer ${
                   activeTab === 'profile'
                     ? 'bg-blue-50 text-[#0e2ea0]'
@@ -325,7 +358,10 @@ export default function Sidebar({
               <div className="h-px bg-slate-100 my-1" />
 
               <button
-                onClick={() => {
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
                   setProfileMenuOpen(false);
                   onLogout();
                 }}
