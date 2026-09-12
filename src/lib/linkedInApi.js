@@ -26,7 +26,7 @@ export const RECENT_LINKEDIN_POSTS = [
     timestamp: "1 day ago",
     date: "2026-08-09",
     category: "Festive & Culture",
-    content: "Happy 61st Singapore National Day! 🇸🇬\n\nFrom humble beginnings to a global powerhouse of smart-nation innovation, we are proud to stand 'At your side' empowering businesses across Singapore.\n\nThank you to our dedicated team and partners who inspire us every single day. Majulah Singapura! 🎉✨\n\n#NationalDay2026 #NDP2026 #BrotherSingapore #AtYourSide #MajulahSingapura",
+    content: "Happy 61st Singapore National Day! 🇸🇬\n\nFrom humble beginnings to a global powerhouse of smart-nation innovation, we stand 'At your side' empowering businesses across Singapore.\n\nThank you to our dedicated team and partners who inspire us every single day. Majulah Singapura! 🎉✨\n\n#NationalDay2026 #NDP2026 #BrotherSingapore #AtYourSide #MajulahSingapura",
     impressions: 18450,
     likes: 312,
     comments: 28,

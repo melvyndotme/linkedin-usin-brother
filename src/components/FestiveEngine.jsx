@@ -19,7 +19,7 @@ export default function FestiveEngine({ onSelectForPreview }) {
     title: selectedHoliday.name,
     subtitle: `Warm wishes from all of us at Brother Singapore`,
     occasion: selectedHoliday.name,
-    theme: selectedHoliday.themeKey === "national-pride" ? "national-red" :
+    theme: selectedHoliday.themeKey === "national-unity" ? "national-red" :
            selectedHoliday.themeKey === "gratitude-forgiveness" ? "festive-green" :
            selectedHoliday.themeKey === "prosperity-renewal" ? "cny-red" :
            selectedHoliday.themeKey === "light-hope" ? "deepavali-gold" : "brother-blue",

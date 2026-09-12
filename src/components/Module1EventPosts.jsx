@@ -99,7 +99,7 @@ function generateEventDrafts(occasion) {
         id: 'opt-2',
         name: 'Workplace Reliability & Zero Downtime (Kaizen Focus)',
         whyThisWorks: 'Emphasizes preventive engineering and hassle-free operation, tapping into the customer desire to eliminate printer breakdowns and office interruptions.',
-        post: `A smooth workday starts with tools you can always depend on. ⚙️📄\n\nWhen document bottlenecks happen, business slows down. That's why Brother Singapore is proud to introduce our ${name}.\n\nBuilt on decades of precision engineering, Brother printers and scanners are crafted to work tirelessly beside your team. Whether you're processing bulk contracts, high-resolution presentations, or everyday invoices, our hardware delivers consistent, jam-free speed day after day.\n\n${details ? `💡 Current Campaign Highlight: ${details}\n\n` : ''}Discover how we stand 'At your side' to keep your enterprise moving forward.\n\n${hashtags} #OfficeProductivity #ZeroDowntime #Kaizen`
+        post: `A smooth workday starts with tools you can always depend on. ⚙️📄\n\nWhen document bottlenecks happen, business slows down. That's why Brother Singapore is pleased to introduce our ${name}.\n\nBuilt on decades of precision engineering, Brother printers and scanners are crafted to work tirelessly beside your team. Whether you're processing bulk contracts, high-resolution presentations, or everyday invoices, our hardware delivers consistent, jam-free speed day after day.\n\n${details ? `💡 Current Campaign Highlight: ${details}\n\n` : ''}Discover how we stand 'At your side' to keep your enterprise moving forward.\n\n${hashtags} #OfficeProductivity #ZeroDowntime #Kaizen`
       },
       {
         id: 'opt-3',
@@ -147,7 +147,7 @@ function generateEventDrafts(occasion) {
         id: 'opt-2',
         name: 'Guiding Light, Precision & Kaizen Innovation',
         whyThisWorks: 'Draws an inspiring parallel between celebrations and Brother\'s guiding mission of innovation, precision craftsmanship, and sustainable progress.',
-        post: `Moments of celebration like ${name} remind us of the power of clarity, shared purpose, and dedicated craftsmanship. 🏮💡\n\nIn both technology and relationships, enduring strength is built through patient dedication and continuous improvement (*Kaizen*).\n\nAt Brother Singapore, we take pride in illuminating the road ahead for our business community with dependable technologies that empower smarter, more connected workplaces.\n\nMay this season bring fresh inspiration, renewed clarity, and lasting success to your team! 🤝\n\n${hashtags} #Kaizen #WorkplaceExcellence #GuidingLight`
+        post: `Moments of celebration like ${name} remind us of the power of clarity, shared purpose, and dedicated craftsmanship. 🏮💡\n\nIn both technology and relationships, enduring strength is built through patient dedication and continuous improvement (*Kaizen*).\n\nAt Brother Singapore, we are dedicated to illuminating the road ahead for our business community with dependable technologies that empower smarter, more connected workplaces.\n\nMay this season bring fresh inspiration, renewed clarity, and lasting success to your team! 🤝\n\n${hashtags} #Kaizen #WorkplaceExcellence #GuidingLight`
       },
       {
         id: 'opt-3',
@@ -162,8 +162,8 @@ function generateEventDrafts(occasion) {
   return [
     {
       id: "opt-1",
-      name: "Warm Community Unity & Shared Pride (Wa Harmony)",
-      whyThisWorks: "Employs high Hofstede Harmony (*Wa*) and multiracial Singaporean pride. Opens with an energetic greeting, connects cultural resilience with Brother's 'At your side' ethos, and ends with an authentic communal question.",
+      name: "Warm Community Unity & Shared Harmony (Wa)",
+      whyThisWorks: "Employs high Hofstede Harmony (*Wa*) and multiracial Singaporean solidarity. Opens with an energetic greeting, connects cultural resilience with Brother's 'At your side' ethos, and ends with an authentic communal question.",
       post: `Happy ${name}! 🇸🇬✨\n\nAs we celebrate this milestone across Singapore, we reflect on what makes our community extraordinary — unity, resilience, and the relentless drive to innovate for the future.\n\nAt Brother Singapore, our commitment to standing 'At your side' is inspired by the vibrant spirit of our island nation. From local SMEs to multinational enterprises, we are honored to walk alongside Singapore's growth journey every single day.\n\nWishing all our partners, clients, and colleagues a wonderful ${name} with your loved ones! 🎉\n\nTo everyone celebrating, what is your team's favorite tradition today? Share with us below! 👇\n\n${hashtags}`
     },
     {

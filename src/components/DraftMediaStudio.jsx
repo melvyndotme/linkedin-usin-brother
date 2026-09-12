@@ -8,7 +8,7 @@ export default function DraftMediaStudio({ isDark, initialContent, initialTitle 
   const [title, setTitle] = useState(initialTitle || 'Singapore National Day 2026 Celebration');
   const [content, setContent] = useState(initialContent || `Happy 61st Singapore National Day! 🇸🇬✨
 
-From humble beginnings to a global powerhouse of smart-nation innovation, we are proud to stand 'At your side' empowering businesses and communities across Singapore.
+From humble beginnings to a global powerhouse of smart-nation innovation, we stand 'At your side' empowering businesses and communities across Singapore.
 
 At Brother Singapore, our commitment goes beyond hardware — it is about honoring the resilient, multicultural fabric that makes our island nation vibrant and forward-looking.
 

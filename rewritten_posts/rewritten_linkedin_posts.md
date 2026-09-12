@@ -488,7 +488,7 @@ Which of these trends is driving the biggest change inside your fleet this year?
 
 We get this question all the time. Here’s the story:
 
-Brother International Corporation (headquartered in Bridgewater, NJ) is a proud subsidiary of Brother Industries, Ltd., founded over a century ago in Nagoya, Japan.
+Brother International Corporation (headquartered in Bridgewater, NJ) is a key subsidiary of Brother Industries, Ltd., founded over a century ago in Nagoya, Japan.
 
 From our campus in New Jersey to our facilities in Tennessee, California, and throughout the Americas, we are part of a global team united by a single promise: **"At your side."**
 
@@ -804,7 +804,7 @@ Juggling deadlines, school drop-offs, soccer practices, and late-night parenting
 
 This week, our Bartlett, Tennessee campus paused to celebrate the incredible working dads and father figures across our team with our annual **"Donuts for Dad"** gathering! 🍩
 
-Balancing a fulfilling career with being present for your family takes dedication. We’re proud to support working parents every single day with flexibility and care.
+Balancing a fulfilling career with being present for your family takes dedication. We are dedicated to supporting working parents every single day with flexibility and care.
 
 To all the dads, stepdads, grandfathers, and mentors on the Brother team and in our wider community: thank you for everything you do. Happy Father’s Day!
 
@@ -1103,7 +1103,7 @@ Throughout Women’s History Month, our **Women At Your Side (WAYS) Employee Res
 👩‍🍳 Partnering directly with and catering from a local women-owned bakery, reinvesting our corporate dollars back into our local community.
 🧠 Hosting an eye-opening virtual masterclass on *"The Psychology of Altruism: Understanding the Science of Kindness and Gratitude."*
 
-When women lead, businesses thrive. We are proud to carry the energy and initiatives of Women's History Month forward throughout the entire year! 💜
+When women lead, businesses thrive. We look forward to carrying the energy and initiatives of Women's History Month forward throughout the entire year! 💜
 
 ---
 
@@ -1133,7 +1133,7 @@ Bill, your legacy is etched into every corner of Brother. Thank you for four dec
 * **Recommended Asset:** Photo collage of milestone award recipients holding green celebratory cupcakes.
 
 **Rewritten Copy:**
-In an era where the average tech employee changes jobs every two years, we’re proud to celebrate teammates who choose to stay for 10, 15, and 20+ years.
+In an era where the average tech employee changes jobs every two years, we are honored to celebrate teammates who choose to stay for 10, 15, and 20+ years.
 
 At our quarterly recognition event this week, we welcomed our newest cohort of fresh talent and celebrated our milestone work anniversaries! ☘️
 

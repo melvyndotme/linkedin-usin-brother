@@ -11,8 +11,8 @@ To ensure Brother Singapore's LinkedIn voice resonates both with regional audien
 │ Individualism (IDV)          │ Collectivist (46) — Harmony      │ Collectivist-Leaning (20) — High     │ Celebrate shared team wins (*Wa*) while   │
 │                              │ (*Wa*), team consensus           │ multicultural community cohesion     │ spotlighting employee breakthrough growth │
 ├──────────────────────────────┼──────────────────────────────────┼──────────────────────────────────────┼───────────────────────────────────────────┤
-│ Masculinity / Drive (MAS)    │ High (95) — Excellence, pride in │ Moderate (48) — Quality of life,     │ Emphasize high performance & excellence   │
-│                              │ engineering & craft mastery      │ harmony, pragmatic achievement       │ framed as enabling smoother daily work    │
+│ Masculinity / Drive (MAS)    │ High (95) — Excellence, craft    │ Moderate (48) — Quality of life,     │ Emphasize high performance & excellence   │
+│                              │ mastery, and deep dedication     │ harmony, pragmatic achievement       │ framed as enabling smoother daily work    │
 ├──────────────────────────────┼──────────────────────────────────┼──────────────────────────────────────┼───────────────────────────────────────────┤
 │ Uncertainty Avoidance (UAI)  │ Very High (92) — Precision,      │ Low (8) — Highly adaptable, agile,   │ Showcase forward-looking tech (AI) with   │
 │                              │ zero-defect, proven methods      │ fast adopters of new technology      │ proven reliability & safety guardrails    │
@@ -27,5 +27,5 @@ To ensure Brother Singapore's LinkedIn voice resonates both with regional audien
 
 ### Strategic AI Prompt Directives
 1. **Never exaggerate or make unsubstantiated claims** (Honoring Japanese craftsmanship & integrity).
-2. **Embrace multiracial warmth and local Singapore pride** (Honoring Singapore's cultural mosaic).
+2. **Embrace multiracial warmth and local Singapore unity** (Honoring Singapore's cultural mosaic).
 3. **Bridge cutting-edge innovation with practical daily utility** (Merging Singaporean pragmatism with Japanese continuous improvement / *Kaizen*).

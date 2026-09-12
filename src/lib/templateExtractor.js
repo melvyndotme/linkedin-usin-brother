@@ -281,7 +281,7 @@ In an era of disposable hardware, our engineering philosophy remains rooted in *
 ⚡ Industrial labeling tested to withstand extreme heat, chemicals, and humidity
 ⚡ A dedicated logistics and fulfillment team ensuring critical parts reach regional enterprises without disruption
 
-World-class technology is only possible through the quiet diligence and pride of our frontline technicians, engineers, and supply chain coordinators.
+World-class technology is only possible through the quiet diligence and dedication of our frontline technicians, engineers, and supply chain coordinators.
 
 To our operations and engineering colleagues across the region: thank you for keeping essential industries moving forward with reliability and integrity! ⚙️🤝
 

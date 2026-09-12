@@ -57,7 +57,7 @@ const THEME_PRESETS = {
     hashtags: ['#HariRayaHaji', '#UnityAndGiving', '#BrotherSingapore', '#AtYourSide']
   },
   'national day': {
-    badgeText: 'Celebrate SG National Pride',
+    badgeText: 'Celebrate SG National Harmony',
     subtitle: 'Majulah Singapura • Honoring unity, resilience & future-forward innovation',
     theme: 'national-day',
     culturalContext: 'Singapore National Day celebrating sovereignty, multicultural harmony, and forward-looking innovation as one nation.',
