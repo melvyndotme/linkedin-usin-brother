@@ -59,12 +59,6 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
   const [searchError, setSearchError] = useState(null);
   const [hasKey, setHasKey] = useState(() => Boolean(getEffectiveSerperKey()));
 
-  // Notion AI state for Module 2
-  const [notionSyncing, setNotionSyncing] = useState(false);
-  const [notionStatus, setNotionStatus] = useState('');
-  const [notionPageUrl, setNotionPageUrl] = useState(null);
-  const [liveNotionNewsDrafts, setLiveNotionNewsDrafts] = useState({});
-
   useEffect(() => {
     const key = getEffectiveSerperKey();
     if (key) {
@@ -344,73 +338,6 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
   const isLiveNews = currentTabResults.isLive || false;
   const activeNews = selectedNews || (newsList.length > 0 ? newsList[0] : null);
 
-  const handleTriggerNotionAI = async () => {
-    if (!activeNews) return;
-    const token = (safeGetItem('notion_token') || '').trim();
-    const explicitDb = (safeGetItem('notion_database_id') || '').trim();
-    const pageIdStored = (safeGetItem('notion_page_id') || '').trim();
-    const rawId = explicitDb || pageIdStored || '3c701136de4881de9d29ca4ea415e856';
-    const dbId = (rawId.includes('000b3c706126') || rawId.includes('8101'))
-      ? '3c701136de4881de9d29ca4ea415e856'
-      : rawId;
-
-    if (!token) {
-      alert('Please enter your Notion Integration Token (secret_...) in Settings or Notion Hub first!');
-      return;
-    }
-
-    setNotionSyncing(true);
-    setNotionStatus('1/2 Creating news draft in Notion with Source Context...');
-    setNotionPageUrl(null);
-
-    const newsKey = activeNews.id || activeNews.headline;
-
-    try {
-      const res = await fetch('/api/notion/sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          apiKey: token,
-          databaseId: dbId,
-          post: {
-            title: activeNews.headline || '24h AI Intelligence Breakthrough',
-            category: 'AI & Employer Branding',
-            status: 'Draft',
-            author: 'Allan Cheng',
-            draft1: drafts[0]?.postContent || 'AI Community Draft',
-            draft2: drafts[1]?.postContent || 'AI Kaizen Draft',
-            rationale: 'Hofstede LTO + Kaizen: Bridges global AI breakthroughs with Brother SG workplace productivity gains.',
-            sourceContext: `Headline: ${activeNews.headline}\nPublisher: ${activeNews.source || 'News Source'}\nURL: ${activeNews.sourceUrl || activeNews.link || ''}\n120-Word Synthesis: ${activeNews.summary120 || activeNews.snippet || ''}\nTarget Keywords: enterprise AI, workplace productivity, Brother SG`
-          }
-        })
-      });
-
-      const data = await res.json();
-      if (!data.success) {
-        throw new Error(data.error || 'Failed to sync news to Notion');
-      }
-
-      setNotionPageUrl(data.url);
-      setLiveNotionNewsDrafts(prev => ({
-        ...prev,
-        [newsKey]: {
-          draft1: drafts[0]?.postContent || '',
-          draft2: drafts[1]?.postContent || '',
-          rationale: 'Hofstede LTO + Kaizen: Bridges global AI breakthroughs with Brother SG workplace productivity gains.',
-          url: data.url
-        }
-      }));
-      setNotionSyncing(false);
-      setNotionStatus('✅ 100% Autonomous: Full post & drafts created in Notion! Click "Open in Notion" to view.');
-    } catch (err) {
-      setNotionSyncing(false);
-      setNotionStatus(`❌ Error: ${err.message}`);
-    }
-  };
-
-  const activeNewsKey = activeNews?.id || activeNews?.headline;
-  const activeNotionNews = liveNotionNewsDrafts[activeNewsKey];
-
   const baseDrafts = activeNews ? generateAIDrafts({
     title: activeNews?.headline || 'Enterprise Trend Breakthrough',
     snippet: activeNews?.summary120 || 'Latest business news and automation insights.',
@@ -421,25 +348,7 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
     }
   }) : [];
 
-  const drafts = baseDrafts.map((d, idx) => {
-    if (idx === 0 && activeNotionNews?.draft1) {
-      return {
-        ...d,
-        name: 'Notion Custom Agent: Community & Harmony',
-        postContent: activeNotionNews.draft1,
-        isLiveNotion: true
-      };
-    }
-    if (idx === 1 && activeNotionNews?.draft2) {
-      return {
-        ...d,
-        name: 'Notion Custom Agent: Kaizen & Tech',
-        postContent: activeNotionNews.draft2,
-        isLiveNotion: true
-      };
-    }
-    return d;
-  });
+  const drafts = baseDrafts;
 
   const currentDraft = (drafts && drafts[selectedDraftIndex]) || drafts?.[0] || {
     name: 'Default Angle',
@@ -1137,50 +1046,6 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
                   isDark ? 'bg-slate-950 border-slate-800 text-slate-200' : 'bg-slate-50 border-slate-200 text-slate-800'
                 }`}>
                   {formatAs120WordMarkdown(activeNews)}
-                </div>
-
-                {/* Notion AI Execution Bar */}
-                <div className="p-3.5 rounded-xl border bg-gradient-to-r from-blue-50/80 to-indigo-50/80 dark:from-blue-950/30 dark:to-indigo-950/30 border-blue-200 dark:border-blue-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-[#0f2ea2] text-white flex items-center justify-center font-bold text-sm shadow-sm shrink-0">
-                      <Database className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                        <span>Execute AI in Notion</span>
-                        {activeNotionNews && (
-                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 font-bold">
-                            Live Notion AI Synced
-                          </span>
-                        )}
-                      </div>
-                      <div className="text-[11px] text-slate-600 dark:text-slate-400">
-                        {notionStatus || "Sends 24h news synthesis into Notion. Custom Agents generate 2 LinkedIn drafts in real-time."}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
-                    {notionPageUrl && (
-                      <a
-                        href={notionPageUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm"
-                      >
-                        <span>Open in Notion</span>
-                        <ExternalLink className="w-3 h-3" />
-                      </a>
-                    )}
-                    <button
-                      onClick={handleTriggerNotionAI}
-                      disabled={notionSyncing}
-                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#0f2ea2] hover:bg-[#004b8f] text-white text-xs font-bold transition-all shadow-sm disabled:opacity-50 cursor-pointer"
-                    >
-                      <RefreshCw className={`w-3.5 h-3.5 ${notionSyncing ? 'animate-spin' : ''}`} />
-                      <span>{notionSyncing ? 'Generating in Notion...' : '⚡ Trigger Notion AI'}</span>
-                    </button>
-                  </div>
                 </div>
 
                 {/* 3-Pillar Generated Post Copy */}

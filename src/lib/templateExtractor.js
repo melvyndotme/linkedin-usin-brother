@@ -2,6 +2,268 @@
 
 export const BENCHMARK_TEMPLATES = [
   {
+    id: "tmpl-eb-flexibility",
+    source: "Brother USA Post Archive Benchmark",
+    name: "Tangible Perk & Flexibility (Burnout Prevention)",
+    category: "Employer Branding & Culture",
+    tone: "Human, refreshing, authentic, empathetic",
+    description: "Transforms HR policies (like Flexible Fridays & 401k day-one) into candidate-focused freedom and wellness stories.",
+    frontmatterYaml: `---
+id: "eb_tangible_perk_flexibility"
+source_account: "Brother USA Archive Benchmark"
+category: "Employer Branding & Culture"
+tone: "Human, refreshing, empathetic"
+target_audience: "Passive job seekers, professionals seeking work-life balance"
+hook_archetype: "Contrarian Workplace Truth Hook"
+---`,
+    placeholderTemplate: `[Insert Hook: Challenge a common workplace friction or hollow corporate perk, e.g. "Lots of companies offer 'Summer Fridays.' Then September hits, and the flexibility vanishes."]
+
+[State the Cultural Truth: Explain why rigid face-time or meeting fatigue is hurting modern professionals]
+
+At Brother, flexibility isn’t a seasonal perk. It’s a year-round commitment:
+• [Perk Detail 1: Describe protected focus time, e.g. zero meeting invites after 1:00 PM on Friday]
+• [Perk Detail 2: Detail the autonomy granted to employees when deliverables are completed]
+• [Perk Detail 3: Highlight how leadership measures impact over chair time]
+
+[The Tuesday Afternoon Test: Describe what this looks like in practice — leaving early for a kid's game, recharging without guilt, or working without Slack pings]
+
+[Insert Call to Action: Engaging question asking followers what true flexibility means to them, or inviting them to explore open roles 👇]
+
+#LifeAtBrother #AtYourSide #WorkLifeBalance #CompanyCulture #FlexibleWork #EmployerBranding`,
+    examplePost: `Lots of companies offer 'Summer Fridays.' Then September hits, and the flexibility vanishes.
+
+At Brother, flexibility isn't a seasonal perk. It's a year-round policy.
+
+Through our Flexible Fridays program, employees who wrap up their deliverables can step away a few hours early to beat weekend traffic, attend their kid's soccer game, or simply recharge.
+
+And for those putting final touches on a project? Friday afternoons are protected: no meetings, no pings, just uninterrupted focus time.
+
+Because trust isn't measured by how long you sit in an office chair on a Friday afternoon. It's measured by the impact you deliver.
+
+What does your company's ideal Friday look like? Let us know below! 👇
+
+#LifeAtBrother #AtYourSide #WorkLifeBalance #CompanyCulture #FlexibleWork #EmployerBranding`
+  },
+  {
+    id: "tmpl-eb-early-career",
+    source: "Brother USA Internship Program Benchmark",
+    name: "Early Career & Hands-On Ownership",
+    category: "Talent Acquisition & Internships",
+    tone: "Empowering, energetic, aspirational, authentic",
+    description: "Busts the menial intern stereotype by proving undergraduate and graduate students get real project ownership and executive access.",
+    frontmatterYaml: `---
+id: "eb_real_work_early_career"
+source_account: "Brother USA Internship Program"
+category: "Talent Acquisition & Early Career"
+tone: "Empowering, energetic, authentic"
+target_audience: "Students, recent grads, early-career innovators"
+hook_archetype: "Trope-Busting Ownership Hook"
+---`,
+    placeholderTemplate: `[Insert Hook: Bust the cliché intern stereotype, e.g. "They didn't fetch coffee. They didn't run paper shredders."]
+
+[Context: Highlight the cohort size, locations, and scope of the early career program]
+
+Over the last [X weeks/months], our early-career innovators took on real business stakes:
+🔹 [Ownership Area 1: High-impact project in data, code, marketing, or engineering]
+🔹 [Ownership Area 2: Direct presentations and strategy reviews with executive leaders]
+🔹 [Ownership Area 3: Hands-on career workshops, e.g. personal branding with talent recruiters]
+
+[The Fun & Camaderie: Mention off-site culture moments — go-karts, VR, or team sports]
+
+[Value Takeaway: Emphasize that Brother invests in long-term career growth, not temporary support]
+
+[Insert Call to Action: Tag an ambitious student or encourage applications for the next cohort 👇]
+
+#BrotherInterns #EarlyCareer #TalentAcquisition #LifeAtBrother #FutureLeaders #NextGenTalent`,
+    examplePost: `They didn't fetch coffee. They didn't run paper shredders.
+
+Over the last 10 weeks, our Summer Interns deployed real code, revamped supply chain workflows, analyzed marketing campaigns, and presented strategic proposals directly to executive leadership.
+
+And yes — they also crushed each other in go-kart races, tested VR tech, and made a glorious mess in a splatter paint room.
+
+Investing in early career talent means giving students real skin in the game while building memories they'll carry throughout their professional journey.
+
+To our intern class: thank you for challenging our assumptions, bringing contagious energy, and leaving an indelible mark on Brother. The future is yours! 🚀
+
+#BrotherInterns #EarlyCareer #TalentAcquisition #LifeAtBrother #FutureLeaders #NextGenTalent`
+  },
+  {
+    id: "tmpl-eb-recruiter-desk",
+    source: "Brother USA Talent Acquisition Benchmark",
+    name: "From the Recruiter's Desk (Candidate Coaching)",
+    category: "Candidate Experience & Coaching",
+    tone: "Supportive, transparent, insider, authoritative",
+    description: "Positions HR recruiters as supportive career allies, sharing actionable interview tips that build massive trust with prospective hires.",
+    frontmatterYaml: `---
+id: "eb_unfiltered_recruiter_advice"
+source_account: "Brother USA Talent Acquisition"
+category: "Candidate Experience & Recruiting"
+tone: "Supportive, transparent, authoritative"
+target_audience: "Job seekers, interviewees, active talent pool"
+hook_archetype: "Insider Career Coach Hook"
+---`,
+    placeholderTemplate: `[Insert Hook: Challenge a generic interview question or resume myth, e.g. "The best interview question you can ask an employer isn't: 'What does a typical day look like?'"]
+
+In our latest edition of 'From the Desk of the Recruiter,' our talent acquisition team is sharing what genuinely makes candidates stand out during our hiring process:
+
+1. [Tip / Question 1: Focused on business impact and 90-day problem solving]
+2. [Tip / Question 2: Focused on cultural alignment and company values in action]
+3. [Tip / Question 3: Focused on team dynamics and navigating workplace challenges]
+
+[HR Insight: Explain why asking thoughtful questions turns an interrogation into an authentic, two-way career conversation]
+
+[Insert Call to Action: Invite candidates to share their go-to interview questions or check open roles via pinned link 👇]
+
+#RecruitingAdvice #InterviewTips #CareerGrowth #LifeAtBrother #JobSearch #HiringTrends`,
+    examplePost: `The best interview question you can ask an employer isn't: 'What does a typical day look like?'
+
+In our latest edition of 'From the Desk of the Recruiter,' Brother's in-house talent team reveals the questions that genuinely make candidates stand out:
+
+1. 'What is the single biggest challenge this department needs solved in the first 90 days?'
+2. 'How does this team embody Brother's 'At your side' philosophy when things don't go according to plan?'
+3. 'What kind of person thrives in this culture — and who typically struggles?'
+
+When you ask strategic questions, you shift the interview from an interrogation to an executive conversation.
+
+Swipe through for 5 insider tips directly from our hiring team 👇
+Which question do you always make sure to ask in an interview?
+
+#RecruitingAdvice #InterviewTips #CareerGrowth #LifeAtBrother #JobSearch #HiringTrends`
+  },
+  {
+    id: "tmpl-eb-career-loyalty",
+    source: "Brother USA Employee Milestones Benchmark",
+    name: "Career Arc & Longevity (Anti-Churn Culture)",
+    category: "Employee Recognition & Loyalty",
+    tone: "Inspiring, deep storytelling, grateful, grounded",
+    description: "Showcases long-tenured employees (10 to 40 years) to prove Brother provides psychological safety, continuous mentorship, and internal mobility.",
+    frontmatterYaml: `---
+id: "eb_longterm_career_loyalty"
+source_account: "Brother USA Milestones Benchmark"
+category: "Employee Recognition & Culture"
+tone: "Inspiring, storytelling-driven, appreciative"
+target_audience: "Mid-career talent, experienced hires looking for stability and growth"
+hook_archetype: "Storytelling Arc Hook"
+---`,
+    placeholderTemplate: `[Insert Hook: Contrast tech industry job-hopping with extraordinary loyalty, e.g. "In an era where the average employee leaves after 2 years, what makes someone stay for 40?"]
+
+[The Unexpected Beginning: Describe how [Name] started (e.g. a short-term contract, an entry-level role, or an unexpected career pivot)]
+
+[The Growth Journey: Summarize how they evolved across departments, led innovations, and mentored the next generation]
+
+In [Name]'s own words:
+"[Quote from employee about why they stayed — the trust, the teamwork, the freedom to innovate without fear of failure]"
+
+[The Brother Promise: Reaffirm that loyalty is earned through psychological safety, mentorship, and respecting people through all stages of life]
+
+[Insert Call to Action: Congratulate the colleague or ask followers what makes a workplace worth staying at for the long haul 👇]
+
+#LifeAtBrother #CareerLongevity #WorkplaceCulture #Mentorship #AtYourSide #EmployeeSpotlight`,
+    examplePost: `In 1985, a young professional named Bill Henderson took a short-term contract with Brother in Japan.
+
+He planned to stay for a few months.
+He stayed for nearly 40 years.
+
+From those early days in Nagoya to serving as our Senior Vice President of Marketing & Customer Experience and Board Member, Bill shaped Brother into the household brand it is today. Over decades, he championed our labeling business from its infancy, mentored generations of leaders, and defined what customer centricity truly means.
+
+In Bill’s own words:
+"From the moment I arrived, I loved everything about the company — the people, the culture, the sense of teamwork. Brother gave me the opportunity to build a career I never could have planned for."
+
+People don't stay at a company for decades because of the logo on their badge. They stay because they are trusted, challenged, and supported through every chapter of their lives.
+
+Thank you, Bill, for four decades of dedication! Enjoy your well-earned retirement. 🥂👏
+
+#LifeAtBrother #CareerLongevity #WorkplaceCulture #Mentorship #AtYourSide #EmployeeSpotlight`
+  },
+  {
+    id: "tmpl-eb-mission-erg",
+    source: "Brother USA ERG & Social Impact Benchmark",
+    name: "Mission in Action & Employee Resource Groups",
+    category: "DE&I and Social Responsibility",
+    tone: "Passionate, authentic, community-first, proud",
+    description: "Highlights employee-driven ERGs (Spectrum, WAYS, WeAreBRAAVE) and environmental actions to prove inclusion is an active practice, not corporate lip-service.",
+    frontmatterYaml: `---
+id: "eb_mission_in_action_erg"
+source_account: "Brother USA ERG Archive"
+category: "DE&I and Community Impact"
+tone: "Passionate, authentic, community-first"
+target_audience: "Values-driven professionals, diverse candidates, community partners"
+hook_archetype: "Action-Over-Slogans Hook"
+---`,
+    placeholderTemplate: `[Insert Hook: Contrast corporate virtue signaling with grass-roots employee action, e.g. "Inclusion isn't a badge you wear for 30 days in June. It's how people feel on an ordinary Tuesday morning."]
+
+[The Employee-Led Initiative: Detail the specific event or cause spearheaded by an ERG (Spectrum, WAYS, WeAreBRAAVE) or volunteering team]
+
+What our team made happen:
+🌱 [Action Metric 1: Funds raised, bags of litter collected, or students mentored]
+🌱 [Action Metric 2: Reinvesting corporate budgets directly into local minority- or women-owned businesses]
+🌱 [Action Metric 3: Safe, supportive community dialogue inside the workplace]
+
+[The Cultural Proof: Explain that at Brother, employees have real budget and executive sponsorship to lead causes they believe in]
+
+[Insert Call to Action: Shout out community partners and ask followers how their teams turn values into action 👇]
+
+#DiversityInTech #EmployeeResourceGroups #SocialResponsibility #LifeAtBrother #AtYourSide #DEI`,
+    examplePost: `Inclusion isn't a badge you wear for 30 days in June. It's how people feel when they walk into work on an ordinary Tuesday morning.
+
+During Pride Month, we honor the history, resilience, and contributions of the LGBTQ+ community. At Brother, our Spectrum Employee Resource Group plays a vital role year-round:
+🏳️‍🌈 Providing peer support, coffee roundtables, and mentorship
+🏳️‍🌈 Advising on inclusive company policies and employee benefits
+🏳️‍🌈 Organizing community volunteer events with local non-profits
+
+When employees know they are valued for exactly who they are, innovation and trust naturally follow.
+
+Culture isn't dictated from the top down. It's built by passionate employees who feel empowered to lead.
+
+Learn more about Brother’s culture and employee resource groups via the link in the comments.
+
+#DiversityInTech #EmployeeResourceGroups #SocialResponsibility #LifeAtBrother #AtYourSide #DEI`
+  },
+  {
+    id: "tmpl-eb-frontline-pride",
+    source: "Brother USA / BMS Operations Benchmark",
+    name: "Behind-The-Scenes Frontline & Tech Pride",
+    category: "Operational & Engineering Pride",
+    tone: "Proud, curious, technical yet accessible, energizing",
+    description: "Showcases the quiet engineering marvels and logistics heroes behind Brother products, making prospective engineers and operations candidates proud to join.",
+    frontmatterYaml: `---
+id: "eb_behind_the_scenes_pride"
+source_account: "Brother Operational Hubs"
+category: "Engineering & Operations Pride"
+tone: "Proud, curious, energizing"
+target_audience: "Operations specialists, supply chain professionals, engineers"
+hook_archetype: "Unexpected Curiosity Hook"
+---`,
+    placeholderTemplate: `[Insert Hook: Reveal an unexpected, high-stakes fact about what Brother actually builds or powers, e.g. "Think Brother only makes desktop printers? Look closer at the next automated warehouse you visit."]
+
+[Behind the Curtain: Take readers into the facility where the magic happens — robotics labs, high-speed fulfillment hubs, or extreme durability testing]
+
+Here is what our technical and operational teams make possible every single day:
+⚡ [Impact 1: Precision engineering powering automation, robotics, or healthcare]
+⚡ [Impact 2: Supply chain choreography delivering thousands of mission-critical parts overnight]
+⚡ [Impact 3: Rugged testing to ensure equipment never fails frontline workers in the field]
+
+[The Pride Factor: Emphasize that working at Brother means solving problems that directly keep essential businesses running]
+
+[Insert Call to Action: Shout out the operations and engineering crews, and invite candidates to view open technical roles 👇]
+
+#EngineeringExcellence #SupplyChain #WarehouseOperations #LifeAtBrother #InnovationInAction #ProudToWorkHere`,
+    examplePost: `Think Brother only makes desktop printers? Look closer at the next automated warehouse you visit.
+
+Hidden inside high-speed conveyor systems, precision medical robotics, and automated guided vehicles (AGVs), you’ll find Brother Gearmotors.
+
+For decades, our engineers have crafted high-torque, sub-fractional gearmotors designed for 24/7 industrial uptime:
+⚡ Powers high-speed sorting and fulfillment hubs worldwide
+⚡ Compact hypoid gearing engineered for whisper-quiet efficiency
+⚡ Precision-tested to withstand extreme continuous industrial cycles
+
+Innovation takes many forms. Sometimes, it’s the quiet motor powering the robotic future.
+
+Shout out to our engineering and manufacturing teams for keeping global industry moving forward! 🤖⚙️
+
+#EngineeringExcellence #SupplyChain #WarehouseOperations #LifeAtBrother #InnovationInAction #ProudToWorkHere`
+  },
+  {
     id: "tmpl-brother-kaizen",
     source: "Brother Global / Brother AP Benchmark",
     name: "Kaizen Innovation & Precision Superpowers",

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Edit3, Image as ImageIcon, Video, Send, CheckCircle2, Copy, Check, Upload, Trash2, Eye, Sparkles, Layers, ShieldCheck, ChevronLeft, ChevronRight, AlertCircle } from 'lucide-react';
+import { Edit3, Image as ImageIcon, Video, Send, CheckCircle2, Copy, Check, Upload, Trash2, Eye, Sparkles, Layers, ShieldCheck, ChevronLeft, ChevronRight, AlertCircle, Database, ExternalLink } from 'lucide-react';
 import { generateBrotherWebsiteBannerSVG } from '../lib/svgBrotherWebsiteTemplates.js';
 import { publishToLinkedInApi, cleanLinkedInOrgId } from '../lib/linkedInApi.js';
 import { safeGetItem } from '../lib/storage.js';
@@ -25,6 +25,9 @@ To everyone celebrating, how is your team marking this special day? Share your f
   const [videoFile, setVideoFile] = useState(null);
   const [publishing, setPublishing] = useState(false);
   const [publishedData, setPublishedData] = useState(null);
+  const [notionSaving, setNotionSaving] = useState(false);
+  const [notionSavedData, setNotionSavedData] = useState(null);
+  const [notionError, setNotionError] = useState(null);
 
   const bannerSvg = generateBrotherWebsiteBannerSVG({
     badgeText: "Celebrate SG 61",
@@ -57,22 +60,74 @@ To everyone celebrating, how is your team marking this special day? Share your f
     }
   };
 
+  const handleSaveToNotionRepository = async (passedUrn = null) => {
+    const token = safeGetItem('notion_token');
+    const explicitDb = safeGetItem('notion_database_id') || '3c701136de4881de9d29ca4ea415e856';
+
+    setNotionSaving(true);
+    setNotionError(null);
+
+    const postPayload = {
+      title: title || 'Brother Singapore Official Post',
+      content: content,
+      category: 'AI & Employer Branding',
+      status: 'Published',
+      author: 'Allan Cheng',
+      date: new Date().toISOString().split('T')[0],
+      urn: passedUrn || publishedData?.urn || `urn:li:share:${Math.floor(100000000 + Math.random() * 900000000)}`,
+      impressions: 0,
+      likes: 0,
+      comments: 0,
+      reposts: 0,
+      engagementRate: '0.0%'
+    };
+
+    try {
+      const res = await fetch('/api/notion/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          apiKey: token,
+          databaseId: explicitDb,
+          post: postPayload
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setNotionSavedData({
+          url: data.url,
+          message: 'Saved to Notion Enterprise Repository'
+        });
+      } else {
+        setNotionError(data.error || 'Failed to archive in Notion');
+      }
+    } catch (e) {
+      setNotionError(e.message);
+    } finally {
+      setNotionSaving(false);
+    }
+  };
+
   const handlePublishToLinkedIn = async () => {
     setPublishing(true);
     const token = safeGetItem('key_linkedin');
     const orgId = safeGetItem('linkedin_org_id') || '96363282';
 
+    let publishedUrn = null;
+
     if (token && orgId) {
       try {
         const result = await publishToLinkedInApi({ commentary: content, orgId, token });
         if (result && result.success) {
+          publishedUrn = result.urn;
           setPublishing(false);
           setPublishedData({
             urn: result.urn,
             status: 'Live on LinkedIn',
             publishedAt: result.publishedAt || new Date().toLocaleTimeString(),
-            notionStatus: 'Synced to Notion Posts Database'
+            notionStatus: 'Synced to Notion Repository'
           });
+          handleSaveToNotionRepository(publishedUrn);
           return;
         } else {
           console.warn('LinkedIn API response:', result?.error);
@@ -84,13 +139,15 @@ To everyone celebrating, how is your team marking this special day? Share your f
 
     // Fallback simulated broadcast
     setTimeout(() => {
+      const mockUrn = `urn:li:share:${Math.floor(100000000 + Math.random() * 900000000)}`;
       setPublishing(false);
       setPublishedData({
-        urn: `urn:li:share:${Math.floor(100000000 + Math.random() * 900000000)}`,
+        urn: mockUrn,
         status: 'Live on LinkedIn',
         publishedAt: new Date().toLocaleTimeString(),
-        notionStatus: 'Synced to Notion Posts Database'
+        notionStatus: 'Synced to Notion Repository'
       });
+      handleSaveToNotionRepository(mockUrn);
     }, 1200);
   };
 
@@ -116,15 +173,23 @@ To everyone celebrating, how is your team marking this special day? Share your f
               Rich Post Editor & Media Asset Manager
             </h2>
             <p className="text-xs text-slate-500 mt-1">
-              Customize post copy with real-time LinkedIn fold preview, attach multiple carousel images or video, and 1-click publish to LinkedIn.
+              Finalize post copy, attach banners or media, and publish to LinkedIn. Final posts archive to the Notion Repository.
             </p>
           </div>
 
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <button
+              onClick={() => handleSaveToNotionRepository()}
+              disabled={notionSaving || Boolean(notionSavedData)}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm disabled:opacity-50 cursor-pointer"
+            >
+              <Database className={`w-3.5 h-3.5 ${notionSaving ? 'animate-spin' : ''}`} />
+              <span>{notionSaving ? 'Archiving...' : notionSavedData ? 'In Notion Repo' : 'Archive to Notion'}</span>
+            </button>
+            <button
               onClick={handlePublishToLinkedIn}
               disabled={publishing || (publishedData && publishedData.status === 'Live on LinkedIn')}
-              className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold shadow-md transition-all active:scale-95 ${
+              className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold shadow-md transition-all active:scale-95 cursor-pointer ${
                 publishedData
                   ? 'bg-emerald-600 text-white'
                   : 'bg-[#0f2ea2] hover:bg-[#0c2482] text-white'
@@ -142,6 +207,29 @@ To everyone celebrating, how is your team marking this special day? Share your f
           </div>
         </div>
       </div>
+
+      {notionSavedData && (
+        <div className="p-3.5 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-500/30 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-blue-900 dark:text-blue-200">
+          <div className="flex items-center gap-2">
+            <Database className="w-4 h-4 text-[#0f2ea2] dark:text-blue-400 shrink-0" />
+            <div>
+              <span className="font-bold">Archived to Notion Enterprise Repository!</span>
+              <span className="text-[11px] opacity-80 ml-2">Permanent database record saved for analytics telemetry.</span>
+            </div>
+          </div>
+          {notionSavedData.url && (
+            <a
+              href={notionSavedData.url}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1 text-[11px] font-bold text-[#0f2ea2] dark:text-blue-400 hover:underline shrink-0"
+            >
+              <span>View in Notion</span>
+              <ExternalLink className="w-3 h-3" />
+            </a>
+          )}
+        </div>
+      )}
 
       {publishedData && (
         <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-500/30 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-emerald-800 dark:text-emerald-200">

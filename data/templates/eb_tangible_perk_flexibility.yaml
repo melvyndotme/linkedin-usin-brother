@@ -1,0 +1,21 @@
+---
+id: "eb_tangible_perk_flexibility"
+name: "Tangible Perk & Workplace Flexibility"
+category: "Employer Branding & Culture"
+target_audience: "Passive job seekers, professionals seeking work-life balance, prospective candidates"
+tone: "Human, empathetic, refreshing, grounded"
+hofstede_alignment:
+  individualism: "Respects personal autonomy, family life, and time outside work"
+  wellbeing: "Normalizes psychological safety, rest, and burnout prevention"
+structure_rules:
+  hook: "Challenge an industry norm around hustle culture or fake corporate perks (e.g., Summer Fridays ending in autumn)."
+  reality_check: "Highlight the common friction workers face (burnout, meeting fatigue, rigid hours)."
+  the_brother_way: "Introduce the specific Brother policy or benefit (Flexible Fridays, meeting-free focus blocks, day-one benefits)."
+  tuesday_test: "Describe what this looks like in practice on an ordinary workday (closing laptops at 1 PM, attending kid's game, zero pings)."
+  cta: "Ask an engaging question about workplace balance to drive comments, or invite them to view careers."
+hook_style: "Contrarian Workplace Truth Hook"
+sample_hooks:
+  - "Lots of companies offer 'Summer Fridays.' Then September hits, and the flexibility vanishes."
+  - "The myth that high productivity requires working until 6:00 PM on a Friday is officially broken."
+  - "Why do so many companies make new hires wait 90 days just to start investing in their future?"
+---

@@ -1,0 +1,21 @@
+---
+id: "eb_longterm_career_loyalty"
+name: "Career Arc & Psychological Safety"
+category: "Employee Recognition & Longevity"
+target_audience: "Mid-career professionals, leaders, candidates tired of tech turnover"
+tone: "Grounded, appreciative, storytelling-driven, respectful"
+hofstede_alignment:
+  long_term_orientation: "Celebrates decades-long commitment, mentorship, and loyalty"
+  collectivism: "Emphasizes team harmony and mutual care"
+structure_rules:
+  hook: "Juxtapose modern corporate job-hopping against genuine employee longevity."
+  the_story: "Spotlight a real person's unexpected arc (e.g. started on a short contract in Japan, stayed 40 years)."
+  the_why: "Quote the employee on why they stayed (trust, mentorship, room to make mistakes and grow)."
+  the_brother_promise: "Reaffirm that loyalty is a two-way street at Brother."
+  cta: "Congratulate the team member or ask followers what makes them stay at a company."
+hook_style: "Storytelling Arc Hook"
+sample_hooks:
+  - "In an era where the average tech employee leaves after 2 years, what makes someone stay for 40?"
+  - "He arrived on a 3-month contract. He stayed for nearly four decades."
+  - "Awards don't keep people at a company for 15 years. Culture does."
+---

@@ -220,11 +220,6 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
   const [customHeadline, setCustomHeadline] = useState('Singapore National Day');
   const [customSubtitle, setCustomSubtitle] = useState('Honoring unity, resilience & innovation');
 
-  // Notion Database Storage State
-  const [notionSyncing, setNotionSyncing] = useState(false);
-  const [notionStatus, setNotionStatus] = useState('');
-  const [notionPageUrl, setNotionPageUrl] = useState(null);
-
   const fetchHolidays = async (year = selectedYear, refresh = false) => {
     setLoadingHolidays(true);
     try {
@@ -359,57 +354,6 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
       const updated = customEvents.filter(evt => evt.id !== id);
       setCustomEvents(updated);
       safeSetItem('brother_custom_events', JSON.stringify(updated));
-    }
-  };
-
-  const handleSaveToNotionDatabase = async () => {
-    const token = (safeGetItem('notion_token') || '').trim();
-    const explicitDb = (safeGetItem('notion_database_id') || '').trim();
-    const dbId = explicitDb || '3c701136de4881de9d29ca4ea415e856';
-
-    if (!token) {
-      alert('Please configure your Notion Integration Token in Settings or Notion Hub first.');
-      return;
-    }
-
-    if (!selectedOccasion) return;
-
-    setNotionSyncing(true);
-    setNotionStatus('Persisting post draft into Notion Posts Database...');
-    setNotionPageUrl(null);
-
-    try {
-      const res = await fetch('/api/notion/sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          apiKey: token,
-          databaseId: dbId,
-          post: {
-            title: `${selectedOccasion.name} ${selectedOccasion.year || 2026}`,
-            date: selectedOccasion.date,
-            category: selectedOccasion.category || 'Events & Celebrations',
-            status: 'Draft',
-            author: 'Allan Cheng',
-            draft1: drafts[0]?.post || '',
-            draft2: drafts[1]?.post || '',
-            rationale: drafts[0]?.whyThisWorks || '',
-            sourceContext: `Event: ${selectedOccasion.name}\nDate: ${selectedOccasion.date}\nTheme: ${selectedOccasion.theme}\nDetails: ${selectedOccasion.details || selectedOccasion.subtitle || ''}\nHashtags: ${(selectedOccasion.suggestedHashtags || []).join(' ')}`
-          }
-        })
-      });
-
-      const data = await res.json();
-      if (!data.success) {
-        throw new Error(data.error || 'Failed to save to Notion database');
-      }
-
-      setNotionPageUrl(data.url);
-      setNotionStatus('✅ Saved as Draft in Notion Database! Notion will serve as the database record.');
-    } catch (err) {
-      setNotionStatus(`❌ Error: ${err.message}`);
-    } finally {
-      setNotionSyncing(false);
     }
   };
 
@@ -673,51 +617,39 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
             <div className={`p-4 sm:p-6 rounded-2xl border space-y-4 sm:space-y-5 ${
               isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
             }`}>
-              {/* Notion Database Save & Bridge Bar */}
-              <div className="p-3.5 rounded-xl border bg-gradient-to-r from-blue-50/80 to-indigo-50/80 dark:from-blue-950/30 dark:to-indigo-950/30 border-blue-200 dark:border-blue-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              {/* Post Studio Navigation Bar */}
+              <div className="p-3.5 rounded-xl border bg-gradient-to-r from-slate-50 to-blue-50/50 dark:from-slate-900/60 dark:to-blue-950/20 border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 rounded-lg bg-[#0f2ea2] text-white flex items-center justify-center font-bold text-sm shadow-sm shrink-0">
-                    <Database className="w-4 h-4" />
+                    <Sparkles className="w-4 h-4" />
                   </div>
                   <div>
                     <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                      <span>Notion Relational Database</span>
+                      <span>LinkedUsIn Studio Generator</span>
                       <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-100 text-[#0f2ea2] dark:bg-blue-950 dark:text-blue-300 font-bold">
-                        Database Only
+                        3 AI Angles Ready
                       </span>
                     </div>
                     <div className="text-[11px] text-slate-600 dark:text-slate-400">
-                      {notionStatus || "Save this generated post draft directly into your Notion Posts Database."}
+                      Select your preferred post angle below, then open in Studio to attach media and publish.
                     </div>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
-                  {notionPageUrl && (
-                    <a
-                      href={notionPageUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm"
-                    >
-                      <span>View in Notion</span>
-                      <ExternalLink className="w-3 h-3" />
-                    </a>
-                  )}
                   <button
-                    onClick={handleSaveToNotionDatabase}
-                    disabled={notionSyncing}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#0f2ea2] hover:bg-[#004b8f] text-white text-xs font-bold transition-all shadow-sm disabled:opacity-50 cursor-pointer"
+                    onClick={() => handleCopy(currentDraft.post, selectedDraftIndex)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm cursor-pointer"
                   >
-                    <RefreshCw className={`w-3.5 h-3.5 ${notionSyncing ? 'animate-spin' : ''}`} />
-                    <span>{notionSyncing ? 'Saving to Notion...' : 'Save Draft to Notion DB'}</span>
+                    {copiedIndex === selectedDraftIndex ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                    <span>{copiedIndex === selectedDraftIndex ? 'Copied' : 'Copy Text'}</span>
                   </button>
                   {onNavigateToDraftStudio && currentDraft && (
                     <button
                       onClick={() => onNavigateToDraftStudio(currentDraft.post, `${selectedOccasion.name} ${selectedOccasion.year || 2026}`)}
-                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
                     >
-                      <span>Open in Studio</span>
+                      <span>Open in Draft Studio</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </button>
                   )}

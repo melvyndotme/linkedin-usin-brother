@@ -1,0 +1,20 @@
+---
+id: "eb_unfiltered_recruiter_advice"
+name: "From the Recruiter's Desk (Candidate Coaching)"
+category: "Candidate Experience & Coaching"
+target_audience: "Active job applicants, interviewees, career builders"
+tone: "Supportive, insightful, transparent, authoritative"
+hofstede_alignment:
+  uncertainty_avoidance: "Demystifies the interview and evaluation process"
+  power_distance: "Presents recruiters as helpful career allies, not gatekeepers"
+structure_rules:
+  hook: "Call out a generic interview mistake or ask a thought-provoking candidate question."
+  the_inside_scoop: "Share 3 specific, non-obvious questions or preparation strategies that stand out to Brother hiring managers."
+  culture_tie_in: "Explain how these questions reflect Brother's 'At your side' and customer-centric values."
+  cta: "Ask followers for their favorite interview questions or invite them to browse current openings."
+hook_style: "Insider Career Coach Hook"
+sample_hooks:
+  - "The best interview question you can ask an employer isn't: 'What does a typical day look like?'"
+  - "Staring at our careers page and can't decide which role fits you best? Let's decode it."
+  - "What do hiring managers at Brother actually look for? It's rarely what's on page 2 of your resume."
+---

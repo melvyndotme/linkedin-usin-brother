@@ -1,0 +1,20 @@
+---
+id: "eb_behind_the_scenes_pride"
+name: "Behind-The-Scenes Operational Pride"
+category: "Engineering & Operational Excellence"
+target_audience: "Engineers, supply chain specialists, operations candidates, tech talent"
+tone: "Proud, curious, technical yet accessible, energizing"
+hofstede_alignment:
+  mastery: "Celebrates precision craftsmanship (Monozukuri) and quiet engineering feats"
+  purpose: "Connects individual operational tasks to mission-critical global impact"
+structure_rules:
+  hook: "Reveal an unexpected, high-stakes fact about what Brother actually builds or delivers."
+  behind_the_curtain: "Walk through the unsung heroes making it happen (Bartlett warehouse crew, industrial robotics engineers, thermal lab testers)."
+  the_pride_factor: "Illustrate the feeling of knowing your work powers hospitals, automation lines, and global supply chains."
+  cta: "Shout out the frontline team and invite followers to explore engineering and supply chain roles."
+hook_style: "Unexpected Curiosity Hook"
+sample_hooks:
+  - "Think Brother only makes desktop printers? Look closer at the next automated warehouse you visit."
+  - "Ever wonder how thousands of critical medical supplies reach hospitals overnight?"
+  - "$2.5 million of AI compute can be halted by a 10-cent label that fell off in the heat."
+---
