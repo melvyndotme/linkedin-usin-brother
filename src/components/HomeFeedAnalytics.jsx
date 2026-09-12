@@ -77,7 +77,20 @@ export default function HomeFeedAnalytics({ isDark, onNavigateToModule }) {
       </div>
 
       {/* Analytics KPI Row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div className="space-y-2.5">
+        <div className="flex items-center justify-between px-1">
+          <h3 className={`text-xs font-bold uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+            LinkedIn Page Telemetry (Brother Singapore)
+          </h3>
+          <button
+            onClick={() => onNavigateToModule('settings')}
+            className="text-[10px] font-semibold text-[#0f2ea2] dark:text-blue-400 hover:underline flex items-center gap-1 cursor-pointer"
+          >
+            <span>Live Sync Settings ↗</span>
+          </button>
+        </div>
+
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* KPI 1 */}
         <div className={`p-3.5 sm:p-5 rounded-2xl border transition-colors ${
           isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
@@ -144,6 +157,7 @@ export default function HomeFeedAnalytics({ isDark, onNavigateToModule }) {
           </div>
         </div>
       </div>
+    </div>
 
 
       {/* Live Stream of Brother LinkedIn Posts */}
