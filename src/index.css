@@ -25,3 +25,21 @@
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(100, 116, 139, 1);
 }
+
+/* Enhanced High-Contrast Selection */
+::selection {
+  background-color: #0f2ea2;
+  color: #ffffff;
+}
+
+.blueprint-box::selection,
+.blueprint-box *::selection {
+  background-color: #0f2ea2 !important;
+  color: #ffffff !important;
+}
+
+.dark .blueprint-box::selection,
+.dark .blueprint-box *::selection {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+}
