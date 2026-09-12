@@ -47,7 +47,7 @@ export default function HomeFeedAnalytics({ isDark, onNavigateToModule }) {
                 </span>
               </div>
               <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5">
-                Official LinkedIn Presence Stream & Intelligence Hub
+                Linked Us In Studio
               </p>
             </div>
           </div>
