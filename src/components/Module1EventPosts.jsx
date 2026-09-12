@@ -10,10 +10,10 @@ import { safeGetItem, safeSetItem } from '../lib/storage.js';
 // Amber: Other Events (Mid-Autumn Festivals, Celebrations, etc.)
 
 const THEME_PRESETS = [
-  { id: 'blue', label: 'Official Brother', desc: 'Official Brother Events', color: '#0f2ea2', badgeClass: 'bg-blue-100 text-[#0f2ea2] dark:bg-blue-950 dark:text-blue-300 border-blue-200' },
-  { id: 'green', label: 'Sustainability', desc: 'ESG & Green Action', color: '#10B981', badgeClass: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-200' },
-  { id: 'red', label: 'Promotions', desc: 'Sales, Deals & Trade-Ins', color: '#EF4444', badgeClass: 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300 border-rose-200' },
-  { id: 'amber', label: 'Other Events', desc: 'Festivals & Celebrations', color: '#F59E0B', badgeClass: 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300 border-amber-200' }
+  { id: 'blue', label: 'Official Brother', desc: 'Company milestones, holidays & corporate news', color: '#0f2ea2', badgeClass: 'bg-blue-100 text-[#0f2ea2] dark:bg-blue-950 dark:text-blue-300 border-blue-200' },
+  { id: 'green', label: 'Sustainability', desc: 'Brother Earth, ESG initiatives & recycling', color: '#10B981', badgeClass: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-200' },
+  { id: 'red', label: 'Promotions', desc: 'Sales campaigns, deals & printer trade-ins', color: '#EF4444', badgeClass: 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300 border-rose-200' },
+  { id: 'amber', label: 'Other Events', desc: 'Mid-Autumn, festive occasions & celebrations', color: '#F59E0B', badgeClass: 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300 border-amber-200' }
 ];
 
 // Pre-seeded starter custom events following the exact color scheme
@@ -805,7 +805,7 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
       {/* Add Custom Event Modal */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-in fade-in duration-150">
-          <div className="w-full max-w-lg bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+          <div className="w-full max-w-xl bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
             <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40">
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-lg bg-[#0f2ea2] text-white flex items-center justify-center font-bold">
@@ -900,28 +900,38 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
                   Banner Graphic Color Theme
                 </label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  {THEME_PRESETS.map((thm) => (
-                    <button
-                      type="button"
-                      key={thm.id}
-                      onClick={() => setNewEventTheme(thm.id)}
-                      className={`p-2.5 rounded-xl border text-left flex items-start gap-2 text-xs font-semibold cursor-pointer transition-all ${
-                        newEventTheme === thm.id
-                          ? 'border-[#0f2ea2] bg-blue-50/80 dark:bg-blue-950/40 text-[#0f2ea2] dark:text-blue-300 ring-2 ring-[#0f2ea2]/20'
-                          : 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800'
-                      }`}
-                    >
-                      <span className="w-3.5 h-3.5 rounded-full shrink-0 mt-0.5" style={{ backgroundColor: thm.color }} />
-                      <div className="min-w-0">
-                        <div className="font-bold text-[11px] text-slate-900 dark:text-white truncate">{thm.label}</div>
-                        <div className="text-[10px] text-slate-400 truncate">{thm.desc}</div>
-                      </div>
-                    </button>
-                  ))}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {THEME_PRESETS.map((thm) => {
+                    const isSelected = newEventTheme === thm.id;
+                    return (
+                      <button
+                        type="button"
+                        key={thm.id}
+                        onClick={() => setNewEventTheme(thm.id)}
+                        className={`p-3 rounded-xl border text-left flex items-start gap-3 text-xs cursor-pointer transition-all ${
+                          isSelected
+                            ? 'border-[#0f2ea2] bg-blue-50/80 dark:bg-blue-950/40 text-slate-900 dark:text-white ring-2 ring-[#0f2ea2]/30 shadow-sm'
+                            : 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-300'
+                        }`}
+                      >
+                        <span
+                          className="w-3.5 h-3.5 rounded-full shrink-0 mt-0.5 shadow-xs"
+                          style={{ backgroundColor: thm.color }}
+                        />
+                        <div className="min-w-0 flex-1">
+                          <div className="font-bold text-xs text-slate-900 dark:text-white leading-tight">
+                            {thm.label}
+                          </div>
+                          <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">
+                            {thm.desc}
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
