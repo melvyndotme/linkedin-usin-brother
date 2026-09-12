@@ -2,7 +2,6 @@ import http from 'node:http';
 import { URL } from 'node:url';
 import { scrapeLinkedInAdLibrary } from './scraper.js';
 import notionSyncHandler from '../api/notion/sync.js';
-import notionPageHandler from '../api/notion/page.js';
 import notionSeedHandler from '../api/notion/seed.js';
 import serperSearchHandler from '../api/serper/search.js';
 import magicLinkHandler from '../api/auth/magic-link.js';
@@ -81,11 +80,6 @@ const server = http.createServer(async (req, res) => {
   // Notion & Serper Handlers
   if (pathname === '/api/notion/sync') {
     adaptVercel(notionSyncHandler)(req, res, parsedUrl);
-    return;
-  }
-
-  if (pathname === '/api/notion/page') {
-    adaptVercel(notionPageHandler)(req, res, parsedUrl);
     return;
   }
 

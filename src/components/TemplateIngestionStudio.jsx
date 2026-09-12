@@ -596,7 +596,7 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
                   <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                     Post Template Blueprint
                   </span>
-                  <span className="text-[11px] text-slate-500 dark:text-slate-400 font-['Inter',sans-serif]">
+                  <span className="text-[11px] text-slate-400">
                     Use this structure to guide your post draft
                   </span>
                 </div>
