@@ -2,8 +2,6 @@ import React from 'react';
 import { 
   Menu, 
   X, 
-  Sun, 
-  Moon, 
   Bell, 
   ExternalLink, 
   ChevronDown, 
@@ -122,20 +120,6 @@ export default function BrotherHeader({
             >
               <Bell className="w-4 h-4" />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-900" />
-            </button>
-
-            {/* Theme Toggle Button */}
-            <button
-              type="button"
-              onClick={() => setIsDark(!isDark)}
-              className={`p-2 rounded-xl border transition-colors cursor-pointer ${
-                isDark 
-                  ? 'bg-slate-900 border-slate-800 hover:bg-slate-800 text-amber-300' 
-                  : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-700'
-              }`}
-              title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-            >
-              {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
           </div>
 
