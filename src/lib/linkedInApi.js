@@ -4,7 +4,7 @@
 export const BROTHER_LINKEDIN_ANALYTICS = {
   companyName: "Brother International Singapore Pte Ltd",
   profileUrl: "https://www.linkedin.com/company/brother-international-singapore-pte-ltd/posts/",
-  totalFollowers: 14820,
+  totalFollowers: 14647,
   followerGrowthMonth: "+12.4%",
   impressions30d: "184,200",
   impressionsGrowth: "+24.8%",

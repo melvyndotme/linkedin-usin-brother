@@ -174,15 +174,6 @@ export default function SettingsView({ isDark }) {
     const activeOrgId = cleanLinkedInOrgId(linkedInOrgId || safeGetItem('linkedin_org_id') || '808877');
     const activeToken = (linkedInToken || safeGetItem('key_linkedin') || '').trim();
 
-    if (!activeToken) {
-      setLiTesting(false);
-      setLiDataResult({
-        success: false,
-        error: 'Please enter your OAuth 2.0 Access Token first. Unlock the admin panel to paste the token.'
-      });
-      return;
-    }
-
     try {
       const res = await fetch('/api/linkedin/data', {
         method: 'POST',
@@ -191,6 +182,9 @@ export default function SettingsView({ isDark }) {
       });
       const data = await res.json();
       setLiDataResult(data);
+      if (data.success && data.organization) {
+        safeSetItem('brother_live_telemetry', JSON.stringify(data.organization));
+      }
     } catch (e) {
       setLiDataResult({
         success: false,
@@ -679,13 +673,12 @@ export default function SettingsView({ isDark }) {
               </label>
               <input
                 type="password"
-                disabled={!isAdminUnlocked}
-                value={isAdminUnlocked ? linkedInToken : (linkedInToken ? '••••••••••••••••••••••••••••' : '')}
+                value={linkedInToken}
                 onChange={(e) => updateSetting('key_linkedin', e.target.value, setLinkedInToken)}
-                placeholder="AQV..."
-                className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none disabled:opacity-60"
+                placeholder="AQV... or paste Bearer token"
+                className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none"
               />
-              <p className="text-[10px] text-slate-400 mt-1">Bearer token generated with <span className="font-mono text-slate-600 dark:text-slate-300">w_organization_social</span>.</p>
+              <p className="text-[10px] text-slate-400 mt-1">Bearer token generated with <span className="font-mono text-slate-600 dark:text-slate-300">w_organization_social</span>. (Optional: public telemetry auto-pulls if left blank).</p>
             </div>
 
             {/* Client ID */}
@@ -695,11 +688,10 @@ export default function SettingsView({ isDark }) {
               </label>
               <input
                 type="text"
-                disabled={!isAdminUnlocked}
-                value={isAdminUnlocked ? linkedInClientId : (linkedInClientId ? '••••••••••••••••' : '')}
+                value={linkedInClientId}
                 onChange={(e) => updateSetting('linkedin_client_id', e.target.value, setLinkedInClientId)}
                 placeholder="78..."
-                className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none disabled:opacity-60"
+                className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none"
               />
             </div>
 
@@ -710,11 +702,10 @@ export default function SettingsView({ isDark }) {
               </label>
               <input
                 type="password"
-                disabled={!isAdminUnlocked}
-                value={isAdminUnlocked ? linkedInClientSecret : (linkedInClientSecret ? '••••••••••••••••' : '')}
+                value={linkedInClientSecret}
                 onChange={(e) => updateSetting('linkedin_client_secret', e.target.value, setLinkedInClientSecret)}
                 placeholder="Wpl_..."
-                className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none disabled:opacity-60"
+                className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none"
               />
             </div>
           </div>
