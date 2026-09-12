@@ -40,8 +40,30 @@ export default function SettingsView({ isDark }) {
   const [pinError, setPinError] = useState('');
 
   const [saved, setSaved] = useState(false);
+  const [autoSaveStatus, setAutoSaveStatus] = useState(''); // '' | 'saving' | 'saved'
+  const autoSaveTimeoutRef = React.useRef(null);
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState(null);
+
+  const updateSetting = (storageKey, val, setter) => {
+    setter(val);
+    safeSetItem(storageKey, val);
+    setAutoSaveStatus('saving');
+    if (autoSaveTimeoutRef.current) clearTimeout(autoSaveTimeoutRef.current);
+    autoSaveTimeoutRef.current = setTimeout(() => {
+      setAutoSaveStatus('saved');
+    }, 400);
+  };
+
+  const handleOrgIdChange = (val) => {
+    setLinkedInOrgId(val);
+    safeSetItem('linkedin_org_id', cleanLinkedInOrgId(val));
+    setAutoSaveStatus('saving');
+    if (autoSaveTimeoutRef.current) clearTimeout(autoSaveTimeoutRef.current);
+    autoSaveTimeoutRef.current = setTimeout(() => {
+      setAutoSaveStatus('saved');
+    }, 400);
+  };
 
   const callbackUrl = typeof window !== 'undefined'
     ? `${window.location.origin}/api/auth/linkedin/callback`
@@ -71,6 +93,7 @@ export default function SettingsView({ isDark }) {
     safeSetItem('notion_database_id', notionDatabaseId);
 
     setSaved(true);
+    setAutoSaveStatus('saved');
     setTimeout(() => setSaved(false), 2500);
   };
 
@@ -227,13 +250,21 @@ export default function SettingsView({ isDark }) {
             </p>
           </div>
 
-          <button
-            onClick={handleSave}
-            className="flex items-center gap-2 bg-[#0f2ea2] hover:bg-[#004b8f] text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-md transition-all"
-          >
-            {saved ? <Check className="w-4 h-4 text-emerald-300" /> : <ShieldCheck className="w-4 h-4" />}
-            {saved ? 'Saved Successfully!' : 'Save Settings'}
-          </button>
+          <div className="flex items-center gap-3 self-end sm:self-auto">
+            {autoSaveStatus && (
+              <span className="text-[11px] text-emerald-600 dark:text-emerald-400 flex items-center gap-1 font-semibold transition-all">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                {autoSaveStatus === 'saving' ? 'Auto-saving...' : 'Auto-saved locally'}
+              </span>
+            )}
+            <button
+              onClick={handleSave}
+              className="flex items-center gap-2 bg-[#0f2ea2] hover:bg-[#004b8f] text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-md transition-all cursor-pointer shrink-0 active:scale-95"
+            >
+              {saved ? <Check className="w-4 h-4 text-emerald-300" /> : <ShieldCheck className="w-4 h-4" />}
+              {saved ? 'Saved Successfully!' : 'Save Settings'}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -358,7 +389,7 @@ export default function SettingsView({ isDark }) {
                 type="password"
                 disabled={!isAdminUnlocked}
                 value={isAdminUnlocked ? resendKey : (resendKey ? '••••••••••••••••••••••••••••' : '')}
-                onChange={(e) => setResendKey(e.target.value)}
+                onChange={(e) => updateSetting('key_resend', e.target.value, setResendKey)}
                 placeholder="re_..."
                 className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed"
               />
@@ -373,7 +404,7 @@ export default function SettingsView({ isDark }) {
                 type="text"
                 disabled={!isAdminUnlocked}
                 value={resendSender}
-                onChange={(e) => setResendSender(e.target.value)}
+                onChange={(e) => updateSetting('resend_sender', e.target.value, setResendSender)}
                 placeholder="LinkedUsIn Studio <linkusin@rs.bro-x.org>"
                 className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed"
               />
@@ -466,7 +497,7 @@ export default function SettingsView({ isDark }) {
                 type="password"
                 disabled={!isAdminUnlocked}
                 value={isAdminUnlocked ? notionToken : (notionToken ? '••••••••••••••••••••••••••••' : '')}
-                onChange={(e) => setNotionToken(e.target.value)}
+                onChange={(e) => updateSetting('notion_token', e.target.value, setNotionToken)}
                 placeholder="secret_..."
                 className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed"
               />
@@ -481,7 +512,7 @@ export default function SettingsView({ isDark }) {
                 type="text"
                 disabled={!isAdminUnlocked}
                 value={isAdminUnlocked ? notionDatabaseId : (notionDatabaseId ? '••••••••••••••••••••••••••••' : '')}
-                onChange={(e) => setNotionDatabaseId(e.target.value)}
+                onChange={(e) => updateSetting('notion_database_id', e.target.value, setNotionDatabaseId)}
                 placeholder="3c701136de4881de9d29ca4ea415e856"
                 className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed"
               />
@@ -511,7 +542,7 @@ export default function SettingsView({ isDark }) {
               <input
                 type="password"
                 value={geminiKey}
-                onChange={(e) => setGeminiKey(e.target.value)}
+                onChange={(e) => updateSetting('key_gemini', e.target.value, setGeminiKey)}
                 placeholder="AIzaSy..."
                 className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none"
               />
@@ -524,7 +555,7 @@ export default function SettingsView({ isDark }) {
               </label>
               <select
                 value={geminiModel}
-                onChange={(e) => setGeminiModel(e.target.value)}
+                onChange={(e) => updateSetting('model_gemini', e.target.value, setGeminiModel)}
                 className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none cursor-pointer"
               >
                 <option value="gemini-3.8-flash">gemini-3.8-flash (Next-Gen High Velocity Reasoning)</option>
@@ -563,7 +594,7 @@ export default function SettingsView({ isDark }) {
             <input
               type="password"
               value={serperKey}
-              onChange={(e) => setSerperKey(e.target.value)}
+              onChange={(e) => updateSetting('key_serper', e.target.value, setSerperKey)}
               placeholder="Paste Serper.dev API Key for keyword-based tracking"
               className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none"
             />
@@ -627,7 +658,7 @@ export default function SettingsView({ isDark }) {
               <input
                 type="text"
                 value={linkedInOrgId}
-                onChange={(e) => setLinkedInOrgId(e.target.value)}
+                onChange={(e) => handleOrgIdChange(e.target.value)}
                 placeholder="96363282 or paste admin URL"
                 className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none"
               />
@@ -646,7 +677,7 @@ export default function SettingsView({ isDark }) {
                 type="password"
                 disabled={!isAdminUnlocked}
                 value={isAdminUnlocked ? linkedInToken : (linkedInToken ? '••••••••••••••••••••••••••••' : '')}
-                onChange={(e) => setLinkedInToken(e.target.value)}
+                onChange={(e) => updateSetting('key_linkedin', e.target.value, setLinkedInToken)}
                 placeholder="AQV..."
                 className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none disabled:opacity-60"
               />
@@ -662,7 +693,7 @@ export default function SettingsView({ isDark }) {
                 type="text"
                 disabled={!isAdminUnlocked}
                 value={isAdminUnlocked ? linkedInClientId : (linkedInClientId ? '••••••••••••••••' : '')}
-                onChange={(e) => setLinkedInClientId(e.target.value)}
+                onChange={(e) => updateSetting('linkedin_client_id', e.target.value, setLinkedInClientId)}
                 placeholder="78..."
                 className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none disabled:opacity-60"
               />
@@ -677,7 +708,7 @@ export default function SettingsView({ isDark }) {
                 type="password"
                 disabled={!isAdminUnlocked}
                 value={isAdminUnlocked ? linkedInClientSecret : (linkedInClientSecret ? '••••••••••••••••' : '')}
-                onChange={(e) => setLinkedInClientSecret(e.target.value)}
+                onChange={(e) => updateSetting('linkedin_client_secret', e.target.value, setLinkedInClientSecret)}
                 placeholder="Wpl_..."
                 className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none disabled:opacity-60"
               />
@@ -720,7 +751,7 @@ export default function SettingsView({ isDark }) {
             <input
               type="password"
               value={sendPilotKey}
-              onChange={(e) => setSendPilotKey(e.target.value)}
+              onChange={(e) => updateSetting('key_sendpilot', e.target.value, setSendPilotKey)}
               placeholder="sp_live_..."
               className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none"
             />
@@ -734,7 +765,7 @@ export default function SettingsView({ isDark }) {
             <input
               type="password"
               value={openAIKey}
-              onChange={(e) => setOpenAIKey(e.target.value)}
+              onChange={(e) => updateSetting('key_openai', e.target.value, setOpenAIKey)}
               placeholder="sk-proj-..."
               className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none"
             />

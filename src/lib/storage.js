@@ -7,32 +7,57 @@ export function safeGetItem(key, defaultVal = '') {
   try {
     if (typeof window !== 'undefined' && window.localStorage) {
       const val = window.localStorage.getItem(key);
-      return val !== null ? val : defaultVal;
+      if (val !== null) {
+        memoryStore[key] = val;
+        return val;
+      }
     }
   } catch (e) {
     // Browser blocked access to window.localStorage
   }
+
+  try {
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      const sVal = window.sessionStorage.getItem(key);
+      if (sVal !== null) {
+        memoryStore[key] = sVal;
+        return sVal;
+      }
+    }
+  } catch (e) {}
+
   return memoryStore[key] !== undefined ? memoryStore[key] : defaultVal;
 }
 
 export function safeSetItem(key, val) {
+  const strVal = String(val ?? '');
+  memoryStore[key] = strVal;
+
   try {
     if (typeof window !== 'undefined' && window.localStorage) {
-      window.localStorage.setItem(key, val);
-      return;
+      window.localStorage.setItem(key, strVal);
     }
   } catch (e) {
     // Browser blocked access to window.localStorage
   }
-  memoryStore[key] = String(val);
+
+  try {
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      window.sessionStorage.setItem(key, strVal);
+    }
+  } catch (e) {}
 }
 
 export function safeRemoveItem(key) {
+  delete memoryStore[key];
   try {
     if (typeof window !== 'undefined' && window.localStorage) {
       window.localStorage.removeItem(key);
-      return;
     }
   } catch (e) {}
-  delete memoryStore[key];
+  try {
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      window.sessionStorage.removeItem(key);
+    }
+  } catch (e) {}
 }

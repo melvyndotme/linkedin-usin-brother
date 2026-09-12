@@ -5,7 +5,7 @@ import { generateAIDrafts } from '../lib/draftGenerator.js';
 import { generateBrotherWaveCorporateSVG } from '../lib/svgBrotherWebsiteTemplates.js';
 import { safeGetItem, safeSetItem } from '../lib/storage.js';
 
-export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
+export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavigateToSettings }) {
   // Up to 5 customizable search keywords, each with its own independent timeframe
   const [keywords, setKeywords] = useState([
     { text: 'enterprise agentic AI', timeNumber: 24, timeUnit: 'hours' },
@@ -57,7 +57,6 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
   const [copiedFormatted, setCopiedFormatted] = useState(false);
   const [selectedDraftIndex, setSelectedDraftIndex] = useState(0);
   const [searchError, setSearchError] = useState(null);
-  const [inlineKey, setInlineKey] = useState('');
   const [hasKey, setHasKey] = useState(() => Boolean(getEffectiveSerperKey()));
 
   // Notion AI state for Module 2
@@ -511,43 +510,27 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio }) {
         </div>
       </div>
 
-      {/* API Key Notification & Quick Connect Banner */}
+      {/* Offline baseline notice pointing to Settings */}
       {!hasKey && (
-        <div className="p-3.5 sm:p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 text-xs space-y-2">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div className="flex items-center gap-2 font-bold">
-              <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
-              <span>Real-Time Search Inactive — Currently displaying offline sample baseline with portal links.</span>
-            </div>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-800 dark:text-amber-300 font-bold self-start sm:self-auto">
-              No API Key Detected
+        <div className={`p-3.5 sm:p-4 rounded-2xl border text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+          isDark ? 'bg-slate-900/80 border-slate-800 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-700'
+        }`}>
+          <div className="flex items-center gap-2.5">
+            <AlertCircle className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
+            <span>
+              Real-Time Search Inactive — Currently displaying offline sample baseline. Configure your Serper.dev API key in <strong>Settings</strong> to enable live Google News tracking.
             </span>
           </div>
-          <p className="text-[11px] text-amber-800/80 dark:text-amber-300/80 leading-relaxed">
-            To search live Google News articles with 100% verified publisher URLs, paste your Serper.dev API key below (or configure it in Settings):
-          </p>
-          <div className="flex items-center gap-2 max-w-md pt-0.5">
-            <input
-              type="password"
-              value={inlineKey}
-              onChange={(e) => setInlineKey(e.target.value)}
-              placeholder="Paste Serper API key here..."
-              className="flex-1 bg-white dark:bg-slate-900 border border-amber-300 dark:border-amber-700/60 rounded-xl px-3 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-[#0f2ea2]"
-            />
+          {onNavigateToSettings && (
             <button
               type="button"
-              onClick={() => {
-                if (inlineKey.trim()) {
-                  safeSetItem('key_serper', inlineKey.trim());
-                  setHasKey(true);
-                  handleFetchAllTabs();
-                }
-              }}
-              className="bg-[#0f2ea2] hover:bg-[#0c2482] text-white font-bold px-3 py-1.5 rounded-xl transition-all shrink-0 text-xs active:scale-95 shadow-sm"
+              onClick={onNavigateToSettings}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2482] text-white font-bold text-xs shrink-0 transition-all active:scale-95 shadow-sm cursor-pointer self-start sm:self-auto"
             >
-              Save & Search Live
+              <span>Open Settings</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </button>
-          </div>
+          )}
         </div>
       )}
 

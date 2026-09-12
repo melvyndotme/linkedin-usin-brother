@@ -196,6 +196,7 @@ export default function App() {
               <Module2AIPosts
                 isDark={isDark}
                 onNavigateToDraftStudio={handleNavigateToDraftStudio}
+                onNavigateToSettings={() => setActiveTab('settings')}
               />
             )}
 
