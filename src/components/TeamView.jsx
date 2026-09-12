@@ -1,57 +1,90 @@
-import React from 'react';
-import { Users, ShieldCheck, CheckCircle2, Clock, Mail, Award, UserCheck } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Users, ShieldCheck, CheckCircle2, Clock, Mail, Award, UserCheck, RefreshCw, ExternalLink } from 'lucide-react';
+import { safeGetItem } from '../lib/storage.js';
+
+const DEFAULT_MEMBERS = [
+  {
+    id: "allan",
+    name: "Allan Cheng",
+    role: "Admin / POD Lead",
+    department: "Brother X & HR Function",
+    email: "allan.cheng@brother.com.sg",
+    badge: "Admin",
+    badgeColor: "bg-blue-500/10 text-[#0f2ea2] border-blue-500/20",
+    avatarBg: "bg-[#0f2ea2]",
+    responsibilities: "Strategic project oversight, final publishing approval, API governance, stakeholder alignment.",
+    stats: { approved: 24, pending: 1 }
+  },
+  {
+    id: "chloe",
+    name: "Chloe Lee",
+    role: "Primary Reviewer / HR Lead",
+    department: "HR Function (Brother Singapore)",
+    email: "chloe.lee@brother.com.sg",
+    badge: "Reviewer",
+    badgeColor: "bg-purple-500/10 text-purple-600 border-purple-500/20",
+    avatarBg: "bg-purple-600",
+    responsibilities: "Brand voice vetting, employee spotlight validation, festive copy approval, employer branding alignment.",
+    stats: { approved: 19, pending: 2 }
+  },
+  {
+    id: "sean",
+    name: "Sean",
+    role: "POD Member / Workflow Explorer",
+    department: "Brother X Core Team",
+    email: "sean.tan@brother.com.sg",
+    badge: "User",
+    badgeColor: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
+    avatarBg: "bg-emerald-600",
+    responsibilities: "Prompt testing, prototype experimentation, workflow automation, KPI tracking.",
+    stats: { approved: 14, pending: 0 }
+  },
+  {
+    id: "melvyn",
+    name: "Melvyn Tan",
+    role: "AI Consultant & Technical Lead",
+    department: "Befinity AI Advisory",
+    email: "melvyn@befinityai.com",
+    badge: "External Advisor",
+    badgeColor: "bg-amber-500/10 text-amber-600 border-amber-500/20",
+    avatarBg: "bg-amber-600",
+    responsibilities: "Agentic pipeline architecture, Serper intelligence integration, Gemini model orchestration, SVG studio engineering.",
+    stats: { approved: 32, pending: 0 }
+  }
+];
 
 export default function TeamView({ isDark }) {
-  const teamMembers = [
-    {
-      id: "allan",
-      name: "Allan Cheng",
-      role: "Admin / POD Lead",
-      department: "Brother X & HR Function",
-      email: "allan.cheng@brother.com.sg",
-      badge: "Admin",
-      badgeColor: "bg-blue-500/10 text-[#0f2ea2] border-blue-500/20",
-      avatarBg: "bg-[#0f2ea2]",
-      responsibilities: "Strategic project oversight, final publishing approval, API governance, stakeholder alignment.",
-      stats: { approved: 24, pending: 1 }
-    },
-    {
-      id: "chloe",
-      name: "Chloe Lee",
-      role: "Primary Reviewer / HR Lead",
-      department: "HR Function (Brother Singapore)",
-      email: "chloe.lee@brother.com.sg",
-      badge: "User",
-      badgeColor: "bg-purple-500/10 text-purple-600 border-purple-500/20",
-      avatarBg: "bg-purple-600",
-      responsibilities: "Brand voice vetting, employee spotlight validation, festive copy approval, employer branding alignment.",
-      stats: { approved: 19, pending: 2 }
-    },
-    {
-      id: "sean",
-      name: "Sean",
-      role: "POD Member / Workflow Explorer",
-      department: "Brother X Core Team",
-      email: "sean.tan@brother.com.sg",
-      badge: "User",
-      badgeColor: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
-      avatarBg: "bg-emerald-600",
-      responsibilities: "Prompt testing, prototype experimentation, workflow automation, KPI tracking.",
-      stats: { approved: 14, pending: 0 }
-    },
-    {
-      id: "melvyn",
-      name: "Melvyn Tan",
-      role: "AI Consultant & Technical Lead",
-      department: "Befinity AI Advisory",
-      email: "melvyn@befinityai.com",
-      badge: "External Advisor",
-      badgeColor: "bg-amber-500/10 text-amber-600 border-amber-500/20",
-      avatarBg: "bg-amber-600",
-      responsibilities: "Agentic pipeline architecture, Serper intelligence integration, Gemini model orchestration, SVG studio engineering.",
-      stats: { approved: 32, pending: 0 }
+  const [teamMembers, setTeamMembers] = useState(DEFAULT_MEMBERS);
+  const [loading, setLoading] = useState(false);
+  const [lastSynced, setLastSynced] = useState(null);
+
+  const fetchLiveTeam = async () => {
+    setLoading(true);
+    try {
+      const notionKey = safeGetItem('token_notion') || '';
+      const res = await fetch('/api/notion/team', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          apiKey: notionKey || undefined,
+          databaseId: '3c701136de4881869782cd894c6126c5'
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.success && data.members?.length > 0) {
+        setTeamMembers(data.members);
+        setLastSynced(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+      }
+    } catch (e) {
+      console.warn('Error fetching live team members from Notion:', e);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  useEffect(() => {
+    fetchLiveTeam();
+  }, []);
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
@@ -69,8 +102,30 @@ export default function TeamView({ isDark }) {
               Cross-Functional Team & Review Stakeholders
             </h2>
             <p className="text-xs text-slate-500 mt-1">
-              Collaborative workspace connecting Brother X, HR Function, and Technical Advisory with role-based permissions.
+              Live whitelist synced directly from Notion database. Whitelisted members have access to LinkedUsIn Studio.
+              {lastSynced && <span className="ml-2 font-semibold text-emerald-600 dark:text-emerald-400">• Synced at {lastSynced}</span>}
             </p>
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            <a
+              href="https://app.notion.com/p/brotherap/3c701136de4881869782cd894c6126c5?v=3c701136de488153b10a000c52f0cb21"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
+            >
+              <span>Open in Notion</span>
+              <ExternalLink className="w-3.5 h-3.5" />
+            </a>
+
+            <button
+              onClick={fetchLiveTeam}
+              disabled={loading}
+              className="inline-flex items-center gap-1.5 bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-md transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+              <span>{loading ? 'Syncing...' : 'Sync with Notion'}</span>
+            </button>
           </div>
         </div>
       </div>
