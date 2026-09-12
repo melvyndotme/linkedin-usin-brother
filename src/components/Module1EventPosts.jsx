@@ -3,7 +3,20 @@ import { Calendar, Sparkles, Copy, Check, Download, ArrowRight, Flame, Layers, E
 import { generateBrotherWebsiteBannerSVG } from '../lib/svgBrotherWebsiteTemplates.js';
 import { safeGetItem, safeSetItem } from '../lib/storage.js';
 
-// Pre-seeded starter custom events (Festivals & Promotional Campaigns)
+// Color Scheme:
+// Blue: Official Brother Events
+// Green: Sustainability
+// Red: Promotions
+// Amber: Other Events (Mid-Autumn Festivals, Celebrations, etc.)
+
+const THEME_PRESETS = [
+  { id: 'blue', label: 'Official Brother', desc: 'Official Brother Events', color: '#0f2ea2', badgeClass: 'bg-blue-100 text-[#0f2ea2] dark:bg-blue-950 dark:text-blue-300 border-blue-200' },
+  { id: 'green', label: 'Sustainability', desc: 'ESG & Green Action', color: '#10B981', badgeClass: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-200' },
+  { id: 'red', label: 'Promotions', desc: 'Sales, Deals & Trade-Ins', color: '#EF4444', badgeClass: 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300 border-rose-200' },
+  { id: 'amber', label: 'Other Events', desc: 'Festivals & Celebrations', color: '#F59E0B', badgeClass: 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300 border-amber-200' }
+];
+
+// Pre-seeded starter custom events following the exact color scheme
 const INITIAL_CUSTOM_EVENTS = [
   {
     id: 'custom-mid-autumn-2026',
@@ -11,11 +24,11 @@ const INITIAL_CUSTOM_EVENTS = [
     date: '2026-09-25',
     year: '2026',
     day: 'Friday',
-    category: 'Cultural Festival',
+    category: 'Festivals & Celebrations',
     eventType: 'cultural',
     badgeText: 'Mid-Autumn Harmony',
     subtitle: 'Celebrating togetherness, reunion & lighting the path forward',
-    theme: 'mid-autumn',
+    theme: 'amber',
     details: 'Full moon celebration, reunion over mooncakes & tea, honoring trusted partnerships and long-term customer relationships.',
     suggestedHashtags: ['#MidAutumnFestival', '#MooncakeFestival', '#Togetherness', '#BrotherSingapore', '#AtYourSide'],
     isCustom: true
@@ -26,11 +39,11 @@ const INITIAL_CUSTOM_EVENTS = [
     date: '2026-10-15',
     year: '2026',
     day: 'Thursday',
-    category: 'Promotional Campaign',
+    category: 'Promotions & Campaigns',
     eventType: 'promotion',
     badgeText: 'Trade-In Special',
     subtitle: 'Upgrade office productivity with up to $100 trade-in rebate + 3-year warranty',
-    theme: 'promotion',
+    theme: 'red',
     details: 'Trade in any brand of old printer or scanner to receive up to $100 cashback and free 3-year on-site warranty on Brother business series.',
     suggestedHashtags: ['#BrotherSingapore', '#PrinterTradeIn', '#WorkplaceProductivity', '#OfficeUpgrade', '#AtYourSide'],
     isCustom: true
@@ -45,7 +58,7 @@ const INITIAL_CUSTOM_EVENTS = [
     eventType: 'sustainability',
     badgeText: 'Eco-Conscious SG',
     subtitle: 'Responsible recycling for a cleaner, greener Singapore',
-    theme: 'sustainability',
+    theme: 'green',
     details: 'Community and SME drop-off initiative for spent toner cartridges and end-of-life hardware, in alignment with SG Green Plan 2030.',
     suggestedHashtags: ['#BrotherEarth', '#SustainabilitySG', '#EWasteRecycling', '#GreenPlan2030', '#AtYourSide'],
     isCustom: true
@@ -73,8 +86,8 @@ function generateEventDrafts(occasion) {
   const details = occasion.details || occasion.subtitle || '';
   const hashtags = (occasion.suggestedHashtags || ['#BrotherSingapore', '#AtYourSide']).join(' ');
 
-  // Promotional or Campaign Event
-  if (occasion.eventType === 'promotion') {
+  // Red Theme: Promotional or Campaign Event
+  if (occasion.eventType === 'promotion' || occasion.theme === 'red') {
     return [
       {
         id: 'opt-1',
@@ -97,8 +110,8 @@ function generateEventDrafts(occasion) {
     ];
   }
 
-  // Sustainability / CSR Event
-  if (occasion.eventType === 'sustainability') {
+  // Green Theme: Sustainability / CSR Event
+  if (occasion.eventType === 'sustainability' || occasion.theme === 'green') {
     return [
       {
         id: 'opt-1',
@@ -121,31 +134,31 @@ function generateEventDrafts(occasion) {
     ];
   }
 
-  // Cultural Festival (like Mid-Autumn Festival)
-  if (occasion.eventType === 'cultural') {
+  // Amber Theme: Other Events (Festivals, Cultural, Celebrations, Mid-Autumn)
+  if (occasion.eventType === 'cultural' || occasion.theme === 'amber') {
     return [
       {
         id: 'opt-1',
         name: 'Warm Community Unity & Shared Traditions (Wa Harmony)',
         whyThisWorks: 'Employs high Hofstede Harmony (*Wa*) and multiracial Singaporean connection. Celebrates reunion and gratitude, tying back to Brother\'s "At your side" philosophy.',
-        post: `Warmest greetings on this joyous ${name}! 🥮🌕✨\n\nAs the full moon shines bright across Singapore, we celebrate the enduring values of reunion, gratitude, and cherished relationships with family, colleagues, and valued partners.\n\n${details ? `${details}\n\n` : ''}At Brother Singapore, standing 'At your side' means being part of your journey through every milestone and festive season. We are grateful for the trust you place in us every day.\n\nWishing you and your loved ones an abundance of joy, peace, and meaningful moments together. Happy ${name}!\n\nWhat is your favorite family or team tradition during this festive season? Share with us below! 👇\n\n${hashtags}`
+        post: `Warmest greetings on this joyous ${name}! 🥮🌕✨\n\nAs we celebrate together across Singapore, we honor the enduring values of reunion, gratitude, and cherished relationships with family, colleagues, and valued partners.\n\n${details ? `${details}\n\n` : ''}At Brother Singapore, standing 'At your side' means being part of your journey through every milestone and celebratory season. We are grateful for the trust you place in us every day.\n\nWishing you and your loved ones an abundance of joy, peace, and meaningful moments together. Happy ${name}!\n\nWhat is your favorite family or team tradition during this celebration? Share with us below! 👇\n\n${hashtags}`
       },
       {
         id: 'opt-2',
         name: 'Guiding Light, Precision & Kaizen Innovation',
-        whyThisWorks: 'Draws a poetic, inspiring parallel between festive lanterns/moonlight and Brother\'s guiding mission of innovation, precision craftsmanship, and sustainable progress.',
-        post: `Just as the moon illuminates the night sky, ${name} reminds us of the power of clarity, focus, and dedicated craftsmanship. 🏮💡\n\nIn both technology and relationships, enduring strength is built through patient dedication and continuous improvement (*Kaizen*).\n\nAt Brother Singapore, we take pride in illuminating the road ahead for our business community with dependable technologies that empower smarter, more connected workplaces.\n\nMay this festive season bring fresh inspiration, renewed clarity, and lasting success to your team! 🤝\n\n${hashtags} #Kaizen #WorkplaceExcellence #GuidingLight`
+        whyThisWorks: 'Draws an inspiring parallel between celebrations and Brother\'s guiding mission of innovation, precision craftsmanship, and sustainable progress.',
+        post: `Moments of celebration like ${name} remind us of the power of clarity, shared purpose, and dedicated craftsmanship. 🏮💡\n\nIn both technology and relationships, enduring strength is built through patient dedication and continuous improvement (*Kaizen*).\n\nAt Brother Singapore, we take pride in illuminating the road ahead for our business community with dependable technologies that empower smarter, more connected workplaces.\n\nMay this season bring fresh inspiration, renewed clarity, and lasting success to your team! 🤝\n\n${hashtags} #Kaizen #WorkplaceExcellence #GuidingLight`
       },
       {
         id: 'opt-3',
         name: 'Office Festive Culture & Team Togetherness',
         whyThisWorks: 'Employer branding and internal team culture focus highlighting employee bonding, festive treats, and authentic workplace warmth.',
-        post: `Lanterns, sweet mooncakes, and wonderful team smiles across our Brother Singapore office for ${name}! 🥮🎉\n\nMoments like these remind us that our greatest strength lies in our people and the vibrant, inclusive culture we nurture together.\n\nA heartfelt thank you to our entire Brother family for your dedication, enthusiasm, and teamwork every single day.\n\nHow is your workplace celebrating ${name} this week? Let us know in the comments! 💬\n\n${hashtags} #LifeAtBrother #FestiveCulture #TeamBrotherSG`
+        post: `Smiles, festive treats, and celebration across our Brother Singapore office for ${name}! 🎉✨\n\nMoments like these remind us that our greatest strength lies in our people and the vibrant, inclusive culture we nurture together.\n\nA heartfelt thank you to our entire Brother family for your dedication, enthusiasm, and teamwork every single day.\n\nHow is your workplace celebrating ${name} this week? Let us know in the comments! 💬\n\n${hashtags} #LifeAtBrother #FestiveCulture #TeamBrotherSG`
       }
     ];
   }
 
-  // Official Singapore Public Holidays / General Occasions
+  // Blue Theme: Official Brother Events / Public Holidays
   return [
     {
       id: "opt-1",
@@ -163,7 +176,7 @@ function generateEventDrafts(occasion) {
       id: "opt-3",
       name: "Internal Team Culture & Festive Behind-the-Scenes",
       whyThisWorks: "Employer branding focus. Highlights the multicultural harmony and inclusive workplace culture within the Brother Singapore family, engaging both prospective candidates and current staff.",
-      post: `The festive energy is in full swing across our Brother Singapore office for ${name}! 🎉🇸🇬\n\nFrom sharing festive treats to reflecting on team achievements, moments like these showcase the incredible diverse talent that drives our business forward.\n\nWhen our people are supported, empowered, and celebrated, extraordinary things happen. A big thank you to our entire Brother family for bringing energy, warmth, and dedication to work every day!\n\nHow is your workplace celebrating ${name} this week? Let us know in the comments! 💬\n\n${hashtags} #LifeAtBrother #PeopleFirst #TeamBrotherSG`
+      post: `The energy is in full swing across our Brother Singapore office for ${name}! 🎉🇸🇬\n\nFrom sharing treats to reflecting on team achievements, moments like these showcase the incredible diverse talent that drives our business forward.\n\nWhen our people are supported, empowered, and celebrated, extraordinary things happen. A big thank you to our entire Brother family for bringing energy, warmth, and dedication to work every day!\n\nHow is your workplace celebrating ${name} this week? Let us know in the comments! 💬\n\n${hashtags} #LifeAtBrother #PeopleFirst #TeamBrotherSG`
     }
   ];
 }
@@ -197,10 +210,10 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
   const [showAddModal, setShowAddModal] = useState(false);
   const [newEventName, setNewEventName] = useState('');
   const [newEventDate, setNewEventDate] = useState('2026-09-25');
-  const [newEventCategory, setNewEventCategory] = useState('Cultural Festival');
+  const [newEventCategory, setNewEventCategory] = useState('Other Events');
   const [newEventType, setNewEventType] = useState('cultural');
   const [newEventDetails, setNewEventDetails] = useState('');
-  const [newEventTheme, setNewEventTheme] = useState('mid-autumn');
+  const [newEventTheme, setNewEventTheme] = useState('amber');
 
   // SVG Customization
   const [customBadge, setCustomBadge] = useState('Celebrate SG Special');
@@ -221,6 +234,7 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
         const tagged = data.holidays.map(h => ({
           ...h,
           eventType: 'public_holiday',
+          theme: 'blue',
           category: 'Singapore Public Holiday'
         }));
         setHolidays(tagged);
@@ -279,7 +293,7 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
   const handleSelectOccasion = (h) => {
     setSelectedOccasion(h);
     setSelectedDraftIndex(0);
-    setCustomBadge(h.badgeText || (h.eventType === 'promotion' ? 'Promo Special' : 'Special Event'));
+    setCustomBadge(h.badgeText || (h.theme === 'red' ? 'Special Privilege' : h.theme === 'green' ? 'Eco-Conscious SG' : h.theme === 'amber' ? 'Festive Special' : 'Official Brother'));
     setCustomHeadline(h.name);
     setCustomSubtitle(h.subtitle || h.details || 'Brother Singapore • At your side');
   };
@@ -297,12 +311,17 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
     const yr = String(eventDateObj.getFullYear());
 
     let hashtags = ['#BrotherSingapore', '#AtYourSide'];
-    if (newEventType === 'promotion') {
+    let badgeText = 'Official Brother';
+
+    if (newEventTheme === 'red') {
       hashtags = ['#BrotherSingapore', '#Promotion', '#WorkplaceTech', '#OfficeUpgrade', '#AtYourSide'];
-    } else if (newEventType === 'cultural') {
-      hashtags = ['#FestiveSG', '#Celebration', '#Community', '#BrotherSingapore', '#AtYourSide'];
-    } else if (newEventType === 'sustainability') {
+      badgeText = 'Special Privilege';
+    } else if (newEventTheme === 'green') {
       hashtags = ['#BrotherEarth', '#SustainabilitySG', '#EcoAction', '#GreenPlan2030', '#AtYourSide'];
+      badgeText = 'Eco-Conscious SG';
+    } else if (newEventTheme === 'amber') {
+      hashtags = ['#FestiveSG', '#Celebration', '#Community', '#BrotherSingapore', '#AtYourSide'];
+      badgeText = 'Festive Special';
     }
 
     const newEvent = enrichEventWithDays({
@@ -313,7 +332,7 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
       day: dayName,
       category: newEventCategory,
       eventType: newEventType,
-      badgeText: newEventCategory.includes('Promo') ? 'Special Privilege' : 'Celebration',
+      badgeText,
       subtitle: newEventDetails.trim() || `${newEventName.trim()} • Brother Singapore`,
       theme: newEventTheme,
       details: newEventDetails.trim(),
@@ -375,7 +394,7 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
             draft1: drafts[0]?.post || '',
             draft2: drafts[1]?.post || '',
             rationale: drafts[0]?.whyThisWorks || '',
-            sourceContext: `Event: ${selectedOccasion.name}\nDate: ${selectedOccasion.date}\nCategory: ${selectedOccasion.category}\nDetails: ${selectedOccasion.details || selectedOccasion.subtitle || ''}\nHashtags: ${(selectedOccasion.suggestedHashtags || []).join(' ')}`
+            sourceContext: `Event: ${selectedOccasion.name}\nDate: ${selectedOccasion.date}\nTheme: ${selectedOccasion.theme}\nDetails: ${selectedOccasion.details || selectedOccasion.subtitle || ''}\nHashtags: ${(selectedOccasion.suggestedHashtags || []).join(' ')}`
           }
         })
       });
@@ -401,7 +420,7 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
     badgeText: customBadge,
     headline: customHeadline,
     subtitle: customSubtitle,
-    theme: selectedOccasion.theme || 'national-day'
+    theme: selectedOccasion.theme || 'blue'
   }) : '';
 
   const handleCopy = () => {
@@ -421,6 +440,20 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
     a.download = `brother-sg-${selectedOccasion?.id || 'event'}-banner.svg`;
     a.click();
     URL.revokeObjectURL(url);
+  };
+
+  // Helper to get pill style for each event
+  const getEventBadgeStyle = (evt) => {
+    if (evt.theme === 'red' || evt.eventType === 'promotion') {
+      return { label: 'Promotion', class: 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300 border-rose-200' };
+    }
+    if (evt.theme === 'green' || evt.eventType === 'sustainability') {
+      return { label: 'Sustainability', class: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-200' };
+    }
+    if (evt.theme === 'amber' || evt.eventType === 'cultural') {
+      return { label: 'Other Event', class: 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300 border-amber-200' };
+    }
+    return { label: evt.isCustom ? 'Official' : 'Holiday', class: 'bg-blue-100 text-[#0f2ea2] dark:bg-blue-950 dark:text-blue-300 border-blue-200' };
   };
 
   return (
@@ -576,6 +609,7 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
               <div className="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-y-auto max-h-none lg:max-h-[520px] pb-2 lg:pb-0 pr-1 custom-scrollbar">
                 {displayedEvents.map((h) => {
                   const isSelected = selectedOccasion?.id === h.id;
+                  const badgeInfo = getEventBadgeStyle(h);
                   return (
                     <div
                       key={h.id}
@@ -618,14 +652,8 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
 
                       <div className="flex items-center justify-between text-[11px] text-slate-500">
                         <div className="flex items-center gap-1.5">
-                          <span className={`text-[9px] px-1.5 py-0.2 rounded font-semibold ${
-                            h.isCustom
-                              ? h.eventType === 'promotion'
-                                ? 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300'
-                                : 'bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300'
-                              : 'bg-blue-100 text-[#0f2ea2] dark:bg-blue-950 dark:text-blue-300'
-                          }`}>
-                            {h.isCustom ? (h.eventType === 'promotion' ? 'Promo' : 'Custom') : 'Holiday'}
+                          <span className={`text-[9px] px-1.5 py-0.2 rounded font-semibold border ${badgeInfo.class}`}>
+                            {badgeInfo.label}
                           </span>
                           <span>{new Date(h.date).toLocaleDateString('en-SG', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                         </div>
@@ -704,8 +732,8 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
                       Post Angle {selectedDraftIndex + 1} of 3 • {selectedOccasion.name}
                     </span>
                     {selectedOccasion.isCustom && (
-                      <span className="text-[10px] px-2 py-0.2 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300 font-bold">
-                        {selectedOccasion.category}
+                      <span className={`text-[10px] px-2 py-0.2 rounded-full font-bold border ${getEventBadgeStyle(selectedOccasion).class}`}>
+                        {selectedOccasion.category || getEventBadgeStyle(selectedOccasion).label}
                       </span>
                     )}
                   </div>
@@ -804,7 +832,7 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Mid-Autumn Festival or Brother Mega Roadshow"
+                  placeholder="e.g. Mid-Autumn Festival, Mega Trade-in Promo, or Roadshow"
                   value={newEventName}
                   onChange={(e) => setNewEventName(e.target.value)}
                   className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0f2ea2]"
@@ -834,26 +862,26 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
                     onChange={(e) => {
                       const type = e.target.value;
                       setNewEventType(type);
-                      if (type === 'cultural') {
-                        setNewEventCategory('Cultural Festival');
-                        setNewEventTheme('mid-autumn');
-                      } else if (type === 'promotion') {
-                        setNewEventCategory('Promotional Campaign');
-                        setNewEventTheme('promotion');
+                      if (type === 'corporate') {
+                        setNewEventCategory('Official Brother Event');
+                        setNewEventTheme('blue');
                       } else if (type === 'sustainability') {
                         setNewEventCategory('Sustainability & ESG');
-                        setNewEventTheme('sustainability');
+                        setNewEventTheme('green');
+                      } else if (type === 'promotion') {
+                        setNewEventCategory('Promotional & Campaign');
+                        setNewEventTheme('red');
                       } else {
-                        setNewEventCategory('Corporate Milestone');
-                        setNewEventTheme('corporate');
+                        setNewEventCategory('Festivals & Celebrations');
+                        setNewEventTheme('amber');
                       }
                     }}
                     className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0f2ea2]"
                   >
-                    <option value="cultural">🏮 Cultural & Festive</option>
-                    <option value="promotion">🏷️ Promotional & Campaign</option>
-                    <option value="sustainability">🌿 Sustainability & CSR</option>
-                    <option value="corporate">🏢 Corporate & Milestone</option>
+                    <option value="corporate">🔵 Official Brother Event</option>
+                    <option value="sustainability">🟢 Sustainability & ESG</option>
+                    <option value="promotion">🔴 Promotional & Campaign</option>
+                    <option value="cultural">🟡 Festivals & Other Celebrations</option>
                   </select>
                 </div>
               </div>
@@ -864,7 +892,7 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
                 </label>
                 <textarea
                   rows={3}
-                  placeholder="e.g. Trade in any old printer and receive up to $100 cashback + free 3-year warranty on Brother MFC-L3760CDW..."
+                  placeholder="e.g. Special offer: Trade in any old printer to get $80 off + 3-year warranty, or celebrating Mid-Autumn with customers..."
                   value={newEventDetails}
                   onChange={(e) => setNewEventDetails(e.target.value)}
                   className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0f2ea2]"
@@ -873,27 +901,25 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                  Banner Graphic Visual Theme
+                  Banner Graphic Color Theme
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  {[
-                    { id: 'mid-autumn', label: 'Mid-Autumn Gold', color: '#FBBF24' },
-                    { id: 'promotion', label: 'Promo Orange', color: '#FF6B00' },
-                    { id: 'corporate', label: 'Brother Blue', color: '#0f2ea2' },
-                    { id: 'sustainability', label: 'Eco Emerald', color: '#10B981' }
-                  ].map((thm) => (
+                  {THEME_PRESETS.map((thm) => (
                     <button
                       type="button"
                       key={thm.id}
                       onClick={() => setNewEventTheme(thm.id)}
-                      className={`p-2 rounded-xl border text-left flex items-center gap-2 text-xs font-semibold cursor-pointer transition-all ${
+                      className={`p-2.5 rounded-xl border text-left flex items-start gap-2 text-xs font-semibold cursor-pointer transition-all ${
                         newEventTheme === thm.id
                           ? 'border-[#0f2ea2] bg-blue-50/80 dark:bg-blue-950/40 text-[#0f2ea2] dark:text-blue-300 ring-2 ring-[#0f2ea2]/20'
                           : 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800'
                       }`}
                     >
-                      <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: thm.color }} />
-                      <span className="truncate text-[11px]">{thm.label}</span>
+                      <span className="w-3.5 h-3.5 rounded-full shrink-0 mt-0.5" style={{ backgroundColor: thm.color }} />
+                      <div className="min-w-0">
+                        <div className="font-bold text-[11px] text-slate-900 dark:text-white truncate">{thm.label}</div>
+                        <div className="text-[10px] text-slate-400 truncate">{thm.desc}</div>
+                      </div>
                     </button>
                   ))}
                 </div>

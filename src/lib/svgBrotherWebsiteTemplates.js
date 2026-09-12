@@ -17,20 +17,18 @@ export function generateBrotherWebsiteBannerSVG({
   let badgeColor = "#0f2ea2";
   let rightSkylineBg = "#06102B";
 
-  if (theme === "mid-autumn") {
-    skyGlow = "#FBBF24";
-  } else if (theme === "deepavali") {
+  if (theme === "blue" || theme === "corporate") {
+    skyGlow = "#3B82F6";
+  } else if (theme === "green" || theme === "sustainability") {
+    skyGlow = "#10B981";
+  } else if (theme === "red" || theme === "promotion") {
+    skyGlow = "#EF4444";
+  } else if (theme === "amber" || theme === "mid-autumn" || theme === "celebration" || theme === "deepavali") {
     skyGlow = "#F59E0B";
   } else if (theme === "christmas") {
     skyGlow = "#10B981";
   } else if (theme === "ai-tech") {
     skyGlow = "#00D4FF";
-  } else if (theme === "promotion") {
-    skyGlow = "#FF6B00";
-  } else if (theme === "sustainability") {
-    skyGlow = "#10B981";
-  } else if (theme === "corporate") {
-    skyGlow = "#3B82F6";
   }
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 500" width="100%" height="100%" style="border-radius: 20px; font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;">
