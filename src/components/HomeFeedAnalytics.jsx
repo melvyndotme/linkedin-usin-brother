@@ -145,45 +145,6 @@ export default function HomeFeedAnalytics({ isDark, onNavigateToModule }) {
         </div>
       </div>
 
-      {/* Content Strategy Breakdown Card */}
-      <div className={`rounded-2xl p-4 sm:p-6 border transition-colors ${
-        isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
-      }`}>
-        <div className="flex items-center justify-between mb-3 sm:mb-4">
-          <div>
-            <h3 className={`text-xs sm:text-sm font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
-              Content Pillar Performance Breakdown
-            </h3>
-            <p className="text-[11px] text-slate-500">Engagement telemetry by post category</p>
-          </div>
-          <span className="text-[10px] font-mono text-[#0f2ea2] dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded-md border border-blue-200 dark:border-blue-800">
-            Live Telemetry
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {analytics.breakdown.map((item, idx) => (
-            <div
-              key={idx}
-              className={`p-3.5 rounded-xl border ${
-                isDark ? 'bg-slate-950/60 border-slate-800' : 'bg-slate-50 border-slate-200'
-              }`}
-            >
-              <div className="flex items-center justify-between text-xs font-bold mb-1">
-                <span className={isDark ? 'text-white' : 'text-slate-900'}>{item.type}</span>
-                <span className="text-[#0f2ea2] dark:text-blue-400 font-mono">{item.share}</span>
-              </div>
-              <div className="text-[11px] text-slate-500 flex items-center justify-between mt-1">
-                <span>Avg Engagement:</span>
-                <strong className="text-emerald-500">{item.avgEngagement}</strong>
-              </div>
-              <div className="text-[10px] text-slate-400 mt-1 truncate">
-                Reaction: {item.topReaction}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
 
       {/* Live Stream of Brother LinkedIn Posts */}
       <div className="space-y-3 sm:space-y-4">
