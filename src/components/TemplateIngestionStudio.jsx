@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
-import { Layers, Upload, Link2, FileText, Image as ImageIcon, Sparkles, Copy, Check, ArrowRight, BookOpen, Eye } from 'lucide-react';
+import { 
+  Layers, Upload, Link2, FileText, Image as ImageIcon, Sparkles, Copy, Check, 
+  ArrowRight, BookOpen, Eye, Database, ExternalLink, Loader2, AlertCircle, CheckCircle2 
+} from 'lucide-react';
 import { BENCHMARK_TEMPLATES, extractTemplateFromInput } from '../lib/templateExtractor.js';
+import { safeGetItem } from '../lib/storage.js';
 
 export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDrafting }) {
   const [activeTab, setActiveTab] = useState('library'); // 'library' or 'ingest'
@@ -19,6 +23,13 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
   const [base64Image, setBase64Image] = useState('');
   const [extractError, setExtractError] = useState(null);
 
+  // Newly Extracted Template Review & Notion Save State
+  const [justExtractedTemplate, setJustExtractedTemplate] = useState(null);
+  const [savingToNotion, setSavingToNotion] = useState(false);
+  const [notionSaveStatus, setNotionSaveStatus] = useState(null); // { status: 'success' | 'error', message, url }
+  const [seedingBenchmarkToNotion, setSeedingBenchmarkToNotion] = useState(false);
+  const [seedStatus, setSeedStatus] = useState(null);
+
   const handleCopy = (text) => {
     navigator.clipboard.writeText(text);
     setCopied(true);
@@ -28,6 +39,7 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
   const handleSimulateExtraction = async () => {
     setAnalyzing(true);
     setExtractError(null);
+    setNotionSaveStatus(null);
 
     const payload = {
       type: ingestType,
@@ -46,26 +58,122 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
 
       const data = await res.json();
       if (res.ok && data.template) {
-        setTemplates([data.template, ...templates]);
-        setSelectedTemplate(data.template);
-        setActiveTab('library');
-        setUrlInput('');
-        setPastedContent('');
-        setUploadFileName('');
-        setBase64Image('');
+        setJustExtractedTemplate(data.template);
       } else {
         throw new Error(data.error || 'Failed to extract template');
       }
     } catch (err) {
       console.warn('Extraction fallback to local engine:', err.message);
-      // Fallback to local parsing if offline or no network
       const fallbackTmpl = extractTemplateFromInput(payload);
-      setTemplates([fallbackTmpl, ...templates]);
-      setSelectedTemplate(fallbackTmpl);
-      setActiveTab('library');
+      setJustExtractedTemplate(fallbackTmpl);
     } finally {
       setAnalyzing(false);
     }
+  };
+
+  const handleSaveToNotion = async (tmplToSave) => {
+    if (!tmplToSave) return;
+    setSavingToNotion(true);
+    setNotionSaveStatus(null);
+
+    const token = safeGetItem('notion_token');
+    const pageId = safeGetItem('notion_page_id') || '3c701136-de48-8101-b258-000b3c706126';
+
+    try {
+      const res = await fetch('/api/notion/save-template', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          apiKey: token,
+          pageId: pageId,
+          template: tmplToSave
+        })
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setNotionSaveStatus({
+          status: 'success',
+          message: `Saved "${tmplToSave.name}" to Notion Template Library!`,
+          url: data.notionUrl
+        });
+
+        // Add to local state if not already present
+        if (!templates.some(t => t.id === tmplToSave.id)) {
+          setTemplates([tmplToSave, ...templates]);
+        }
+        setSelectedTemplate(tmplToSave);
+      } else {
+        setNotionSaveStatus({
+          status: 'error',
+          message: data.error || 'Failed to save to Notion. Please check your NOTION_API_KEY in Settings.'
+        });
+      }
+    } catch (err) {
+      setNotionSaveStatus({
+        status: 'error',
+        message: err.message || 'Network error connecting to Notion API'
+      });
+    } finally {
+      setSavingToNotion(false);
+    }
+  };
+
+  const handleSeedAllToNotion = async () => {
+    setSeedingBenchmarkToNotion(true);
+    setSeedStatus(null);
+
+    const token = safeGetItem('notion_token');
+    const pageId = safeGetItem('notion_page_id') || '3c701136-de48-8101-b258-000b3c706126';
+
+    try {
+      const res = await fetch('/api/notion/save-template', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          apiKey: token,
+          pageId: pageId,
+          templates: BENCHMARK_TEMPLATES
+        })
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setSeedStatus({
+          status: 'success',
+          message: `Successfully seeded all ${data.savedCount} Brother benchmark templates into Notion!`,
+          url: data.notionUrl
+        });
+      } else {
+        setSeedStatus({
+          status: 'error',
+          message: data.error || 'Failed to seed templates to Notion. Please verify NOTION_API_KEY in Settings.'
+        });
+      }
+    } catch (err) {
+      setSeedStatus({
+        status: 'error',
+        message: err.message || 'Network error connecting to Notion API'
+      });
+    } finally {
+      setSeedingBenchmarkToNotion(false);
+    }
+  };
+
+  const handleDismissExtraction = () => {
+    if (justExtractedTemplate) {
+      // Also allow user to add it to working session without Notion if desired
+      if (!templates.some(t => t.id === justExtractedTemplate.id)) {
+        setTemplates([justExtractedTemplate, ...templates]);
+      }
+      setSelectedTemplate(justExtractedTemplate);
+    }
+    setJustExtractedTemplate(null);
+    setActiveTab('library');
+    setUrlInput('');
+    setPastedContent('');
+    setUploadFileName('');
+    setBase64Image('');
   };
 
   const handleFileUpload = (e) => {
@@ -99,16 +207,50 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
             </h2>
           </div>
 
-          <div className="flex items-center gap-2 w-full sm:w-auto">
+          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+            <button
+              onClick={handleSeedAllToNotion}
+              disabled={seedingBenchmarkToNotion}
+              title="Save all 6 core Brother benchmark templates directly into your Notion Template Library"
+              className="flex items-center justify-center gap-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-semibold px-3.5 py-2.5 rounded-xl transition-all disabled:opacity-50"
+            >
+              {seedingBenchmarkToNotion ? <Loader2 className="w-3.5 h-3.5 animate-spin text-[#0f2ea2]" /> : <Database className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />}
+              <span>{seedingBenchmarkToNotion ? 'Syncing to Notion...' : 'Seed All to Notion'}</span>
+            </button>
+
             <button
               onClick={() => setActiveTab(activeTab === 'library' ? 'ingest' : 'library')}
-              className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md transition-all active:scale-95"
+              className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md transition-all active:scale-95 cursor-pointer"
             >
               {activeTab === 'library' ? <Upload className="w-4 h-4" /> : <BookOpen className="w-4 h-4" />}
               {activeTab === 'library' ? '+ Ingest New Post / PDF' : 'View Template Library'}
             </button>
           </div>
         </div>
+
+        {/* Global Seed Status Notification */}
+        {seedStatus && (
+          <div className={`mt-3 p-3 rounded-xl text-xs flex items-center justify-between border ${
+            seedStatus.status === 'success'
+              ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300'
+              : 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-800 text-rose-800 dark:text-rose-300'
+          }`}>
+            <div className="flex items-center gap-2">
+              {seedStatus.status === 'success' ? <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" /> : <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />}
+              <span>{seedStatus.message}</span>
+            </div>
+            {seedStatus.url && (
+              <a
+                href={seedStatus.url}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 underline font-bold ml-2 shrink-0 text-[#0f2ea2] dark:text-blue-300"
+              >
+                Open in Notion <ExternalLink className="w-3 h-3" />
+              </a>
+            )}
+          </div>
+        )}
       </div>
 
       {activeTab === 'ingest' ? (
@@ -116,6 +258,78 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
         <div className={`p-5 sm:p-6 rounded-2xl border space-y-5 ${
           isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
         }`}>
+          {/* Review Card if just extracted */}
+          {justExtractedTemplate && (
+            <div className="p-5 rounded-2xl border-2 border-emerald-500/50 bg-emerald-500/5 dark:bg-emerald-950/20 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-emerald-500/20 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+                    <CheckCircle2 className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 uppercase tracking-wider font-bold">
+                      Extraction Complete — Ready for Review
+                    </span>
+                    <h4 className="text-base font-bold text-slate-900 dark:text-white">
+                      {justExtractedTemplate.name}
+                    </h4>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handleSaveToNotion(justExtractedTemplate)}
+                    disabled={savingToNotion}
+                    className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-md transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
+                  >
+                    {savingToNotion ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Database className="w-3.5 h-3.5" />}
+                    <span>{savingToNotion ? 'Saving to Notion...' : 'Save to Notion Library'}</span>
+                  </button>
+
+                  <button
+                    onClick={handleDismissExtraction}
+                    className="flex items-center gap-1 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-medium px-3 py-2 rounded-xl transition-all"
+                  >
+                    View in Studio
+                  </button>
+                </div>
+              </div>
+
+              {/* Notion Save Status Banner */}
+              {notionSaveStatus && (
+                <div className={`p-3 rounded-xl text-xs flex items-center justify-between border ${
+                  notionSaveStatus.status === 'success'
+                    ? 'bg-emerald-100 dark:bg-emerald-900/40 border-emerald-400 text-emerald-900 dark:text-emerald-200'
+                    : 'bg-rose-100 dark:bg-rose-900/40 border-rose-400 text-rose-900 dark:text-rose-200'
+                }`}>
+                  <div className="flex items-center gap-2">
+                    {notionSaveStatus.status === 'success' ? <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" /> : <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />}
+                    <span>{notionSaveStatus.message}</span>
+                  </div>
+                  {notionSaveStatus.url && (
+                    <a
+                      href={notionSaveStatus.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 underline font-bold ml-2 shrink-0 text-[#0f2ea2] dark:text-blue-300"
+                    >
+                      Open in Notion <ExternalLink className="w-3 h-3" />
+                    </a>
+                  )}
+                </div>
+              )}
+
+              {/* Extracted Blueprint Preview */}
+              <div className="space-y-1.5">
+                <span className="text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                  Extracted Blueprint (Check placeholders before saving):
+                </span>
+                <div className="p-4 rounded-xl font-mono text-xs whitespace-pre-wrap leading-relaxed border bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 max-h-[220px] overflow-y-auto custom-scrollbar">
+                  {justExtractedTemplate.placeholderTemplate}
+                </div>
+              </div>
+            </div>
+          )}
           <div className="border-b pb-3 dark:border-slate-800">
             <h3 className={`text-sm sm:text-base font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
               Ingest Post, Screenshot, or PDF to Train Templates
@@ -323,10 +537,20 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
                   </p>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    onClick={() => handleSaveToNotion(selectedTemplate)}
+                    disabled={savingToNotion}
+                    title="Save this specific template to your Notion Template Library"
+                    className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-700 transition-all disabled:opacity-50 cursor-pointer"
+                  >
+                    {savingToNotion ? <Loader2 className="w-3.5 h-3.5 animate-spin text-[#0f2ea2]" /> : <Database className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />}
+                    <span>{savingToNotion ? 'Saving...' : 'Save to Notion'}</span>
+                  </button>
+
                   <button
                     onClick={() => handleCopy(selectedTemplate.placeholderTemplate)}
-                    className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-white px-3.5 py-2 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-700 transition-all"
+                    className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-white px-3.5 py-2 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-700 transition-all cursor-pointer"
                   >
                     {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
                     {copied ? 'Copied' : 'Copy'}
@@ -341,6 +565,30 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
                   </button>
                 </div>
               </div>
+
+              {/* Status Alert for Library Save */}
+              {notionSaveStatus && (
+                <div className={`p-3 rounded-xl text-xs flex items-center justify-between border ${
+                  notionSaveStatus.status === 'success'
+                    ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300'
+                    : 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-800 text-rose-800 dark:text-rose-300'
+                }`}>
+                  <div className="flex items-center gap-2">
+                    {notionSaveStatus.status === 'success' ? <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" /> : <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />}
+                    <span>{notionSaveStatus.message}</span>
+                  </div>
+                  {notionSaveStatus.url && (
+                    <a
+                      href={notionSaveStatus.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 underline font-bold ml-2 shrink-0 text-[#0f2ea2] dark:text-blue-300"
+                    >
+                      Open in Notion <ExternalLink className="w-3 h-3" />
+                    </a>
+                  )}
+                </div>
+              )}
 
               {/* Clean Template Blueprint Only */}
               <div className="space-y-2">

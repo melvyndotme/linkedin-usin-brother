@@ -10,6 +10,7 @@ import momHolidaysHandler from '../api/mom/holidays.js';
 import linkedInPublishHandler from '../api/linkedin/publish.js';
 import linkedInDataHandler from '../api/linkedin/data.js';
 import templateIngestHandler from '../api/templates/ingest.js';
+import notionSaveTemplateHandler from '../api/notion/save-template.js';
 
 try {
   process.loadEnvFile();
@@ -90,6 +91,11 @@ const server = http.createServer(async (req, res) => {
 
   if (pathname === '/api/notion/seed') {
     adaptVercel(notionSeedHandler)(req, res, parsedUrl);
+    return;
+  }
+
+  if (pathname === '/api/notion/save-template') {
+    adaptVercel(notionSaveTemplateHandler)(req, res, parsedUrl);
     return;
   }
 
