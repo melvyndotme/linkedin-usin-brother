@@ -29,6 +29,7 @@ export default function ProfileView({ isDark, currentUser, onUpdateProfile }) {
 
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [notionSyncStatus, setNotionSyncStatus] = useState(null);
 
   const initials = name
     .trim()
@@ -39,9 +40,10 @@ export default function ProfileView({ isDark, currentUser, onUpdateProfile }) {
     .slice(0, 2)
     .toUpperCase() || 'MT';
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e?.preventDefault();
     setSaving(true);
+    setNotionSyncStatus(null);
 
     const updated = {
       ...currentUser,
@@ -62,11 +64,34 @@ export default function ProfileView({ isDark, currentUser, onUpdateProfile }) {
       safeSetItem('linkedusin_user', JSON.stringify(updated));
     }
 
-    setTimeout(() => {
-      setSaving(false);
-      setSaved(true);
-      setTimeout(() => setSaved(false), 3000);
-    }, 400);
+    // Direct synchronization with Notion Team Whitelist Database
+    try {
+      const notionKey = safeGetItem('token_notion') || '';
+      const res = await fetch('/api/notion/update-profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          name,
+          role,
+          department,
+          apiKey: notionKey || undefined
+        })
+      });
+      const data = await res.json();
+      if (data.success && data.updatedInNotion) {
+        setNotionSyncStatus('synced');
+      } else {
+        setNotionSyncStatus('local');
+      }
+    } catch (err) {
+      console.warn('Notion profile sync error:', err);
+      setNotionSyncStatus('local');
+    }
+
+    setSaving(false);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 4500);
   };
 
   const AVATAR_COLOR_OPTIONS = [
@@ -141,9 +166,17 @@ export default function ProfileView({ isDark, currentUser, onUpdateProfile }) {
         </div>
 
         {saved && (
-          <div className="mt-4 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs font-semibold flex items-center gap-2 animate-in fade-in duration-200">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-            <span>Profile successfully updated! Changes are reflected immediately across LinkedUsIn Studio.</span>
+          <div className="mt-4 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs font-semibold flex flex-col sm:flex-row sm:items-center justify-between gap-2 animate-in fade-in duration-200">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span>Profile successfully updated! Changes are live across LinkedUsIn Studio.</span>
+            </div>
+            {notionSyncStatus === 'synced' && (
+              <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-700 self-start sm:self-auto">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                Synced to Notion
+              </span>
+            )}
           </div>
         )}
       </div>

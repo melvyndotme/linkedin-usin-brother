@@ -12,7 +12,10 @@ import {
   LayoutGrid,
   List,
   Edit3,
-  User
+  User,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown
 } from 'lucide-react';
 import { safeGetItem, safeSetItem } from '../lib/storage.js';
 
@@ -74,11 +77,30 @@ export default function TeamView({ isDark, currentUser, onNavigateToProfile }) {
   const [viewMode, setViewMode] = useState(() => {
     return safeGetItem('brother_team_view_mode') || 'cards';
   });
+  const [sortBy, setSortBy] = useState('name'); // 'name' | 'department' | 'email'
+  const [sortOrder, setSortOrder] = useState('asc'); // 'asc' | 'desc'
 
   const handleSetViewMode = (mode) => {
     setViewMode(mode);
     safeSetItem('brother_team_view_mode', mode);
   };
+
+  const handleSort = (field) => {
+    if (sortBy === field) {
+      setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortBy(field);
+      setSortOrder('asc');
+    }
+  };
+
+  const sortedMembers = [...teamMembers].sort((a, b) => {
+    let aVal = (a[sortBy] || '').toString().toLowerCase();
+    let bVal = (b[sortBy] || '').toString().toLowerCase();
+    if (aVal < bVal) return sortOrder === 'asc' ? -1 : 1;
+    if (aVal > bVal) return sortOrder === 'asc' ? 1 : -1;
+    return 0;
+  });
 
   const checkIsSelf = (member) => {
     if (!currentUser) return false;
@@ -150,6 +172,34 @@ export default function TeamView({ isDark, currentUser, onNavigateToProfile }) {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3 flex-wrap self-start sm:self-center">
+            {/* Sort Controls */}
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 text-xs">
+              <span className="text-slate-400 font-medium hidden md:inline">Sort:</span>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="bg-transparent text-slate-700 dark:text-slate-200 font-semibold focus:outline-none cursor-pointer pr-1"
+                aria-label="Sort team members by"
+              >
+                <option value="name" className="dark:bg-slate-900">Name</option>
+                <option value="department" className="dark:bg-slate-900">Department</option>
+                <option value="email" className="dark:bg-slate-900">Email</option>
+              </select>
+              <button
+                type="button"
+                onClick={() => setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'))}
+                className="p-1 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors cursor-pointer"
+                title={`Sort order: ${sortOrder === 'asc' ? 'Ascending (A-Z)' : 'Descending (Z-A)'}`}
+                aria-label={`Toggle sort order, currently ${sortOrder}`}
+              >
+                {sortOrder === 'asc' ? (
+                  <ArrowUp className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
+                ) : (
+                  <ArrowDown className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
+                )}
+              </button>
+            </div>
+
             {/* View Mode Toggle: Cards vs List */}
             <div className="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80">
               <button
@@ -207,7 +257,7 @@ export default function TeamView({ isDark, currentUser, onNavigateToProfile }) {
       {/* 1. CARDS VIEW */}
       {viewMode === 'cards' && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {teamMembers.map((member) => {
+          {sortedMembers.map((member) => {
             const isSelf = checkIsSelf(member);
             return (
               <div
@@ -307,18 +357,79 @@ export default function TeamView({ isDark, currentUser, onNavigateToProfile }) {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className={`border-b text-[11px] font-bold uppercase tracking-wider ${
+                <tr className={`border-b text-[11px] font-bold uppercase tracking-wider select-none ${
                   isDark ? 'border-slate-800 bg-slate-950/40 text-slate-400' : 'border-slate-100 bg-slate-50/70 text-slate-500'
                 }`}>
-                  <th className="py-3 px-4 sm:px-6">Team Member</th>
-                  <th className="py-3 px-4">Department & Email</th>
+                  {/* Name Sortable Header */}
+                  <th className="py-3 px-4 sm:px-6">
+                    <button
+                      type="button"
+                      onClick={() => handleSort('name')}
+                      className="inline-flex items-center gap-1.5 font-bold uppercase hover:text-[#0f2ea2] dark:hover:text-blue-400 transition-colors cursor-pointer"
+                      title="Sort by Name"
+                    >
+                      <span>Team Member</span>
+                      {sortBy === 'name' ? (
+                        sortOrder === 'asc' ? (
+                          <ArrowUp className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
+                        ) : (
+                          <ArrowDown className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
+                        )
+                      ) : (
+                        <ArrowUpDown className="w-3 h-3 text-slate-400 opacity-60" />
+                      )}
+                    </button>
+                  </th>
+
+                  {/* Department Sortable Header */}
+                  <th className="py-3 px-4">
+                    <button
+                      type="button"
+                      onClick={() => handleSort('department')}
+                      className="inline-flex items-center gap-1.5 font-bold uppercase hover:text-[#0f2ea2] dark:hover:text-blue-400 transition-colors cursor-pointer"
+                      title="Sort by Department"
+                    >
+                      <span>Department</span>
+                      {sortBy === 'department' ? (
+                        sortOrder === 'asc' ? (
+                          <ArrowUp className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
+                        ) : (
+                          <ArrowDown className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
+                        )
+                      ) : (
+                        <ArrowUpDown className="w-3 h-3 text-slate-400 opacity-60" />
+                      )}
+                    </button>
+                  </th>
+
+                  {/* Email Sortable Header */}
+                  <th className="py-3 px-4">
+                    <button
+                      type="button"
+                      onClick={() => handleSort('email')}
+                      className="inline-flex items-center gap-1.5 font-bold uppercase hover:text-[#0f2ea2] dark:hover:text-blue-400 transition-colors cursor-pointer"
+                      title="Sort by Email"
+                    >
+                      <span>Email</span>
+                      {sortBy === 'email' ? (
+                        sortOrder === 'asc' ? (
+                          <ArrowUp className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
+                        ) : (
+                          <ArrowDown className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
+                        )
+                      ) : (
+                        <ArrowUpDown className="w-3 h-3 text-slate-400 opacity-60" />
+                      )}
+                    </button>
+                  </th>
+
                   <th className="py-3 px-4">Role / Whitelist</th>
                   <th className="py-3 px-4">Activity</th>
                   <th className="py-3 px-4 sm:px-6 text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
-                {teamMembers.map((member) => {
+                {sortedMembers.map((member) => {
                   const isSelf = checkIsSelf(member);
                   return (
                     <tr 
@@ -365,12 +476,16 @@ export default function TeamView({ isDark, currentUser, onNavigateToProfile }) {
                         </div>
                       </td>
 
-                      {/* Department & Email */}
+                      {/* Department */}
                       <td className="py-3.5 px-4">
-                        <div className="font-semibold text-slate-800 dark:text-slate-200 truncate max-w-[220px]">
+                        <div className="font-semibold text-slate-800 dark:text-slate-200 truncate max-w-[200px]">
                           {member.department}
                         </div>
-                        <div className="text-slate-400 font-mono text-[11px] truncate max-w-[220px]">
+                      </td>
+
+                      {/* Email */}
+                      <td className="py-3.5 px-4">
+                        <div className="text-slate-600 dark:text-slate-400 font-mono text-[11px] truncate max-w-[200px]">
                           {member.email}
                         </div>
                       </td>
