@@ -255,15 +255,32 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
     fetchHolidays(selectedYear);
   }, [selectedYear]);
 
-  // Combine and sort holidays + custom events
+  // Combine and sort holidays + custom events, filtering out past events and 2025
   const combinedEvents = useMemo(() => {
-    const yearFilteredHolidays = holidays;
-    const yearFilteredCustom = customEvents.filter(evt => {
-      if (selectedYear === 'all') return true;
-      return evt.year === selectedYear || (evt.date && evt.date.startsWith(selectedYear));
-    }).map(enrichEventWithDays);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-    let all = [...yearFilteredHolidays, ...yearFilteredCustom];
+    const enrichedHolidays = holidays.map(enrichEventWithDays);
+    const enrichedCustom = customEvents.map(enrichEventWithDays);
+
+    let all = [...enrichedHolidays, ...enrichedCustom];
+
+    // Exclude 2025 completely and remove all past events
+    all = all.filter(evt => {
+      // Exclude 2025
+      if (evt.year === '2025' || (evt.date && evt.date.startsWith('2025'))) {
+        return false;
+      }
+      // Year filter if not 'all'
+      if (selectedYear !== 'all' && evt.year !== selectedYear && !(evt.date && evt.date.startsWith(selectedYear))) {
+        return false;
+      }
+      // Remove all past events (strictly before today)
+      const evtDate = new Date(evt.date);
+      evtDate.setHours(0, 0, 0, 0);
+      return evtDate >= today;
+    });
+
     all.sort((a, b) => new Date(a.date) - new Date(b.date));
 
     return all;
@@ -486,7 +503,7 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
                       : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
-                  Public ({holidays.length})
+                  Public ({combinedEvents.filter(e => e.eventType === 'public_holiday').length})
                 </button>
                 <button
                   onClick={() => setEventCategoryFilter('custom')}
@@ -496,7 +513,7 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
                       : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
-                  Custom ({customEvents.length})
+                  Custom ({combinedEvents.filter(e => e.isCustom).length})
                 </button>
               </div>
 
@@ -504,10 +521,9 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
                 value={selectedYear}
                 onChange={(e) => setSelectedYear(e.target.value)}
                 title="Select Calendar Year"
-                className="bg-slate-100 dark:bg-slate-950 text-slate-700 dark:text-slate-300 text-[11px] font-bold py-1.5 px-2 rounded-xl border border-transparent hover:border-slate-300 dark:hover:border-slate-700 focus:outline-none cursor-pointer shrink-0"
+                className="bg-slate-100 dark:bg-slate-950 text-slate-700 dark:text-slate-300 text-[11px] font-bold py-1.5 px-2.5 rounded-xl border border-transparent hover:border-slate-300 dark:hover:border-slate-700 focus:outline-none cursor-pointer shrink-0"
               >
                 <option value="2026">2026</option>
-                <option value="2025">2025</option>
                 <option value="2027">2027</option>
                 <option value="all">All</option>
               </select>
