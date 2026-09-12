@@ -427,57 +427,6 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
               Official Singapore public holidays and custom promotional campaigns with AI copy angles and banner graphics.
             </p>
           </div>
-
-          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-            <button
-              onClick={() => setShowAddModal(true)}
-              className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold px-3.5 sm:px-4 py-2.5 rounded-xl shadow-md transition-all active:scale-95 cursor-pointer"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Add Event</span>
-            </button>
-            <button
-              onClick={() => fetchHolidays(selectedYear, true)}
-              disabled={loadingHolidays}
-              title="Refresh Singapore Public Holidays from MOM"
-              className="flex items-center justify-center gap-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 transition-all cursor-pointer"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 ${loadingHolidays ? 'animate-spin' : ''}`} />
-              <span className="hidden sm:inline">Refresh Holidays</span>
-            </button>
-            <button
-              onClick={handleCopy}
-              className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold px-3.5 sm:px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 transition-all active:scale-95 cursor-pointer"
-            >
-              {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
-              {copied ? 'Copied' : 'Copy Post'}
-            </button>
-            <button
-              onClick={handleDownloadSvg}
-              className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold px-3.5 sm:px-4 py-2.5 rounded-xl border border-slate-700 transition-all active:scale-95 cursor-pointer"
-            >
-              <Download className="w-4 h-4" />
-              SVG Banner
-            </button>
-          </div>
-        </div>
-
-        {/* Year Filter Tabs */}
-        <div className="flex items-center gap-2 mt-4 pt-3 border-t dark:border-slate-800">
-          <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mr-1">Calendar Year:</span>
-          {['2025', '2026', '2027', 'all'].map((y) => (
-            <button
-              key={y}
-              onClick={() => setSelectedYear(y)}
-              className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                selectedYear === y
-                  ? 'bg-[#0f2ea2] text-white shadow-sm'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
-              }`}
-            >
-              {y === 'all' ? 'All Years' : y}
-            </button>
-          ))}
         </div>
       </div>
 
@@ -495,47 +444,73 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
                     ? `Custom & Promos (${displayedEvents.length})`
                     : `Events & Holidays (${displayedEvents.length})`}
               </h3>
-              <button
-                onClick={() => setShowAddModal(true)}
-                className="inline-flex items-center gap-1 text-[11px] font-bold text-[#0f2ea2] dark:text-blue-400 hover:underline cursor-pointer"
-              >
-                <Plus className="w-3 h-3" />
-                <span>Add Event</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => fetchHolidays(selectedYear, true)}
+                  disabled={loadingHolidays}
+                  title="Refresh Singapore Public Holidays from MOM"
+                  className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-500 dark:text-slate-400 hover:text-[#0f2ea2] dark:hover:text-blue-400 transition-colors cursor-pointer"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${loadingHolidays ? 'animate-spin' : ''}`} />
+                  <span>Refresh</span>
+                </button>
+                <span className="text-slate-300 dark:text-slate-700">·</span>
+                <button
+                  onClick={() => setShowAddModal(true)}
+                  className="inline-flex items-center gap-1 text-[11px] font-bold text-[#0f2ea2] dark:text-blue-400 hover:underline cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Add Event</span>
+                </button>
+              </div>
             </div>
 
-            {/* Filter Pills */}
-            <div className="grid grid-cols-3 gap-1 bg-slate-100 dark:bg-slate-950 p-1 rounded-xl mb-3">
-              <button
-                onClick={() => setEventCategoryFilter('all')}
-                className={`py-1.5 text-[11px] font-bold rounded-lg transition-all text-center ${
-                  eventCategoryFilter === 'all'
-                    ? 'bg-white dark:bg-slate-800 text-[#0f2ea2] dark:text-blue-400 shadow-sm'
-                    : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
-                }`}
+            {/* Filter Pills & Year Selector */}
+            <div className="flex items-center gap-1.5 mb-3">
+              <div className="grid grid-cols-3 gap-1 bg-slate-100 dark:bg-slate-950 p-1 rounded-xl flex-1">
+                <button
+                  onClick={() => setEventCategoryFilter('all')}
+                  className={`py-1.5 text-[11px] font-bold rounded-lg transition-all text-center ${
+                    eventCategoryFilter === 'all'
+                      ? 'bg-white dark:bg-slate-800 text-[#0f2ea2] dark:text-blue-400 shadow-sm'
+                      : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  All ({combinedEvents.length})
+                </button>
+                <button
+                  onClick={() => setEventCategoryFilter('public_holiday')}
+                  className={`py-1.5 text-[11px] font-bold rounded-lg transition-all text-center ${
+                    eventCategoryFilter === 'public_holiday'
+                      ? 'bg-white dark:bg-slate-800 text-[#0f2ea2] dark:text-blue-400 shadow-sm'
+                      : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  Public ({holidays.length})
+                </button>
+                <button
+                  onClick={() => setEventCategoryFilter('custom')}
+                  className={`py-1.5 text-[11px] font-bold rounded-lg transition-all text-center ${
+                    eventCategoryFilter === 'custom'
+                      ? 'bg-white dark:bg-slate-800 text-[#0f2ea2] dark:text-blue-400 shadow-sm'
+                      : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  Custom ({customEvents.length})
+                </button>
+              </div>
+
+              <select
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(e.target.value)}
+                title="Select Calendar Year"
+                className="bg-slate-100 dark:bg-slate-950 text-slate-700 dark:text-slate-300 text-[11px] font-bold py-1.5 px-2 rounded-xl border border-transparent hover:border-slate-300 dark:hover:border-slate-700 focus:outline-none cursor-pointer shrink-0"
               >
-                All ({combinedEvents.length})
-              </button>
-              <button
-                onClick={() => setEventCategoryFilter('public_holiday')}
-                className={`py-1.5 text-[11px] font-bold rounded-lg transition-all text-center ${
-                  eventCategoryFilter === 'public_holiday'
-                    ? 'bg-white dark:bg-slate-800 text-[#0f2ea2] dark:text-blue-400 shadow-sm'
-                    : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
-                }`}
-              >
-                Public ({holidays.length})
-              </button>
-              <button
-                onClick={() => setEventCategoryFilter('custom')}
-                className={`py-1.5 text-[11px] font-bold rounded-lg transition-all text-center ${
-                  eventCategoryFilter === 'custom'
-                    ? 'bg-white dark:bg-slate-800 text-[#0f2ea2] dark:text-blue-400 shadow-sm'
-                    : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
-                }`}
-              >
-                Custom ({customEvents.length})
-              </button>
+                <option value="2026">2026</option>
+                <option value="2025">2025</option>
+                <option value="2027">2027</option>
+                <option value="all">All</option>
+              </select>
             </div>
 
             {loadingHolidays ? (
@@ -725,7 +700,17 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
                     <Layers className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
                     Official Brother SG Banner Graphic (SVG)
                   </h4>
-                  <span className="text-[10px] font-mono text-[#0f2ea2] dark:text-blue-400">1200 × 500 Responsive</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-mono text-[#0f2ea2] dark:text-blue-400 hidden sm:inline">1200 × 500 Responsive</span>
+                    <button
+                      onClick={handleDownloadSvg}
+                      className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-700 dark:text-slate-300 hover:text-[#0f2ea2] dark:hover:text-blue-400 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
+                      title="Download SVG Banner"
+                    >
+                      <Download className="w-3 h-3" />
+                      <span>SVG Banner</span>
+                    </button>
+                  </div>
                 </div>
 
                 <div className="w-full rounded-xl sm:rounded-2xl overflow-hidden shadow-md border border-slate-200 dark:border-slate-800 bg-slate-950 flex items-center justify-center">
