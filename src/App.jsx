@@ -59,6 +59,22 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('home'); 
   const [isDark, setIsDark] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    try {
+      return safeGetItem('brother_sidebar_collapsed') === 'true';
+    } catch (e) {
+      return false;
+    }
+  });
+
+  const toggleSidebarCollapsed = () => {
+    setSidebarCollapsed((prev) => {
+      const next = !prev;
+      safeSetItem('brother_sidebar_collapsed', String(next));
+      return next;
+    });
+  };
+
   const [draftStudioPayload, setDraftStudioPayload] = useState({ content: '', title: '' });
 
   // Authentication State
@@ -160,6 +176,8 @@ export default function App() {
         onLogout={handleLogout}
         mobileMenuOpen={mobileMenuOpen}
         setMobileMenuOpen={setMobileMenuOpen}
+        sidebarCollapsed={sidebarCollapsed}
+        onToggleCollapse={toggleSidebarCollapsed}
       />
 
       {/* Main Column: Top Breadcrumb Bar + Dynamic Workspace */}
@@ -173,6 +191,8 @@ export default function App() {
           currentUser={currentUser}
           mobileMenuOpen={mobileMenuOpen}
           setMobileMenuOpen={setMobileMenuOpen}
+          sidebarCollapsed={sidebarCollapsed}
+          onToggleCollapse={toggleSidebarCollapsed}
         />
 
         {/* Dynamic Main Workspace Content */}

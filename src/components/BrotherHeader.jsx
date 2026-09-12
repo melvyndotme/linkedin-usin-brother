@@ -15,7 +15,8 @@ import {
   Sliders,
   Share2,
   CheckCircle2,
-  Sparkles
+  Sparkles,
+  PanelLeft
 } from 'lucide-react';
 
 const TAB_CONFIG = {
@@ -36,7 +37,9 @@ export default function BrotherHeader({
   setActiveTab,
   currentUser, 
   mobileMenuOpen, 
-  setMobileMenuOpen 
+  setMobileMenuOpen,
+  sidebarCollapsed,
+  onToggleCollapse
 }) {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [unread, setUnread] = useState(true);
@@ -65,16 +68,32 @@ export default function BrotherHeader({
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14 sm:h-16">
           
-          {/* Left: Mobile Toggle & Sendpilot-Style Breadcrumbs */}
-          <div className="flex items-center gap-3">
+          {/* Left: Mobile Toggle, Desktop Collapse Toggle & Breadcrumbs */}
+          <div className="flex items-center gap-2 sm:gap-3">
             {/* Mobile Menu Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-1.5 -ml-1 text-slate-500 hover:text-slate-800 dark:hover:text-white rounded-lg lg:hidden transition-colors cursor-pointer"
+              className={`p-1.5 -ml-1 rounded-lg lg:hidden transition-colors cursor-pointer flex items-center justify-center ${
+                mobileMenuOpen
+                  ? 'bg-blue-50 text-[#0f2ea2] dark:bg-blue-950/60 dark:text-blue-300'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
+              }`}
               aria-label="Toggle navigation menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
+
+            {/* Desktop Sidebar Collapse Toggle */}
+            {onToggleCollapse && (
+              <button
+                onClick={onToggleCollapse}
+                className="hidden lg:flex p-1.5 -ml-1 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer items-center justify-center"
+                title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+                aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              >
+                <PanelLeft className={`w-4 h-4 transition-transform ${sidebarCollapsed ? 'rotate-180 text-[#0f2ea2] dark:text-blue-400' : 'text-slate-600 dark:text-slate-300'}`} />
+              </button>
+            )}
 
             {/* Breadcrumb Trail */}
             <div className="flex items-center gap-2 text-xs font-semibold">
