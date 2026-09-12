@@ -10,6 +10,7 @@ import DraftMediaStudio from './components/DraftMediaStudio.jsx';
 import NotionDatabaseHub from './components/NotionDatabaseHub.jsx';
 import TeamView from './components/TeamView.jsx';
 import SettingsView from './components/SettingsView.jsx';
+import ProfileView from './components/ProfileView.jsx';
 import { safeGetItem, safeSetItem, safeRemoveItem } from './lib/storage.js';
 
 class ErrorBoundary extends Component {
@@ -139,6 +140,11 @@ export default function App() {
     setCurrentUser(null);
   };
 
+  const handleUpdateProfile = (updatedUser) => {
+    setCurrentUser(updatedUser);
+    safeSetItem('linkedusin_user', JSON.stringify(updatedUser));
+  };
+
   const handleNavigateToDraftStudio = (content, title) => {
     setDraftStudioPayload({ content, title });
     setActiveTab('draft-studio');
@@ -243,6 +249,14 @@ export default function App() {
 
             {activeTab === 'team' && (
               <TeamView isDark={isDark} />
+            )}
+
+            {activeTab === 'profile' && (
+              <ProfileView
+                isDark={isDark}
+                currentUser={currentUser}
+                onUpdateProfile={handleUpdateProfile}
+              />
             )}
 
             {activeTab === 'settings' && (

@@ -7,6 +7,7 @@ import {
   Edit3, 
   Database, 
   Users, 
+  User,
   Sliders, 
   LogOut, 
   X,
@@ -69,6 +70,7 @@ export default function Sidebar({
     {
       title: 'GENERAL',
       items: [
+        { id: 'profile', label: 'My Profile', icon: User },
         { id: 'settings', label: 'Integrations', icon: Sliders }
       ]
     }
@@ -160,15 +162,15 @@ export default function Sidebar({
 
             <div className="space-y-0.5">
               <button
-                onClick={() => handleSelectTab('settings')}
+                onClick={() => handleSelectTab('profile')}
                 className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-colors text-left cursor-pointer ${
-                  activeTab === 'settings'
+                  activeTab === 'profile'
                     ? 'bg-blue-50 text-[#0e2ea0]'
                     : 'text-slate-700 hover:bg-slate-100'
                 }`}
               >
-                <Sliders className="w-4 h-4 text-[#0e2ea0] shrink-0" />
-                <span>Integrations</span>
+                <User className="w-4 h-4 text-[#0e2ea0] shrink-0" />
+                <span>Edit Profile</span>
               </button>
 
               <div className="h-px bg-slate-100 my-1" />
@@ -302,15 +304,15 @@ export default function Sidebar({
 
             <div className="space-y-0.5">
               <button
-                onClick={() => handleSelectTab('settings')}
+                onClick={() => handleSelectTab('profile')}
                 className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-colors text-left cursor-pointer ${
-                  activeTab === 'settings'
+                  activeTab === 'profile'
                     ? 'bg-blue-50 text-[#0e2ea0]'
                     : 'text-slate-700 hover:bg-slate-100'
                 }`}
               >
-                <Sliders className="w-4 h-4 text-[#0e2ea0] shrink-0" />
-                <span>Integrations</span>
+                <User className="w-4 h-4 text-[#0e2ea0] shrink-0" />
+                <span>Edit Profile</span>
               </button>
 
               <div className="h-px bg-slate-100 my-1" />

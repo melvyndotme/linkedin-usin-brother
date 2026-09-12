@@ -16,7 +16,8 @@ import {
   Share2,
   CheckCircle2,
   Sparkles,
-  PanelLeft
+  PanelLeft,
+  User
 } from 'lucide-react';
 
 const TAB_CONFIG = {
@@ -27,6 +28,7 @@ const TAB_CONFIG = {
   'template-studio': { label: 'Template Ingestion', icon: Layers },
   'notion-hub': { label: 'Notion Database Hub', icon: Database },
   'team': { label: 'Team', icon: Users },
+  'profile': { label: 'My Profile', icon: User },
   'settings': { label: 'Integrations', icon: Sliders }
 };
 
