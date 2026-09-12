@@ -276,37 +276,20 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
                 </div>
               </div>
 
-              {/* Frontmatter YAML Preview */}
-              <div>
-                <span className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1.5">
-                  1. Frontmatter YAML Metadata
-                </span>
-                <pre className="bg-slate-950 border border-slate-800 rounded-xl p-3.5 font-mono text-xs text-emerald-300 overflow-x-auto custom-scrollbar">
-                  {selectedTemplate.frontmatterYaml}
-                </pre>
-              </div>
-
-              {/* Instructional Placeholder Body */}
-              <div>
-                <span className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1.5">
-                  2. Template with Instructional Placeholder Text (AI Prompt Structure)
-                </span>
-                <div className={`p-4 rounded-xl font-mono text-xs whitespace-pre-wrap leading-relaxed border max-h-64 overflow-y-auto custom-scrollbar ${
+              {/* Clean Template Blueprint Only */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                    Post Template Blueprint
+                  </span>
+                  <span className="text-[11px] text-slate-400">
+                    Use this structure to guide your post draft
+                  </span>
+                </div>
+                <div className={`p-5 rounded-xl font-mono text-xs whitespace-pre-wrap leading-relaxed border min-h-[320px] max-h-[500px] overflow-y-auto custom-scrollbar shadow-inner ${
                   isDark ? 'bg-slate-950 border-slate-800 text-slate-200' : 'bg-slate-50 border-slate-200 text-slate-800'
                 }`}>
                   {selectedTemplate.placeholderTemplate}
-                </div>
-              </div>
-
-              {/* Example AI Generated Post Output */}
-              <div>
-                <span className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1.5">
-                  3. Sample Live Post Generated with this Template
-                </span>
-                <div className={`p-4 rounded-xl text-xs whitespace-pre-wrap leading-relaxed border ${
-                  isDark ? 'bg-slate-950/60 border-slate-800 text-slate-300' : 'bg-slate-50/60 border-slate-200 text-slate-700'
-                }`}>
-                  {selectedTemplate.examplePost}
                 </div>
               </div>
             </div>
