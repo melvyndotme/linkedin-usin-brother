@@ -9,10 +9,9 @@ import {
   Users, 
   Sliders, 
   LogOut, 
-  X, 
-  ChevronsUpDown 
+  X,
+  ChevronsUpDown
 } from 'lucide-react';
-import { OFFICIAL_BROTHER_LOGO_URL } from '../lib/svgBrotherWebsiteTemplates.js';
 
 export default function Sidebar({ 
   activeTab, 
@@ -87,26 +86,18 @@ export default function Sidebar({
       {/* Top: Brother Brand Header */}
       <div className="p-4 sm:p-5 border-b border-white/10 shrink-0">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             <img
-              src={OFFICIAL_BROTHER_LOGO_URL}
-              alt="Brother Singapore"
-              className="w-8 h-8 rounded-lg object-contain bg-white p-0.5 shadow-sm shrink-0"
+              src="https://www.brother.com.hk/-/media/ap2/global/menu/logo.svg?rev=74b6da90ccc34b339b35490b0046e6fc"
+              alt="Brother • at your side"
+              className="h-8 w-auto object-contain shrink-0"
               onError={(e) => {
-                e.target.style.display = 'none';
+                e.target.src = '/brother-logo.svg';
               }}
             />
-            <div className="flex flex-col">
-              <div className="flex items-center gap-1.5">
-                <span className="font-black text-xl tracking-tighter leading-none text-white">brother</span>
-                <span className="text-[10px] uppercase font-bold tracking-widest px-1.5 py-0.5 rounded bg-white/20 text-white">
-                  Studio
-                </span>
-              </div>
-              <span className="text-[10px] font-normal italic tracking-wide text-blue-100/80 leading-none mt-1">
-                at your side
-              </span>
-            </div>
+            <span className="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded-lg bg-white/20 text-white border border-white/10">
+              Studio
+            </span>
           </div>
 
           {/* Mobile Close */}
