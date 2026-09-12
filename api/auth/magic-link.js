@@ -87,7 +87,7 @@ export default async function handler(req, res) {
   if (!matchedUser) {
     return res.status(403).json({
       success: false,
-      error: `Access Restricted: ${email} is not listed on the Brother Notion Team Whitelist. Please contact Allan Cheng or Chloe Lee to be added.`
+      error: `Access Restricted: ${email} is not listed on the Team List. Please contact Admin to be added.`
     });
   }
 

@@ -111,42 +111,43 @@ export default function LoginPage({ onLoginSuccess, isDark }) {
                 </button>
               </>
             ) : (
-              /* Magic Link Sent & 1-Click Access */
-              <div className="p-4 rounded-2xl bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-500/30 text-xs text-slate-800 dark:text-slate-200 space-y-4">
-                <div className="flex items-center gap-2 font-bold text-[#0f2ea2] dark:text-blue-400">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
-                  <span>Account Verified!</span>
+              /* Secure Magic Link Sent - User Must Click Link in Email */
+              <div className="p-5 rounded-2xl bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-500/30 text-xs text-slate-800 dark:text-slate-200 space-y-4 text-center">
+                <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto shadow-sm">
+                  <Mail className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
                 </div>
 
-                <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-blue-100 dark:border-slate-800 space-y-1">
-                  <div className="font-bold text-slate-900 dark:text-white text-xs">
-                    {magicSentData.user?.name || email}
-                  </div>
-                  <div className="text-[11px] text-slate-500 flex items-center justify-between">
-                    <span>{magicSentData.user?.email || email}</span>
-                    <span className="font-semibold text-[#0f2ea2] dark:text-blue-400 bg-blue-50 dark:bg-blue-950 px-2 py-0.5 rounded-md text-[10px]">
-                      {magicSentData.user?.role || 'User'}
-                    </span>
-                  </div>
+                <div className="space-y-1">
+                  <h3 className="font-bold text-slate-900 dark:text-white text-base">
+                    Check your email
+                  </h3>
+                  <p className="text-xs text-slate-600 dark:text-slate-300">
+                    We sent a secure magic sign-in link to:
+                  </p>
+                  <p className="font-bold text-[#0f2ea2] dark:text-blue-400 text-sm font-mono pt-0.5">
+                    {magicSentData.user?.email || email}
+                  </p>
                 </div>
 
-                {/* Instant 1-Click Direct Access */}
-                <button
-                  onClick={() => onLoginSuccess(magicSentData.user)}
-                  className="w-full flex items-center justify-center gap-2 bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold py-3 rounded-xl shadow-lg transition-all active:scale-95 cursor-pointer"
-                >
-                  <span>Enter LinkedUsIn Studio as {magicSentData.user?.name?.split(' ')[0] || 'User'}</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
+                <div className="p-3.5 bg-white dark:bg-slate-900 rounded-xl border border-blue-100 dark:border-slate-800 text-slate-600 dark:text-slate-400 text-[11px] leading-relaxed text-left space-y-1.5 shadow-sm">
+                  <div className="flex items-center gap-1.5 font-bold text-slate-800 dark:text-slate-200 text-xs">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span>Next steps to sign in:</span>
+                  </div>
+                  <ol className="list-decimal list-inside space-y-1 pl-1 text-[11px] text-slate-600 dark:text-slate-400">
+                    <li>Open your corporate inbox.</li>
+                    <li>Click the <strong>"Sign in to LinkedUsIn Studio"</strong> button in the email.</li>
+                    <li>Your session will be securely authenticated.</li>
+                  </ol>
+                </div>
 
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed text-center">
-                  A magic link has been dispatched to <strong>{magicSentData.user?.email || email}</strong> from <strong>linkusin@rs.bro-x.org</strong> via Resend. If your corporate email gateway delays delivery, you can use the button above to enter immediately.
-                </p>
-
-                <div className="pt-2 text-[10px] text-slate-400 border-t border-blue-100 dark:border-slate-800 text-center">
+                <div className="pt-2 text-[10px] text-slate-400 border-t border-blue-100 dark:border-slate-800 space-y-2">
+                  <p>
+                    Didn't receive the email? Check your junk/spam folder or try again in a few moments.
+                  </p>
                   <button
                     onClick={() => { setMagicSentData(null); setEmail(''); }}
-                    className="text-[#0f2ea2] dark:text-blue-400 hover:underline font-semibold cursor-pointer"
+                    className="text-[#0f2ea2] dark:text-blue-400 hover:underline font-semibold cursor-pointer text-xs"
                   >
                     ← Sign in with a different email
                   </button>
