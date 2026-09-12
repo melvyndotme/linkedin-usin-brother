@@ -334,7 +334,7 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
             <h3 className={`text-sm sm:text-base font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
               Ingest Post, Screenshot, or PDF to Train Templates
             </h3>
-            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 font-['Inter',sans-serif] mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               The multimodal engine analyzes structure, hook formula, tone, and formatting to extract reusable instructional placeholders.
             </p>
           </div>
@@ -510,7 +510,7 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
                           {tmpl.category}
                         </span>
                       </div>
-                      <p className="text-[11px] text-slate-600 dark:text-slate-400 font-['Inter',sans-serif] line-clamp-1">{tmpl.source}</p>
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400 line-clamp-1">{tmpl.source}</p>
                     </div>
                   );
                 })}
@@ -532,7 +532,7 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
                   <h3 className={`text-base sm:text-lg font-bold mt-0.5 ${isDark ? 'text-white' : 'text-slate-900'}`}>
                     {selectedTemplate.name}
                   </h3>
-                  <p className="text-sm sm:text-[14.5px] font-semibold text-slate-800 dark:text-slate-100 font-['Inter',sans-serif] leading-relaxed mt-1 tracking-tight">
+                  <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 leading-normal">
                     {selectedTemplate.description}
                   </p>
                 </div>

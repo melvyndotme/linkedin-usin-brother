@@ -64,7 +64,26 @@ export default async function handler(req, res) {
       });
     }
 
-    // 2. Insert all 4 team members into the discovered Team Database
+    // 2. Query existing team members to ensure idempotency and prevent duplicates
+    let existingEmails = new Set();
+    try {
+      const existingQuery = await fetch(`https://api.notion.com/v1/databases/${teamDb.id}/query`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ page_size: 100 })
+      });
+      if (existingQuery.ok) {
+        const existingJson = await existingQuery.json();
+        (existingJson.results || []).forEach(p => {
+          const email = (p.properties['Email']?.email || p.properties['Email']?.rich_text?.[0]?.plain_text || '').toLowerCase().trim();
+          if (email) existingEmails.add(email);
+        });
+      }
+    } catch (e) {
+      console.warn('Could not query existing team members in Notion:', e);
+    }
+
+    // 3. Insert only missing team members
     const members = [
       { name: 'Allan Cheng', email: 'allan.cheng@brother.com.sg' },
       { name: 'Chloe Lee', email: 'chloe.lee@brother.com.sg' },
@@ -73,9 +92,15 @@ export default async function handler(req, res) {
     ];
 
     let inserted = 0;
+    let skipped = 0;
     const errors = [];
 
     for (const member of members) {
+      if (existingEmails.has(member.email.toLowerCase().trim())) {
+        skipped++;
+        continue;
+      }
+
       const insertRes = await fetch('https://api.notion.com/v1/pages', {
         method: 'POST',
         headers,
@@ -103,10 +128,12 @@ export default async function handler(req, res) {
       }
     }
 
-    if (inserted > 0) {
+    if (inserted > 0 || skipped > 0) {
       return res.status(200).json({
         success: true,
-        message: `Success! Successfully inserted ${inserted} team members (Allan Cheng, Chloe Lee, Sean, Melvyn Tan) into your Notion Team Whitelist database!`
+        message: inserted > 0
+          ? `Success! Successfully inserted ${inserted} team members (${skipped} already present) into your Notion Team Whitelist database!`
+          : `All 4 team members (Allan Cheng, Chloe Lee, Sean, Melvyn Tan) are already present in your Notion Team Whitelist database.`
       });
     } else {
       return res.status(400).json({

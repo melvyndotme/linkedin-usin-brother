@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Users, 
   ShieldCheck, 
@@ -94,13 +94,24 @@ export default function TeamView({ isDark, currentUser, onNavigateToProfile }) {
     }
   };
 
-  const sortedMembers = [...teamMembers].sort((a, b) => {
-    let aVal = (a[sortBy] || '').toString().toLowerCase();
-    let bVal = (b[sortBy] || '').toString().toLowerCase();
-    if (aVal < bVal) return sortOrder === 'asc' ? -1 : 1;
-    if (aVal > bVal) return sortOrder === 'asc' ? 1 : -1;
-    return 0;
-  });
+  const sortedMembers = useMemo(() => {
+    const seen = new Set();
+    const unique = [];
+    for (const member of teamMembers) {
+      const key = (member.email || member.name || member.id || '').trim().toLowerCase();
+      if (!key || seen.has(key)) continue;
+      seen.add(key);
+      unique.push(member);
+    }
+
+    return unique.sort((a, b) => {
+      let aVal = (a[sortBy] || '').toString().toLowerCase();
+      let bVal = (b[sortBy] || '').toString().toLowerCase();
+      if (aVal < bVal) return sortOrder === 'asc' ? -1 : 1;
+      if (aVal > bVal) return sortOrder === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }, [teamMembers, sortBy, sortOrder]);
 
   const checkIsSelf = (member) => {
     if (!currentUser) return false;
@@ -128,8 +139,17 @@ export default function TeamView({ isDark, currentUser, onNavigateToProfile }) {
         })
       });
       const data = await res.json();
-      if (res.ok && data.success && data.members?.length > 0) {
-        setTeamMembers(data.members);
+      if (res.ok && data.success && Array.isArray(data.members)) {
+        const seen = new Set();
+        const unique = data.members.filter((m) => {
+          const key = (m.email || m.name || m.id || '').trim().toLowerCase();
+          if (!key || seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+        if (unique.length > 0) {
+          setTeamMembers(unique);
+        }
         setLastSynced(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
       }
     } catch (e) {

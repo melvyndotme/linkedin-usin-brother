@@ -41,7 +41,43 @@ export default async function handler(req, res) {
       });
     }
 
-    const members = (data.results || []).map((page) => {
+    const seenKeys = new Set();
+    const duplicatePageIds = [];
+    const uniquePages = [];
+
+    for (const page of data.results || []) {
+      const name = page.properties['Name']?.title?.[0]?.plain_text || page.properties['Name']?.title?.[0]?.text?.content || '';
+      const email = (page.properties['Email']?.email || page.properties['Email']?.rich_text?.[0]?.plain_text || '').trim();
+      const key = (email || name || page.id).toLowerCase();
+
+      if (key && seenKeys.has(key)) {
+        duplicatePageIds.push(page.id);
+        continue;
+      }
+      if (key) {
+        seenKeys.add(key);
+      }
+      uniquePages.push(page);
+    }
+
+    // Clean up duplicate records in Notion asynchronously
+    if (duplicatePageIds.length > 0 && apiKey) {
+      Promise.allSettled(
+        duplicatePageIds.map((dupId) =>
+          fetch(`https://api.notion.com/v1/pages/${dupId}`, {
+            method: 'PATCH',
+            headers: {
+              'Authorization': `Bearer ${apiKey}`,
+              'Notion-Version': '2022-06-28',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ archived: true })
+          })
+        )
+      ).catch((err) => console.warn('Could not archive duplicate Notion pages:', err));
+    }
+
+    const members = uniquePages.map((page) => {
       const name = page.properties['Name']?.title?.[0]?.plain_text || page.properties['Name']?.title?.[0]?.text?.content || 'Unnamed';
       const email = page.properties['Email']?.email || page.properties['Email']?.rich_text?.[0]?.plain_text || '';
       const active = page.properties['Active']?.checkbox ?? true;
