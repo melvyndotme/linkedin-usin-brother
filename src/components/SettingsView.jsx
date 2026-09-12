@@ -575,58 +575,26 @@ export default function SettingsView({ isDark }) {
             <div className="flex items-center gap-2">
               <Key className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
               <h3 className="text-xs font-bold text-cyan-900 dark:text-cyan-300 uppercase tracking-wider">
-                Serper Google News & Search Integration
+                Google News Search (Serper Integration)
               </h3>
             </div>
-            <span className="text-[10px] font-mono bg-cyan-700 text-white px-2 py-0.5 rounded-full font-bold">
-              Module 2 Engine
-            </span>
           </div>
 
           <p className="text-xs text-slate-600 dark:text-slate-400">
-            Used by <strong>Module 2 (News & Trends)</strong> to search real-time Google News across your customizable keywords and brand topics within flexible timeframes (24h, 48h, 7d, 1mo).
+            Enables live Google News search for industry articles, competitors, and trending topics to generate timely LinkedIn posts in <strong>News & Intel</strong>.
           </p>
 
           <div>
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-              Serper Search Connection Key
+              Serper API Key
             </label>
             <input
               type="password"
               value={serperKey}
               onChange={(e) => updateSetting('key_serper', e.target.value, setSerperKey)}
-              placeholder="Paste Serper Search Connection Key"
+              placeholder="Paste Serper API Key"
               className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none"
             />
-          </div>
-
-          {/* Active Keywords pills */}
-          <div className="pt-2 border-t border-cyan-200/50 dark:border-cyan-900/40">
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
-                Active Monitored Keywords in Module 2:
-              </span>
-              <span className="text-[10px] text-cyan-700 dark:text-cyan-400 font-semibold">
-                Customizable in News & Trends
-              </span>
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              <span className="text-[10px] px-2 py-0.5 rounded-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 font-medium text-slate-700 dark:text-slate-300">
-                enterprise agentic AI <span className="text-slate-400 font-mono text-[9px]">(24h)</span>
-              </span>
-              <span className="text-[10px] px-2 py-0.5 rounded-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 font-medium text-slate-700 dark:text-slate-300">
-                workplace productivity <span className="text-slate-400 font-mono text-[9px]">(48h)</span>
-              </span>
-              <span className="text-[10px] px-2 py-0.5 rounded-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 font-medium text-slate-700 dark:text-slate-300">
-                smart document automation <span className="text-slate-400 font-mono text-[9px]">(7d)</span>
-              </span>
-              <span className="text-[10px] px-2 py-0.5 rounded-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 font-medium text-slate-700 dark:text-slate-300">
-                Brother Singapore <span className="text-slate-400 font-mono text-[9px]">(24h)</span>
-              </span>
-              <span className="text-[10px] px-2 py-0.5 rounded-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 font-medium text-slate-700 dark:text-slate-300">
-                epson singapore <span className="text-slate-400 font-mono text-[9px]">(1mo)</span>
-              </span>
-            </div>
           </div>
         </div>
 
