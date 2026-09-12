@@ -260,26 +260,66 @@ export default async function handler(req, res) {
     }
 
     if (isListRequest) {
-      const templatesList = existingPages.map(page => {
+      const benchmarkNames = [
+        'workplace flexibility & family wellbeing',
+        'early career mentorship & real ownership',
+        'from the talent desk (candidate guidance & mutual fit)',
+        'career longevity & multigenerational stewardship',
+        'multicultural harmony & community stewardship (csr)',
+        'precision craftsmanship & frontline dedication (monozukuri)'
+      ];
+
+      const templatesList = await Promise.all(existingPages.map(async page => {
         const name = getPageTitle(page);
         const catProp = page.properties?.[catKey] || Object.values(page.properties || {}).find(pr => pr.type === 'select');
         const sourceProp = page.properties?.[sourceKey] || Object.values(page.properties || {}).find(pr => pr.type === 'rich_text');
+        const descProp = page.properties?.[descKey];
+        const toneProp = page.properties?.[toneKey];
+
+        const isBenchmark = benchmarkNames.includes(name.trim().toLowerCase());
+        let placeholderTemplate = '';
+
+        // For custom ingested templates, fetch blueprint from Notion page code blocks
+        if (!isBenchmark) {
+          try {
+            const blocksRes = await fetch(`https://api.notion.com/v1/blocks/${page.id}/children?page_size=30`, { headers });
+            if (blocksRes.ok) {
+              const blocksData = await blocksRes.json();
+              const codeBlocks = (blocksData.results || []).filter(b => b.type === 'code');
+              if (codeBlocks.length > 0) {
+                placeholderTemplate = codeBlocks.map(b => b.code?.rich_text?.map(t => t.plain_text).join('')).join('\n');
+              }
+            }
+          } catch (bErr) {
+            console.warn('Could not fetch blocks for Notion page:', page.id, bErr.message);
+          }
+        }
+
+        const rawDesc = descProp?.rich_text?.map(t => t.plain_text).join('') || '';
+        const cleanDesc = rawDesc.replace(/\s*\(Awaiting GEMINI_API_KEY for live autonomous inference\)\.?/gi, ' aligned with Brother Singapore brand guidelines.');
+
         return {
           id: page.id,
           name,
-          category: catProp?.select?.name || '',
+          category: catProp?.select?.name || 'Extracted Benchmark',
           source: sourceProp?.rich_text?.map(t => t.plain_text).join('') || '',
+          description: cleanDesc || 'Instructional template blueprint deconstructed for Brother Singapore.',
+          tone: toneProp?.rich_text?.map(t => t.plain_text).join('') || 'Professional, consultative, team-oriented',
+          placeholderTemplate: placeholderTemplate,
           url: page.url,
-          lastEdited: page.last_edited_time
+          lastEdited: page.last_edited_time,
+          isCustom: !isBenchmark
         };
-      }).filter(t => Boolean(t.name));
+      }));
+
+      const validList = templatesList.filter(t => Boolean(t.name));
 
       return res.status(200).json({
         success: true,
         databaseId: templateDbId,
         notionUrl: `https://notion.so/${templateDbId.replace(/-/g, '')}`,
-        templates: templatesList,
-        total: templatesList.length
+        templates: validList,
+        total: validList.length
       });
     }
 

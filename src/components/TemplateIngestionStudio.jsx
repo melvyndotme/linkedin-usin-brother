@@ -7,9 +7,33 @@ import { BENCHMARK_TEMPLATES, extractTemplateFromInput } from '../lib/templateEx
 import { safeGetItem } from '../lib/storage.js';
 
 export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDrafting }) {
+  const getInitialTemplates = () => {
+    try {
+      const stored = localStorage.getItem('custom_ingested_templates');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const list = [...parsed];
+          for (const b of BENCHMARK_TEMPLATES) {
+            if (!list.some(t => t.name?.trim().toLowerCase() === b.name?.trim().toLowerCase())) {
+              list.push(b);
+            }
+          }
+          return list;
+        }
+      }
+    } catch (e) {
+      console.warn('Could not read stored templates:', e);
+    }
+    return BENCHMARK_TEMPLATES;
+  };
+
   const [activeTab, setActiveTab] = useState('library'); // 'library' or 'ingest'
-  const [templates, setTemplates] = useState(BENCHMARK_TEMPLATES);
-  const [selectedTemplate, setSelectedTemplate] = useState(BENCHMARK_TEMPLATES[0]);
+  const [templates, setTemplates] = useState(getInitialTemplates);
+  const [selectedTemplate, setSelectedTemplate] = useState(() => {
+    const init = getInitialTemplates();
+    return init[0] || BENCHMARK_TEMPLATES[0];
+  });
   const [copied, setCopied] = useState(false);
   const blueprintRef = useRef(null);
 
@@ -50,6 +74,58 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
         const data = await res.json();
         if (data.success && Array.isArray(data.templates)) {
           setNotionTemplates(data.templates);
+
+          // Find custom templates from Notion that aren't built-in benchmarks
+          const customFromNotion = data.templates.filter(nt => {
+            const norm = nt.name?.trim().toLowerCase();
+            return !BENCHMARK_TEMPLATES.some(b => b.name?.trim().toLowerCase() === norm);
+          }).map(nt => ({
+            id: nt.id,
+            name: nt.name,
+            category: nt.category || 'Extracted Benchmark',
+            source: nt.source || 'Live Post Ingestion',
+            description: nt.description || 'Instructional template blueprint deconstructed for Brother Singapore.',
+            tone: nt.tone || 'Respectful, consultative, team-oriented',
+            placeholderTemplate: nt.placeholderTemplate || `[Insert Hook: Highlight an operational reality, thought-provoking question, or cultural reflection within 120 characters]
+
+[State the Communal Context: Explain the workplace friction or challenge being solved without self-congratulation]
+
+Key Reflections & Takeaways:
+🔹 [Point 1: Concrete achievement, craft mastery, or precision reliability]
+🔹 [Point 2: Cross-team collaboration and collective harmony (Wa)]
+🔹 [Point 3: Long-term capability building and sustainability]
+
+[Brother Connection: Connect back to our 'At your side' commitment with quiet dedication and integrity]
+
+[Insert Call to Action: Sincere, consultative question inviting community perspectives 👇]
+
+#BrotherSingapore #AtYourSide #LifeAtBrother #WorkplaceHarmony`,
+            isNotionSynced: true
+          }));
+
+          if (customFromNotion.length > 0) {
+            setTemplates(prev => {
+              const combined = [...customFromNotion];
+              for (const p of prev) {
+                if (!combined.some(c => c.name?.trim().toLowerCase() === p.name?.trim().toLowerCase())) {
+                  combined.push(p);
+                }
+              }
+              // Save to localStorage for instant reload
+              try {
+                localStorage.setItem('custom_ingested_templates', JSON.stringify(combined.filter(t => !BENCHMARK_TEMPLATES.some(b => b.id === t.id))));
+              } catch (_) {}
+              return combined;
+            });
+
+            // If current selected template is just the default first benchmark, select the user's custom template
+            setSelectedTemplate(current => {
+              if (!current || current.id === BENCHMARK_TEMPLATES[0].id) {
+                return customFromNotion[0];
+              }
+              return current;
+            });
+          }
         }
       }
     } catch (e) {
@@ -170,9 +246,14 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
           return [...filtered, newEntry];
         });
 
-        // Add to local state if not already present
+        // Add to local state and persist if not already present
         if (!templates.some(t => t.id === tmplToSave.id)) {
-          setTemplates([tmplToSave, ...templates]);
+          const updated = [tmplToSave, ...templates];
+          setTemplates(updated);
+          try {
+            const customOnly = updated.filter(t => !BENCHMARK_TEMPLATES.some(b => b.id === t.id));
+            localStorage.setItem('custom_ingested_templates', JSON.stringify(customOnly));
+          } catch (_) {}
         }
         setSelectedTemplate(tmplToSave);
       } else {
@@ -240,7 +321,12 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
     if (justExtractedTemplate) {
       // Also allow user to add it to working session without Notion if desired
       if (!templates.some(t => t.id === justExtractedTemplate.id)) {
-        setTemplates([justExtractedTemplate, ...templates]);
+        const updated = [justExtractedTemplate, ...templates];
+        setTemplates(updated);
+        try {
+          const customOnly = updated.filter(t => !BENCHMARK_TEMPLATES.some(b => b.id === t.id));
+          localStorage.setItem('custom_ingested_templates', JSON.stringify(customOnly));
+        } catch (_) {}
       }
       setSelectedTemplate(justExtractedTemplate);
     }
