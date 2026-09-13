@@ -327,6 +327,28 @@ export default async function handler(req, res) {
         });
       }
 
+      // Embedded Visual / Slide Asset from Vercel Blob if present
+      if (post.imageUrl || post.mediaUrl) {
+        const visualUrl = post.imageUrl || post.mediaUrl;
+        blocks.push({
+          object: 'block',
+          type: 'heading_2',
+          heading_2: {
+            rich_text: [{ type: 'text', text: { content: '🖼️ Attached Visual Asset' } }]
+          }
+        });
+        blocks.push({
+          object: 'block',
+          type: 'image',
+          image: {
+            type: 'external',
+            external: {
+              url: visualUrl
+            }
+          }
+        });
+      }
+
       return blocks;
     };
 

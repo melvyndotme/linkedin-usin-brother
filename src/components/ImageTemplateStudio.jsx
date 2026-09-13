@@ -22,7 +22,9 @@ import {
   X,
   AlertCircle,
   Coins,
-  Info
+  Info,
+  Cloud,
+  Database
 } from 'lucide-react';
 import { 
   OFFICIAL_BROTHER_ASSETS,
@@ -62,6 +64,9 @@ export default function ImageTemplateStudio({
     return saved;
   });
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [cloudSaving, setCloudSaving] = useState(false);
+  const [cloudSuccess, setCloudSuccess] = useState(null);
+  const [cloudError, setCloudError] = useState(null);
 
   // Custom text overlay editor state
   const [showTextEditor, setShowTextEditor] = useState(false);
@@ -255,6 +260,90 @@ export default function ImageTemplateStudio({
     }
   };
 
+  // Save current slide to Vercel Blob storage and Notion
+  const handleSaveToCloud = async () => {
+    setCloudSaving(true);
+    setCloudError(null);
+    setCloudSuccess(null);
+    try {
+      const dataUrl = await renderSlideToCanvas({
+        slide: currentSlide,
+        photoUrl: currentPhoto,
+        aspectRatio
+      });
+
+      if (!dataUrl) {
+        throw new Error('Could not render canvas to image data.');
+      }
+
+      const eventSlug = (occasion?.name || 'brother-sg').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      const filename = `${eventSlug}-slide-${currentSlide.slideIndex}.png`;
+
+      // 1. Upload to Vercel Blob
+      const blobRes = await fetch('/api/blob', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          filename,
+          imageBase64: dataUrl,
+          access: 'private'
+        })
+      });
+
+      const blobData = await blobRes.json();
+      if (!blobRes.ok || !blobData.success) {
+        throw new Error(blobData.error || 'Failed to upload to Vercel Blob storage.');
+      }
+
+      const visualUrl = blobData.publicUrl || blobData.url;
+
+      // 2. Optionally archive to Notion if token is present
+      const notionToken = safeGetItem('notion_token') || safeGetItem('token_notion');
+      const notionDb = safeGetItem('notion_database_id') || '3c701136de4881de9d29ca4ea415e856';
+
+      let notionUrl = null;
+      if (notionToken) {
+        try {
+          const syncRes = await fetch('/api/notion/sync', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              apiKey: notionToken,
+              databaseId: notionDb,
+              post: {
+                title: `${occasion?.name || 'Brother SG'} - Slide ${currentSlide.slideIndex} (${currentSlide.roleTitle})`,
+                content: activeDraft?.post || currentSlide.headline,
+                imageUrl: visualUrl,
+                category: occasion?.category || 'AI & Employer Branding',
+                status: 'Draft',
+                author: 'Allan Cheng',
+                date: new Date().toISOString().split('T')[0]
+              }
+            })
+          });
+          const syncData = await syncRes.json();
+          if (syncData.success && syncData.url) {
+            notionUrl = syncData.url;
+          }
+        } catch (e) {
+          console.warn('Notion sync warning:', e);
+        }
+      }
+
+      setCloudSuccess({
+        imageUrl: visualUrl,
+        notionUrl,
+        message: notionUrl
+          ? 'Saved to Vercel Blob & Synced to Notion Page!'
+          : 'Stored in Vercel Blob Storage!'
+      });
+    } catch (err) {
+      setCloudError(err.message || 'Error saving to Vercel Blob.');
+    } finally {
+      setCloudSaving(false);
+    }
+  };
+
   return (
     <div className="space-y-4 pt-2">
       {/* Studio Header Toolbar */}
@@ -331,6 +420,18 @@ export default function ImageTemplateStudio({
             <span>{downloading ? 'Exporting...' : 'Download PNG'}</span>
           </button>
 
+          {/* Cloud / Notion Save Button */}
+          <button
+            type="button"
+            onClick={handleSaveToCloud}
+            disabled={cloudSaving}
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 transition-all cursor-pointer disabled:opacity-50"
+            title="Save to Vercel Blob & Archive in Notion"
+          >
+            <Cloud className={`w-3.5 h-3.5 text-blue-600 dark:text-blue-400 ${cloudSaving ? 'animate-bounce' : ''}`} />
+            <span>{cloudSaving ? 'Saving...' : 'Save to Cloud / Notion'}</span>
+          </button>
+
           {aspectRatio === '1:1' && (
             <button
               type="button"
@@ -346,6 +447,50 @@ export default function ImageTemplateStudio({
           )}
         </div>
       </div>
+
+      {/* Cloud Save Feedback Banners */}
+      {cloudSuccess && (
+        <div className="flex items-center justify-between p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700/60 text-xs text-emerald-900 dark:text-emerald-200 animate-in fade-in duration-200">
+          <div className="flex items-center gap-2 min-w-0">
+            <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+            <span className="font-semibold">{cloudSuccess.message}</span>
+            {cloudSuccess.notionUrl && (
+              <a
+                href={cloudSuccess.notionUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 font-bold text-[#0f2ea2] dark:text-blue-400 underline ml-1"
+              >
+                <span>Open in Notion</span>
+                <ExternalLink className="w-3 h-3" />
+              </a>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={() => setCloudSuccess(null)}
+            className="text-emerald-700 hover:text-emerald-950 dark:text-emerald-300 dark:hover:text-white p-0.5"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+
+      {cloudError && (
+        <div className="flex items-center justify-between p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-700/60 text-xs text-rose-900 dark:text-rose-200 animate-in fade-in duration-200">
+          <div className="flex items-center gap-2 min-w-0">
+            <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
+            <span>{cloudError}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setCloudError(null)}
+            className="text-rose-700 hover:text-rose-950 dark:text-rose-300 dark:hover:text-white p-0.5"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
 
       {/* 5-Slide Carousel Navigation Tabs (Only in 1:1 Carousel Mode) */}
       {aspectRatio === '1:1' && (
