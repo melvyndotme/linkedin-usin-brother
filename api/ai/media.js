@@ -70,7 +70,7 @@ export default async function handler(req, res) {
     try {
       // Candidate image generation endpoints for Google AI Studio / Gemini
       const candidateEndpoints = [
-        `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-fast-generate-001:predict?key=${apiKey}`,
         `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict?key=${apiKey}`
       ];
 
@@ -97,7 +97,7 @@ export default async function handler(req, res) {
             if (b64) {
               return res.status(200).json({
                 success: true,
-                source: 'imagen-3',
+                source: 'google-ai',
                 modelUsed: model,
                 imageUrl: `data:image/jpeg;base64,${b64}`,
                 prompt: enhancedPrompt

@@ -49,7 +49,17 @@ export default function ImageTemplateStudio({
 
   // AI model selector and token advisory alert
   const [selectedAiModel, setSelectedAiModel] = useState(() => {
-    return safeGetItem('model_gemini_image') || 'gemini-3.1-flash-image';
+    const validModels = [
+      'gemini-3.1-flash-image',
+      'gemini-3-pro-image',
+      'gemini-2.5-flash-image',
+      'gemini-3.1-flash-lite-image'
+    ];
+    const saved = safeGetItem('model_gemini_image');
+    if (!validModels.includes(saved)) {
+      return 'gemini-3.1-flash-image';
+    }
+    return saved;
   });
   const [showTokenAlert, setShowTokenAlert] = useState(false);
 
@@ -589,7 +599,6 @@ export default function ImageTemplateStudio({
                 <option value="gemini-3-pro-image">gemini-3-pro-image</option>
                 <option value="gemini-2.5-flash-image">gemini-2.5-flash-image</option>
                 <option value="gemini-3.1-flash-lite-image">gemini-3.1-flash-lite-image</option>
-                <option value="imagen-3.0-generate-002">imagen-3.0-generate-002</option>
               </select>
             </div>
 
@@ -761,7 +770,7 @@ export default function ImageTemplateStudio({
                     <strong>How to wire it up:</strong> Go to <a href="https://aistudio.google.com" target="_blank" rel="noreferrer" className="text-[#0f2ea2] dark:text-blue-400 underline font-semibold">aistudio.google.com</a>, link a Google Cloud billing account (Pay-As-You-Go Tier 1), generate an API key, and paste it into <strong>Settings &gt; Gemini Engine Key</strong>.
                   </li>
                   <li>
-                    <strong>Supported Models:</strong> You can select between <code>gemini-3.1-flash-image</code>, <code>gemini-3-pro-image</code>, <code>gemini-2.5-flash-image</code>, <code>gemini-3.1-flash-lite-image</code>, or <code>imagen-3.0-generate-002</code>.
+                    <strong>Supported Models:</strong> You can select between <code>gemini-3.1-flash-image</code>, <code>gemini-3-pro-image</code>, <code>gemini-2.5-flash-image</code>, or <code>gemini-3.1-flash-lite-image</code>.
                   </li>
                 </ul>
               </div>
