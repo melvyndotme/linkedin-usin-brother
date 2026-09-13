@@ -392,7 +392,8 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
                 content: currentDraft.postContent || currentDraft.post,
                 title: activeNews?.headline || 'News & Trends',
                 occasion: newsOccasion,
-                activeDraft: formattedDraftForStudio
+                activeDraft: formattedDraftForStudio,
+                availableDrafts: baseDrafts
               })}
               className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md transition-all active:scale-95"
             >
@@ -894,7 +895,8 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
                           content: currentDraft.postContent || currentDraft.post,
                           title: activeNews?.headline || 'News & Trends',
                           occasion: newsOccasion,
-                          activeDraft: formattedDraftForStudio
+                          activeDraft: formattedDraftForStudio,
+                          availableDrafts: baseDrafts
                         })}
                         className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
                       >

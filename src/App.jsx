@@ -191,8 +191,18 @@ export default function App() {
         name: template.name,
         post: template.examplePost || '',
         postContent: template.examplePost || '',
-        whyThisWorks: template.strategicRationale || 'Standard Brother Singapore benchmark template.'
-      }
+        whyThisWorks: template.strategicRationale || template.description || 'Standard Brother Singapore benchmark template.'
+      },
+      availableDrafts: [
+        {
+          id: template.id || `draft-${template.id || Date.now()}`,
+          name: template.name,
+          category: template.category,
+          whyThisWorks: template.strategicRationale || template.description,
+          post: template.examplePost || '',
+          postContent: template.examplePost || ''
+        }
+      ]
     };
     handleNavigateToDraftStudio(payload);
   };
@@ -292,6 +302,7 @@ export default function App() {
                 initialTitle={draftStudioPayload.title}
                 initialOccasion={draftStudioPayload.occasion}
                 initialDraft={draftStudioPayload.activeDraft}
+                initialAvailableDrafts={draftStudioPayload.availableDrafts}
                 onNavigateToSettings={() => setActiveTab('settings')}
               />
             )}

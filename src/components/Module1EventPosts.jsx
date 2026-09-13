@@ -626,7 +626,8 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
                         content: currentDraft.post,
                         title: `${selectedOccasion.name} ${selectedOccasion.year || 2026}`,
                         occasion: selectedOccasion,
-                        activeDraft: currentDraft
+                        activeDraft: currentDraft,
+                        availableDrafts: drafts
                       })}
                       className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
                     >

@@ -1,9 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Edit3, Send, CheckCircle2, Copy, Check, Sparkles, AlertCircle, Database, ExternalLink } from 'lucide-react';
+import { 
+  Edit3, Send, CheckCircle2, Copy, Check, Sparkles, AlertCircle, Database, 
+  ExternalLink, BookOpen, Layers, Search, X, Filter, ArrowRight 
+} from 'lucide-react';
 import NotionIcon from './icons/NotionIcon.jsx';
 import ImageTemplateStudio from './ImageTemplateStudio.jsx';
 import { publishToLinkedInApi } from '../lib/linkedInApi.js';
 import { safeGetItem, safeSetItem } from '../lib/storage.js';
+import { generateAIDrafts, generateFestiveDrafts } from '../lib/draftGenerator.js';
+import { BENCHMARK_TEMPLATES } from '../lib/templateExtractor.js';
 
 export default function DraftMediaStudio({ 
   isDark, 
@@ -11,6 +16,7 @@ export default function DraftMediaStudio({
   initialTitle, 
   initialOccasion, 
   initialDraft, 
+  initialAvailableDrafts,
   onNavigateToSettings 
 }) {
   const [title, setTitle] = useState(initialTitle || 'Singapore National Day 2026 Celebration');
@@ -28,6 +34,19 @@ To everyone celebrating, how is your team marking this special day? Share your f
 
   const [occasion, setOccasion] = useState(initialOccasion || null);
   const [activeDraft, setActiveDraft] = useState(initialDraft || null);
+  const [availableDrafts, setAvailableDrafts] = useState(initialAvailableDrafts || []);
+
+  const [selectedTemplateId, setSelectedTemplateId] = useState(
+    initialDraft?.id || initialDraft?.templateId || null
+  );
+  const [currentRationale, setCurrentRationale] = useState(
+    initialDraft?.whyThisWorks || ''
+  );
+
+  // Template Library Modal state
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
+  const [templateSearchQuery, setTemplateSearchQuery] = useState('');
+  const [templateCategoryFilter, setTemplateCategoryFilter] = useState('all');
 
   const [copied, setCopied] = useState(false);
   const [publishing, setPublishing] = useState(false);
@@ -57,10 +76,173 @@ To everyone celebrating, how is your team marking this special day? Share your f
   }, [initialOccasion]);
 
   useEffect(() => {
-    if (initialDraft !== undefined) {
+    if (initialDraft !== undefined && initialDraft !== null) {
       setActiveDraft(initialDraft);
+      setSelectedTemplateId(initialDraft.id || initialDraft.templateId || null);
+      if (initialDraft.whyThisWorks) {
+        setCurrentRationale(initialDraft.whyThisWorks);
+      }
     }
   }, [initialDraft]);
+
+  useEffect(() => {
+    if (initialAvailableDrafts && Array.isArray(initialAvailableDrafts) && initialAvailableDrafts.length > 0) {
+      setAvailableDrafts(initialAvailableDrafts);
+    }
+  }, [initialAvailableDrafts]);
+
+  // Read custom ingested templates from local storage
+  const getCustomIngestedTemplates = () => {
+    try {
+      const stored = localStorage.getItem('custom_ingested_templates');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch (e) {
+      console.warn('Could not read custom templates:', e);
+    }
+    return [];
+  };
+
+  // Derive contextual drafts for quick pill switching
+  const contextualDrafts = useMemo(() => {
+    if (availableDrafts && availableDrafts.length > 0) {
+      return availableDrafts;
+    }
+    if (occasion && occasion.eventType !== 'corporate' && occasion.name) {
+      return generateFestiveDrafts({
+        name: occasion.name,
+        culturalContext: occasion.details,
+        suggestedHashtags: occasion.suggestedHashtags
+      });
+    }
+    // Default AI strategy angles
+    return generateAIDrafts({
+      title: title || 'Workplace Innovation Breakthrough',
+      snippet: content || 'Recent breakthroughs in workplace technology are transforming daily operations.',
+      sourceTitle: 'Brother Singapore Intelligence'
+    });
+  }, [availableDrafts, occasion, title, content]);
+
+  // Set default active template if not set
+  useEffect(() => {
+    if (!selectedTemplateId && contextualDrafts.length > 0) {
+      const first = contextualDrafts[0];
+      setSelectedTemplateId(first.id || first.templateId || 'draft-0');
+      if (!currentRationale && (first.whyThisWorks || first.description)) {
+        setCurrentRationale(first.whyThisWorks || first.description);
+      }
+    }
+  }, [contextualDrafts, selectedTemplateId, currentRationale]);
+
+  // Full comprehensive template catalog for the library modal
+  const allLibraryTemplates = useMemo(() => {
+    const custom = getCustomIngestedTemplates();
+    const benchmark = BENCHMARK_TEMPLATES || [];
+    const combined = [];
+
+    // Add contextual drafts first
+    contextualDrafts.forEach((d, idx) => {
+      combined.push({
+        id: d.id || `context-draft-${idx}`,
+        name: d.name || d.templateName || `Strategy Angle #${idx + 1}`,
+        category: d.category || (occasion ? 'Festive & Cultural' : 'Thought Leadership & Strategy'),
+        tone: d.tone || 'Strategic & Authoritative',
+        whyThisWorks: d.whyThisWorks || d.description || d.angle || 'Tailored to drive engagement and executive clarity.',
+        post: d.postContent || d.post || '',
+        postContent: d.postContent || d.post || '',
+        isContextual: true
+      });
+    });
+
+    // Add benchmark templates
+    benchmark.forEach((b) => {
+      if (!combined.some(c => c.name?.trim().toLowerCase() === b.name?.trim().toLowerCase())) {
+        combined.push({
+          id: b.id,
+          name: b.name,
+          category: b.category,
+          tone: b.tone,
+          whyThisWorks: b.description,
+          post: b.examplePost || b.placeholderTemplate,
+          postContent: b.examplePost || b.placeholderTemplate,
+          isContextual: false
+        });
+      }
+    });
+
+    // Add custom ingested templates
+    custom.forEach((c) => {
+      if (!combined.some(item => item.name?.trim().toLowerCase() === c.name?.trim().toLowerCase())) {
+        combined.push({
+          id: c.id,
+          name: c.name,
+          category: c.category || 'Custom Ingested',
+          tone: c.tone || 'Culturally Calibrated',
+          whyThisWorks: c.description || 'Custom corporate benchmark template.',
+          post: c.examplePost || c.placeholderTemplate,
+          postContent: c.examplePost || c.placeholderTemplate,
+          isContextual: false
+        });
+      }
+    });
+
+    return combined;
+  }, [contextualDrafts, occasion]);
+
+  // Filtered templates for modal
+  const filteredTemplates = useMemo(() => {
+    return allLibraryTemplates.filter(tmpl => {
+      const matchesSearch = 
+        !templateSearchQuery ||
+        tmpl.name?.toLowerCase().includes(templateSearchQuery.toLowerCase()) ||
+        tmpl.category?.toLowerCase().includes(templateSearchQuery.toLowerCase()) ||
+        tmpl.whyThisWorks?.toLowerCase().includes(templateSearchQuery.toLowerCase());
+
+      if (!matchesSearch) return false;
+
+      if (templateCategoryFilter === 'all') return true;
+      if (templateCategoryFilter === 'thought-leadership') {
+        return tmpl.category?.toLowerCase().includes('thought leadership') || tmpl.category?.toLowerCase().includes('strategy') || tmpl.category?.toLowerCase().includes('executive');
+      }
+      if (templateCategoryFilter === 'employer-branding') {
+        return tmpl.category?.toLowerCase().includes('employer') || tmpl.category?.toLowerCase().includes('culture') || tmpl.category?.toLowerCase().includes('talent') || tmpl.category?.toLowerCase().includes('intern');
+      }
+      if (templateCategoryFilter === 'b2b-solutions') {
+        return tmpl.category?.toLowerCase().includes('b2b') || tmpl.category?.toLowerCase().includes('engineering') || tmpl.category?.toLowerCase().includes('operations');
+      }
+      if (templateCategoryFilter === 'sustainability') {
+        return tmpl.category?.toLowerCase().includes('sustainability') || tmpl.category?.toLowerCase().includes('esg') || tmpl.category?.toLowerCase().includes('green');
+      }
+      if (templateCategoryFilter === 'festive') {
+        return tmpl.category?.toLowerCase().includes('festive') || tmpl.category?.toLowerCase().includes('cultural') || tmpl.category?.toLowerCase().includes('community');
+      }
+      return true;
+    });
+  }, [allLibraryTemplates, templateSearchQuery, templateCategoryFilter]);
+
+  // Handle template selection
+  const handleSelectTemplate = (template, idx) => {
+    const text = template.postContent || template.post || template.examplePost || template.placeholderTemplate || '';
+    if (text) {
+      setContent(text);
+    }
+    const templateName = template.name || template.templateName || `Template #${idx + 1}`;
+    const id = template.id || `tmpl-${idx}`;
+    setSelectedTemplateId(id);
+    setCurrentRationale(template.whyThisWorks || template.description || template.angle || '');
+
+    setActiveDraft({
+      id,
+      name: templateName,
+      post: text,
+      postContent: text,
+      whyThisWorks: template.whyThisWorks || template.description || template.angle || ''
+    });
+
+    setShowTemplateModal(false);
+  };
 
   // Compute live effective occasion for ImageTemplateStudio
   const effectiveOccasion = useMemo(() => {
@@ -87,12 +269,12 @@ To everyone celebrating, how is your team marking this special day? Share your f
   const effectiveDraft = useMemo(() => {
     return {
       id: activeDraft?.id || 'active-draft',
-      name: title || activeDraft?.name || 'Community & Innovation',
+      name: activeDraft?.name || title || 'Community & Innovation',
       post: content,
       postContent: content,
-      whyThisWorks: activeDraft?.whyThisWorks || 'Crafted to drive professional engagement, corporate culture visibility, and workplace innovation.'
+      whyThisWorks: currentRationale || activeDraft?.whyThisWorks || 'Crafted to drive professional engagement, corporate culture visibility, and workplace innovation.'
     };
-  }, [activeDraft, title, content]);
+  }, [activeDraft, title, content, currentRationale]);
 
   // Persist draft to localStorage so edits survive page reloads and tab switches
   useEffect(() => {
@@ -100,9 +282,10 @@ To everyone celebrating, how is your team marking this special day? Share your f
       title,
       content,
       occasion: effectiveOccasion,
-      activeDraft: effectiveDraft
+      activeDraft: effectiveDraft,
+      availableDrafts: contextualDrafts
     }));
-  }, [title, content, effectiveOccasion, effectiveDraft]);
+  }, [title, content, effectiveOccasion, effectiveDraft, contextualDrafts]);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(content);
@@ -235,7 +418,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
               Post Copy & Visual Studio
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Fine-tune your narrative copy and craft multi-slide carousel visuals in real-time.
+              Choose from high-converting narrative templates and craft multi-slide carousel visuals in real-time.
             </p>
           </div>
 
@@ -386,16 +569,28 @@ To everyone celebrating, how is your team marking this special day? Share your f
               <h3 className={`text-xs font-bold uppercase tracking-wider ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
                 Editorial Post Copy
               </h3>
-              <button
-                type="button"
-                onClick={handleCopy}
-                className="inline-flex items-center gap-1 text-slate-500 hover:text-slate-800 dark:hover:text-white font-semibold text-xs cursor-pointer"
-              >
-                {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
-                <span>{copied ? 'Copied' : 'Copy Text'}</span>
-              </button>
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setShowTemplateModal(true)}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-[#0f2ea2] dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900 text-xs font-bold transition-all cursor-pointer border border-blue-200 dark:border-blue-800/60"
+                  title="Browse All Templates"
+                >
+                  <BookOpen className="w-3.5 h-3.5" />
+                  <span>Templates ({allLibraryTemplates.length})</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCopy}
+                  className="inline-flex items-center gap-1 text-slate-500 hover:text-slate-800 dark:hover:text-white font-semibold text-xs cursor-pointer px-2 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+                >
+                  {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span>{copied ? 'Copied' : 'Copy Text'}</span>
+                </button>
+              </div>
             </div>
 
+            {/* Campaign Name */}
             <div>
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                 Post Subject / Campaign Name
@@ -409,6 +604,62 @@ To everyone celebrating, how is your team marking this special day? Share your f
               />
             </div>
 
+            {/* Template Selector Section */}
+            <div className="space-y-2 pt-1 border-t border-slate-100 dark:border-slate-800/80">
+              <div className="flex items-center justify-between text-xs">
+                <label className="font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
+                  <span>Choose Post Template / Angle:</span>
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setShowTemplateModal(true)}
+                  className="text-[11px] font-bold text-[#0f2ea2] dark:text-blue-400 hover:underline flex items-center gap-1 cursor-pointer"
+                >
+                  <Layers className="w-3 h-3" />
+                  <span>Browse All ({allLibraryTemplates.length})</span>
+                </button>
+              </div>
+
+              {/* Quick Template Selector Pills */}
+              <div className="flex flex-wrap gap-1.5">
+                {contextualDrafts.map((d, idx) => {
+                  const isSelected = selectedTemplateId === (d.id || d.templateId) || (activeDraft?.name === d.name);
+                  return (
+                    <button
+                      key={d.id || idx}
+                      type="button"
+                      onClick={() => handleSelectTemplate(d, idx)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer border flex items-center gap-1.5 ${
+                        isSelected
+                          ? 'bg-[#0f2ea2] text-white border-[#0f2ea2] shadow-sm ring-2 ring-[#0f2ea2]/20'
+                          : isDark
+                          ? 'bg-slate-950 border-slate-800 text-slate-300 hover:bg-slate-800 hover:border-slate-700'
+                          : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100 hover:border-slate-300'
+                      }`}
+                    >
+                      <span className="opacity-70 text-[10px]">#{idx + 1}</span>
+                      <span>{d.name || d.templateName}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Strategic Rationale Banner */}
+              {currentRationale && (
+                <div className="bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-500/30 rounded-xl p-3">
+                  <div className="flex items-start gap-2">
+                    <Sparkles className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400 mt-0.5 shrink-0" />
+                    <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+                      <strong className="text-[#0f2ea2] dark:text-blue-300">Strategic Rationale: </strong>
+                      {currentRationale}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Post Copy (Markdown & Formatting) Textarea */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
@@ -468,6 +719,174 @@ To everyone celebrating, how is your team marking this special day? Share your f
           </div>
         </div>
       </div>
+
+      {/* Template Library Modal */}
+      {showTemplateModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4 animate-in fade-in duration-150">
+          <div className="w-full max-w-3xl max-h-[90vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden">
+            {/* Modal Header */}
+            <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/40">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-[#0f2ea2] text-white flex items-center justify-center">
+                  <BookOpen className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
+                    Choose Post Template
+                  </h3>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                    Select from Brother Singapore proven editorial structures and strategic frameworks ({filteredTemplates.length} available)
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowTemplateModal(false)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Filter & Search Bar */}
+            <div className="p-4 border-b border-slate-100 dark:border-slate-800 space-y-3 bg-white dark:bg-slate-900">
+              <div className="relative">
+                <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  value={templateSearchQuery}
+                  onChange={(e) => setTemplateSearchQuery(e.target.value)}
+                  placeholder="Search templates by name, tone, or strategic topic..."
+                  className="w-full pl-9 pr-8 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0f2ea2]"
+                />
+                {templateSearchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setTemplateSearchQuery('')}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+
+              {/* Category Filter Pills */}
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 custom-scrollbar text-xs">
+                {[
+                  { id: 'all', label: 'All Templates' },
+                  { id: 'thought-leadership', label: 'Strategy & AI' },
+                  { id: 'employer-branding', label: 'Employer Branding' },
+                  { id: 'b2b-solutions', label: 'B2B & Solutions' },
+                  { id: 'sustainability', label: 'Sustainability & ESG' },
+                  { id: 'festive', label: 'Festive & Cultural' }
+                ].map((cat) => (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => setTemplateCategoryFilter(cat.id)}
+                    className={`px-3 py-1 rounded-xl whitespace-nowrap font-semibold transition-all cursor-pointer ${
+                      templateCategoryFilter === cat.id
+                        ? 'bg-[#0f2ea2] text-white shadow-xs'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                    }`}
+                  >
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Template List Cards */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
+              {filteredTemplates.length === 0 ? (
+                <div className="p-8 text-center text-slate-500">
+                  <BookOpen className="w-8 h-8 mx-auto mb-2 opacity-40" />
+                  <p className="text-xs font-semibold">No templates found matching your criteria.</p>
+                  <p className="text-[11px] opacity-75 mt-1">Try clearing your search query or selecting "All Templates".</p>
+                </div>
+              ) : (
+                filteredTemplates.map((tmpl, idx) => {
+                  const isCurrentlyActive = selectedTemplateId === tmpl.id || (activeDraft?.name === tmpl.name);
+                  return (
+                    <div
+                      key={tmpl.id || idx}
+                      className={`p-4 rounded-xl border transition-all ${
+                        isCurrentlyActive
+                          ? 'border-[#0f2ea2] bg-blue-50/40 dark:bg-blue-950/30 ring-1 ring-[#0f2ea2]'
+                          : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/60 hover:border-slate-300 dark:hover:border-slate-700'
+                      }`}
+                    >
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-2">
+                        <div>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-xs font-bold text-slate-900 dark:text-white">
+                              {tmpl.name}
+                            </span>
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/60 text-[#0f2ea2] dark:text-blue-300">
+                              {tmpl.category}
+                            </span>
+                            {tmpl.tone && (
+                              <span className="text-[10px] text-slate-500 font-mono">
+                                • {tmpl.tone}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => handleSelectTemplate(tmpl, idx)}
+                          className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
+                            isCurrentlyActive
+                              ? 'bg-emerald-600 text-white'
+                              : 'bg-[#0f2ea2] hover:bg-[#0c2482] text-white shadow-sm active:scale-95'
+                          }`}
+                        >
+                          {isCurrentlyActive ? (
+                            <>
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                              <span>Active Template</span>
+                            </>
+                          ) : (
+                            <>
+                              <span>Apply Template</span>
+                              <ArrowRight className="w-3.5 h-3.5" />
+                            </>
+                          )}
+                        </button>
+                      </div>
+
+                      {tmpl.whyThisWorks && (
+                        <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed mb-2.5">
+                          <strong className="text-slate-800 dark:text-slate-200">Angle: </strong>
+                          {tmpl.whyThisWorks}
+                        </p>
+                      )}
+
+                      {/* Post Snippet Preview */}
+                      <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-950 font-mono text-[11px] text-slate-600 dark:text-slate-400 line-clamp-3 leading-relaxed border border-slate-200/60 dark:border-slate-800">
+                        {tmpl.post || tmpl.postContent || tmpl.examplePost || tmpl.placeholderTemplate}
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-3.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 bg-slate-50/50 dark:bg-slate-800/40">
+              <span>Selecting a template updates post copy and synchronizes with the Visual Studio.</span>
+              <button
+                type="button"
+                onClick={() => setShowTemplateModal(false)}
+                className="px-3.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 font-bold hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
