@@ -870,15 +870,7 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
                 {/* Header: Title + Post Angle Count + Actions */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-3.5 dark:border-slate-800">
                   <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] sm:text-[11px] font-mono text-[#0f2ea2] dark:text-blue-400 font-bold uppercase tracking-wider block">
-                        Template {selectedDraftIndex + 1} of {baseDrafts.length} • {activeNews.sourceTitle || 'Industry News'}
-                      </span>
-                      <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-blue-500/10 text-[#0f2ea2] dark:text-blue-400 font-bold border border-blue-500/20">
-                        {currentDraft?.category || 'News Angle'}
-                      </span>
-                    </div>
-                    <h3 className={`text-sm sm:text-base font-bold mt-0.5 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                    <h3 className={`text-sm sm:text-base font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
                       {currentDraft?.templateName || currentDraft?.name}
                     </h3>
                   </div>
