@@ -588,10 +588,10 @@ export default function SettingsView({ isDark }) {
                 <option value="gemini-3.8-flash">gemini-3.8-flash (Next-Gen High Velocity Reasoning)</option>
                 <option value="gemini-3.7-flash">gemini-3.7-flash (Hybrid Reasoning & High Velocity)</option>
                 <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite (Ultra Lightweight & Fast)</option>
+                <option value="gemini-3.1-flash-lite-image">gemini-3.1-flash-lite-image (Lite Multimodal Asset Processing)</option>
                 <option value="gemini-3.1-flash-image">gemini-3.1-flash-image (Multimodal Vision & Asset Synthesis)</option>
                 <option value="gemini-3-pro-image">gemini-3-pro-image (Advanced Creative Image Studio)</option>
                 <option value="gemini-2.5-flash-image">gemini-2.5-flash-image (Fast Multimodal Asset Processing)</option>
-                <option value="gemini-3.1-flash-lite-image">gemini-3.1-flash-lite-image (Lite Multimodal Asset Processing)</option>
               </select>
             </div>
           </div>

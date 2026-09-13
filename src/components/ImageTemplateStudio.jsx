@@ -50,14 +50,14 @@ export default function ImageTemplateStudio({
   // AI model selector and token advisory alert
   const [selectedAiModel, setSelectedAiModel] = useState(() => {
     const validModels = [
+      'gemini-3.1-flash-lite-image',
       'gemini-3.1-flash-image',
       'gemini-3-pro-image',
-      'gemini-2.5-flash-image',
-      'gemini-3.1-flash-lite-image'
+      'gemini-2.5-flash-image'
     ];
     const saved = safeGetItem('model_gemini_image');
     if (!validModels.includes(saved)) {
-      return 'gemini-3.1-flash-image';
+      return 'gemini-3.1-flash-lite-image';
     }
     return saved;
   });
@@ -606,10 +606,10 @@ export default function ImageTemplateStudio({
                 className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs font-semibold px-2 py-1 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#0f2ea2] cursor-pointer"
                 title="Select Google AI model for image synthesis"
               >
+                <option value="gemini-3.1-flash-lite-image">gemini-3.1-flash-lite-image</option>
                 <option value="gemini-3.1-flash-image">gemini-3.1-flash-image</option>
                 <option value="gemini-3-pro-image">gemini-3-pro-image</option>
                 <option value="gemini-2.5-flash-image">gemini-2.5-flash-image</option>
-                <option value="gemini-3.1-flash-lite-image">gemini-3.1-flash-lite-image</option>
               </select>
             </div>
 
@@ -783,10 +783,10 @@ export default function ImageTemplateStudio({
                 }}
                 className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0f2ea2] cursor-pointer"
               >
+                <option value="gemini-3.1-flash-lite-image">gemini-3.1-flash-lite-image (Lite Efficiency)</option>
                 <option value="gemini-3.1-flash-image">gemini-3.1-flash-image (Fast Creative Vision)</option>
                 <option value="gemini-3-pro-image">gemini-3-pro-image (Advanced Creative Studio)</option>
                 <option value="gemini-2.5-flash-image">gemini-2.5-flash-image (Fast Multimodal)</option>
-                <option value="gemini-3.1-flash-lite-image">gemini-3.1-flash-lite-image (Lite Efficiency)</option>
               </select>
             </div>
 
