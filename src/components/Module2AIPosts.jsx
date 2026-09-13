@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { Newspaper, Search, RefreshCw, Copy, Check, Download, Layers, ShieldCheck, Clock, ArrowRight, ExternalLink, AlertCircle, Plus, Trash2, Tag, Sparkles, Database } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Newspaper, Search, RefreshCw, Copy, Check, Download, Layers, ShieldCheck, Clock, ArrowRight, ExternalLink, AlertCircle, Plus, Trash2, Tag, Sparkles, Database, X } from 'lucide-react';
 import { EXTENDED_AI_NEWS, formatAs120WordMarkdown, searchSerperWithTimeframe, getEffectiveSerperKey, getGoogleNewsSearchUrl } from '../lib/serperEngine.js';
 import { generateAIDrafts } from '../lib/draftGenerator.js';
 import { generateBrotherWaveCorporateSVG } from '../lib/svgBrotherWebsiteTemplates.js';
 import { safeGetItem, safeSetItem } from '../lib/storage.js';
 
 export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavigateToSettings }) {
+  const searchInputRef = useRef(null);
   // Up to 5 customizable search keywords, each with its own independent timeframe
   const [keywords, setKeywords] = useState([
     { text: 'enterprise agentic AI', timeNumber: 24, timeUnit: 'hours' },
@@ -400,11 +401,8 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
               News & Trend Intelligence
             </div>
             <h2 className={`text-lg sm:text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
-              Flexible Timeframe News & Trend Intelligence Engine
+              News & Trend Search Engine
             </h2>
-            <p className="text-xs text-slate-500 mt-1 max-w-2xl">
-              Search breaking news and industry trends using up to <strong className="text-[#0f2ea2] dark:text-blue-400">5 custom keywords</strong> across any time window (<strong className="text-[#0f2ea2] dark:text-blue-400">hours, days, weeks, months</strong>) and generate strict 120-word structured summaries.
-            </p>
           </div>
 
           <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -443,275 +441,240 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
         </div>
       )}
 
-      {/* Control Panel: 5 Keywords + Time Window + Trigger */}
-      <div className={`p-4 sm:p-5 rounded-2xl border ${
+      {/* Sleek Search & Intelligence Console */}
+      <div className={`p-4 sm:p-5 rounded-2xl border transition-all ${
         isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
       } space-y-3.5`}>
-        {/* Keywords Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-            <Search className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
-            Search Keywords (Enter up to 5 topics or phrases with independent time windows)
-          </label>
-          <div className="flex items-center gap-1 text-[11px] text-slate-400">
-            <span>Slots used: <strong>{keywords.filter(k => k.text && k.text.trim()).length} / 5</strong></span>
+        
+        {/* Top Search Bar with Integrated Timeframe & Search Button */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+          <div className="relative flex-1">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              ref={searchInputRef}
+              type="text"
+              value={activeTab === 'all' ? '' : (keywords[activeTab]?.text || '')}
+              onChange={(e) => {
+                if (activeTab === 'all') {
+                  const emptyIdx = keywords.findIndex(k => !k.text || !k.text.trim());
+                  const target = emptyIdx !== -1 ? emptyIdx : 0;
+                  handleKeywordChange(target, e.target.value);
+                  setActiveTab(target);
+                } else {
+                  handleKeywordChange(activeTab, e.target.value);
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  if (activeTab === 'all') {
+                    handleFetchAllTabs();
+                  } else {
+                    fetchTabResults(activeTab);
+                  }
+                }
+              }}
+              placeholder={
+                activeTab === 'all'
+                  ? "Select a topic below to edit, or type to create and search..."
+                  : `Search news for Topic #${activeTab + 1}...`
+              }
+              className={`w-full pl-10 pr-9 py-2.5 rounded-xl text-xs font-semibold border transition-all ${
+                isDark
+                  ? 'bg-slate-950 border-slate-800 text-white placeholder:text-slate-500 focus:border-[#0f2ea2]'
+                  : 'bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-[#0f2ea2]'
+              } focus:outline-none focus:ring-1 focus:ring-[#0f2ea2]`}
+            />
+            {activeTab !== 'all' && keywords[activeTab]?.text && (
+              <button
+                type="button"
+                onClick={() => handleKeywordChange(activeTab, '')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-0.5 transition-colors"
+                title="Clear input"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+
+          {/* Inline Timeframe Dropdown */}
+          <div className="flex items-center gap-2">
+            <div className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs shrink-0 ${
+              isDark ? 'bg-slate-950 border-slate-800 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-700'
+            }`}>
+              <Clock className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400 shrink-0" />
+              <select
+                value={`${activeTimeNumber}-${activeTimeUnit}`}
+                onChange={(e) => {
+                  const [num, unit] = e.target.value.split('-');
+                  handleActiveTimeChange(Number(num), unit);
+                }}
+                className="bg-transparent font-bold text-xs focus:outline-none cursor-pointer pr-1"
+                title="Filter news by timeframe"
+              >
+                <option value="24-hours" className={isDark ? 'bg-slate-900 text-white' : 'bg-white text-slate-900'}>Past 24 Hours</option>
+                <option value="48-hours" className={isDark ? 'bg-slate-900 text-white' : 'bg-white text-slate-900'}>Past 48 Hours</option>
+                <option value="7-days" className={isDark ? 'bg-slate-900 text-white' : 'bg-white text-slate-900'}>Past 7 Days</option>
+                <option value="14-days" className={isDark ? 'bg-slate-900 text-white' : 'bg-white text-slate-900'}>Past 14 Days</option>
+                <option value="1-months" className={isDark ? 'bg-slate-900 text-white' : 'bg-white text-slate-900'}>Past 1 Month</option>
+                <option value="3-months" className={isDark ? 'bg-slate-900 text-white' : 'bg-white text-slate-900'}>Past 3 Months</option>
+              </select>
+            </div>
+
+            {/* Primary Search Button */}
+            <button
+              type="button"
+              onClick={() => {
+                if (activeTab === 'all') {
+                  handleFetchAllTabs();
+                } else {
+                  fetchTabResults(activeTab);
+                }
+              }}
+              disabled={loading}
+              className="flex items-center justify-center gap-1.5 bg-[#0f2ea2] hover:bg-[#0c2482] text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-md transition-all active:scale-95 disabled:opacity-50 shrink-0 cursor-pointer"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+              <span>{loading ? 'Searching...' : activeTab === 'all' ? 'Search All' : 'Search News'}</span>
+            </button>
           </div>
         </div>
 
-        {/* 5 Keyword Input Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5">
+        {/* Active Topics Chips Bar */}
+        <div className="flex items-center gap-2 flex-wrap pt-1">
+          <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 mr-1 flex items-center gap-1">
+            <Layers className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
+            Topics ({keywords.filter(k => k.text?.trim()).length}/5):
+          </span>
+
+          {/* All Topics Pill */}
+          <button
+            type="button"
+            onClick={() => handleSelectTab('all')}
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              activeTab === 'all'
+                ? 'bg-[#0f2ea2] text-white shadow-sm ring-2 ring-[#0f2ea2]/30'
+                : isDark
+                ? 'bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700'
+                : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200'
+            }`}
+          >
+            <span>All Topics</span>
+            <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono font-bold ${
+              activeTab === 'all' ? 'bg-white/20 text-white' : isDark ? 'bg-slate-700 text-slate-300' : 'bg-slate-200 text-slate-600'
+            }`}>
+              {tabResults['all']?.results?.length || 0}
+            </span>
+          </button>
+
+          {/* Individual Topic Chips */}
           {keywords.map((kw, idx) => {
             const isThisTabActive = activeTab === idx;
             const tabRes = tabResults[idx];
-            const hasResults = tabRes?.results?.length > 0;
+            const unitAbbr = kw.timeUnit === 'hours' ? 'h' : kw.timeUnit === 'days' ? 'd' : kw.timeUnit === 'weeks' ? 'w' : 'm';
+            const textLabel = kw.text?.trim() || `Topic #${idx + 1}`;
 
             return (
               <div
                 key={idx}
-                onClick={() => handleSelectTab(idx)}
-                className={`relative flex flex-col justify-between rounded-xl border transition-all cursor-pointer ${
+                onClick={() => {
+                  handleSelectTab(idx);
+                  if (searchInputRef.current) {
+                    searchInputRef.current.focus();
+                  }
+                }}
+                className={`group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                   isThisTabActive
-                    ? 'border-[#0f2ea2] bg-blue-50/50 dark:bg-blue-950/30 ring-2 ring-[#0f2ea2]/20 shadow-sm'
-                    : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 hover:border-slate-300 dark:hover:border-slate-700'
+                    ? 'bg-blue-50 dark:bg-blue-950/60 text-[#0f2ea2] dark:text-blue-300 border-2 border-[#0f2ea2] shadow-sm'
+                    : isDark
+                    ? 'bg-slate-950 hover:bg-slate-800 text-slate-300 border border-slate-800'
+                    : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200'
                 }`}
               >
-                <div className="flex items-center p-2">
-                  <span className={`text-[10px] font-bold select-none mr-1.5 shrink-0 ${isThisTabActive ? 'text-[#0f2ea2] font-black' : 'text-slate-400'}`}>
-                    #{idx + 1}
+                <span className={`text-[10px] font-bold ${isThisTabActive ? 'text-[#0f2ea2] dark:text-blue-400' : 'text-slate-400'}`}>
+                  #{idx + 1}
+                </span>
+                <span className="truncate max-w-[150px] sm:max-w-[200px]">{textLabel}</span>
+                <span className={`text-[9px] font-mono px-1 py-0.2 rounded ${
+                  isDark ? 'bg-slate-800 text-slate-400' : 'bg-slate-100 text-slate-500'
+                }`}>
+                  {kw.timeNumber}{unitAbbr}
+                </span>
+                {tabRes?.results?.length > 0 && (
+                  <span className="text-[9px] font-mono font-bold text-slate-400">
+                    ({tabRes.results.length})
                   </span>
-                  <input
-                    type="text"
-                    value={kw.text}
-                    onFocus={() => handleSelectTab(idx)}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleSelectTab(idx);
-                    }}
-                    onChange={(e) => handleKeywordChange(idx, e.target.value)}
-                    placeholder={`Keyword ${idx + 1}...`}
-                    className="w-full bg-transparent text-xs font-semibold text-slate-900 dark:text-white focus:outline-none pr-1"
-                  />
-                  {keywords.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleRemoveKeyword(idx);
-                      }}
-                      className="text-slate-400 hover:text-rose-500 p-1 shrink-0 transition-colors"
-                      title="Remove this keyword"
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </button>
-                  )}
-                </div>
-
-                <div className="px-2 pb-1.5 pt-1 flex items-center justify-between border-t border-slate-200/50 dark:border-slate-800/60 bg-white/40 dark:bg-slate-900/30 rounded-b-xl">
+                )}
+                {keywords.length > 1 && (
                   <button
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleSelectTab(idx);
+                      handleRemoveKeyword(idx);
                     }}
-                    className={`text-[10px] font-bold transition-all flex items-center gap-1 ${
-                      isThisTabActive
-                        ? 'text-[#0f2ea2] dark:text-blue-400 font-extrabold'
-                        : 'text-slate-500 hover:text-[#0f2ea2] dark:hover:text-blue-400'
-                    }`}
+                    className="text-slate-400 hover:text-rose-500 ml-0.5 p-0.5 transition-colors rounded hover:bg-rose-50 dark:hover:bg-rose-950/50"
+                    title="Remove topic"
                   >
-                    <span>{isThisTabActive ? '● Active' : 'View Top 5 →'}</span>
+                    <Trash2 className="w-3 h-3" />
                   </button>
-                  
-                  {/* Interactive Timeframe Dropdown on Card */}
-                  <div className="relative flex items-center" onClick={(e) => e.stopPropagation()}>
-                    <Clock className="w-2.5 h-2.5 text-cyan-600 absolute left-1.5 pointer-events-none" />
-                    <select
-                      value={`${kw.timeNumber}-${kw.timeUnit}`}
-                      onChange={(e) => {
-                        e.stopPropagation();
-                        const [num, unit] = e.target.value.split('-');
-                        handleSlotTimeChange(idx, Number(num), unit);
-                      }}
-                      className={`text-[9px] font-mono font-bold pl-4 pr-1 py-0.5 rounded border focus:outline-none focus:ring-1 focus:ring-[#0f2ea2] cursor-pointer transition-colors ${
-                        isThisTabActive
-                          ? 'bg-white dark:bg-slate-900 border-[#0f2ea2]/50 text-[#0f2ea2] dark:text-blue-300'
-                          : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'
-                      }`}
-                      title="Change time window for this keyword"
-                    >
-                      <option value="24-hours">24h</option>
-                      <option value="48-hours">48h</option>
-                      <option value="7-days">7d</option>
-                      <option value="14-days">14d</option>
-                      <option value="1-months">1m</option>
-                      <option value="3-months">3m</option>
-                    </select>
-                  </div>
-                </div>
+                )}
               </div>
             );
           })}
 
+          {/* Add Topic button if < 5 */}
           {keywords.length < 5 && (
             <button
               type="button"
-              onClick={handleAddKeyword}
-              className="flex items-center justify-center gap-1 border border-dashed border-slate-300 dark:border-slate-700 hover:border-[#0f2ea2] text-slate-500 hover:text-[#0f2ea2] text-xs font-semibold py-3 px-3 rounded-xl transition-all h-full"
+              onClick={() => {
+                handleAddKeyword();
+                setActiveTab(keywords.length);
+                setTimeout(() => {
+                  if (searchInputRef.current) {
+                    searchInputRef.current.focus();
+                  }
+                }, 50);
+              }}
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-500 hover:text-[#0f2ea2] dark:hover:text-blue-300 border border-dashed border-slate-300 dark:border-slate-700 hover:border-[#0f2ea2] transition-all cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span>Add Keyword Slot</span>
+              <span>Add Topic</span>
             </button>
           )}
         </div>
 
-        {/* Suggested Quick Presets */}
-        <div className="flex items-center gap-1.5 flex-wrap pt-1">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-1 flex items-center gap-1">
+        {/* Suggestions & Batch Fetch Row */}
+        <div className="flex items-center gap-1.5 flex-wrap pt-2 border-t border-slate-100 dark:border-slate-800">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-1 flex items-center gap-1 shrink-0">
             <Tag className="w-3 h-3" />
-            Quick Presets:
+            Suggestions:
           </span>
           {suggestedKeywords.map((preset, i) => (
             <button
               key={i}
               type="button"
               onClick={() => handleApplyPresetKeyword(preset)}
-              className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-100 hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-blue-950/60 text-slate-700 dark:text-slate-300 hover:text-[#0f2ea2] dark:hover:text-blue-300 border border-slate-200 dark:border-slate-700 transition-all"
+              className={`text-[10px] font-medium px-2.5 py-1 rounded-lg border transition-all cursor-pointer ${
+                isDark
+                  ? 'bg-slate-800 hover:bg-blue-950/60 text-slate-300 hover:text-blue-300 border-slate-700'
+                  : 'bg-slate-100 hover:bg-blue-50 text-slate-600 hover:text-[#0f2ea2] border-slate-200'
+              }`}
             >
               + {preset}
             </button>
           ))}
-        </div>
 
-        {/* Dynamic Time Window Bar for Active Tab + Dual Triggers */}
-        <div className="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2.5">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 flex-wrap">
-              <Clock className="w-3.5 h-3.5 text-cyan-600" />
-              <span>Timeframe for:</span>
-              <span className="px-2 py-0.5 rounded-lg bg-[#0f2ea2]/10 text-[#0f2ea2] dark:text-blue-400 font-extrabold text-xs border border-[#0f2ea2]/20">
-                {activeTab === 'all' ? 'All Keywords (Combined)' : `Keyword #${activeTab + 1}: "${keywords[activeTab]?.text || ''}"`}
-              </span>
-              <div className="inline-flex items-center gap-1 ml-1">
-                <button
-                  type="button"
-                  onClick={() => handleSelectTab('all')}
-                  className={`text-[10px] px-1.5 py-0.5 rounded font-semibold transition-all ${
-                    activeTab === 'all'
-                      ? 'bg-[#0f2ea2] text-white shadow-xs'
-                      : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400'
-                  }`}
-                >
-                  All
-                </button>
-                {keywords.map((k, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => handleSelectTab(i)}
-                    className={`text-[10px] px-1.5 py-0.5 rounded font-semibold transition-all ${
-                      activeTab === i
-                        ? 'bg-[#0f2ea2] text-white shadow-xs'
-                        : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400'
-                    }`}
-                    title={k.text || `Slot #${i + 1}`}
-                  >
-                    #{i + 1}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Quick Time Window Chips */}
-            <div className="flex items-center gap-1 flex-wrap">
-              <span className="text-[10px] text-slate-400 mr-1">Quick presets:</span>
-              {[
-                { label: '24 Hours', n: 24, u: 'hours' },
-                { label: '48 Hours', n: 48, u: 'hours' },
-                { label: '7 Days', n: 7, u: 'days' },
-                { label: '14 Days', n: 14, u: 'days' },
-                { label: '1 Month', n: 1, u: 'months' },
-                { label: '3 Months', n: 3, u: 'months' }
-              ].map((chip, ci) => {
-                const isChipSelected = activeTimeNumber === chip.n && activeTimeUnit === chip.u;
-                return (
-                  <button
-                    key={ci}
-                    type="button"
-                    onClick={() => handleActiveTimeChange(chip.n, chip.u)}
-                    className={`text-[10px] font-semibold px-2 py-0.5 rounded-lg border transition-all ${
-                      isChipSelected
-                        ? 'bg-[#0f2ea2] text-white border-[#0f2ea2] shadow-sm'
-                        : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700'
-                    }`}
-                  >
-                    {chip.label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 sm:gap-4 items-end">
-            {/* Time Number Entry */}
-            <div className="sm:col-span-3">
-              <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">
-                Window Value
-              </label>
-              <input
-                type="number"
-                min="1"
-                max="90"
-                value={activeTimeNumber}
-                onChange={(e) => handleActiveTimeChange(Number(e.target.value), activeTimeUnit)}
-                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none"
-              />
-            </div>
-
-            {/* Time Unit Dropdown */}
-            <div className="sm:col-span-4">
-              <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">
-                Time Unit
-              </label>
-              <select
-                value={activeTimeUnit}
-                onChange={(e) => handleActiveTimeChange(activeTimeNumber, e.target.value)}
-                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none cursor-pointer"
-              >
-                <option value="hours">Hours (e.g. 24, 48, 72 hours)</option>
-                <option value="days">Days (e.g. 3, 7, 14 days)</option>
-                <option value="weeks">Weeks (e.g. 1, 2, 4 weeks)</option>
-                <option value="months">Months (e.g. 1, 3, 6 months)</option>
-              </select>
-            </div>
-
-            {/* Dual Trigger Buttons: Active Tab vs. All 5 Tabs */}
-            <div className="sm:col-span-5 flex items-center gap-2">
-              <button
-                onClick={() => fetchTabResults(activeTab)}
-                disabled={loading}
-                className="flex-1 flex items-center justify-center gap-1.5 bg-[#0f2ea2] hover:bg-[#0c2482] text-white font-bold text-xs py-2.5 px-3 rounded-xl shadow-md transition-all disabled:opacity-50 active:scale-95"
-              >
-                <RefreshCw className={`w-3.5 h-3.5 ${loading && loadingTab === activeTab ? 'animate-spin' : ''}`} />
-                <span className="truncate">
-                  {loading && loadingTab === activeTab
-                    ? 'Searching...'
-                    : activeTab === 'all'
-                    ? 'Search All (Combined)'
-                    : `Search Tab #${activeTab + 1}`}
-                </span>
-              </button>
-
-              <button
-                onClick={handleFetchAllTabs}
-                disabled={loading}
-                title="Search and populate top results for each keyword tab simultaneously using its own timeframe"
-                className="flex items-center justify-center gap-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs py-2.5 px-3 rounded-xl border border-slate-200 dark:border-slate-700 transition-all disabled:opacity-50 active:scale-95 shrink-0"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                <span>Fetch All 5 Tabs</span>
-              </button>
-            </div>
-          </div>
+          {/* Batch fetch all topics shortcut */}
+          <button
+            type="button"
+            onClick={handleFetchAllTabs}
+            disabled={loading}
+            className="ml-auto inline-flex items-center gap-1 text-[11px] font-bold text-[#0f2ea2] dark:text-blue-400 hover:underline cursor-pointer disabled:opacity-50"
+            title="Search all topics at once"
+          >
+            <Sparkles className="w-3 h-3 text-amber-500" />
+            <span>Fetch All Topics</span>
+          </button>
         </div>
       </div>
 
