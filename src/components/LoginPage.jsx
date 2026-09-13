@@ -40,7 +40,7 @@ export default function LoginPage({ onLoginSuccess, isDark }) {
 
     try {
       const resendKey = safeGetItem('key_resend') || '';
-      const notionKey = safeGetItem('token_notion') || '';
+      const notionKey = safeGetItem('notion_token') || safeGetItem('token_notion') || '';
       const resendSender = safeGetItem('resend_sender') || 'LinkedUsIn Studio <linkusin@rs.bro-x.org>';
 
       const res = await fetch('/api/auth/magic-link', {

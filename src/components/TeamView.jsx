@@ -129,7 +129,7 @@ export default function TeamView({ isDark, currentUser, onNavigateToProfile }) {
   const fetchLiveTeam = async () => {
     setLoading(true);
     try {
-      const notionKey = safeGetItem('token_notion') || '';
+      const notionKey = safeGetItem('notion_token') || safeGetItem('token_notion') || '';
       const res = await fetch('/api/notion/team', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

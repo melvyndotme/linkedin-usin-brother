@@ -66,7 +66,7 @@ export default function ProfileView({ isDark, currentUser, onUpdateProfile }) {
 
     // Direct synchronization with Notion Team Whitelist Database
     try {
-      const notionKey = safeGetItem('token_notion') || '';
+      const notionKey = safeGetItem('notion_token') || safeGetItem('token_notion') || '';
       const res = await fetch('/api/notion/update-profile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

@@ -66,6 +66,7 @@ export default async function handler(req, res) {
 
     // 2. Query existing team members to ensure idempotency and prevent duplicates
     let existingEmails = new Set();
+    let existingNames = new Set();
     try {
       const existingQuery = await fetch(`https://api.notion.com/v1/databases/${teamDb.id}/query`, {
         method: 'POST',
@@ -76,7 +77,9 @@ export default async function handler(req, res) {
         const existingJson = await existingQuery.json();
         (existingJson.results || []).forEach(p => {
           const email = (p.properties['Email']?.email || p.properties['Email']?.rich_text?.[0]?.plain_text || '').toLowerCase().trim();
+          const name = (p.properties['Name']?.title?.[0]?.plain_text || p.properties['Name']?.title?.[0]?.text?.content || '').toLowerCase().trim();
           if (email) existingEmails.add(email);
+          if (name) existingNames.add(name);
         });
       }
     } catch (e) {
@@ -96,7 +99,9 @@ export default async function handler(req, res) {
     const errors = [];
 
     for (const member of members) {
-      if (existingEmails.has(member.email.toLowerCase().trim())) {
+      const normalizedEmail = member.email.toLowerCase().trim();
+      const normalizedName = member.name.toLowerCase().trim();
+      if (existingEmails.has(normalizedEmail) || existingNames.has(normalizedName)) {
         skipped++;
         continue;
       }
