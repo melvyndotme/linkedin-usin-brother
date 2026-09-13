@@ -76,22 +76,25 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
     ? combinedTimeframe.timeUnit
     : (keywords[activeTab]?.timeUnit ?? 'hours');
 
-  const handleActiveTimeChange = (newNumber, newUnit) => {
+  const handleActiveTimeChange = (newNumber, newUnit, shouldFetch = true) => {
+    const num = Math.max(1, parseInt(newNumber, 10) || 1);
     if (activeTab === 'all') {
-      setCombinedTimeframe({ timeNumber: newNumber, timeUnit: newUnit });
+      setCombinedTimeframe({ timeNumber: num, timeUnit: newUnit });
       setTabResults(prev => {
         const next = { ...prev };
         delete next['all'];
         return next;
       });
-      fetchTabResults('all', { number: newNumber, unit: newUnit });
+      if (shouldFetch) {
+        fetchTabResults('all', { number: num, unit: newUnit });
+      }
     } else {
       setKeywords(prev => {
         const updated = [...prev];
         if (updated[activeTab]) {
           updated[activeTab] = {
             ...updated[activeTab],
-            timeNumber: newNumber,
+            timeNumber: num,
             timeUnit: newUnit
           };
         }
@@ -102,7 +105,9 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
         delete next[activeTab];
         return next;
       });
-      fetchTabResults(activeTab, { number: newNumber, unit: newUnit });
+      if (shouldFetch) {
+        fetchTabResults(activeTab, { number: num, unit: newUnit });
+      }
     }
   };
 
@@ -471,27 +476,55 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
             )}
           </div>
 
-          {/* Inline Timeframe Dropdown */}
+          {/* Timeframe: Number Input + Pull Down Unit */}
           <div className="flex items-center gap-2">
-            <div className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs shrink-0 ${
+            <div className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-xs shrink-0 transition-colors ${
               isDark ? 'bg-slate-950 border-slate-800 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-700'
             }`}>
               <Clock className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400 shrink-0" />
-              <select
-                value={`${activeTimeNumber}-${activeTimeUnit}`}
+              <input
+                type="number"
+                min="1"
+                max="365"
+                value={activeTimeNumber || ''}
                 onChange={(e) => {
-                  const [num, unit] = e.target.value.split('-');
-                  handleActiveTimeChange(Number(num), unit);
+                  const raw = e.target.value;
+                  const val = raw === '' ? '' : Math.max(1, parseInt(raw, 10) || 1);
+                  handleActiveTimeChange(val, activeTimeUnit, false);
                 }}
-                className="bg-transparent font-bold text-xs focus:outline-none cursor-pointer pr-1"
-                title="Filter news by timeframe"
+                onBlur={() => {
+                  if (!activeTimeNumber || activeTimeNumber < 1) {
+                    handleActiveTimeChange(24, activeTimeUnit, false);
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (activeTab === 'all') {
+                      handleFetchAllTabs();
+                    } else {
+                      fetchTabResults(activeTab);
+                    }
+                  }
+                }}
+                className={`w-12 px-1.5 py-1 rounded-lg text-center font-bold text-xs border transition-colors focus:outline-none focus:ring-1 focus:ring-[#0f2ea2] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${
+                  isDark
+                    ? 'bg-slate-900 border-slate-700 text-white'
+                    : 'bg-white border-slate-200 text-slate-900 shadow-2xs'
+                }`}
+                placeholder="24"
+                title="Enter number of time units"
+              />
+              <select
+                value={activeTimeUnit}
+                onChange={(e) => handleActiveTimeChange(activeTimeNumber, e.target.value, true)}
+                className="bg-transparent font-bold text-xs focus:outline-none cursor-pointer pr-1 py-1"
+                title="Select timeframe unit (hours, days, weeks, months)"
               >
-                <option value="24-hours" className={isDark ? 'bg-slate-900 text-white' : 'bg-white text-slate-900'}>Past 24 Hours</option>
-                <option value="48-hours" className={isDark ? 'bg-slate-900 text-white' : 'bg-white text-slate-900'}>Past 48 Hours</option>
-                <option value="7-days" className={isDark ? 'bg-slate-900 text-white' : 'bg-white text-slate-900'}>Past 7 Days</option>
-                <option value="14-days" className={isDark ? 'bg-slate-900 text-white' : 'bg-white text-slate-900'}>Past 14 Days</option>
-                <option value="1-months" className={isDark ? 'bg-slate-900 text-white' : 'bg-white text-slate-900'}>Past 1 Month</option>
-                <option value="3-months" className={isDark ? 'bg-slate-900 text-white' : 'bg-white text-slate-900'}>Past 3 Months</option>
+                <option value="hours" className={isDark ? 'bg-slate-900 text-white' : 'bg-white text-slate-900'}>Hours</option>
+                <option value="days" className={isDark ? 'bg-slate-900 text-white' : 'bg-white text-slate-900'}>Days</option>
+                <option value="weeks" className={isDark ? 'bg-slate-900 text-white' : 'bg-white text-slate-900'}>Weeks</option>
+                <option value="months" className={isDark ? 'bg-slate-900 text-white' : 'bg-white text-slate-900'}>Months</option>
               </select>
             </div>
 
