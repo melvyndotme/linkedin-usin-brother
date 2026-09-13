@@ -1,9 +1,10 @@
-// Vercel Serverless Function: Fetch Live Team Members from Notion Team Whitelist Database
+// Vercel Serverless Function: Consolidated Team Whitelist & Profile Sync
+// Handles team queries, duplicate archiving, and profile updates
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,POST,PUT');
   res.setHeader(
     'Access-Control-Allow-Headers',
     'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization'
@@ -16,6 +17,101 @@ export default async function handler(req, res) {
   const apiKey = req.query?.apiKey || req.body?.apiKey || process.env.NOTION_API_KEY;
   const databaseId = (req.query?.databaseId || req.body?.databaseId || '3c701136de4881869782cd894c6126c5').replace(/-/g, '');
 
+  const isProfileUpdate = req.method === 'PATCH' || req.body?.action === 'update-profile' || (req.body?.email && req.body?.name && (req.body?.role || req.body?.department));
+
+  // 1. Profile Update Branch
+  if (isProfileUpdate) {
+    const { name, email, role, department } = req.body || {};
+    if (!email || !email.includes('@')) {
+      return res.status(400).json({ success: false, error: 'Valid email is required.' });
+    }
+
+    if (!apiKey) {
+      return res.status(200).json({
+        success: true,
+        updatedInNotion: false,
+        message: 'Profile saved locally. NOTION_API_KEY is not configured on server.'
+      });
+    }
+
+    try {
+      const normalizedEmail = email.trim().toLowerCase();
+      const queryRes = await fetch(`https://api.notion.com/v1/databases/${databaseId}/query`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Notion-Version': '2022-06-28',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          filter: {
+            or: [
+              { property: 'Email', email: { equals: normalizedEmail } },
+              { property: 'Email', rich_text: { equals: normalizedEmail } }
+            ]
+          }
+        })
+      });
+
+      const queryData = await queryRes.json();
+      const page = queryData.results?.[0];
+      if (!page) {
+        return res.status(200).json({
+          success: true,
+          updatedInNotion: false,
+          message: 'User email was not found as an existing record in Notion database.'
+        });
+      }
+
+      const pageProps = page.properties || {};
+      const updateProperties = {};
+
+      if (pageProps['Name'] && name) {
+        updateProperties['Name'] = {
+          title: [{ text: { content: name } }]
+        };
+      }
+
+      if (pageProps['Role'] && role) {
+        updateProperties['Role'] = pageProps['Role'].type === 'select'
+          ? { select: { name: role } }
+          : { rich_text: [{ text: { content: role } }] };
+      }
+
+      if (pageProps['Department'] && department) {
+        updateProperties['Department'] = pageProps['Department'].type === 'select'
+          ? { select: { name: department } }
+          : { rich_text: [{ text: { content: department } }] };
+      }
+
+      const patchRes = await fetch(`https://api.notion.com/v1/pages/${page.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Notion-Version': '2022-06-28',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ properties: updateProperties })
+      });
+
+      const patchData = await patchRes.json();
+      return res.status(200).json({
+        success: patchRes.ok,
+        updatedInNotion: patchRes.ok,
+        pageId: page.id,
+        message: patchRes.ok ? 'Successfully synchronized profile update with Notion.' : (patchData.message || 'Failed to update page in Notion.')
+      });
+    } catch (err) {
+      console.error('Notion profile update error:', err);
+      return res.status(200).json({
+        success: true,
+        updatedInNotion: false,
+        error: err.message
+      });
+    }
+  }
+
+  // 2. Live Team Query & Duplicate Archiving Branch
   if (!apiKey) {
     return res.status(400).json({ success: false, error: 'Missing NOTION_API_KEY.' });
   }

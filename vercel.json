@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    { "source": "/api/image-proxy", "destination": "/api/ai/media" },
+    { "source": "/api/ai/generate-image", "destination": "/api/ai/media" },
+    { "source": "/api/notion/update-profile", "destination": "/api/notion/team" },
+    { "source": "/api/notion/seed", "destination": "/api/notion/sync" }
+  ]
+}

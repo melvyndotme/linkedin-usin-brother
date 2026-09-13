@@ -2,7 +2,6 @@ import http from 'node:http';
 import { URL } from 'node:url';
 import { scrapeLinkedInAdLibrary } from './scraper.js';
 import notionSyncHandler from '../api/notion/sync.js';
-import notionSeedHandler from '../api/notion/seed.js';
 import serperSearchHandler from '../api/serper/search.js';
 import magicLinkHandler from '../api/auth/magic-link.js';
 import momHolidaysHandler from '../api/mom/holidays.js';
@@ -10,8 +9,7 @@ import linkedInPublishHandler from '../api/linkedin/publish.js';
 import linkedInDataHandler from '../api/linkedin/data.js';
 import templateIngestHandler from '../api/templates/ingest.js';
 import notionSaveTemplateHandler from '../api/notion/save-template.js';
-import generateImageHandler from '../api/ai/generate-image.js';
-import imageProxyHandler from '../api/image-proxy.js';
+import mediaHandler from '../api/ai/media.js';
 
 try {
   process.loadEnvFile();
@@ -83,13 +81,8 @@ const server = http.createServer(async (req, res) => {
   }
 
   // Notion & Serper Handlers
-  if (pathname === '/api/notion/sync') {
+  if (pathname === '/api/notion/sync' || pathname === '/api/notion/seed') {
     adaptVercel(notionSyncHandler)(req, res, parsedUrl);
-    return;
-  }
-
-  if (pathname === '/api/notion/seed') {
-    adaptVercel(notionSeedHandler)(req, res, parsedUrl);
     return;
   }
 
@@ -128,13 +121,8 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  if (pathname === '/api/ai/generate-image') {
-    adaptVercel(generateImageHandler)(req, res, parsedUrl);
-    return;
-  }
-
-  if (pathname === '/api/image-proxy') {
-    adaptVercel(imageProxyHandler)(req, res, parsedUrl);
+  if (pathname === '/api/ai/media' || pathname === '/api/ai/generate-image' || pathname === '/api/image-proxy') {
+    adaptVercel(mediaHandler)(req, res, parsedUrl);
     return;
   }
 

@@ -15,15 +15,10 @@ export default async function handler(req, res) {
 
   const apiKey = req.body?.apiKey || process.env.NOTION_API_KEY;
   const databaseId = req.body?.databaseId;
-  const singlePost = req.body?.post;
-  const postsList = req.body?.posts || (singlePost ? [singlePost] : null);
+  const action = req.body?.action || req.query?.action;
 
   if (!apiKey) {
     return res.status(400).json({ success: false, error: 'Missing NOTION_API_KEY.' });
-  }
-
-  if (!postsList || postsList.length === 0) {
-    return res.status(400).json({ success: false, error: 'Missing post data to sync.' });
   }
 
   const headers = {
@@ -31,6 +26,113 @@ export default async function handler(req, res) {
     'Notion-Version': '2022-06-28',
     'Content-Type': 'application/json'
   };
+
+  // 1. Database Seeding Routine
+  if (action === 'seed') {
+    try {
+      const searchRes = await fetch('https://api.notion.com/v1/search', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          filter: { value: 'database', property: 'object' },
+          page_size: 50
+        })
+      });
+
+      if (!searchRes.ok) {
+        const errData = await searchRes.json();
+        return res.status(400).json({
+          success: false,
+          error: `Notion Search API error: ${errData.message || searchRes.statusText}`
+        });
+      }
+
+      const searchData = await searchRes.json();
+      const databases = searchData.results || [];
+      const teamDb = databases.find(d => {
+        const title = (d.title || []).map(t => t.plain_text).join('').toLowerCase();
+        return title.includes('team') || title.includes('whitelist');
+      });
+
+      if (!teamDb) {
+        return res.status(400).json({
+          success: false,
+          error: 'No Team Whitelist database found. Please ensure LinkedUsIn Studio is connected.'
+        });
+      }
+
+      let existingEmails = new Set();
+      let existingNames = new Set();
+      try {
+        const existingQuery = await fetch(`https://api.notion.com/v1/databases/${teamDb.id}/query`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ page_size: 100 })
+        });
+        if (existingQuery.ok) {
+          const existingJson = await existingQuery.json();
+          (existingJson.results || []).forEach(p => {
+            const email = (p.properties['Email']?.email || p.properties['Email']?.rich_text?.[0]?.plain_text || '').toLowerCase().trim();
+            const name = (p.properties['Name']?.title?.[0]?.plain_text || p.properties['Name']?.title?.[0]?.text?.content || '').toLowerCase().trim();
+            if (email) existingEmails.add(email);
+            if (name) existingNames.add(name);
+          });
+        }
+      } catch (e) {
+        console.warn('Could not query existing team members in Notion:', e);
+      }
+
+      const members = [
+        { name: 'Allan Cheng', email: 'allan.cheng@brother.com.sg' },
+        { name: 'Chloe Lee', email: 'chloe.lee@brother.com.sg' },
+        { name: 'Sean', email: 'sean.tan@brother.com.sg' },
+        { name: 'Melvyn Tan', email: 'melvyn@befinityai.com' }
+      ];
+
+      let inserted = 0;
+      let skipped = 0;
+
+      for (const member of members) {
+        const normalizedEmail = member.email.toLowerCase().trim();
+        const normalizedName = member.name.toLowerCase().trim();
+        if (existingEmails.has(normalizedEmail) || existingNames.has(normalizedName)) {
+          skipped++;
+          continue;
+        }
+
+        const insertRes = await fetch('https://api.notion.com/v1/pages', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            parent: { database_id: teamDb.id },
+            properties: {
+              'Name': { title: [{ text: { content: member.name } }] },
+              'Email': { email: member.email },
+              'Active': { checkbox: true }
+            }
+          })
+        });
+        if (insertRes.ok) inserted++;
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: inserted > 0
+          ? `Success! Inserted ${inserted} team members (${skipped} already present) into Notion.`
+          : 'All team members are already present in Notion.'
+      });
+    } catch (e) {
+      return res.status(500).json({ success: false, error: e.message });
+    }
+  }
+
+  // 2. Post Sync Routine
+  const singlePost = req.body?.post;
+  const postsList = req.body?.posts || (singlePost ? [singlePost] : null);
+
+  if (!postsList || postsList.length === 0) {
+    return res.status(400).json({ success: false, error: 'Missing post data to sync.' });
+  }
 
   try {
     let targetDbId = (databaseId || '3c701136de4881de9d29ca4ea415e856').replace(/-/g, '');
