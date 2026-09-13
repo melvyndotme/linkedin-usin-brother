@@ -71,7 +71,17 @@ const DEFAULT_MEMBERS = [
 ];
 
 export default function TeamView({ isDark, currentUser, onNavigateToProfile }) {
-  const [teamMembers, setTeamMembers] = useState(DEFAULT_MEMBERS);
+  // Load cached team members instantly so names appear without waiting for Notion API
+  const [teamMembers, setTeamMembers] = useState(() => {
+    try {
+      const cached = safeGetItem('brother_team_cache');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) { /* ignore parse errors, fall through to defaults */ }
+    return DEFAULT_MEMBERS;
+  });
   const [loading, setLoading] = useState(false);
   const [lastSynced, setLastSynced] = useState(null);
   const [viewMode, setViewMode] = useState(() => {
@@ -149,6 +159,8 @@ export default function TeamView({ isDark, currentUser, onNavigateToProfile }) {
         });
         if (unique.length > 0) {
           setTeamMembers(unique);
+          // Cache for instant rendering on next visit
+          try { safeSetItem('brother_team_cache', JSON.stringify(unique)); } catch (e) { /* quota */ }
         }
         setLastSynced(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
       }
