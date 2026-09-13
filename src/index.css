@@ -5,7 +5,20 @@
 }
 
 @layer base {
+  html, body, #root {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
   body {
+    background-color: #F4F6F9;
+    color: #0f172a;
+  }
+  .dark body,
+  body.dark,
+  html.dark body {
     background-color: #090d16;
     color: #f1f5f9;
   }

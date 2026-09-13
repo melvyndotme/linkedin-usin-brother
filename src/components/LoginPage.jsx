@@ -77,7 +77,7 @@ export default function LoginPage({ onLoginSuccess, isDark }) {
   };
 
   return (
-    <div className={`min-h-screen flex items-center justify-center p-4 sm:p-6 transition-colors ${
+    <div className={`h-full w-full flex items-center justify-center p-4 sm:p-6 overflow-y-auto custom-scrollbar transition-colors ${
       isDark ? 'bg-[#090D16] text-white' : 'bg-[#F4F6F9] text-slate-900'
     }`}>
       <div className="w-full max-w-md space-y-6">

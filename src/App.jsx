@@ -158,6 +158,16 @@ export default function App() {
     setActiveTab('draft-studio');
   };
 
+  useEffect(() => {
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+      document.body.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      document.body.classList.remove('dark');
+    }
+  }, [isDark]);
+
   // If not authenticated, render the dedicated Login Screen
   if (!isAuthenticated || !currentUser) {
     return (
@@ -169,7 +179,7 @@ export default function App() {
   }
 
   return (
-    <div className={`min-h-screen flex font-['Plus_Jakarta_Sans',sans-serif] overflow-hidden ${
+    <div className={`h-full h-[100dvh] w-full flex font-['Plus_Jakarta_Sans',sans-serif] overflow-hidden select-none ${
       isDark ? 'bg-[#090D16] text-slate-100' : 'bg-[#F4F6F9] text-slate-900'
     }`}>
       {/* Full-Height Left Sidebar */}
@@ -187,7 +197,7 @@ export default function App() {
       />
 
       {/* Main Column: Top Breadcrumb Bar + Dynamic Workspace */}
-      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
         {/* Sendpilot-Style Top Header Bar */}
         <BrotherHeader
           isDark={isDark}

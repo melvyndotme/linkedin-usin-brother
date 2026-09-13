@@ -406,7 +406,7 @@ export default function Sidebar({
     <>
       {/* Desktop Persistent Sidebar - Smooth collapsible width */}
       <aside 
-        className={`hidden lg:flex shrink-0 bg-[#0e2ea0] text-white border-r border-[#0a2278] flex-col justify-between select-none h-screen sticky top-0 shadow-xl transition-all duration-300 ease-in-out ${
+        className={`hidden lg:flex shrink-0 bg-[#0e2ea0] text-white border-r border-[#0a2278] flex-col justify-between select-none h-full shadow-xl transition-all duration-300 ease-in-out ${
           sidebarCollapsed ? 'w-20' : 'w-64'
         }`}
       >

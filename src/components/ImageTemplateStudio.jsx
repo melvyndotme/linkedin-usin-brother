@@ -626,7 +626,7 @@ export default function ImageTemplateStudio({
                 type="file"
                 accept="image/*"
                 onChange={handleUploadPhoto}
-                className="sr-only"
+                className="hidden"
               />
             </label>
 
