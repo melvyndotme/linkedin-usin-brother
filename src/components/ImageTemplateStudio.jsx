@@ -333,12 +333,10 @@ export default function ImageTemplateStudio({
       setCloudSuccess({
         imageUrl: visualUrl,
         notionUrl,
-        message: notionUrl
-          ? 'Saved to Vercel Blob & Synced to Notion Page!'
-          : 'Stored in Vercel Blob Storage!'
+        message: 'Saved to Notion!'
       });
     } catch (err) {
-      setCloudError(err.message || 'Error saving to Vercel Blob.');
+      setCloudError(err.message || 'Error saving to Notion.');
     } finally {
       setCloudSaving(false);
     }
@@ -420,16 +418,16 @@ export default function ImageTemplateStudio({
             <span>{downloading ? 'Exporting...' : 'Download PNG'}</span>
           </button>
 
-          {/* Cloud / Notion Save Button */}
+          {/* Save to Notion Button */}
           <button
             type="button"
             onClick={handleSaveToCloud}
             disabled={cloudSaving}
             className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 transition-all cursor-pointer disabled:opacity-50"
-            title="Save to Vercel Blob & Archive in Notion"
+            title="Save to Notion"
           >
-            <Cloud className={`w-3.5 h-3.5 text-blue-600 dark:text-blue-400 ${cloudSaving ? 'animate-bounce' : ''}`} />
-            <span>{cloudSaving ? 'Saving...' : 'Save to Cloud / Notion'}</span>
+            <Database className={`w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400 ${cloudSaving ? 'animate-spin' : ''}`} />
+            <span>{cloudSaving ? 'Saving...' : 'Save to Notion'}</span>
           </button>
 
           {aspectRatio === '1:1' && (
