@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Edit3, Send, CheckCircle2, Copy, Check, Sparkles, AlertCircle, Database, 
-  ExternalLink, BookOpen, Layers, Search, X, Filter, ArrowRight 
+  ExternalLink, BookOpen, Layers, Search, X, Filter, ArrowRight, ChevronDown 
 } from 'lucide-react';
 import NotionIcon from './icons/NotionIcon.jsx';
 import ImageTemplateStudio from './ImageTemplateStudio.jsx';
@@ -621,28 +621,54 @@ To everyone celebrating, how is your team marking this special day? Share your f
                 </button>
               </div>
 
-              {/* Quick Template Selector Pills */}
-              <div className="flex flex-wrap gap-1.5">
-                {contextualDrafts.map((d, idx) => {
-                  const isSelected = selectedTemplateId === (d.id || d.templateId) || (activeDraft?.name === d.name);
-                  return (
-                    <button
-                      key={d.id || idx}
-                      type="button"
-                      onClick={() => handleSelectTemplate(d, idx)}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer border flex items-center gap-1.5 ${
-                        isSelected
-                          ? 'bg-[#0f2ea2] text-white border-[#0f2ea2] shadow-sm ring-2 ring-[#0f2ea2]/20'
-                          : isDark
-                          ? 'bg-slate-950 border-slate-800 text-slate-300 hover:bg-slate-800 hover:border-slate-700'
-                          : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100 hover:border-slate-300'
-                      }`}
-                    >
-                      <span className="opacity-70 text-[10px]">#{idx + 1}</span>
-                      <span>{d.name || d.templateName}</span>
-                    </button>
-                  );
-                })}
+              {/* Template Dropdown Selector */}
+              <div className="flex items-center gap-2">
+                <div className="relative flex-1">
+                  <select
+                    value={selectedTemplateId || (contextualDrafts[0] ? (contextualDrafts[0].id || contextualDrafts[0].templateId) : '')}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === '__browse_all__') {
+                        setShowTemplateModal(true);
+                        return;
+                      }
+                      const found = allLibraryTemplates.find(t => (t.id || t.templateId) === val) ||
+                                    contextualDrafts.find(t => (t.id || t.templateId) === val);
+                      if (found) {
+                        handleSelectTemplate(found, 0);
+                      }
+                    }}
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:ring-1 focus:ring-[#0f2ea2] focus:outline-none appearance-none cursor-pointer pr-10 shadow-xs"
+                  >
+                    <optgroup label="Campaign Angles & Frameworks">
+                      {contextualDrafts.map((d, idx) => (
+                        <option key={d.id || idx} value={d.id || d.templateId}>
+                          #{idx + 1} {d.name || d.templateName}
+                        </option>
+                      ))}
+                    </optgroup>
+                    {allLibraryTemplates.some(t => !t.isContextual) && (
+                      <optgroup label="Brother Benchmark Templates">
+                        {allLibraryTemplates.filter(t => !t.isContextual).map((b, idx) => (
+                          <option key={b.id || `bench-${idx}`} value={b.id}>
+                            {b.name} ({b.category})
+                          </option>
+                        ))}
+                      </optgroup>
+                    )}
+                  </select>
+                  <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setShowTemplateModal(true)}
+                  className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-[#0f2ea2] dark:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-700 text-xs font-bold transition-all shadow-xs shrink-0 cursor-pointer"
+                  title="Browse Full Template Library"
+                >
+                  <Layers className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Library</span>
+                </button>
               </div>
 
               {/* Strategic Rationale Banner */}
