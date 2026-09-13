@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Newspaper, Search, RefreshCw, Copy, Check, Download, Layers, ShieldCheck, Clock, ArrowRight, ExternalLink, AlertCircle, Plus, Trash2, Sparkles, Database, X } from 'lucide-react';
-import { EXTENDED_AI_NEWS, formatAs120WordMarkdown, searchSerperWithTimeframe, getEffectiveSerperKey, getGoogleNewsSearchUrl } from '../lib/serperEngine.js';
+import { EXTENDED_AI_NEWS, searchSerperWithTimeframe, getEffectiveSerperKey, getGoogleNewsSearchUrl } from '../lib/serperEngine.js';
 import { generateAIDrafts } from '../lib/draftGenerator.js';
-import { generateBrotherWaveCorporateSVG } from '../lib/svgBrotherWebsiteTemplates.js';
+import ImageTemplateStudio from './ImageTemplateStudio.jsx';
 import { safeGetItem, safeSetItem } from '../lib/storage.js';
 
 export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavigateToSettings }) {
@@ -55,7 +55,6 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
   const [loading, setLoading] = useState(false);
   const [loadingTab, setLoadingTab] = useState(null); // 'all', 0..4, or 'batch'
   const [copied, setCopied] = useState(false);
-  const [copiedFormatted, setCopiedFormatted] = useState(false);
   const [selectedDraftIndex, setSelectedDraftIndex] = useState(0);
   const [searchError, setSearchError] = useState(null);
   const [hasKey, setHasKey] = useState(() => Boolean(getEffectiveSerperKey()));
@@ -318,53 +317,56 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
   const isLiveNews = currentTabResults.isLive || false;
   const activeNews = selectedNews || (newsList.length > 0 ? newsList[0] : null);
 
-  const baseDrafts = activeNews ? generateAIDrafts({
-    title: activeNews?.headline || 'Enterprise Trend Breakthrough',
-    snippet: activeNews?.summary120 || 'Latest business news and automation insights.',
-    suggestedPillars: {
-      whatItIs: (activeNews?.summary120 || 'Enterprise productivity advancements').slice(0, 130) + "...",
-      whyItMatters: "Eliminates routine operational friction by 65%, freeing teams for strategic creative tasks.",
-      brotherImpact: "Empowers Brother Singapore employees and B2B clients to achieve breakthrough productivity."
-    }
-  }) : [];
+  const baseDrafts = useMemo(() => {
+    if (!activeNews) return [];
+    return generateAIDrafts({
+      title: activeNews?.headline || 'Enterprise Trend Breakthrough',
+      snippet: activeNews?.summary120 || 'Latest business news and automation insights.',
+      sourceTitle: activeNews?.sourceTitle || 'Industry Intelligence',
+      sourceUrl: activeNews?.sourceUrl || activeNews?.link,
+      suggestedPillars: {
+        whatItIs: (activeNews?.summary120 || 'Enterprise productivity advancements').slice(0, 150) + "...",
+        whyItMatters: "Eliminates routine operational friction by 65%, freeing teams for strategic creative tasks.",
+        brotherImpact: "Empowers Brother Singapore employees and B2B clients to achieve breakthrough productivity."
+      }
+    });
+  }, [activeNews]);
 
-  const drafts = baseDrafts;
-
-  const currentDraft = (drafts && drafts[selectedDraftIndex]) || drafts?.[0] || {
-    name: 'Default Angle',
+  const currentDraft = (baseDrafts && baseDrafts[selectedDraftIndex]) || baseDrafts?.[0] || {
+    name: '3-Pillar Thought Leadership',
     postContent: 'Breakthrough enterprise update.'
   };
 
-  const headlineStr = activeNews?.headline || 'Brother Trend Intelligence';
-  const waveSvg = generateBrotherWaveCorporateSVG({
-    badgeText: "Brother Xplorer Trend Intelligence",
-    headline: headlineStr.length > 38 ? headlineStr.slice(0, 38) + "..." : headlineStr,
-    subtitle: "What it is • Why it matters • Brother SG Breakthrough Productivity",
-    promoTag: "Breakthrough Productivity",
-    theme: "ai-thought"
-  });
+  const newsOccasion = useMemo(() => {
+    if (!activeNews) return null;
+    return {
+      id: activeNews.id || 'news-active',
+      name: activeNews.headline || 'Industry Intelligence',
+      subtitle: activeNews.summary120 ? (activeNews.summary120.slice(0, 120) + '...') : 'Standing "At your side" across Singapore',
+      category: 'News & Trends',
+      eventType: 'corporate',
+      theme: 'blue',
+      badgeText: activeNews.sourceTitle || 'News & Trends',
+      details: activeNews.summary120 || '',
+      suggestedHashtags: ['#BrotherSingapore', '#NewsAndTrends', '#WorkplaceInnovation', '#AtYourSide']
+    };
+  }, [activeNews]);
 
-  const handleCopy = (text) => {
+  const formattedDraftForStudio = useMemo(() => {
+    if (!currentDraft) return null;
+    return {
+      id: currentDraft.id || 'draft-1',
+      name: currentDraft.name || currentDraft.templateName || 'Industry Trend Insight',
+      post: currentDraft.postContent || currentDraft.post || '',
+      postContent: currentDraft.postContent || currentDraft.post || '',
+      whyThisWorks: currentDraft.whyThisWorks || ''
+    };
+  }, [currentDraft]);
+
+  const handleCopyPost = (text) => {
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
-
-  const handleCopy120Format = (item) => {
-    const formatted = formatAs120WordMarkdown(item);
-    navigator.clipboard.writeText(formatted);
-    setCopiedFormatted(true);
-    setTimeout(() => setCopiedFormatted(false), 2000);
-  };
-
-  const handleDownloadSvg = () => {
-    const blob = new Blob([waveSvg], { type: 'image/svg+xml' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `brother-sg-trend-intelligence-${Date.now()}.svg`;
-    a.click();
-    URL.revokeObjectURL(url);
   };
 
   return (
@@ -857,147 +859,107 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
           </div>
         </div>
 
-        {/* Right Column: Exact Required 120-Word Format + 3-Pillar Draft Preview */}
+        {/* Right Column: Template-driven Draft + Visual Studio */}
         <div className="lg:col-span-7 space-y-4 sm:space-y-6">
           {activeNews ? (
             <>
-              {/* Required Format Preview Box */}
+              {/* Draft Studio Generator Card */}
               <div className={`p-4 sm:p-6 rounded-2xl border space-y-4 ${
                 isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
               }`}>
-                <div className="flex items-center justify-between border-b pb-3 dark:border-slate-800">
+                {/* Header: Title + Post Angle Count + Actions */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-3.5 dark:border-slate-800">
                   <div>
-                    <span className="text-[10px] font-mono text-[#0f2ea2] dark:text-blue-400 font-bold uppercase tracking-wider block">
-                      Exact Required 120-Word Markdown Format
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] sm:text-[11px] font-mono text-[#0f2ea2] dark:text-blue-400 font-bold uppercase tracking-wider block">
+                        Template {selectedDraftIndex + 1} of {baseDrafts.length} • {activeNews.sourceTitle || 'Industry News'}
+                      </span>
+                      <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-blue-500/10 text-[#0f2ea2] dark:text-blue-400 font-bold border border-blue-500/20">
+                        {currentDraft?.category || 'News Angle'}
+                      </span>
+                    </div>
                     <h3 className={`text-sm sm:text-base font-bold mt-0.5 ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                      Structured News Output
+                      {currentDraft?.templateName || currentDraft?.name}
                     </h3>
                   </div>
 
-                  <button
-                    onClick={() => handleCopy120Format(activeNews)}
-                    className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-white px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-200 dark:border-slate-700 transition-all active:scale-95"
-                  >
-                    {copiedFormatted ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
-                    {copiedFormatted ? 'Copied' : 'Copy 120-Word Format'}
-                  </button>
-                </div>
-
-                {/* Direct Source Link Banner */}
-                <div className="flex items-center justify-between p-3 rounded-xl bg-blue-50/60 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 flex-wrap gap-2">
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <Newspaper className="w-4 h-4 text-[#0f2ea2] dark:text-blue-400 shrink-0" />
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
-                          {activeNews?.sourceTitle || 'News Source'}
-                        </span>
-                        <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-500/20">
-                          Direct Article
-                        </span>
-                      </div>
-                      <div className="text-[10px] text-slate-500 truncate mt-0.5 font-mono">
-                        {activeNews?.sourceUrl || activeNews?.link || '#'}
-                      </div>
-                    </div>
+                  <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+                    <button
+                      onClick={() => handleCopyPost(currentDraft?.postContent || currentDraft?.post)}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm cursor-pointer"
+                    >
+                      {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                      <span>{copied ? 'Copied' : 'Copy Post'}</span>
+                    </button>
+                    {onNavigateToDraftStudio && (
+                      <button
+                        onClick={() => onNavigateToDraftStudio(currentDraft.postContent || currentDraft.post, activeNews?.headline || 'News & Trends')}
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
+                      >
+                        <span>Open in Draft Studio</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    )}
                   </div>
-                  <a
-                    href={activeNews?.sourceUrl || activeNews?.link || getGoogleNewsSearchUrl(activeNews?.headline)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="shrink-0 flex items-center gap-1.5 bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-sm transition-all"
-                  >
-                    <span>Read Full Article</span>
-                    <ExternalLink className="w-3.5 h-3.5" />
-                  </a>
                 </div>
 
-                {/* Formatted Markdown Box */}
-                <div className={`p-4 rounded-xl font-mono text-xs whitespace-pre-wrap leading-relaxed border ${
-                  isDark ? 'bg-slate-950 border-slate-800 text-slate-200' : 'bg-slate-50 border-slate-200 text-slate-800'
-                }`}>
-                  {formatAs120WordMarkdown(activeNews)}
+                {/* Template Selector Pills */}
+                <div>
+                  <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1.5 block">
+                    Select Post Template:
+                  </label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {baseDrafts.map((d, idx) => {
+                      const isSelected = selectedDraftIndex === idx;
+                      return (
+                        <button
+                          key={d.id || idx}
+                          onClick={() => setSelectedDraftIndex(idx)}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
+                            isSelected
+                              ? 'bg-[#0f2ea2] text-white border-[#0f2ea2] shadow-sm ring-2 ring-[#0f2ea2]/20'
+                              : isDark
+                              ? 'bg-slate-950 border-slate-800 text-slate-300 hover:bg-slate-800 hover:border-slate-700'
+                              : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100 hover:border-slate-300'
+                          }`}
+                        >
+                          <span className="opacity-70 mr-1">#{idx + 1}</span>
+                          <span>{d.name}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
 
-                {/* 3-Pillar Generated Post Copy */}
-                <div className="pt-2 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className={`text-xs font-bold uppercase tracking-wider ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                        3-Pillar Employer Branding Draft
-                      </h4>
-                      <p className="text-[11px] text-slate-500">
-                        What it is • Why it matters • Brother SG Breakthrough Productivity
+                {/* Strategic Rationale */}
+                {currentDraft?.whyThisWorks && (
+                  <div className="bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-500/30 rounded-xl p-3 sm:p-3.5">
+                    <div className="flex items-start gap-2">
+                      <Sparkles className="w-4 h-4 text-[#0f2ea2] dark:text-blue-400 mt-0.5 shrink-0" />
+                      <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+                        <strong className="text-[#0f2ea2] dark:text-blue-300">Strategic Rationale: </strong>
+                        {currentDraft.whyThisWorks}
                       </p>
                     </div>
-                    <button
-                      onClick={() => handleCopy(currentDraft.postContent)}
-                      className="flex items-center gap-1.5 text-xs font-bold text-[#0f2ea2] dark:text-blue-400 hover:underline"
-                    >
-                      {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
-                      {copied ? 'Copied Post' : 'Copy Post Copy'}
-                    </button>
                   </div>
+                )}
 
-                  {/* Draft Angle Switcher */}
-                  <div className="flex gap-2 border-b pb-2 dark:border-slate-800">
-                    {drafts.map((d, idx) => (
-                      <button
-                        key={d.id}
-                        onClick={() => setSelectedDraftIndex(idx)}
-                        className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-all ${
-                          selectedDraftIndex === idx
-                            ? 'bg-[#0f2ea2] text-white shadow-sm'
-                            : isDark
-                              ? 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-                              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                        }`}
-                      >
-                        Angle {idx + 1}: {(d?.name || d?.templateName || d?.angle || 'Angle').split(' ')[0]}
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Post Content Display */}
-                  <div className={`p-4 rounded-xl border text-xs leading-relaxed whitespace-pre-wrap ${
+                {/* Generated Post Content */}
+                <div className="relative">
+                  <div className={`p-3.5 sm:p-4 rounded-xl font-mono text-xs whitespace-pre-wrap leading-relaxed max-h-64 overflow-y-auto border custom-scrollbar ${
                     isDark ? 'bg-slate-950 border-slate-800 text-slate-200' : 'bg-slate-50 border-slate-200 text-slate-800'
                   }`}>
-                    {currentDraft.postContent}
+                    {currentDraft?.postContent || currentDraft?.post}
                   </div>
                 </div>
               </div>
 
-              {/* Branded Wave Corporate SVG Preview Card */}
-              <div className={`p-4 sm:p-6 rounded-2xl border space-y-4 ${
-                isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
-              }`}>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <span className="text-[10px] font-mono text-[#0f2ea2] dark:text-blue-400 font-bold uppercase tracking-wider block">
-                      Parametric Asset Preview
-                    </span>
-                    <h3 className={`text-sm sm:text-base font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                      Brother Singapore Wave Corporate Banner
-                    </h3>
-                  </div>
-
-                  <button
-                    onClick={handleDownloadSvg}
-                    className="flex items-center gap-1.5 bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold px-3.5 py-1.5 rounded-lg shadow-sm transition-all active:scale-95"
-                  >
-                    <Download className="w-3.5 h-3.5" />
-                    <span>Export SVG</span>
-                  </button>
-                </div>
-
-                <div className="w-full bg-slate-950 rounded-xl overflow-hidden border border-slate-800 flex items-center justify-center p-2">
-                  <div
-                    className="w-full aspect-[12/5] flex items-center justify-center"
-                    dangerouslySetInnerHTML={{ __html: waveSvg }}
-                  />
-                </div>
-              </div>
+              {/* High-Fidelity LinkedIn Visual & Multi-Slide Carousel Studio */}
+              <ImageTemplateStudio
+                occasion={newsOccasion}
+                activeDraft={formattedDraftForStudio}
+                isDark={isDark}
+              />
             </>
           ) : (
             /* Empty Drafting State when 0 News found */
@@ -1011,7 +973,7 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
                 Awaiting Verified Articles for Drafting
               </h3>
               <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto leading-relaxed">
-                0 verified articles were found within the strict timeframe for this keyword. To generate 3-pillar LinkedIn posts and branded SVG banners, select another keyword tab or expand the time window above.
+                0 verified articles were found within the strict timeframe for this keyword. To generate template-based LinkedIn posts and visuals, select another keyword tab or expand the time window above.
               </p>
             </div>
           )}

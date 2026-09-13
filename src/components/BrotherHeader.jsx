@@ -23,7 +23,7 @@ import {
 const TAB_CONFIG = {
   'home': { label: 'Overview', icon: LayoutDashboard },
   'module-1': { label: 'Events', icon: Calendar },
-  'module-2': { label: 'News & Intel', icon: Newspaper },
+  'module-2': { label: 'News & Trends', icon: Newspaper },
   'draft-studio': { label: 'Draft & Image Studio', icon: Edit3 },
   'template-studio': { label: 'Template Ingestion', icon: Layers },
   'notion-hub': { label: 'Notion Database Hub', icon: Database },

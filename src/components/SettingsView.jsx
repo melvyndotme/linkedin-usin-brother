@@ -609,7 +609,7 @@ export default function SettingsView({ isDark }) {
           </div>
 
           <p className="text-xs text-slate-600 dark:text-slate-400">
-            Enables live Google News search for industry articles, competitors, and trending topics to generate timely LinkedIn posts in <strong>News & Intel</strong>.
+            Enables live Google News search for industry articles, competitors, and trending topics to generate timely LinkedIn posts in <strong>News & Trends</strong>.
           </p>
 
           <div>

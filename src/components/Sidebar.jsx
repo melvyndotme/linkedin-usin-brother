@@ -50,7 +50,7 @@ export default function Sidebar({
       items: [
         { id: 'home', label: 'Dashboard', icon: LayoutDashboard },
         { id: 'module-1', label: 'Events', icon: Calendar },
-        { id: 'module-2', label: 'News & Intel', icon: Newspaper }
+        { id: 'module-2', label: 'News & Trends', icon: Newspaper }
       ]
     },
     {
