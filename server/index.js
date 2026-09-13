@@ -10,6 +10,7 @@ import linkedInPublishHandler from '../api/linkedin/publish.js';
 import linkedInDataHandler from '../api/linkedin/data.js';
 import templateIngestHandler from '../api/templates/ingest.js';
 import notionSaveTemplateHandler from '../api/notion/save-template.js';
+import generateImageHandler from '../api/ai/generate-image.js';
 
 try {
   process.loadEnvFile();
@@ -120,6 +121,11 @@ const server = http.createServer(async (req, res) => {
 
   if (pathname === '/api/templates/ingest') {
     adaptVercel(templateIngestHandler)(req, res, parsedUrl);
+    return;
+  }
+
+  if (pathname === '/api/ai/generate-image') {
+    adaptVercel(generateImageHandler)(req, res, parsedUrl);
     return;
   }
 

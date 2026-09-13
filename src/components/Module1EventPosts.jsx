@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Calendar, Sparkles, Copy, Check, Download, ArrowRight, Flame, Layers, ExternalLink, RefreshCw, AlertCircle, Database, CheckCircle2, Plus, Trash2, Tag, X } from 'lucide-react';
-import { generateBrotherWebsiteBannerSVG } from '../lib/svgBrotherWebsiteTemplates.js';
+import ImageTemplateStudio from './ImageTemplateStudio.jsx';
 import { safeGetItem, safeSetItem } from '../lib/storage.js';
 
 // Color Scheme:
@@ -378,13 +378,6 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
   const drafts = selectedOccasion ? generateEventDrafts(selectedOccasion) : [];
   const currentDraft = drafts[selectedDraftIndex] || drafts[0];
 
-  const bannerSvg = selectedOccasion ? generateBrotherWebsiteBannerSVG({
-    badgeText: customBadge,
-    headline: customHeadline,
-    subtitle: customSubtitle,
-    theme: selectedOccasion.theme || 'blue'
-  }) : '';
-
   const handleCopy = (text, index) => {
     const postToCopy = typeof text === 'string' ? text : currentDraft?.post;
     if (postToCopy) {
@@ -396,17 +389,6 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
         setCopiedIndex(null);
       }, 2000);
     }
-  };
-
-  const handleDownloadSvg = () => {
-    if (!bannerSvg) return;
-    const blob = new Blob([bannerSvg], { type: 'image/svg+xml' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `brother-sg-${selectedOccasion?.id || 'event'}-banner.svg`;
-    a.click();
-    URL.revokeObjectURL(url);
   };
 
   // Helper to get pill style for each event
@@ -706,33 +688,12 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
                 </div>
               </div>
 
-              {/* Live Rendered Brother Website Hero Banner Graphic */}
-              <div className="space-y-2 pt-1">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-[11px] sm:text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                    <Layers className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
-                    Official Brother SG Banner Graphic (SVG)
-                  </h4>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-mono text-[#0f2ea2] dark:text-blue-400 hidden sm:inline">1200 × 500 Responsive</span>
-                    <button
-                      onClick={handleDownloadSvg}
-                      className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-700 dark:text-slate-300 hover:text-[#0f2ea2] dark:hover:text-blue-400 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
-                      title="Download SVG Banner"
-                    >
-                      <Download className="w-3 h-3" />
-                      <span>SVG Banner</span>
-                    </button>
-                  </div>
-                </div>
-
-                <div className="w-full rounded-xl sm:rounded-2xl overflow-hidden shadow-md border border-slate-200 dark:border-slate-800 bg-slate-950 flex items-center justify-center">
-                  <div 
-                    className="w-full aspect-[12/5] flex items-center justify-center"
-                    dangerouslySetInnerHTML={{ __html: bannerSvg }}
-                  />
-                </div>
-              </div>
+              {/* High-Fidelity LinkedIn Visual & Multi-Slide Carousel Studio */}
+              <ImageTemplateStudio 
+                occasion={selectedOccasion} 
+                activeDraft={currentDraft} 
+                isDark={isDark} 
+              />
             </div>
           )}
         </div>
