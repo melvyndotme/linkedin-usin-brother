@@ -19,8 +19,8 @@ export default function SettingsView({ isDark }) {
   const [momTesting, setMomTesting] = useState(false);
   const [momTestStatus, setMomTestStatus] = useState(null);
   
-  // LinkedIn Credentials & Organization ID (Defaulted to Befinity / Brother Company ID 96363282)
-  const [linkedInOrgId, setLinkedInOrgId] = useState(safeGetItem('linkedin_org_id') || '96363282');
+  // LinkedIn Credentials & Organization ID (Defaulted to Brother Company ID 808877)
+  const [linkedInOrgId, setLinkedInOrgId] = useState(safeGetItem('linkedin_org_id') || '808877');
   const [linkedInClientId, setLinkedInClientId] = useState(safeGetItem('linkedin_client_id') || '');
   const [linkedInClientSecret, setLinkedInClientSecret] = useState(safeGetItem('linkedin_client_secret') || '');
   const [linkedInToken, setLinkedInToken] = useState(safeGetItem('key_linkedin') || '');
@@ -140,7 +140,7 @@ export default function SettingsView({ isDark }) {
     }
 
     // Test LinkedIn Configuration
-    const activeOrgId = cleanLinkedInOrgId(linkedInOrgId || safeGetItem('linkedin_org_id') || '96363282');
+    const activeOrgId = cleanLinkedInOrgId(linkedInOrgId || safeGetItem('linkedin_org_id') || '808877');
     const activeLinkedInToken = (linkedInToken || safeGetItem('key_linkedin') || '').trim();
 
     if (activeOrgId && activeLinkedInToken) {
@@ -199,12 +199,20 @@ export default function SettingsView({ isDark }) {
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
     const token = params.get('linkedin_token');
+    const refresh = params.get('linkedin_refresh');
+    const expiresIn = params.get('expires_in');
     const err = params.get('linkedin_error');
     const org = params.get('org_id');
 
     if (token) {
       setLinkedInToken(token);
       safeSetItem('key_linkedin', token);
+      if (refresh) {
+        safeSetItem('linkedin_refresh_token', refresh);
+      }
+      if (expiresIn) {
+        safeSetItem('linkedin_token_expires_at', String(Date.now() + Number(expiresIn) * 1000));
+      }
       if (org) {
         setLinkedInOrgId(org);
         safeSetItem('linkedin_org_id', cleanLinkedInOrgId(org));
@@ -212,7 +220,7 @@ export default function SettingsView({ isDark }) {
       setSaved(true);
       setLiDataResult({
         success: true,
-        message: '✅ LinkedIn Account successfully authorized! Access Token generated and saved. 1-Click Publishing is ready.'
+        message: '✅ LinkedIn Account successfully authorized! 60-day token generated with auto-refresh (365-day) enabled.'
       });
       window.history.replaceState({}, document.title, window.location.pathname);
     } else if (err) {
@@ -687,7 +695,7 @@ export default function SettingsView({ isDark }) {
               </h3>
             </div>
             <span className="text-[10px] font-mono bg-[#0f2ea2] text-white px-2 py-0.5 rounded-full font-bold">
-              Target: urn:li:organization:{cleanLinkedInOrgId(linkedInOrgId) || '96363282'}
+              Target: urn:li:organization:{cleanLinkedInOrgId(linkedInOrgId) || '808877'}
             </span>
           </div>
 
@@ -698,26 +706,18 @@ export default function SettingsView({ isDark }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Organization ID */}
             <div>
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center justify-between">
-                <span>LinkedIn Organization ID</span>
-                <button
-                  type="button"
-                  onClick={() => handleOrgIdChange('96363282')}
-                  className="text-[10px] text-[#0f2ea2] dark:text-blue-400 font-mono font-semibold hover:underline cursor-pointer"
-                  title="Click to set Singapore Org ID: 96363282"
-                >
-                  Use 96363282
-                </button>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                LinkedIn Organization ID
               </label>
               <input
                 type="text"
                 value={linkedInOrgId}
                 onChange={(e) => handleOrgIdChange(e.target.value)}
-                placeholder="96363282 or paste admin URL"
+                placeholder="808877 or paste admin URL"
                 className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none"
               />
               <p className="text-[10px] text-slate-400 mt-1">
-                Resolved URN: <span className="font-mono text-slate-800 dark:text-slate-200 font-bold">urn:li:organization:{cleanLinkedInOrgId(linkedInOrgId) || '96363282'}</span>
+                Resolved URN: <span className="font-mono text-slate-800 dark:text-slate-200 font-bold">urn:li:organization:{cleanLinkedInOrgId(linkedInOrgId) || '808877'}</span>
               </p>
             </div>
 
@@ -725,7 +725,7 @@ export default function SettingsView({ isDark }) {
             <div>
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center justify-between">
                 <span>OAuth 2.0 Access Token</span>
-                <span className="text-[10px] text-slate-400">60-day validity</span>
+                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">Auto-Refresh Enabled (365-day)</span>
               </label>
               <input
                 type="password"

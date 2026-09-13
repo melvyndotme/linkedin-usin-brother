@@ -105,14 +105,32 @@ export function formatLinkedInOrgUrn(input) {
   return cleanId ? `urn:li:organization:${cleanId}` : '';
 }
 
-export async function publishToLinkedInApi({ commentary, orgId, token }) {
-  const cleanId = cleanLinkedInOrgId(orgId);
+import { safeGetItem, safeSetItem } from './storage.js';
+
+export async function publishToLinkedInApi({ commentary, orgId, token, refreshToken, clientId, clientSecret }) {
+  const cleanId = cleanLinkedInOrgId(orgId || '808877');
+  const activeToken = token || safeGetItem('key_linkedin');
+  const activeRefresh = refreshToken || safeGetItem('linkedin_refresh_token');
+  const activeClientId = clientId || safeGetItem('linkedin_client_id') || '8660fx8uvz5z8a';
+  const activeSecret = clientSecret || safeGetItem('linkedin_client_secret');
+
   const res = await fetch('/api/linkedin/publish', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ commentary, orgId: cleanId, token })
+    body: JSON.stringify({
+      commentary,
+      orgId: cleanId,
+      token: activeToken,
+      refreshToken: activeRefresh,
+      clientId: activeClientId,
+      clientSecret: activeSecret
+    })
   });
-  return await res.json();
+  const data = await res.json();
+  if (data?.refreshedToken) {
+    safeSetItem('key_linkedin', data.refreshedToken);
+  }
+  return data;
 }
 
 export async function testLinkedInCredentials({ orgId, token }) {

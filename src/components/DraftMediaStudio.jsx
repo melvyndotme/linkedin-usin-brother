@@ -345,7 +345,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
     setPublishing(true);
     setPublishError(null);
     const token = safeGetItem('key_linkedin');
-    const orgId = safeGetItem('linkedin_org_id') || '96363282';
+    const orgId = safeGetItem('linkedin_org_id') || '808877';
 
     try {
       const result = await publishToLinkedInApi({ commentary: content, orgId, token: token || undefined });

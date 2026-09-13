@@ -1,6 +1,30 @@
 // Vercel Serverless Function: Publish Post to LinkedIn Organization Page via LinkedIn REST API
 // LinkedIn Documentation: https://learn.microsoft.com/en-us/linkedin/marketing/community-management/shares/posts-api
 
+async function tryRefreshToken({ refreshToken, clientId, clientSecret }) {
+  if (!refreshToken || !clientId || !clientSecret) return null;
+  try {
+    const params = new URLSearchParams({
+      grant_type: 'refresh_token',
+      refresh_token: refreshToken,
+      client_id: clientId,
+      client_secret: clientSecret
+    });
+    const res = await fetch('https://www.linkedin.com/oauth/v2/accessToken', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params.toString()
+    });
+    const data = await res.json();
+    if (res.ok && data.access_token) {
+      return data;
+    }
+  } catch (e) {
+    console.error('LinkedIn auto-refresh error:', e.message);
+  }
+  return null;
+}
+
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Credentials", true);
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -14,22 +38,35 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
-  const token = req.body?.token || req.headers?.authorization?.replace("Bearer ", "") || process.env.LINKEDIN_ACCESS_TOKEN || process.env.LINKEDIN_TOKEN;
-  const orgId = req.body?.orgId || process.env.LINKEDIN_ORG_ID || "96363282";
+  let token = req.body?.token || req.headers?.authorization?.replace("Bearer ", "") || process.env.LINKEDIN_ACCESS_TOKEN || process.env.LINKEDIN_TOKEN;
+  const refreshToken = req.body?.refreshToken || process.env.LINKEDIN_REFRESH_TOKEN;
+  const clientId = req.body?.clientId || process.env.LINKEDIN_CLIENT_ID || '8660fx8uvz5z8a';
+  const clientSecret = req.body?.clientSecret || process.env.LINKEDIN_CLIENT_SECRET;
+  const orgId = req.body?.orgId || process.env.LINKEDIN_ORG_ID || "808877";
   const commentary = req.body?.commentary || req.body?.content;
   const isTest = req.query?.test === "true" || req.body?.isTest === true;
+
+  let refreshedTokenData = null;
+
+  // If no token is provided but refresh token is available, attempt silent auto-refresh
+  if (!token && refreshToken) {
+    refreshedTokenData = await tryRefreshToken({ refreshToken, clientId, clientSecret });
+    if (refreshedTokenData?.access_token) {
+      token = refreshedTokenData.access_token;
+    }
+  }
 
   if (!token) {
     return res.status(400).json({
       success: false,
-      error: "Missing LinkedIn Bearer Token. Please configure your OAuth 2.0 token in Integrations or set LINKEDIN_ACCESS_TOKEN in Vercel."
+      error: "Missing LinkedIn Bearer Token. Please click 'Authorize & Connect Brother Account' in Settings or configure your OAuth 2.0 token."
     });
   }
 
   if (!orgId) {
     return res.status(400).json({
       success: false,
-      error: "Missing LinkedIn Organization ID. Please provide your company page ID (e.g. 96363282)."
+      error: "Missing LinkedIn Organization ID. Please provide your company page ID (e.g. 808877)."
     });
   }
 
@@ -47,7 +84,7 @@ export default async function handler(req, res) {
   // If this is a connectivity test
   if (isTest) {
     try {
-      const testRes = await fetch("https://api.linkedin.com/rest/organizations/" + cleanId, {
+      let testRes = await fetch("https://api.linkedin.com/rest/organizations/" + cleanId, {
         method: "GET",
         headers: {
           "Authorization": "Bearer " + token,
@@ -56,13 +93,30 @@ export default async function handler(req, res) {
         }
       });
 
+      // If token expired (401) and refresh token available, auto-refresh and retry
+      if (testRes.status === 401 && refreshToken) {
+        refreshedTokenData = await tryRefreshToken({ refreshToken, clientId, clientSecret });
+        if (refreshedTokenData?.access_token) {
+          token = refreshedTokenData.access_token;
+          testRes = await fetch("https://api.linkedin.com/rest/organizations/" + cleanId, {
+            method: "GET",
+            headers: {
+              "Authorization": "Bearer " + token,
+              "LinkedIn-Version": "202401",
+              "X-Restli-Protocol-Version": "2.0.0"
+            }
+          });
+        }
+      }
+
       if (testRes.ok) {
         const orgData = await testRes.json();
         return res.status(200).json({
           success: true,
           message: "Successfully connected to LinkedIn Organization: " + (orgData.localizedName || cleanId),
           orgId: cleanId,
-          urn: authorUrn
+          urn: authorUrn,
+          refreshedToken: refreshedTokenData?.access_token || null
         });
       } else {
         const errText = await testRes.text();
@@ -102,7 +156,7 @@ export default async function handler(req, res) {
       isReshareDisabledByAuthor: false
     };
 
-    const response = await fetch("https://api.linkedin.com/rest/posts", {
+    let response = await fetch("https://api.linkedin.com/rest/posts", {
       method: "POST",
       headers: {
         "Authorization": "Bearer " + token,
@@ -113,6 +167,24 @@ export default async function handler(req, res) {
       body: JSON.stringify(postPayload)
     });
 
+    // Auto-refresh token if 401 Unauthorized
+    if (response.status === 401 && refreshToken) {
+      refreshedTokenData = await tryRefreshToken({ refreshToken, clientId, clientSecret });
+      if (refreshedTokenData?.access_token) {
+        token = refreshedTokenData.access_token;
+        response = await fetch("https://api.linkedin.com/rest/posts", {
+          method: "POST",
+          headers: {
+            "Authorization": "Bearer " + token,
+            "LinkedIn-Version": "202401",
+            "X-Restli-Protocol-Version": "2.0.0",
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(postPayload)
+        });
+      }
+    }
+
     const restliId = response.headers.get("x-restli-id");
 
     if (response.status === 201 || response.ok) {
@@ -121,7 +193,8 @@ export default async function handler(req, res) {
         urn: restliId || ("urn:li:share:" + Date.now()),
         status: "Live on LinkedIn",
         publishedAt: new Date().toLocaleTimeString(),
-        author: authorUrn
+        author: authorUrn,
+        refreshedToken: refreshedTokenData?.access_token || null
       });
     } else {
       const errBody = await response.text();

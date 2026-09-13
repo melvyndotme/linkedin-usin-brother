@@ -51,9 +51,11 @@ export default async function handler(req, res) {
     const tokenData = await tokenRes.json();
 
     if (tokenRes.ok && tokenData.access_token) {
-      // Redirect back to app Settings with token in query param
+      // Redirect back to app Settings with access_token and refresh_token
       const targetOrg = clientState.orgId || '808877';
-      return res.redirect(`/?tab=settings&linkedin_token=${encodeURIComponent(tokenData.access_token)}&org_id=${encodeURIComponent(targetOrg)}&linkedin_status=connected`);
+      const refreshToken = tokenData.refresh_token || '';
+      const expiresIn = tokenData.expires_in || 5184000;
+      return res.redirect(`/?tab=settings&linkedin_token=${encodeURIComponent(tokenData.access_token)}&linkedin_refresh=${encodeURIComponent(refreshToken)}&expires_in=${expiresIn}&org_id=${encodeURIComponent(targetOrg)}&linkedin_status=connected`);
     } else {
       const errMsg = tokenData.error_description || tokenData.error || 'Failed to exchange authorization code for access token.';
       return res.redirect(`/?tab=settings&linkedin_error=${encodeURIComponent(errMsg)}`);
