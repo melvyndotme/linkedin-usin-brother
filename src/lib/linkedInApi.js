@@ -1,6 +1,8 @@
 // LinkedIn Integration & Real-Time Company Page Stream & Analytics
 // Targeted Page: https://www.linkedin.com/company/brother-international-singapore-pte-ltd/posts/
 
+import { safeGetItem, safeSetItem } from './storage.js';
+
 export const BROTHER_LINKEDIN_ANALYTICS = {
   companyName: "Brother International Singapore Pte Ltd",
   profileUrl: "https://www.linkedin.com/company/brother-international-singapore-pte-ltd/posts/",
@@ -104,8 +106,6 @@ export function formatLinkedInOrgUrn(input) {
   const cleanId = cleanLinkedInOrgId(input);
   return cleanId ? `urn:li:organization:${cleanId}` : '';
 }
-
-import { safeGetItem, safeSetItem } from './storage.js';
 
 export async function publishToLinkedInApi({ commentary, orgId, token, refreshToken, clientId, clientSecret }) {
   const cleanId = cleanLinkedInOrgId(orgId || '808877');
