@@ -1,5 +1,93 @@
 // High-Fidelity Image & Multi-Slide Carousel Template Engine for Brother Singapore
-// Provides curated photography assets, 5-slide narrative series generation, and Canvas PNG export
+// Provides official Brother SG media assets, curated photography, 5-slide narrative series generation, and Canvas PNG export
+
+// Official Brother Singapore Media Library (Provided from brother.com.sg)
+export const OFFICIAL_BROTHER_ASSETS = [
+  {
+    id: 'bsg-biz',
+    title: 'Business Solutions & Enterprise Hardware',
+    category: 'business',
+    url: 'https://www.brother.com.sg/-/media/ap2/global/business-solutions/landing/category-landing-page/frame-65.png?h=380&iar=0&w=648&rev=9d1e94ea036143f59035cad12b64a9ab',
+    thumb: 'https://www.brother.com.sg/-/media/ap2/global/business-solutions/landing/category-landing-page/frame-65.png?h=380&iar=0&w=648&rev=9d1e94ea036143f59035cad12b64a9ab'
+  },
+  {
+    id: 'bsg-scan',
+    title: 'High-Speed Document Scanners',
+    category: 'scanners',
+    url: 'https://www.brother.com.sg/-/media/ap2/singapore/hubpage/scanners/offerzone/bigbanner.jpg?rev=46a0f54713e7432397264b97fbbfff34',
+    thumb: 'https://www.brother.com.sg/-/media/ap2/singapore/hubpage/scanners/offerzone/bigbanner.jpg?rev=46a0f54713e7432397264b97fbbfff34'
+  },
+  {
+    id: 'bsg-pt-p300bt',
+    title: 'P-Touch P300BT Smart Cube Label Maker',
+    category: 'labelling',
+    url: 'https://www.brother.com.sg/-/media/ap2/common/listingpagebanners/pt-p300bt.png?rev=ca1441d94189455fbed6014406a602c9',
+    thumb: 'https://www.brother.com.sg/-/media/ap2/common/listingpagebanners/pt-p300bt.png?rev=ca1441d94189455fbed6014406a602c9'
+  },
+  {
+    id: 'bsg-pt-p710bt',
+    title: 'P-Touch P710BT Cube Plus Label Printer',
+    category: 'labelling',
+    url: 'https://www.brother.com.sg/-/media/ap2/common/listingpagebanners/pt-p710bt.png?rev=03cff90f4bc24e35b9db7e7f5c87e290',
+    thumb: 'https://www.brother.com.sg/-/media/ap2/common/listingpagebanners/pt-p710bt.png?rev=03cff90f4bc24e35b9db7e7f5c87e290'
+  },
+  {
+    id: 'bsg-pt-e850tkw',
+    title: 'P-Touch E850TKW Industrial Tube & Label System',
+    category: 'labelling',
+    url: 'https://www.brother.com.sg/-/media/ap2/common/listingpagebanners/pt-e850tkw.png?rev=ae2799e5fa5642e2a21913afa5884a6e',
+    thumb: 'https://www.brother.com.sg/-/media/ap2/common/listingpagebanners/pt-e850tkw.png?rev=ae2799e5fa5642e2a21913afa5884a6e'
+  },
+  {
+    id: 'bsg-label-new',
+    title: 'Brother Singapore Labelling Solutions',
+    category: 'labelling',
+    url: 'https://www.brother.com.sg/-/media/ap2/singapore/hubpage/labellingmachines/offerzone/new-banner.jpeg?rev=fac1d04d76f349b5858ff07e64ec1709',
+    thumb: 'https://www.brother.com.sg/-/media/ap2/singapore/hubpage/labellingmachines/offerzone/new-banner.jpeg?rev=fac1d04d76f349b5858ff07e64ec1709'
+  },
+  {
+    id: 'bsg-label-assets',
+    title: 'Asset Management & Commercial Labelling',
+    category: 'labelling',
+    url: 'https://www.brother.com.sg/-/media/ap2/singapore/hubpage/labellingmachines/offerzone/assets-banner.jpg?rev=32f0b81b8b574d3cad8532dc74ab65bd',
+    thumb: 'https://www.brother.com.sg/-/media/ap2/singapore/hubpage/labellingmachines/offerzone/assets-banner.jpg?rev=32f0b81b8b574d3cad8532dc74ab65bd'
+  },
+  {
+    id: 'bsg-label-sm',
+    title: 'Everyday Portable Label Printers',
+    category: 'labelling',
+    url: 'https://www.brother.com.sg/-/media/ap2/singapore/hubpage/labellingmachines/offerzone/smbanner1.jpg?rev=ded6b27be7344adc871612c9fef10af8',
+    thumb: 'https://www.brother.com.sg/-/media/ap2/singapore/hubpage/labellingmachines/offerzone/smbanner1.jpg?rev=ded6b27be7344adc871612c9fef10af8'
+  },
+  {
+    id: 'bsg-sew-art',
+    title: 'Sewing & Craft Embroidery Artwork',
+    category: 'craft',
+    url: 'https://www.brother.com.sg/-/media/ap2/singapore/toppage/offer-zone/1-3/brother-sewing-and-embroidery-artwork_750x250.webp?rev=4a717f8a62624d7bbe4102bd4479aed8',
+    thumb: 'https://www.brother.com.sg/-/media/ap2/singapore/toppage/offer-zone/1-3/brother-sewing-and-embroidery-artwork_750x250.webp?rev=4a717f8a62624d7bbe4102bd4479aed8'
+  },
+  {
+    id: 'bsg-sew-home',
+    title: 'Home Sewing Machine Studio',
+    category: 'craft',
+    url: 'https://www.brother.com.sg/-/media/ap2/singapore/hubpage/homesewingmachine/offerzone/singapore_sewing-banner-component.webp?rev=367d6715fbf446b28770887af888f6e1',
+    thumb: 'https://www.brother.com.sg/-/media/ap2/singapore/hubpage/homesewingmachine/offerzone/singapore_sewing-banner-component.webp?rev=367d6715fbf446b28770887af888f6e1'
+  },
+  {
+    id: 'bsg-artspira',
+    title: 'Artspira Digital Crafting App & Design',
+    category: 'craft',
+    url: 'https://www.brother.com.sg/-/media/ap2/singapore/hubpage/homesewingmachine/offerzone/artspira_header_comp_750x250.webp?rev=14cc3b25bca74b1f9015f799225f9a52',
+    thumb: 'https://www.brother.com.sg/-/media/ap2/singapore/hubpage/homesewingmachine/offerzone/artspira_header_comp_750x250.webp?rev=14cc3b25bca74b1f9015f799225f9a52'
+  },
+  {
+    id: 'bsg-sew-promo',
+    title: 'Precision Sewing & Quilting Series',
+    category: 'craft',
+    url: 'https://www.brother.com.sg/-/media/ap2/singapore/hubpage/homesewingmachine/offerzone/singapore_sewing-promo-banner-1.webp?rev=eac26ab883084e319d4e86e07a930e43',
+    thumb: 'https://www.brother.com.sg/-/media/ap2/singapore/hubpage/homesewingmachine/offerzone/singapore_sewing-promo-banner-1.webp?rev=eac26ab883084e319d4e86e07a930e43'
+  }
+];
 
 export const CURATED_EVENT_PHOTOS = {
   'mid-autumn': [
@@ -122,7 +210,7 @@ export const CURATED_EVENT_PHOTOS = {
   ]
 };
 
-// Map occasion to photo category
+// Map occasion to default photo category
 export function getPhotoCategoryForOccasion(occasion) {
   if (!occasion) return 'corporate';
   const name = (occasion.name || '').toLowerCase();
@@ -216,7 +304,7 @@ export function generateCarouselSlideSeries(occasion, activeDraft = null) {
 }
 
 /**
- * Render a Slide onto an HTML5 Canvas for high-DPI export
+ * Render a Slide onto an HTML5 Canvas for high-DPI export with Official Brother Logo
  */
 export async function renderSlideToCanvas({
   slide,
@@ -287,23 +375,45 @@ export async function renderSlideToCanvas({
   }
 
   // 3. Top Header: Official Brother Logo & Slide Number
-  ctx.save();
-  ctx.fillStyle = '#FFFFFF';
-  ctx.font = 'bold 30px "Plus Jakarta Sans", system-ui, sans-serif';
-  ctx.fillText('brother', 70, isBanner ? 65 : 85);
-  ctx.font = 'italic 500 13px "Plus Jakarta Sans", system-ui, sans-serif';
-  ctx.fillStyle = '#94A3B8';
-  ctx.fillText('at your side', 72, isBanner ? 83 : 103);
+  let logoLoaded = false;
+  const logoImg = new Image();
+  logoImg.crossOrigin = 'anonymous';
+
+  const loadLogo = (src) => new Promise((resolve) => {
+    logoImg.onload = () => { logoLoaded = true; resolve(); };
+    logoImg.onerror = () => { logoLoaded = false; resolve(); };
+    logoImg.src = src;
+  });
+
+  await loadLogo('/brother-logo.svg');
+  if (!logoLoaded) {
+    await loadLogo('/brother-logo.png');
+  }
+
+  if (logoLoaded && logoImg.width > 0) {
+    const logoH = isBanner ? 34 : 40;
+    const logoW = (logoImg.width / logoImg.height) * logoH;
+    ctx.drawImage(logoImg, 70, isBanner ? 48 : 65, logoW, logoH);
+  } else {
+    ctx.save();
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = 'bold 30px "Plus Jakarta Sans", system-ui, sans-serif';
+    ctx.fillText('brother', 70, isBanner ? 65 : 85);
+    ctx.font = 'italic 500 13px "Plus Jakarta Sans", system-ui, sans-serif';
+    ctx.fillStyle = '#94A3B8';
+    ctx.fillText('at your side', 72, isBanner ? 83 : 103);
+    ctx.restore();
+  }
 
   // Slide Numbering (e.g. 01 / 05)
   if (slide?.slideNumber) {
+    ctx.save();
     ctx.font = 'bold 15px "Plus Jakarta Sans", monospace';
     ctx.fillStyle = '#38BDF8';
     ctx.textAlign = 'right';
     ctx.fillText(slide.slideNumber, width - 70, isBanner ? 70 : 90);
-    ctx.textAlign = 'left';
+    ctx.restore();
   }
-  ctx.restore();
 
   // 4. Badge Pill (e.g. "Festivals & Celebrations")
   if (slide?.badge) {
@@ -372,7 +482,7 @@ export async function renderSlideToCanvas({
 
   ctx.textAlign = 'right';
   ctx.fillStyle = '#0284C7';
-  ctx.fillText('linkedin.com/company/brother-singapore', width - 70, footerY + 5);
+  ctx.fillText('brother.com.sg', width - 70, footerY + 5);
   ctx.restore();
 
   return canvas.toDataURL('image/png');

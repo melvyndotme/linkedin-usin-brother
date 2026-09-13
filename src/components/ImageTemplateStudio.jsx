@@ -15,9 +15,11 @@ import {
   FolderDown,
   Wand2,
   Copy,
-  ExternalLink
+  ExternalLink,
+  Tag
 } from 'lucide-react';
 import { 
+  OFFICIAL_BROTHER_ASSETS,
   CURATED_EVENT_PHOTOS, 
   getPhotoCategoryForOccasion, 
   generateCarouselSlideSeries, 
@@ -32,12 +34,12 @@ export default function ImageTemplateStudio({
 }) {
   const [aspectRatio, setAspectRatio] = useState('1:1'); // '1:1' (Square Carousel) or '1.91:1' (Landscape Banner)
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
+  const [activeAssetTab, setActiveAssetTab] = useState('official'); // 'official' | 'festive'
   const [selectedPhotoUrl, setSelectedPhotoUrl] = useState('');
   const [customPhotoUrl, setCustomPhotoUrl] = useState('');
   const [isAiGenerating, setIsAiGenerating] = useState(false);
   const [aiError, setAiError] = useState(null);
   const [downloading, setDownloading] = useState(false);
-  const [copied, setCopied] = useState(false);
 
   const fileInputRef = useRef(null);
 
@@ -46,16 +48,21 @@ export default function ImageTemplateStudio({
     return getPhotoCategoryForOccasion(occasion);
   }, [occasion]);
 
-  const photoPresets = useMemo(() => {
+  const festivePresets = useMemo(() => {
     return CURATED_EVENT_PHOTOS[photoCategory] || CURATED_EVENT_PHOTOS['corporate'];
   }, [photoCategory]);
 
   // Set default photo when occasion changes
   useEffect(() => {
-    if (photoPresets && photoPresets.length > 0) {
-      setSelectedPhotoUrl(photoPresets[0].url);
+    // If it's a promotion or custom hardware campaign, default to official Brother assets
+    if (occasion?.eventType === 'promotion' || occasion?.theme === 'red') {
+      setActiveAssetTab('official');
+      setSelectedPhotoUrl(OFFICIAL_BROTHER_ASSETS[0]?.url || '');
+    } else if (festivePresets && festivePresets.length > 0) {
+      setActiveAssetTab('official');
+      setSelectedPhotoUrl(OFFICIAL_BROTHER_ASSETS[0]?.url || festivePresets[0].url);
     }
-  }, [occasion, photoPresets]);
+  }, [occasion, festivePresets]);
 
   // Generate 5-slide series
   const slides = useMemo(() => {
@@ -64,8 +71,8 @@ export default function ImageTemplateStudio({
 
   const currentSlide = slides[activeSlideIndex] || slides[0];
 
-  // Active photo URL (either selected preset, custom uploaded, or fallback)
-  const currentPhoto = customPhotoUrl || selectedPhotoUrl || photoPresets[0]?.url;
+  // Active photo URL
+  const currentPhoto = customPhotoUrl || selectedPhotoUrl || OFFICIAL_BROTHER_ASSETS[0]?.url;
 
   // Handle slide navigation
   const handlePrevSlide = () => {
@@ -129,7 +136,6 @@ export default function ImageTemplateStudio({
           const eventSlug = (occasion?.name || 'brother-sg').toLowerCase().replace(/[^a-z0-9]+/g, '-');
           a.download = `${eventSlug}-slide-${slide.slideIndex}-${slideName}.png`;
           a.click();
-          // Small delay to allow browser to handle multiple downloads
           await new Promise((r) => setTimeout(r, 400));
         }
       }
@@ -174,16 +180,21 @@ export default function ImageTemplateStudio({
     <div className="space-y-4 pt-2">
       {/* Studio Header Toolbar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50 dark:bg-slate-900/60 p-3 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-800">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-[#0f2ea2] text-white flex items-center justify-center font-bold">
-            <Layers className="w-3.5 h-3.5" />
-          </div>
+        <div className="flex items-center gap-3">
+          <img 
+            src="/brother-logo.svg" 
+            alt="Brother • at your side" 
+            className="h-8 w-auto object-contain bg-slate-950 px-2 py-1 rounded-lg border border-slate-800"
+            onError={(e) => {
+              e.target.src = '/brother-logo.png';
+            }}
+          />
           <div>
             <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
               Official LinkedIn Visual Studio
             </h4>
             <p className="text-[11px] text-slate-500">
-              Photographic editorial templates & multi-slide carousels for Brother Singapore
+              Official Brother SG brand assets & 5-slide editorial carousels
             </p>
           </div>
         </div>
@@ -292,7 +303,7 @@ export default function ImageTemplateStudio({
             aspectRatio === '1.91:1' ? 'aspect-[1.91/1]' : 'aspect-square'
           }`}
         >
-          {/* High-Resolution Background Photography */}
+          {/* Background Image (Official Brother SG Asset or Festive Photo) */}
           <img
             src={currentPhoto}
             alt={currentSlide.headline}
@@ -314,15 +325,15 @@ export default function ImageTemplateStudio({
           <div className="absolute inset-0 p-6 sm:p-10 flex flex-col justify-between text-white select-none">
             {/* Top Bar: Official Brother Logo & Slide Indicator */}
             <div className="flex items-start justify-between">
-              <div>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-2xl sm:text-3xl font-black tracking-tight text-white font-sans">
-                    brother
-                  </span>
-                </div>
-                <span className="text-xs sm:text-sm font-medium italic text-slate-300 tracking-wide block -mt-1">
-                  at your side
-                </span>
+              <div className="flex items-center gap-2">
+                <img 
+                  src="/brother-logo.svg" 
+                  alt="Brother • at your side" 
+                  className="h-8 sm:h-10 w-auto object-contain drop-shadow-md"
+                  onError={(e) => {
+                    e.target.src = '/brother-logo.png';
+                  }}
+                />
               </div>
 
               {aspectRatio === '1:1' && (
@@ -356,7 +367,7 @@ export default function ImageTemplateStudio({
             {/* Bottom Footer: Official Channel & Category Note */}
             <div className="pt-3 border-t border-white/15 flex items-center justify-between text-[11px] text-slate-400 font-medium">
               <span>{currentSlide.footerText}</span>
-              <span className="text-sky-400 hidden sm:inline font-semibold">linkedin.com/company/brother-singapore</span>
+              <span className="text-sky-400 hidden sm:inline font-semibold">brother.com.sg</span>
             </div>
           </div>
         </div>
@@ -364,11 +375,32 @@ export default function ImageTemplateStudio({
 
       {/* Visual Asset Customizer & Photo Chooser Bar */}
       <div className="p-3 sm:p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-            <Palette className="w-3.5 h-3.5 text-[#0f2ea2]" />
-            Background Photography Presets:
-          </span>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
+          {/* Asset Category Tabs */}
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => setActiveAssetTab('official')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                activeAssetTab === 'official'
+                  ? 'bg-[#0f2ea2] text-white shadow-xs'
+                  : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-100'
+              }`}
+            >
+              Official Brother SG Assets ({OFFICIAL_BROTHER_ASSETS.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveAssetTab('festive')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                activeAssetTab === 'festive'
+                  ? 'bg-[#0f2ea2] text-white shadow-xs'
+                  : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-100'
+              }`}
+            >
+              Cultural & Event Photography
+            </button>
+          </div>
 
           <div className="flex items-center gap-2">
             <input
@@ -406,30 +438,30 @@ export default function ImageTemplateStudio({
           </div>
         )}
 
-        {/* Thumbnail Gallery */}
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
-          {photoPresets.map((preset) => (
+        {/* Thumbnail Gallery based on active tab */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
+          {(activeAssetTab === 'official' ? OFFICIAL_BROTHER_ASSETS : festivePresets).map((asset) => (
             <button
-              key={preset.id}
+              key={asset.id}
               type="button"
               onClick={() => {
-                setSelectedPhotoUrl(preset.url);
+                setSelectedPhotoUrl(asset.url);
                 setCustomPhotoUrl('');
               }}
-              className={`group relative aspect-video rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${
-                currentPhoto === preset.url
+              className={`group relative aspect-video rounded-lg overflow-hidden border-2 transition-all cursor-pointer bg-slate-900 ${
+                currentPhoto === asset.url
                   ? 'border-[#0f2ea2] ring-2 ring-[#0f2ea2]/30 shadow-md'
-                  : 'border-transparent hover:border-slate-400 opacity-75 hover:opacity-100'
+                  : 'border-transparent hover:border-slate-400 opacity-80 hover:opacity-100'
               }`}
             >
               <img
-                src={preset.thumb}
-                alt={preset.title}
+                src={asset.thumb}
+                alt={asset.title}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                 loading="lazy"
               />
-              <div className="absolute inset-x-0 bottom-0 bg-black/60 p-1 text-[9px] text-white font-medium truncate">
-                {preset.title}
+              <div className="absolute inset-x-0 bottom-0 bg-black/70 p-1 text-[9px] text-white font-medium truncate">
+                {asset.title}
               </div>
             </button>
           ))}
