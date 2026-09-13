@@ -67,8 +67,6 @@ export default function ImageTemplateStudio({
   const [showTextEditor, setShowTextEditor] = useState(false);
   const [customSlideText, setCustomSlideText] = useState({});
 
-  const fileInputRef = useRef(null);
-
   // Determine photo theme category based on current occasion
   const photoCategory = useMemo(() => {
     return getPhotoCategoryForOccasion(occasion);
@@ -136,13 +134,26 @@ export default function ImageTemplateStudio({
     setActiveSlideIndex((prev) => (prev < baseSlides.length - 1 ? prev + 1 : 0));
   };
 
-  // Handle file upload
+  // Handle file upload with robust FileReader and base64 encoding
   const handleUploadPhoto = (e) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const objectUrl = URL.createObjectURL(file);
-      setCustomPhotoUrl(objectUrl);
-    }
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const dataUrl = event.target?.result;
+      if (typeof dataUrl === 'string') {
+        setCustomPhotoUrl(dataUrl);
+        setSelectedPhotoUrl(dataUrl);
+      }
+    };
+    reader.onerror = (err) => {
+      console.error('Error reading uploaded image:', err);
+    };
+    reader.readAsDataURL(file);
+
+    // Reset input value so selecting the same file again triggers onChange
+    e.target.value = '';
   };
 
   // Handle single slide PNG download
@@ -613,27 +624,28 @@ export default function ImageTemplateStudio({
               <span>Token Advisory</span>
             </button>
 
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleUploadPhoto}
-              accept="image/*"
-              className="hidden"
-            />
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 hover:bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 transition-all cursor-pointer"
+            {/* Native HTML File Upload Label (100% reliable across all browsers) */}
+            <label
+              htmlFor="brother-photo-upload"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 transition-all cursor-pointer shadow-2xs"
+              title="Upload an image from your device"
             >
-              <Upload className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Upload Photo</span>
-            </button>
+              <Upload className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
+              <span>Upload Photo</span>
+              <input
+                id="brother-photo-upload"
+                type="file"
+                accept="image/*"
+                onChange={handleUploadPhoto}
+                className="sr-only"
+              />
+            </label>
 
             <button
               type="button"
               onClick={handleAiGenerate}
               disabled={isAiGenerating}
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-gradient-to-r from-[#0f2ea2] to-blue-700 hover:from-[#0c2480] hover:to-blue-800 px-3 py-1 rounded-lg shadow-sm transition-all cursor-pointer disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-gradient-to-r from-[#0f2ea2] to-blue-700 hover:from-[#0c2480] hover:to-blue-800 px-3 py-1.5 rounded-lg shadow-sm transition-all cursor-pointer disabled:opacity-50"
               title="Generate tailored editorial photo using selected model"
             >
               <Sparkles className="w-3.5 h-3.5" />
@@ -689,6 +701,50 @@ export default function ImageTemplateStudio({
               >
                 <Info className="w-3.5 h-3.5 text-amber-600" />
                 <span>Token Requirements Guide</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Custom Uploaded Photo Indicator Banner */}
+        {customPhotoUrl && (
+          <div className="flex items-center justify-between p-2.5 sm:p-3 rounded-xl bg-blue-50/80 dark:bg-blue-950/40 border-2 border-[#0f2ea2] shadow-xs animate-in fade-in duration-200">
+            <div className="flex items-center gap-3 min-w-0">
+              <img
+                src={customPhotoUrl}
+                alt="Custom Uploaded"
+                className="w-12 h-12 rounded-lg object-cover border border-[#0f2ea2]/40 shadow-xs shrink-0"
+              />
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                  <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                    Custom Uploaded Photo Active
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                  Now active on the slide canvas and will be exported in downloaded PNGs
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <label
+                htmlFor="brother-photo-upload"
+                className="px-2.5 py-1 text-xs font-bold text-[#0f2ea2] dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-lg cursor-pointer transition-colors"
+              >
+                Replace
+              </label>
+              <button
+                type="button"
+                onClick={() => {
+                  setCustomPhotoUrl('');
+                  setSelectedPhotoUrl(OFFICIAL_BROTHER_ASSETS[0]?.url || '');
+                }}
+                className="px-2.5 py-1 text-xs font-bold text-slate-500 hover:text-rose-600 rounded-lg cursor-pointer transition-colors"
+                title="Remove custom photo and revert to official presets"
+              >
+                Remove
               </button>
             </div>
           </div>

@@ -324,7 +324,11 @@ export async function renderSlideToCanvas({
   // 1. Load Background Image
   let imgLoaded = false;
   let bgImg = new Image();
-  bgImg.crossOrigin = 'anonymous';
+
+  const isRemote = photoUrl && (photoUrl.startsWith('http://') || photoUrl.startsWith('https://'));
+  if (isRemote) {
+    bgImg.crossOrigin = 'anonymous';
+  }
 
   const loadImage = (src) => new Promise((resolve) => {
     bgImg.onload = () => { imgLoaded = true; resolve(); };
@@ -333,7 +337,6 @@ export async function renderSlideToCanvas({
   });
 
   if (photoUrl) {
-    const isRemote = photoUrl.startsWith('http://') || photoUrl.startsWith('https://');
     const safeUrl = isRemote ? `/api/image-proxy?url=${encodeURIComponent(photoUrl)}` : photoUrl;
     await loadImage(safeUrl);
   }
