@@ -5,7 +5,7 @@ import { generateBrotherWebsiteBannerSVG } from '../lib/svgBrotherWebsiteTemplat
 import { publishToLinkedInApi, cleanLinkedInOrgId } from '../lib/linkedInApi.js';
 import { safeGetItem } from '../lib/storage.js';
 
-export default function DraftMediaStudio({ isDark, initialContent, initialTitle }) {
+export default function DraftMediaStudio({ isDark, initialContent, initialTitle, onNavigateToSettings }) {
   const [title, setTitle] = useState(initialTitle || 'Singapore National Day 2026 Celebration');
   const [content, setContent] = useState(initialContent || `Happy 61st Singapore National Day! 🇸🇬✨
 
@@ -26,6 +26,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
   const [videoFile, setVideoFile] = useState(null);
   const [publishing, setPublishing] = useState(false);
   const [publishedData, setPublishedData] = useState(null);
+  const [publishError, setPublishError] = useState(null);
   const [notionSaving, setNotionSaving] = useState(false);
   const [notionSavedData, setNotionSavedData] = useState(null);
   const [notionError, setNotionError] = useState(null);
@@ -111,45 +112,56 @@ To everyone celebrating, how is your team marking this special day? Share your f
 
   const handlePublishToLinkedIn = async () => {
     setPublishing(true);
+    setPublishError(null);
     const token = safeGetItem('key_linkedin');
     const orgId = safeGetItem('linkedin_org_id') || '96363282';
 
-    let publishedUrn = null;
-
-    if (token && orgId) {
-      try {
-        const result = await publishToLinkedInApi({ commentary: content, orgId, token });
-        if (result && result.success) {
-          publishedUrn = result.urn;
-          setPublishing(false);
-          setPublishedData({
-            urn: result.urn,
-            status: 'Live on LinkedIn',
-            publishedAt: result.publishedAt || new Date().toLocaleTimeString(),
-            notionStatus: 'Synced to Notion Repository'
-          });
-          handleSaveToNotionRepository(publishedUrn);
-          return;
-        } else {
-          console.warn('LinkedIn API response:', result?.error);
-        }
-      } catch (err) {
-        console.warn('LinkedIn API publish error:', err);
+    try {
+      const result = await publishToLinkedInApi({ commentary: content, orgId, token: token || undefined });
+      if (result && result.success) {
+        setPublishing(false);
+        setPublishError(null);
+        setPublishedData({
+          urn: result.urn,
+          status: 'Live on LinkedIn',
+          isLive: true,
+          publishedAt: result.publishedAt || new Date().toLocaleTimeString(),
+          notionStatus: 'Synced to Notion Repository',
+          postUrl: result.urn ? `https://www.linkedin.com/feed/update/${result.urn}` : null
+        });
+        handleSaveToNotionRepository(result.urn);
+        return;
+      } else {
+        setPublishing(false);
+        setPublishError({
+          message: result?.error || 'LinkedIn API returned an error. Ensure your OAuth 2.0 token with w_organization_social scope is configured.',
+          needsToken: !token
+        });
       }
+    } catch (err) {
+      setPublishing(false);
+      setPublishError({
+        message: err.message || 'Network error connecting to LinkedIn publishing API.',
+        needsToken: !token
+      });
     }
+  };
 
-    // Fallback simulated broadcast
+  const handleSimulatePublish = () => {
+    setPublishing(true);
+    setPublishError(null);
     setTimeout(() => {
       const mockUrn = `urn:li:share:${Math.floor(100000000 + Math.random() * 900000000)}`;
       setPublishing(false);
       setPublishedData({
         urn: mockUrn,
-        status: 'Live on LinkedIn',
+        status: 'Simulated Broadcast (Sandbox)',
+        isLive: false,
         publishedAt: new Date().toLocaleTimeString(),
         notionStatus: 'Synced to Notion Repository'
       });
       handleSaveToNotionRepository(mockUrn);
-    }, 1200);
+    }, 800);
   };
 
   // LinkedIn mobile fold character threshold (~140 chars)
@@ -166,16 +178,13 @@ To everyone celebrating, how is your team marking this special day? Share your f
       }`}>
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#0f2ea2]/10 text-[#0f2ea2] dark:text-blue-400 text-[11px] font-bold uppercase tracking-wider mb-1.5 sm:mb-2">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#0f2ea2]/10 text-[#0f2ea2] dark:text-blue-400 text-[11px] font-bold uppercase tracking-wider mb-1 sm:mb-1.5">
               <Edit3 className="w-3.5 h-3.5" />
               Content Studio
             </div>
             <h2 className={`text-lg sm:text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
-              Rich Post Editor & Media Asset Manager
+              Post & Media Editor
             </h2>
-            <p className="text-xs text-slate-500 mt-1">
-              Finalize post copy, attach banners or media, and publish to LinkedIn. Final posts archive to the Notion Repository.
-            </p>
           </div>
 
           <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -203,11 +212,42 @@ To everyone celebrating, how is your team marking this special day? Share your f
               ) : (
                 <Send className="w-4 h-4" />
               )}
-              {publishing ? 'Publishing to LinkedIn API...' : publishedData ? 'Published on LinkedIn!' : '1-Click Publish to LinkedIn'}
+              {publishing ? 'Connecting to LinkedIn...' : publishedData ? 'Published on LinkedIn!' : '1-Click Publish to LinkedIn'}
             </button>
           </div>
         </div>
       </div>
+
+      {/* Publish Error / Missing Credentials Notice Banner */}
+      {publishError && (
+        <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700/50 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-amber-900 dark:text-amber-200">
+          <div className="flex items-start gap-2.5">
+            <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+            <div>
+              <span className="font-bold block">LinkedIn Live Publish Required Credentials</span>
+              <p className="mt-0.5 opacity-90 leading-relaxed">{publishError.message}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+            {onNavigateToSettings && (
+              <button
+                type="button"
+                onClick={onNavigateToSettings}
+                className="px-3.5 py-1.5 rounded-lg bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold transition-all cursor-pointer shadow-xs"
+              >
+                Configure in Integrations ↗
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={handleSimulatePublish}
+              className="px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-200 text-xs font-semibold hover:bg-amber-100/50 transition-all cursor-pointer"
+            >
+              Simulate Test Broadcast
+            </button>
+          </div>
+        </div>
+      )}
 
       {notionSavedData && (
         <div className="p-3.5 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-500/30 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-blue-900 dark:text-blue-200">
@@ -233,17 +273,51 @@ To everyone celebrating, how is your team marking this special day? Share your f
       )}
 
       {publishedData && (
-        <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-500/30 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-emerald-800 dark:text-emerald-200">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
+        <div className={`p-4 rounded-xl border text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 ${
+          publishedData.isLive
+            ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-200'
+            : 'bg-blue-50 dark:bg-blue-950/40 border-blue-300 dark:border-blue-500/30 text-blue-900 dark:text-blue-200'
+        }`}>
+          <div className="flex items-center gap-2.5">
+            <CheckCircle2 className={`w-5 h-5 shrink-0 ${publishedData.isLive ? 'text-emerald-500' : 'text-blue-500'}`} />
             <div>
-              <span className="font-bold">Post is Live on Brother Singapore Company Page!</span>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-bold">
+                  {publishedData.isLive
+                    ? 'Post is Live on Brother Singapore Company Page!'
+                    : 'Simulated Broadcast (Sandbox Test Mode)'}
+                </span>
+                <span className={`text-[10px] font-mono font-bold px-1.5 py-0.2 rounded ${
+                  publishedData.isLive
+                    ? 'bg-emerald-200/60 dark:bg-emerald-900/80 text-emerald-900 dark:text-emerald-100'
+                    : 'bg-blue-200/60 dark:bg-blue-900/80 text-blue-900 dark:text-blue-100'
+                }`}>
+                  {publishedData.isLive ? 'Live API Verified' : 'Test Sandbox'}
+                </span>
+              </div>
               <div className="font-mono text-[11px] opacity-80 mt-0.5">Post URN: {publishedData.urn} • {publishedData.notionStatus}</div>
             </div>
           </div>
-          <span className="text-[11px] font-semibold bg-emerald-100 dark:bg-emerald-900/60 px-2.5 py-1 rounded-lg">
-            Published at {publishedData.publishedAt}
-          </span>
+          <div className="flex items-center gap-2 shrink-0">
+            {publishedData.postUrl && (
+              <a
+                href={publishedData.postUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 font-bold text-emerald-700 dark:text-emerald-300 hover:underline text-xs"
+              >
+                <span>View on LinkedIn</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            )}
+            <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-lg ${
+              publishedData.isLive
+                ? 'bg-emerald-100 dark:bg-emerald-900/60'
+                : 'bg-blue-100 dark:bg-blue-900/60'
+            }`}>
+              Published at {publishedData.publishedAt}
+            </span>
+          </div>
         </div>
       )}
 

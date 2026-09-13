@@ -251,6 +251,7 @@ export default function App() {
                 isDark={isDark}
                 initialContent={draftStudioPayload.content}
                 initialTitle={draftStudioPayload.title}
+                onNavigateToSettings={() => setActiveTab('settings')}
               />
             )}
 

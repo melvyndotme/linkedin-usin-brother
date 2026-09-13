@@ -14,15 +14,15 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
-  const token = req.body?.token || req.headers?.authorization?.replace("Bearer ", "");
-  const orgId = req.body?.orgId;
+  const token = req.body?.token || req.headers?.authorization?.replace("Bearer ", "") || process.env.LINKEDIN_ACCESS_TOKEN || process.env.LINKEDIN_TOKEN;
+  const orgId = req.body?.orgId || process.env.LINKEDIN_ORG_ID || "96363282";
   const commentary = req.body?.commentary || req.body?.content;
   const isTest = req.query?.test === "true" || req.body?.isTest === true;
 
   if (!token) {
     return res.status(400).json({
       success: false,
-      error: "Missing LinkedIn Bearer Token. Please configure in Settings."
+      error: "Missing LinkedIn Bearer Token. Please configure your OAuth 2.0 token in Integrations or set LINKEDIN_ACCESS_TOKEN in Vercel."
     });
   }
 
