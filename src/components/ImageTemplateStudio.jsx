@@ -16,7 +16,10 @@ import {
   Wand2,
   Copy,
   ExternalLink,
-  Tag
+  Tag,
+  Edit3,
+  RotateCcw,
+  X
 } from 'lucide-react';
 import { 
   OFFICIAL_BROTHER_ASSETS,
@@ -41,6 +44,10 @@ export default function ImageTemplateStudio({
   const [aiError, setAiError] = useState(null);
   const [downloading, setDownloading] = useState(false);
 
+  // Custom text overlay editor state
+  const [showTextEditor, setShowTextEditor] = useState(false);
+  const [customSlideText, setCustomSlideText] = useState({});
+
   const fileInputRef = useRef(null);
 
   // Determine photo theme category based on current occasion
@@ -54,7 +61,6 @@ export default function ImageTemplateStudio({
 
   // Set default photo when occasion changes
   useEffect(() => {
-    // If it's a promotion or custom hardware campaign, default to official Brother assets
     if (occasion?.eventType === 'promotion' || occasion?.theme === 'red') {
       setActiveAssetTab('official');
       setSelectedPhotoUrl(OFFICIAL_BROTHER_ASSETS[0]?.url || '');
@@ -64,23 +70,51 @@ export default function ImageTemplateStudio({
     }
   }, [occasion, festivePresets]);
 
-  // Generate 5-slide series
-  const slides = useMemo(() => {
+  // Generate base 5-slide series
+  const baseSlides = useMemo(() => {
     return generateCarouselSlideSeries(occasion, activeDraft);
   }, [occasion, activeDraft]);
 
-  const currentSlide = slides[activeSlideIndex] || slides[0];
+  // Slide data with user overrides
+  const currentSlide = useMemo(() => {
+    const base = baseSlides[activeSlideIndex] || baseSlides[0];
+    const overrides = customSlideText[activeSlideIndex] || {};
+    return {
+      ...base,
+      ...overrides
+    };
+  }, [baseSlides, activeSlideIndex, customSlideText]);
+
+  // Update field on the active slide
+  const updateSlideField = (field, val) => {
+    setCustomSlideText((prev) => ({
+      ...prev,
+      [activeSlideIndex]: {
+        ...(prev[activeSlideIndex] || {}),
+        [field]: val
+      }
+    }));
+  };
+
+  // Reset custom text on current slide
+  const handleResetSlideText = () => {
+    setCustomSlideText((prev) => {
+      const copy = { ...prev };
+      delete copy[activeSlideIndex];
+      return copy;
+    });
+  };
 
   // Active photo URL
   const currentPhoto = customPhotoUrl || selectedPhotoUrl || OFFICIAL_BROTHER_ASSETS[0]?.url;
 
   // Handle slide navigation
   const handlePrevSlide = () => {
-    setActiveSlideIndex((prev) => (prev > 0 ? prev - 1 : slides.length - 1));
+    setActiveSlideIndex((prev) => (prev > 0 ? prev - 1 : baseSlides.length - 1));
   };
 
   const handleNextSlide = () => {
-    setActiveSlideIndex((prev) => (prev < slides.length - 1 ? prev + 1 : 0));
+    setActiveSlideIndex((prev) => (prev < baseSlides.length - 1 ? prev + 1 : 0));
   };
 
   // Handle file upload
@@ -121,8 +155,11 @@ export default function ImageTemplateStudio({
   const handleDownloadAllSlides = async () => {
     setDownloading(true);
     try {
-      for (let i = 0; i < slides.length; i++) {
-        const slide = slides[i];
+      for (let i = 0; i < baseSlides.length; i++) {
+        const base = baseSlides[i];
+        const overrides = customSlideText[i] || {};
+        const slide = { ...base, ...overrides };
+
         const dataUrl = await renderSlideToCanvas({
           slide,
           photoUrl: currentPhoto,
@@ -152,7 +189,7 @@ export default function ImageTemplateStudio({
     setAiError(null);
     try {
       const clientKey = safeGetItem('key_gemini') || '';
-      const res = await fetch('/api/ai/generate-image', {
+      const res = await fetch('/api/ai/media', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -199,8 +236,9 @@ export default function ImageTemplateStudio({
           </div>
         </div>
 
-        {/* Format Selector: 1:1 Square vs 1.91:1 Banner */}
+        {/* Action Controls & Format Selector */}
         <div className="flex items-center gap-2 flex-wrap">
+          {/* Format Selector: 1:1 Square vs 1.91:1 Banner */}
           <div className="flex items-center p-1 rounded-xl bg-slate-200/70 dark:bg-slate-800 border border-slate-300/60 dark:border-slate-700 text-xs font-semibold">
             <button
               type="button"
@@ -226,6 +264,21 @@ export default function ImageTemplateStudio({
             </button>
           </div>
 
+          {/* Edit Text Toggle Button */}
+          <button
+            type="button"
+            onClick={() => setShowTextEditor(!showTextEditor)}
+            className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-xl border transition-all cursor-pointer ${
+              showTextEditor
+                ? 'bg-blue-50 dark:bg-blue-950 text-[#0f2ea2] dark:text-blue-400 border-blue-300 dark:border-blue-700 shadow-xs'
+                : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-100'
+            }`}
+          >
+            <Edit3 className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
+            <span>{showTextEditor ? 'Close Text Editor' : 'Edit Text'}</span>
+          </button>
+
+          {/* Export PNG Buttons */}
           <button
             type="button"
             onClick={handleDownloadActiveSlide}
@@ -256,7 +309,7 @@ export default function ImageTemplateStudio({
       {aspectRatio === '1:1' && (
         <div className="flex items-center justify-between gap-2 overflow-x-auto pb-1 custom-scrollbar">
           <div className="flex items-center gap-1.5 sm:gap-2">
-            {slides.map((slide, idx) => (
+            {baseSlides.map((slide, idx) => (
               <button
                 key={slide.slideNumber}
                 type="button"
@@ -370,8 +423,114 @@ export default function ImageTemplateStudio({
               <span className="text-sky-400 hidden sm:inline font-semibold">brother.com.sg</span>
             </div>
           </div>
+
+          {/* Quick Edit Overlay Button (Floating bottom-right of image) */}
+          <button
+            type="button"
+            onClick={() => setShowTextEditor(true)}
+            className="absolute bottom-3 right-3 z-20 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900/85 hover:bg-slate-900 text-white text-xs font-bold backdrop-blur-md border border-white/20 shadow-lg cursor-pointer transition-all hover:scale-105 active:scale-95"
+            title="Edit headline, badge, and copy on this image"
+          >
+            <Edit3 className="w-3.5 h-3.5 text-sky-400" />
+            <span>Customize Text</span>
+          </button>
         </div>
       </div>
+
+      {/* Interactive Text Overlay Editor Drawer */}
+      {showTextEditor && (
+        <div className="p-4 rounded-xl bg-white dark:bg-slate-900 border-2 border-[#0f2ea2]/40 shadow-lg space-y-3 animate-in fade-in duration-200">
+          <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-lg bg-[#0f2ea2] text-white flex items-center justify-center">
+                <Edit3 className="w-3 h-3" />
+              </div>
+              <div>
+                <h5 className="text-xs font-bold text-slate-900 dark:text-white">
+                  Edit Text Overlay — Slide {activeSlideIndex + 1} ({currentSlide.roleTitle})
+                </h5>
+                <p className="text-[10px] text-slate-500">
+                  Live updates are reflected immediately on the image and in exported PNGs
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleResetSlideText}
+                className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500 hover:text-rose-600 transition-colors cursor-pointer"
+                title="Revert back to default text"
+              >
+                <RotateCcw className="w-3 h-3" />
+                <span>Reset to Default</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowTextEditor(false)}
+                className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 cursor-pointer"
+                title="Close Editor"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
+                Badge Pill Text
+              </label>
+              <input
+                type="text"
+                value={currentSlide.badge || ''}
+                onChange={(e) => updateSlideField('badge', e.target.value)}
+                placeholder="e.g. FESTIVAL OF LIGHTS / SPECIAL HIGHLIGHT"
+                className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0f2ea2]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
+                Headline
+              </label>
+              <input
+                type="text"
+                value={currentSlide.headline || ''}
+                onChange={(e) => updateSlideField('headline', e.target.value)}
+                placeholder="e.g. Deepavali / Precision in Every Detail"
+                className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0f2ea2] font-semibold"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
+              Subheadline / Angle
+            </label>
+            <input
+              type="text"
+              value={currentSlide.subheadline || ''}
+              onChange={(e) => updateSlideField('subheadline', e.target.value)}
+              placeholder="e.g. Warm Community Unity & Shared Harmony (Wa)"
+              className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0f2ea2]"
+            />
+          </div>
+
+          <div>
+            <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
+              Supporting Narrative / Details
+            </label>
+            <textarea
+              rows={2}
+              value={currentSlide.supportingText || ''}
+              onChange={(e) => updateSlideField('supportingText', e.target.value)}
+              placeholder="e.g. May the divine light illuminate your path with joy, wisdom & prosperity..."
+              className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0f2ea2] resize-none"
+            />
+          </div>
+        </div>
+      )}
 
       {/* Visual Asset Customizer & Photo Chooser Bar */}
       <div className="p-3 sm:p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3">
