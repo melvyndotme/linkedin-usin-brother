@@ -195,6 +195,57 @@ export default function SettingsView({ isDark }) {
     }
   };
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('linkedin_token');
+    const err = params.get('linkedin_error');
+    const org = params.get('org_id');
+
+    if (token) {
+      setLinkedInToken(token);
+      safeSetItem('key_linkedin', token);
+      if (org) {
+        setLinkedInOrgId(org);
+        safeSetItem('linkedin_org_id', cleanLinkedInOrgId(org));
+      }
+      setSaved(true);
+      setLiDataResult({
+        success: true,
+        message: '✅ LinkedIn Account successfully authorized! Access Token generated and saved. 1-Click Publishing is ready.'
+      });
+      window.history.replaceState({}, document.title, window.location.pathname);
+    } else if (err) {
+      setLiDataResult({
+        success: false,
+        error: `LinkedIn authorization failed: ${decodeURIComponent(err)}`
+      });
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
+
+  const handleAuthorizeLinkedIn = () => {
+    if (!linkedInClientId) {
+      alert('Please enter your LinkedIn App Client ID first.');
+      return;
+    }
+    if (!linkedInClientSecret) {
+      alert('Please enter your LinkedIn App Client Secret first.');
+      return;
+    }
+    const redirectUri = callbackUrl;
+    const stateObj = {
+      clientId: linkedInClientId.trim(),
+      clientSecret: linkedInClientSecret.trim(),
+      orgId: cleanLinkedInOrgId(linkedInOrgId || '808877'),
+      redirectUri
+    };
+    const stateStr = encodeURIComponent(JSON.stringify(stateObj));
+    const scopes = encodeURIComponent('w_organization_social r_organization_social openid profile email');
+    const authUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${encodeURIComponent(linkedInClientId.trim())}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${stateStr}&scope=${scopes}`;
+    window.location.href = authUrl;
+  };
+
   const handleTestResend = async () => {
     setResendTesting(true);
     setResendTestStatus(null);
@@ -649,7 +700,14 @@ export default function SettingsView({ isDark }) {
             <div>
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center justify-between">
                 <span>LinkedIn Organization ID</span>
-                <span className="text-[10px] text-[#0f2ea2] dark:text-blue-400 font-mono font-semibold">96363282</span>
+                <button
+                  type="button"
+                  onClick={() => handleOrgIdChange('96363282')}
+                  className="text-[10px] text-[#0f2ea2] dark:text-blue-400 font-mono font-semibold hover:underline cursor-pointer"
+                  title="Click to set Singapore Org ID: 96363282"
+                >
+                  Use 96363282
+                </button>
               </label>
               <input
                 type="text"
@@ -733,20 +791,31 @@ export default function SettingsView({ isDark }) {
             </div>
           </div>
 
-          {/* Test & Fetch Live LinkedIn Data Button */}
+          {/* Test & Fetch Live LinkedIn Data & Authorize Button */}
           <div className="pt-3 border-t border-slate-200/60 dark:border-slate-800/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <button
-              type="button"
-              onClick={handleTestFetchLiveLinkedIn}
-              disabled={liTesting}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold transition-all disabled:opacity-50 cursor-pointer shadow-sm active:scale-95"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 ${liTesting ? 'animate-spin' : ''}`} />
-              <span>{liTesting ? 'Connecting to LinkedIn REST API...' : '⚡ Test & Fetch Live LinkedIn Data'}</span>
-            </button>
+            <div className="flex items-center gap-2 flex-wrap">
+              <button
+                type="button"
+                onClick={handleAuthorizeLinkedIn}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all cursor-pointer shadow-sm active:scale-95"
+                title="Log in to LinkedIn to approve and generate your Access Token automatically"
+              >
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span>🔗 Authorize & Connect Brother Account</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleTestFetchLiveLinkedIn}
+                disabled={liTesting}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold transition-all disabled:opacity-50 cursor-pointer shadow-sm active:scale-95"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${liTesting ? 'animate-spin' : ''}`} />
+                <span>{liTesting ? 'Connecting to LinkedIn...' : '⚡ Test & Fetch Live LinkedIn Data'}</span>
+              </button>
+            </div>
 
             <span className="text-[11px] text-slate-500">
-              Validates credentials and retrieves official company name, followers, and live posts.
+              Click Authorize to generate your token, or paste a Bearer token above.
             </span>
           </div>
 
