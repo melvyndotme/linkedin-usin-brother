@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Settings, Key, Check, ShieldCheck, Sparkles, Sliders, RefreshCw, Cpu, AlertCircle, Lock, Unlock, Database, Building2, Copy, ExternalLink, HelpCircle, Mail, Globe, CheckCircle2, Send } from 'lucide-react';
 import { testSerperKey } from '../lib/serperEngine.js';
 import { cleanLinkedInOrgId, formatLinkedInOrgUrn, testLinkedInCredentials } from '../lib/linkedInApi.js';
