@@ -591,6 +591,8 @@ export default function SettingsView({ isDark }) {
                 <option value="gemini-3.1-flash-image">gemini-3.1-flash-image (Multimodal Vision & Asset Synthesis)</option>
                 <option value="gemini-3-pro-image">gemini-3-pro-image (Advanced Creative Image Studio)</option>
                 <option value="gemini-2.5-flash-image">gemini-2.5-flash-image (Fast Multimodal Asset Processing)</option>
+                <option value="gemini-3.1-flash-lite-image">gemini-3.1-flash-lite-image (Lite Multimodal Asset Processing)</option>
+                <option value="imagen-3.0-generate-002">imagen-3.0-generate-002 (Google Imagen 3 Photorealism)</option>
               </select>
             </div>
           </div>
