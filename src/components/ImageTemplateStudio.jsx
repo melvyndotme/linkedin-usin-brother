@@ -61,7 +61,7 @@ export default function ImageTemplateStudio({
     }
     return saved;
   });
-  const [showTokenAlert, setShowTokenAlert] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   // Custom text overlay editor state
   const [showTextEditor, setShowTextEditor] = useState(false);
@@ -613,17 +613,6 @@ export default function ImageTemplateStudio({
               </select>
             </div>
 
-            {/* Token Advisory Alert Button */}
-            <button
-              type="button"
-              onClick={() => setShowTokenAlert(true)}
-              className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/50 hover:bg-amber-100 dark:hover:bg-amber-900/50 border border-amber-300 dark:border-amber-700 px-2 py-1 rounded-lg transition-all cursor-pointer shadow-2xs"
-              title="Token & Quota Notice for AI image generation"
-            >
-              <Coins className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-              <span>Token Advisory</span>
-            </button>
-
             {/* Native HTML File Upload Label (100% reliable across all browsers) */}
             <label
               htmlFor="brother-photo-upload"
@@ -641,68 +630,35 @@ export default function ImageTemplateStudio({
               />
             </label>
 
+            {/* Generate with Gemini AI Button (triggers confirmation modal) */}
             <button
               type="button"
-              onClick={handleAiGenerate}
+              onClick={() => setShowConfirmModal(true)}
               disabled={isAiGenerating}
               className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-gradient-to-r from-[#0f2ea2] to-blue-700 hover:from-[#0c2480] hover:to-blue-800 px-3 py-1.5 rounded-lg shadow-sm transition-all cursor-pointer disabled:opacity-50"
-              title="Generate tailored editorial photo using selected model"
+              title="Generate tailored editorial photo using Gemini AI"
             >
               <Sparkles className="w-3.5 h-3.5" />
-              <span>{isAiGenerating ? 'Generating...' : 'AI Generate Photo'}</span>
+              <span>{isAiGenerating ? 'Generating...' : 'Generate with Gemini AI'}</span>
             </button>
           </div>
         </div>
 
         {aiError && (
-          <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700/60 text-xs space-y-2 animate-in fade-in duration-200">
-            <div className="flex items-start justify-between gap-2">
-              <div className="flex items-center gap-2 font-bold text-amber-900 dark:text-amber-200">
-                <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
-                <span>Google AI Model Notice ({aiError.modelUsed || selectedAiModel})</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setAiError(null)}
-                className="p-1 rounded text-amber-700 hover:bg-amber-100 dark:text-amber-300 dark:hover:bg-amber-900/60 cursor-pointer"
-                title="Dismiss"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
+          <div className="flex items-center justify-between p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700/60 text-xs text-amber-900 dark:text-amber-200 animate-in fade-in duration-200">
+            <div className="flex items-center gap-2 min-w-0">
+              <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+              <span className="font-medium truncate">
+                {typeof aiError === 'string' ? aiError : aiError.message}
+              </span>
             </div>
-            <p className="text-amber-800 dark:text-amber-300 leading-relaxed font-medium">
-              {aiError.message || aiError}
-            </p>
-            {aiError.troubleshooting && (
-              <p className="text-[11px] text-amber-800 dark:text-amber-300 bg-amber-100/60 dark:bg-amber-900/40 p-2.5 rounded-lg leading-relaxed border border-amber-200/60 dark:border-amber-800/40">
-                💡 {aiError.troubleshooting}
-              </p>
-            )}
-            <div className="flex items-center gap-2 pt-1 flex-wrap">
-              <button
-                type="button"
-                onClick={() => {
-                  const fallback = festivePresets[0]?.url || OFFICIAL_BROTHER_ASSETS[0]?.url;
-                  if (fallback) {
-                    setSelectedPhotoUrl(fallback);
-                    setCustomPhotoUrl('');
-                  }
-                  setAiError(null);
-                }}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0f2ea2] hover:bg-[#0c2480] text-white font-bold text-xs shadow-xs cursor-pointer transition-colors"
-              >
-                <Check className="w-3.5 h-3.5" />
-                <span>Use Curated Singapore Photo (0 Tokens)</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowTokenAlert(true)}
-                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-xs border border-slate-200 dark:border-slate-700 cursor-pointer"
-              >
-                <Info className="w-3.5 h-3.5 text-amber-600" />
-                <span>Token Requirements Guide</span>
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => setAiError(null)}
+              className="text-[11px] font-bold px-2 py-1 rounded text-amber-800 hover:bg-amber-100 dark:text-amber-300 dark:hover:bg-amber-900/60 cursor-pointer shrink-0"
+            >
+              Dismiss
+            </button>
           </div>
         )}
 
@@ -780,73 +736,85 @@ export default function ImageTemplateStudio({
         </div>
       </div>
 
-      {/* Token & Quota Advisory Modal */}
-      {showTokenAlert && (
+      {/* Gemini AI Token Confirmation Modal */}
+      {showConfirmModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-lg w-full p-5 sm:p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-amber-100 dark:bg-amber-950/70 flex items-center justify-center">
-                  <Coins className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-5 sm:p-6 shadow-2xl space-y-4">
+            <div className="flex items-start justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950 flex items-center justify-center text-[#0f2ea2] dark:text-blue-400">
+                  <Sparkles className="w-5 h-5" />
                 </div>
                 <div>
                   <h4 className="text-sm font-bold text-slate-900 dark:text-white">
-                    AI Visual Generation & Token Advisory
+                    Generate Photo with Gemini AI
                   </h4>
-                  <p className="text-[11px] text-slate-500">Google Gemini & Imagen API compute guidelines</p>
+                  <p className="text-[11px] text-slate-500">Google Gemini Visual Synthesis</p>
                 </div>
               </div>
               <button
                 type="button"
-                onClick={() => setShowTokenAlert(false)}
+                onClick={() => setShowConfirmModal(false)}
                 className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="space-y-3 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-              <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 space-y-1">
-                <p className="font-bold text-amber-900 dark:text-amber-200 flex items-center gap-1.5">
-                  <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
-                  Additional Compute Tokens / Credits Notice
-                </p>
-                <p className="text-[11px] text-amber-800 dark:text-amber-300">
-                  Generating custom photorealistic visuals invokes Google&apos;s visual synthesis models (<strong>{selectedAiModel}</strong>). Each generated image consumes visual generation quota/credits on your linked Google AI Studio key (~$0.03/image).
-                </p>
-              </div>
-
-              <div className="space-y-1.5">
-                <h5 className="font-bold text-slate-900 dark:text-white text-xs">Account & Billing Prerequisite:</h5>
-                <ul className="list-disc pl-4 space-y-1.5 text-[11px] text-slate-500 dark:text-slate-400">
-                  <li>
-                    <strong>Why did &quot;models/... not supported for predict&quot; happen?</strong> Free-tier Google AI Studio keys do not include access to Google&apos;s diffusion/image synthesis pipeline.
-                  </li>
-                  <li>
-                    <strong>How to wire it up:</strong> Go to <a href="https://aistudio.google.com" target="_blank" rel="noreferrer" className="text-[#0f2ea2] dark:text-blue-400 underline font-semibold">aistudio.google.com</a>, link a Google Cloud billing account (Pay-As-You-Go Tier 1), generate an API key, and paste it into <strong>Settings &gt; Gemini Engine Key</strong>.
-                  </li>
-                  <li>
-                    <strong>Supported Models:</strong> You can select between <code>gemini-3.1-flash-image</code>, <code>gemini-3-pro-image</code>, <code>gemini-2.5-flash-image</code>, or <code>gemini-3.1-flash-lite-image</code>.
-                  </li>
-                </ul>
-              </div>
-
-              <div className="p-3.5 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-blue-950 dark:text-blue-200 space-y-1">
-                <p className="font-bold text-xs">💡 100% Free Zero-Token Alternative</p>
-                <p className="text-[11px] leading-snug">
-                  You do not need to spend any tokens to create high-impact LinkedIn carousels. The <strong>12 Official Brother SG Assets</strong> and <strong>Curated Event Photography</strong> tabs are built-in, load instantly, and consume <strong>0 tokens</strong>.
-                </p>
-              </div>
+            <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/80 text-xs text-amber-900 dark:text-amber-200 space-y-1.5">
+              <p className="font-bold flex items-center gap-1.5">
+                <Coins className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                Gemini Token Notice
+              </p>
+              <p className="text-[11px] text-amber-800 dark:text-amber-300 leading-relaxed">
+                By clicking <strong>Continue</strong>, you understand that generating this custom image will consume tokens from your linked Google Gemini API account.
+              </p>
             </div>
 
-            <div className="pt-2 flex items-center justify-between">
-              <span className="text-[11px] text-slate-400">Active Model: {selectedAiModel}</span>
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                Selected AI Model:
+              </label>
+              <select
+                value={selectedAiModel}
+                onChange={(e) => {
+                  setSelectedAiModel(e.target.value);
+                  safeSetItem('model_gemini_image', e.target.value);
+                }}
+                className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0f2ea2] cursor-pointer"
+              >
+                <option value="gemini-3.1-flash-image">gemini-3.1-flash-image (Fast Creative Vision)</option>
+                <option value="gemini-3-pro-image">gemini-3-pro-image (Advanced Creative Studio)</option>
+                <option value="gemini-2.5-flash-image">gemini-2.5-flash-image (Fast Multimodal)</option>
+                <option value="gemini-3.1-flash-lite-image">gemini-3.1-flash-lite-image (Lite Efficiency)</option>
+              </select>
+            </div>
+
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+              If you prefer not to use tokens, you can cancel to select from Brother&apos;s photo library at zero token cost.
+            </p>
+
+            <div className="pt-2 flex items-center justify-end gap-2.5">
               <button
                 type="button"
-                onClick={() => setShowTokenAlert(false)}
-                className="px-4 py-2 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2480] text-white text-xs font-bold shadow-md cursor-pointer transition-colors"
+                onClick={() => {
+                  setShowConfirmModal(false);
+                  setActiveAssetTab('official');
+                }}
+                className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-200 text-xs font-semibold transition-colors cursor-pointer border border-slate-200 dark:border-slate-700"
               >
-                Understood
+                Cancel (Use Photo Library)
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowConfirmModal(false);
+                  handleAiGenerate();
+                }}
+                className="px-4 py-2 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2480] text-white text-xs font-bold shadow-md transition-colors cursor-pointer flex items-center gap-1.5"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Continue</span>
               </button>
             </div>
           </div>
