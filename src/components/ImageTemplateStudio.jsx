@@ -305,21 +305,21 @@ export default function ImageTemplateStudio({
         >
           {/* Background Image (Official Brother SG Asset or Festive Photo) */}
           <img
+            key={currentPhoto}
             src={currentPhoto}
             alt={currentSlide.headline}
-            className="absolute inset-0 w-full h-full object-cover select-none transition-transform duration-700 group-hover:scale-105"
-            crossOrigin="anonymous"
+            className="absolute inset-0 w-full h-full object-cover select-none transition-all duration-500 group-hover:scale-105"
           />
 
           {/* Cinematic Scrim & Brother Gradient Overlay */}
-          <div className={`absolute inset-0 transition-opacity duration-300 ${
+          <div className={`absolute inset-0 transition-opacity duration-300 pointer-events-none ${
             aspectRatio === '1.91:1'
-              ? 'bg-gradient-to-r from-slate-950/95 via-slate-950/80 to-slate-950/30'
-              : 'bg-gradient-to-b from-slate-950/65 via-slate-950/85 to-slate-950/95'
+              ? 'bg-gradient-to-r from-slate-950/90 via-slate-950/50 to-slate-950/15'
+              : 'bg-gradient-to-t from-slate-950/95 via-slate-950/60 to-slate-950/20'
           }`} />
 
           {/* Signature Brother Blue Accent Edge */}
-          <div className={`absolute ${aspectRatio === '1.91:1' ? 'left-0 top-0 bottom-0 w-2.5' : 'top-0 left-0 right-0 h-2.5'} bg-[#0f2ea2] shadow-lg`} />
+          <div className={`absolute ${aspectRatio === '1.91:1' ? 'left-0 top-0 bottom-0 w-2.5' : 'top-0 left-0 right-0 h-2.5'} bg-[#0f2ea2] shadow-lg pointer-events-none`} />
 
           {/* Slide Content Overlay */}
           <div className="absolute inset-0 p-6 sm:p-10 flex flex-col justify-between text-white select-none">

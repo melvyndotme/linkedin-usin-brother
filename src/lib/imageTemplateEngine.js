@@ -333,7 +333,9 @@ export async function renderSlideToCanvas({
   });
 
   if (photoUrl) {
-    await loadImage(photoUrl);
+    const isRemote = photoUrl.startsWith('http://') || photoUrl.startsWith('https://');
+    const safeUrl = isRemote ? `/api/image-proxy?url=${encodeURIComponent(photoUrl)}` : photoUrl;
+    await loadImage(safeUrl);
   }
 
   // Draw background (or solid fallback)

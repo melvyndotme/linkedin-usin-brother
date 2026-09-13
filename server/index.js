@@ -11,6 +11,7 @@ import linkedInDataHandler from '../api/linkedin/data.js';
 import templateIngestHandler from '../api/templates/ingest.js';
 import notionSaveTemplateHandler from '../api/notion/save-template.js';
 import generateImageHandler from '../api/ai/generate-image.js';
+import imageProxyHandler from '../api/image-proxy.js';
 
 try {
   process.loadEnvFile();
@@ -36,6 +37,9 @@ function adaptVercel(handler) {
       res.json = (data) => {
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(data));
+      };
+      res.send = (data) => {
+        res.end(data);
       };
       try {
         await handler(req, res);
@@ -126,6 +130,11 @@ const server = http.createServer(async (req, res) => {
 
   if (pathname === '/api/ai/generate-image') {
     adaptVercel(generateImageHandler)(req, res, parsedUrl);
+    return;
+  }
+
+  if (pathname === '/api/image-proxy') {
+    adaptVercel(imageProxyHandler)(req, res, parsedUrl);
     return;
   }
 
