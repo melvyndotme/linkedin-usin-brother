@@ -1,7 +1,8 @@
 // Vercel Serverless Function: Vercel Blob Storage Engine
 // Supports uploading images (base64 data URL or binary) and streaming private blobs for Notion/web embedding
 
-import { put, get } from '@vercel/blob';
+import { put, get, head } from '@vercel/blob';
+import { Readable } from 'stream';
 
 export const config = {
   api: {
@@ -14,7 +15,7 @@ export const config = {
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST,HEAD');
   res.setHeader(
     'Access-Control-Allow-Headers',
     'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization, x-blob-token'
@@ -26,12 +27,14 @@ export default async function handler(req, res) {
 
   const token = req.headers['x-blob-token'] || req.body?.token || process.env.BLOB_READ_WRITE_TOKEN;
 
-  // 1. GET: Stream / serve a private blob so Notion or browsers can render it directly
-  if (req.method === 'GET') {
-    const pathname = req.query?.pathname;
-    if (!pathname) {
+  // 1. GET / HEAD: Stream / serve a private blob so Notion or browsers can render it directly
+  if (req.method === 'GET' || req.method === 'HEAD') {
+    const rawPath = req.query?.pathname || req.query?.url;
+    if (!rawPath) {
       return res.status(400).json({ error: 'Missing pathname query parameter' });
     }
+
+    const pathname = decodeURIComponent(rawPath).replace(/^\/+/, '');
 
     try {
       const result = await get(pathname, {
@@ -43,12 +46,23 @@ export default async function handler(req, res) {
         return res.status(404).send('Blob not found');
       }
 
-      res.setHeader('Content-Type', result.blob?.contentType || 'image/png');
+      const contentType = result.blob?.contentType || 'image/png';
+      res.setHeader('Content-Type', contentType);
+      if (result.blob?.size) {
+        res.setHeader('Content-Length', result.blob.size);
+      }
       res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
       res.setHeader('X-Content-Type-Options', 'nosniff');
 
-      const arrayBuffer = await result.blob.arrayBuffer();
-      return res.send(Buffer.from(arrayBuffer));
+      if (req.method === 'HEAD') {
+        return res.status(200).end();
+      }
+
+      if (!result.stream) {
+        return res.status(404).send('Blob stream unavailable');
+      }
+
+      return Readable.fromWeb(result.stream).pipe(res);
     } catch (err) {
       console.error('Error fetching blob:', err);
       return res.status(500).json({ error: err.message });
