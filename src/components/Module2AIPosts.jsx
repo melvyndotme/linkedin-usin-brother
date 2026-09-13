@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Newspaper, Search, RefreshCw, Copy, Check, Download, Layers, ShieldCheck, Clock, ArrowRight, ExternalLink, AlertCircle, Plus, Trash2, Tag, Sparkles, Database, X } from 'lucide-react';
+import { Newspaper, Search, RefreshCw, Copy, Check, Download, Layers, ShieldCheck, Clock, ArrowRight, ExternalLink, AlertCircle, Plus, Trash2, Sparkles, Database, X } from 'lucide-react';
 import { EXTENDED_AI_NEWS, formatAs120WordMarkdown, searchSerperWithTimeframe, getEffectiveSerperKey, getGoogleNewsSearchUrl } from '../lib/serperEngine.js';
 import { generateAIDrafts } from '../lib/draftGenerator.js';
 import { generateBrotherWaveCorporateSVG } from '../lib/svgBrotherWebsiteTemplates.js';
@@ -67,17 +67,6 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
       handleFetchAllTabs();
     }
   }, []);
-
-  // Suggested keywords for Brother Singapore
-  const suggestedKeywords = [
-    'Workplace Automation',
-    'Enterprise Printing',
-    'Cloud Document Solutions',
-    'Sustainability SG',
-    'Smart Nation Singapore',
-    'Cybersecurity In Office',
-    'Hybrid Work Productivity'
-  ];
 
   const activeTimeNumber = activeTab === 'all'
     ? combinedTimeframe.timeNumber
@@ -174,21 +163,6 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
       delete next['all'];
       return next;
     });
-  };
-
-  const handleApplyPresetKeyword = (preset) => {
-    const emptyIndex = keywords.findIndex(k => !k.text || !k.text.trim());
-    let targetIdx = emptyIndex;
-    if (emptyIndex !== -1) {
-      handleKeywordChange(emptyIndex, preset);
-    } else if (keywords.length < 5) {
-      targetIdx = keywords.length;
-      setKeywords([...keywords, { text: preset, timeNumber: 24, timeUnit: 'hours' }]);
-    } else {
-      targetIdx = 0;
-      handleKeywordChange(0, preset);
-    }
-    handleSelectTab(targetIdx);
   };
 
   // Fetch top 5 results for a specific tab ('all' or index 0..4)
@@ -641,35 +615,13 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
               <span>Add Topic</span>
             </button>
           )}
-        </div>
-
-        {/* Suggestions & Batch Fetch Row */}
-        <div className="flex items-center gap-1.5 flex-wrap pt-2 border-t border-slate-100 dark:border-slate-800">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-1 flex items-center gap-1 shrink-0">
-            <Tag className="w-3 h-3" />
-            Suggestions:
-          </span>
-          {suggestedKeywords.map((preset, i) => (
-            <button
-              key={i}
-              type="button"
-              onClick={() => handleApplyPresetKeyword(preset)}
-              className={`text-[10px] font-medium px-2.5 py-1 rounded-lg border transition-all cursor-pointer ${
-                isDark
-                  ? 'bg-slate-800 hover:bg-blue-950/60 text-slate-300 hover:text-blue-300 border-slate-700'
-                  : 'bg-slate-100 hover:bg-blue-50 text-slate-600 hover:text-[#0f2ea2] border-slate-200'
-              }`}
-            >
-              + {preset}
-            </button>
-          ))}
 
           {/* Batch fetch all topics shortcut */}
           <button
             type="button"
             onClick={handleFetchAllTabs}
             disabled={loading}
-            className="ml-auto inline-flex items-center gap-1 text-[11px] font-bold text-[#0f2ea2] dark:text-blue-400 hover:underline cursor-pointer disabled:opacity-50"
+            className="ml-auto inline-flex items-center gap-1 text-[11px] font-bold text-[#0f2ea2] dark:text-blue-400 hover:underline cursor-pointer disabled:opacity-50 py-1"
             title="Search all topics at once"
           >
             <Sparkles className="w-3 h-3 text-amber-500" />
@@ -698,116 +650,61 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
           <div className={`p-3.5 sm:p-4 rounded-2xl border ${
             isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
           }`}>
-            {/* Header with Title and Live Badge */}
-            <div className="flex items-center justify-between mb-2">
+            {/* Header: Title + Topic Dropdown Selector + Refresh */}
+            <div className="flex items-center justify-between gap-3 mb-3 pb-2.5 border-b border-slate-100 dark:border-slate-800">
               <div className="flex items-center gap-2">
                 <h3 className={`text-xs font-bold uppercase tracking-wider ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                  Top Results ({newsList.length} found)
+                  Top Results
                 </h3>
-                {isLiveNews ? (
-                  <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-500/20">
-                    🟢 Live Serper.dev
-                  </span>
-                ) : (
-                  <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-slate-500/10 text-slate-500 font-medium">
-                    Curated Baseline
-                  </span>
-                )}
-              </div>
-              <span className="text-[10px] font-mono text-[#0f2ea2] dark:text-blue-400">
-                Within {activeTimeNumber} {activeTimeUnit}
-              </span>
-            </div>
-
-            {/* Interactive Keyword Tabs Bar */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-2.5 mb-2.5 custom-scrollbar border-b border-slate-100 dark:border-slate-800">
-              {/* Tab 0: All Keywords (Combined) */}
-              <button
-                type="button"
-                onClick={() => handleSelectTab('all')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 ${
-                  activeTab === 'all'
-                    ? 'bg-[#0f2ea2] text-white shadow-sm ring-2 ring-[#0f2ea2]/30'
-                    : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300'
-                }`}
-              >
-                <span>All Combined</span>
-                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono font-bold ${
-                  activeTab === 'all' ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
+                <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold ${
+                  isDark ? 'bg-slate-800 text-slate-300' : 'bg-slate-100 text-slate-600'
                 }`}>
-                  {tabResults['all']?.results?.length || 0}
-                </span>
-              </button>
-
-              {/* Tabs 1..5 for each keyword with independent timeframe */}
-              {keywords.map((kw, idx) => {
-                const trimmed = kw.text ? kw.text.trim() : '';
-                if (!trimmed) return null;
-                const isTabActive = activeTab === idx;
-                const tabRes = tabResults[idx];
-                const isLoadingThis = loadingTab === idx || loadingTab === 'batch';
-                const unitAbbr = kw.timeUnit === 'hours' ? 'h' : kw.timeUnit === 'days' ? 'd' : kw.timeUnit === 'weeks' ? 'w' : 'm';
-
-                return (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => handleSelectTab(idx)}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 max-w-[230px] ${
-                      isTabActive
-                        ? 'bg-[#0f2ea2] text-white shadow-sm ring-2 ring-[#0f2ea2]/30'
-                        : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300'
-                    }`}
-                    title={`Click to show results for: ${trimmed} (${kw.timeNumber} ${kw.timeUnit})`}
-                  >
-                    <span className="opacity-60 text-[10px]">#{idx + 1}</span>
-                    <span className="truncate">{trimmed}</span>
-                    <span className="text-[9px] font-mono opacity-80">
-                      ({kw.timeNumber}{unitAbbr})
-                    </span>
-                    {isLoadingThis ? (
-                      <RefreshCw className="w-3 h-3 animate-spin shrink-0" />
-                    ) : (
-                      <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono font-bold shrink-0 ${
-                        isTabActive ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
-                      }`}>
-                        {tabRes?.results?.length ?? 0}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Active Tab Subtitle + Live Google News Search Link + Refresh Button */}
-            <div className="flex items-center justify-between text-[11px] mb-3 px-0.5 flex-wrap gap-1.5">
-              <div className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5 truncate">
-                <span className="text-slate-400">Active query:</span>
-                <span className="font-bold text-slate-900 dark:text-white truncate">
-                  {activeTab === 'all' ? 'All Keywords (Combined)' : `Keyword #${activeTab + 1}: "${keywords[activeTab]?.text || ''}"`}
-                </span>
-                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-blue-500/10 text-[#0f2ea2] dark:text-blue-400 font-bold shrink-0">
-                  {activeTimeNumber} {activeTimeUnit}
+                  {newsList.length}
                 </span>
               </div>
-              <div className="flex items-center gap-2 shrink-0">
-                <a
-                  href={getGoogleNewsSearchUrl(activeTab === 'all' ? keywords.map(k => k.text).filter(Boolean).join(' OR ') : keywords[activeTab]?.text || 'Brother Singapore')}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1 bg-emerald-500/10 px-2 py-0.5 rounded-lg border border-emerald-500/20"
-                  title="Open live search results page on Google News"
+
+              <div className="flex items-center gap-2">
+                {/* Topic Dropdown Selector (Replaces horizontal scrollbar) */}
+                <select
+                  value={activeTab}
+                  onChange={(e) => {
+                    const val = e.target.value === 'all' ? 'all' : Number(e.target.value);
+                    handleSelectTab(val);
+                  }}
+                  className={`text-xs font-bold pl-3 pr-7 py-1.5 rounded-xl border focus:outline-none cursor-pointer transition-colors max-w-[210px] truncate ${
+                    isDark
+                      ? 'bg-slate-950 border-slate-800 text-white focus:border-[#0f2ea2]'
+                      : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-[#0f2ea2]'
+                  }`}
+                  title="Select topic to view"
                 >
-                  <span>Google News Results ↗</span>
-                </a>
+                  <option value="all">
+                    All Topics ({tabResults['all']?.results?.length || 0})
+                  </option>
+                  {keywords.map((kw, idx) => {
+                    const trimmed = kw.text ? kw.text.trim() : '';
+                    if (!trimmed) return null;
+                    const count = tabResults[idx]?.results?.length ?? 0;
+                    return (
+                      <option key={idx} value={idx}>
+                        #{idx + 1} {trimmed} ({count})
+                      </option>
+                    );
+                  })}
+                </select>
+
                 <button
                   type="button"
                   onClick={() => fetchTabResults(activeTab)}
                   disabled={loading}
-                  className="text-[10px] font-bold text-[#0f2ea2] dark:text-blue-400 hover:underline shrink-0 flex items-center gap-1"
+                  className={`p-1.5 rounded-xl border transition-colors cursor-pointer ${
+                    isDark
+                      ? 'border-slate-800 hover:bg-slate-800 text-slate-400 hover:text-white'
+                      : 'border-slate-200 hover:bg-slate-100 text-slate-500 hover:text-slate-900'
+                  }`}
+                  title="Refresh results"
                 >
-                  <RefreshCw className={`w-2.5 h-2.5 ${loadingTab === activeTab ? 'animate-spin' : ''}`} />
-                  <span>Refresh Tab</span>
+                  <RefreshCw className={`w-3.5 h-3.5 ${loadingTab === activeTab ? 'animate-spin' : ''}`} />
                 </button>
               </div>
             </div>
@@ -885,38 +782,17 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
                     >
                       {/* Header: Source and Time */}
                       <div className="flex items-center justify-between text-[10px] text-slate-500 mb-1">
-                        <a
-                          href={articleUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => e.stopPropagation()}
-                          className="font-semibold text-[#0f2ea2] dark:text-blue-400 hover:underline flex items-center gap-1"
-                          title="Open article in new tab"
-                        >
-                          <span>{item.sourceTitle}</span>
-                          <ExternalLink className="w-2.5 h-2.5" />
-                        </a>
+                        <span className="font-semibold text-slate-700 dark:text-slate-300">
+                          {item.sourceTitle}
+                        </span>
                         <span className="font-mono">{item.timeAgo}</span>
                       </div>
 
-                      {/* Clickable Headline leading to direct article */}
-                      <h4 className="text-xs font-bold leading-snug">
-                        <a
-                          href={articleUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => {
-                            setSelectedNews(item);
-                            setSelectedDraftIndex(0);
-                          }}
-                          className={`hover:underline flex items-start justify-between gap-1.5 ${
-                            isSelected ? 'text-[#0f2ea2] dark:text-blue-300' : isDark ? 'text-white' : 'text-slate-900'
-                          }`}
-                          title="Open article in new tab"
-                        >
-                          <span>{item.headline}</span>
-                          <ExternalLink className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400 shrink-0 mt-0.5 opacity-80" />
-                        </a>
+                      {/* Headline (plain text, card click selects for drafting) */}
+                      <h4 className={`text-xs font-bold leading-snug ${
+                        isSelected ? 'text-[#0f2ea2] dark:text-blue-300' : isDark ? 'text-white' : 'text-slate-900'
+                      }`}>
+                        {item.headline}
                       </h4>
 
                       {/* Summary */}
