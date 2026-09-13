@@ -76,7 +76,16 @@ export default function App() {
     });
   };
 
-  const [draftStudioPayload, setDraftStudioPayload] = useState({ content: '', title: '' });
+  const [draftStudioPayload, setDraftStudioPayload] = useState(() => {
+    const saved = safeGetItem('brother_active_draft_payload');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed && (parsed.content || parsed.title)) return parsed;
+      } catch (e) {}
+    }
+    return { content: '', title: '', occasion: null, activeDraft: null };
+  });
 
   // Authentication State
   const [currentUser, setCurrentUser] = useState(() => {
@@ -145,17 +154,47 @@ export default function App() {
     safeSetItem('linkedusin_user', JSON.stringify(updatedUser));
   };
 
-  const handleNavigateToDraftStudio = (content, title) => {
-    setDraftStudioPayload({ content, title });
+  const handleNavigateToDraftStudio = (arg1, arg2) => {
+    let payload = {};
+    if (typeof arg1 === 'object' && arg1 !== null && arg1.content !== undefined) {
+      payload = arg1;
+    } else {
+      payload = {
+        content: arg1 || '',
+        title: arg2 || 'LinkedIn Campaign',
+        occasion: null,
+        activeDraft: null
+      };
+    }
+    setDraftStudioPayload(payload);
+    safeSetItem('brother_active_draft_payload', JSON.stringify(payload));
     setActiveTab('draft-studio');
   };
 
   const handleSelectTemplateForDrafting = (template) => {
-    setDraftStudioPayload({
-      content: template.examplePost,
-      title: `Campaign: ${template.name}`
-    });
-    setActiveTab('draft-studio');
+    const payload = {
+      content: template.examplePost || '',
+      title: `Campaign: ${template.name}`,
+      occasion: {
+        id: `template-${template.id || Date.now()}`,
+        name: template.name,
+        subtitle: template.category || 'Benchmark Template',
+        category: template.category || 'Templates',
+        eventType: 'corporate',
+        theme: 'blue',
+        badgeText: template.name,
+        details: template.examplePost || '',
+        suggestedHashtags: ['#BrotherSingapore', '#AtYourSide', '#WorkplaceInnovation']
+      },
+      activeDraft: {
+        id: `draft-${template.id || Date.now()}`,
+        name: template.name,
+        post: template.examplePost || '',
+        postContent: template.examplePost || '',
+        whyThisWorks: template.strategicRationale || 'Standard Brother Singapore benchmark template.'
+      }
+    };
+    handleNavigateToDraftStudio(payload);
   };
 
   useEffect(() => {
@@ -251,6 +290,8 @@ export default function App() {
                 isDark={isDark}
                 initialContent={draftStudioPayload.content}
                 initialTitle={draftStudioPayload.title}
+                initialOccasion={draftStudioPayload.occasion}
+                initialDraft={draftStudioPayload.activeDraft}
                 onNavigateToSettings={() => setActiveTab('settings')}
               />
             )}

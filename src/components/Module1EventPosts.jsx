@@ -622,10 +622,15 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
                   </button>
                   {onNavigateToDraftStudio && currentDraft && (
                     <button
-                      onClick={() => onNavigateToDraftStudio(currentDraft.post, `${selectedOccasion.name} ${selectedOccasion.year || 2026}`)}
+                      onClick={() => onNavigateToDraftStudio({
+                        content: currentDraft.post,
+                        title: `${selectedOccasion.name} ${selectedOccasion.year || 2026}`,
+                        occasion: selectedOccasion,
+                        activeDraft: currentDraft
+                      })}
                       className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
                     >
-                      <span>Open in Draft Studio</span>
+                      <span>Open in Content Studio</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </button>
                   )}
