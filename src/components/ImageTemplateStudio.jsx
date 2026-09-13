@@ -390,7 +390,7 @@ export default function ImageTemplateStudio({
               </div>
 
               {aspectRatio === '1:1' && (
-                <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-[11px] font-mono font-bold text-sky-400">
+                <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#0f2ea2] text-white text-[11px] font-mono font-bold shadow-md border border-white/20">
                   {currentSlide.slideNumber}
                 </div>
               )}
@@ -420,7 +420,9 @@ export default function ImageTemplateStudio({
             {/* Bottom Footer: Official Channel & Category Note */}
             <div className="pt-3 border-t border-white/15 flex items-center justify-between text-[11px] text-slate-400 font-medium">
               <span>{currentSlide.footerText}</span>
-              <span className="text-sky-400 hidden sm:inline font-semibold">brother.com.sg</span>
+              <span className="px-2.5 py-0.5 rounded bg-[#0f2ea2] text-white font-bold text-xs tracking-wide hidden sm:inline shadow-xs">
+                brother.com.sg
+              </span>
             </div>
           </div>
 
@@ -428,10 +430,10 @@ export default function ImageTemplateStudio({
           <button
             type="button"
             onClick={() => setShowTextEditor(true)}
-            className="absolute bottom-3 right-3 z-20 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900/85 hover:bg-slate-900 text-white text-xs font-bold backdrop-blur-md border border-white/20 shadow-lg cursor-pointer transition-all hover:scale-105 active:scale-95"
+            className="absolute bottom-3 right-3 z-20 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2480] text-white text-xs font-bold border border-white/20 shadow-lg cursor-pointer transition-all hover:scale-105 active:scale-95"
             title="Edit headline, badge, and copy on this image"
           >
-            <Edit3 className="w-3.5 h-3.5 text-sky-400" />
+            <Edit3 className="w-3.5 h-3.5 text-white" />
             <span>Customize Text</span>
           </button>
         </div>

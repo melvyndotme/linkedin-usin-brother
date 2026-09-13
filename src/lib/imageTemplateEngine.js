@@ -407,13 +407,28 @@ export async function renderSlideToCanvas({
     ctx.restore();
   }
 
-  // Slide Numbering (e.g. 01 / 05)
+  // Slide Numbering (e.g. 01 / 05 in official Brother Blue)
   if (slide?.slideNumber) {
     ctx.save();
-    ctx.font = 'bold 15px "Plus Jakarta Sans", monospace';
-    ctx.fillStyle = '#38BDF8';
-    ctx.textAlign = 'right';
-    ctx.fillText(slide.slideNumber, width - 70, isBanner ? 70 : 90);
+    ctx.font = 'bold 13px "Plus Jakarta Sans", monospace';
+    const numWidth = ctx.measureText(slide.slideNumber).width;
+    const pillW = numWidth + 24;
+    const pillH = 28;
+    const pillX = width - 70 - pillW;
+    const pillY = isBanner ? 48 : 65;
+
+    ctx.fillStyle = '#0f2ea2';
+    ctx.beginPath();
+    ctx.roundRect(pillX, pillY, pillW, pillH, 14);
+    ctx.fill();
+
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    ctx.fillStyle = '#FFFFFF';
+    ctx.textAlign = 'center';
+    ctx.fillText(slide.slideNumber, pillX + pillW / 2, pillY + 18);
     ctx.restore();
   }
 
@@ -482,9 +497,23 @@ export async function renderSlideToCanvas({
   ctx.font = '500 13px "Plus Jakarta Sans", system-ui, sans-serif';
   ctx.fillText(slide?.footerText || 'Brother Singapore • At your side', 70, footerY + 5);
 
-  ctx.textAlign = 'right';
-  ctx.fillStyle = '#0284C7';
-  ctx.fillText('brother.com.sg', width - 70, footerY + 5);
+  // Official brother.com.sg badge in Brother Blue
+  ctx.font = 'bold 12px "Plus Jakarta Sans", system-ui, sans-serif';
+  const urlText = 'brother.com.sg';
+  const urlWidth = ctx.measureText(urlText).width;
+  const urlPillW = urlWidth + 20;
+  const urlPillH = 24;
+  const urlPillX = width - 70 - urlPillW;
+  const urlPillY = footerY - 11;
+
+  ctx.fillStyle = '#0f2ea2';
+  ctx.beginPath();
+  ctx.roundRect(urlPillX, urlPillY, urlPillW, urlPillH, 5);
+  ctx.fill();
+
+  ctx.fillStyle = '#FFFFFF';
+  ctx.textAlign = 'center';
+  ctx.fillText(urlText, urlPillX + urlPillW / 2, urlPillY + 16);
   ctx.restore();
 
   return canvas.toDataURL('image/png');
