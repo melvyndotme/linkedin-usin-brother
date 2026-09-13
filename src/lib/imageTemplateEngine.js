@@ -497,23 +497,6 @@ export async function renderSlideToCanvas({
   ctx.font = '500 13px "Plus Jakarta Sans", system-ui, sans-serif';
   ctx.fillText(slide?.footerText || 'Brother Singapore • At your side', 70, footerY + 5);
 
-  // Official brother.com.sg badge in Brother Blue
-  ctx.font = 'bold 12px "Plus Jakarta Sans", system-ui, sans-serif';
-  const urlText = 'brother.com.sg';
-  const urlWidth = ctx.measureText(urlText).width;
-  const urlPillW = urlWidth + 20;
-  const urlPillH = 24;
-  const urlPillX = width - 70 - urlPillW;
-  const urlPillY = footerY - 11;
-
-  ctx.fillStyle = '#0f2ea2';
-  ctx.beginPath();
-  ctx.roundRect(urlPillX, urlPillY, urlPillW, urlPillH, 5);
-  ctx.fill();
-
-  ctx.fillStyle = '#FFFFFF';
-  ctx.textAlign = 'center';
-  ctx.fillText(urlText, urlPillX + urlPillW / 2, urlPillY + 16);
   ctx.restore();
 
   return canvas.toDataURL('image/png');

@@ -417,25 +417,11 @@ export default function ImageTemplateStudio({
               )}
             </div>
 
-            {/* Bottom Footer: Official Channel & Category Note */}
+            {/* Bottom Footer: Official Tagline */}
             <div className="pt-3 border-t border-white/15 flex items-center justify-between text-[11px] text-slate-400 font-medium">
               <span>{currentSlide.footerText}</span>
-              <span className="px-2.5 py-0.5 rounded bg-[#0f2ea2] text-white font-bold text-xs tracking-wide hidden sm:inline shadow-xs">
-                brother.com.sg
-              </span>
             </div>
           </div>
-
-          {/* Quick Edit Overlay Button (Floating bottom-right of image) */}
-          <button
-            type="button"
-            onClick={() => setShowTextEditor(true)}
-            className="absolute bottom-3 right-3 z-20 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2480] text-white text-xs font-bold border border-white/20 shadow-lg cursor-pointer transition-all hover:scale-105 active:scale-95"
-            title="Edit headline, badge, and copy on this image"
-          >
-            <Edit3 className="w-3.5 h-3.5 text-white" />
-            <span>Customize Text</span>
-          </button>
         </div>
       </div>
 
