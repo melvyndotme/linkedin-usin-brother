@@ -439,7 +439,7 @@ Key Reflections & Takeaways:
           <div>
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#0f2ea2]/10 text-[#0f2ea2] dark:text-blue-400 text-[11px] font-bold uppercase tracking-wider mb-1.5 sm:mb-2">
               <Layers className="w-3.5 h-3.5" />
-              Template Ingestion
+              Templates
             </div>
             <h2 className={`text-lg sm:text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
               Brother Singapore LinkedIn Post Templates Library

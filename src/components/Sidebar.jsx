@@ -17,6 +17,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen
 } from 'lucide-react';
+import NotionIcon from './icons/NotionIcon.jsx';
 
 export default function Sidebar({ 
   activeTab, 
@@ -54,11 +55,11 @@ export default function Sidebar({
       ]
     },
     {
-      title: 'CONTENT & STUDIO',
+      title: 'STUDIO',
       items: [
-        { id: 'draft-studio', label: 'Draft & Image Studio', icon: Edit3 },
-        { id: 'template-studio', label: 'Template Ingestion', icon: Layers },
-        { id: 'notion-hub', label: 'Notion Database', icon: Database }
+        { id: 'draft-studio', label: 'Content Studio', icon: Edit3 },
+        { id: 'template-studio', label: 'Templates', icon: Layers },
+        { id: 'notion-hub', label: 'Notion', icon: NotionIcon }
       ]
     },
     {

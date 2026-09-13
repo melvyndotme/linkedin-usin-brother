@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Edit3, Image as ImageIcon, Video, Send, CheckCircle2, Copy, Check, Upload, Trash2, Eye, Sparkles, Layers, ShieldCheck, ChevronLeft, ChevronRight, AlertCircle, Database, ExternalLink } from 'lucide-react';
+import NotionIcon from './icons/NotionIcon.jsx';
 import { generateBrotherWebsiteBannerSVG } from '../lib/svgBrotherWebsiteTemplates.js';
 import { publishToLinkedInApi, cleanLinkedInOrgId } from '../lib/linkedInApi.js';
 import { safeGetItem } from '../lib/storage.js';
@@ -167,7 +168,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
           <div>
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#0f2ea2]/10 text-[#0f2ea2] dark:text-blue-400 text-[11px] font-bold uppercase tracking-wider mb-1.5 sm:mb-2">
               <Edit3 className="w-3.5 h-3.5" />
-              Draft & Media Studio
+              Content Studio
             </div>
             <h2 className={`text-lg sm:text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
               Rich Post Editor & Media Asset Manager
@@ -183,7 +184,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
               disabled={notionSaving || Boolean(notionSavedData)}
               className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm disabled:opacity-50 cursor-pointer"
             >
-              <Database className={`w-3.5 h-3.5 ${notionSaving ? 'animate-spin' : ''}`} />
+              <NotionIcon className={`w-3.5 h-3.5 ${notionSaving ? 'animate-spin' : ''}`} />
               <span>{notionSaving ? 'Archiving...' : notionSavedData ? 'In Notion Repo' : 'Archive to Notion'}</span>
             </button>
             <button

@@ -7,6 +7,7 @@ import {
 import { safeGetItem, safeSetItem } from '../lib/storage.js';
 import { RECENT_LINKEDIN_POSTS } from '../lib/linkedInApi.js';
 import { BENCHMARK_TEMPLATES } from '../lib/templateExtractor.js';
+import NotionIcon from './icons/NotionIcon.jsx';
 
 export default function NotionDatabaseHub({ isDark }) {
   const [activeDb, setActiveDb] = useState('posts');
@@ -209,8 +210,8 @@ export default function NotionDatabaseHub({ isDark }) {
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#0f2ea2]/10 text-[#0f2ea2] dark:text-blue-400 text-[11px] font-bold uppercase tracking-wider mb-1.5 sm:mb-2">
-              <Database className="w-3.5 h-3.5" />
-              Enterprise Repository & Archive
+              <NotionIcon className="w-3.5 h-3.5" />
+              Enterprise Notion Repository
             </div>
             <h2 className={`text-lg sm:text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
               Enterprise Post & Telemetry Repository
