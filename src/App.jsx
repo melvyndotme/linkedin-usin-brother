@@ -137,6 +137,30 @@ export default function App() {
     }
   }, []);
 
+  // Prefetch live team directory from Notion in background so TeamView is instantly ready
+  useEffect(() => {
+    async function prefetchTeam() {
+      try {
+        const notionKey = safeGetItem('notion_token') || safeGetItem('token_notion') || '';
+        const res = await fetch('/api/notion/team', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            apiKey: notionKey || undefined,
+            databaseId: '3c701136de4881869782cd894c6126c5'
+          })
+        });
+        const data = await res.json();
+        if (res.ok && data.success && Array.isArray(data.members) && data.members.length > 0) {
+          safeSetItem('brother_team_cache', JSON.stringify(data.members));
+        }
+      } catch (e) {
+        // Silent background prefetch
+      }
+    }
+    prefetchTeam();
+  }, []);
+
   const handleLoginSuccess = (user) => {
     setCurrentUser(user);
     setIsAuthenticated(true);

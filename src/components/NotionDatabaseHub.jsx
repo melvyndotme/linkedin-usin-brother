@@ -31,12 +31,23 @@ export default function NotionDatabaseHub({ isDark }) {
   const [seedingTemplates, setSeedingTemplates] = useState(false);
   const [templateSeedResult, setTemplateSeedResult] = useState(null);
 
-  const teamData = [
-    { name: "Allan Cheng", email: "allan.cheng@brother.com.sg", role: "Admin (POD Lead)", active: "✅ Active" },
-    { name: "Chloe Lee", email: "chloe.lee@brother.com.sg", role: "Reviewer (HR Lead)", active: "✅ Active" },
-    { name: "Sean", email: "sean.tan@brother.com.sg", role: "User (POD Member)", active: "✅ Active" },
-    { name: "Melvyn Tan", email: "melvyn@befinityai.com", role: "External Advisor", active: "✅ Active" }
-  ];
+  const [teamData, setTeamData] = useState(() => {
+    try {
+      const cached = safeGetItem('brother_team_cache');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.map(m => ({
+            name: m.name,
+            email: m.email,
+            role: m.role || 'Member',
+            active: m.active ? '✅ Active' : 'Inactive'
+          }));
+        }
+      }
+    } catch (e) {}
+    return [];
+  });
 
   const [postsData, setPostsData] = useState(RECENT_LINKEDIN_POSTS);
 

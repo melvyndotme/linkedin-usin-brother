@@ -72,15 +72,19 @@ export default async function handler(req, res) {
     }
   }
 
-  // 2. Fallback to known core team whitelist if Notion is offline
+  // 2. Fallback to authorized Brother Singapore domain if Notion is offline
   if (!matchedUser) {
-    const teamWhitelist = [
-      { name: 'Allan Cheng', email: 'allan.cheng@brother.com.sg', role: 'Admin (POD Lead)' },
-      { name: 'Chloe Lee', email: 'chloe.lee@brother.com.sg', role: 'Reviewer (HR Lead)' },
-      { name: 'Sean', email: 'sean.tan@brother.com.sg', role: 'User (POD Member)' },
-      { name: 'Melvyn Tan', email: 'melvyn@befinityai.com', role: 'External Advisor' }
-    ];
-    matchedUser = teamWhitelist.find(u => u.email.toLowerCase() === normalizedEmail);
+    if (normalizedEmail.endsWith('@brother.com.sg') || normalizedEmail.includes('befinityai.com')) {
+      const derivedName = normalizedEmail
+        .split('@')[0]
+        .replace(/[._-]/g, ' ')
+        .replace(/\b\w/g, l => l.toUpperCase());
+      matchedUser = {
+        name: derivedName,
+        email: normalizedEmail,
+        role: 'Team Member (Brother SG)'
+      };
+    }
   }
 
   // STRICT REJECTION: If not on Notion Team Whitelist or designated team list, block login!

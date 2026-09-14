@@ -181,47 +181,38 @@ export default async function handler(req, res) {
       const name = page.properties['Name']?.title?.[0]?.plain_text || page.properties['Name']?.title?.[0]?.text?.content || 'Unnamed';
       const email = page.properties['Email']?.email || page.properties['Email']?.rich_text?.[0]?.plain_text || '';
       const active = page.properties['Active']?.checkbox ?? true;
-      let role = page.properties['Role']?.select?.name || '';
-      
-      const lowerEmail = email.toLowerCase();
-      if (!role) {
-        if (lowerEmail.includes('allan')) role = 'Admin';
-        else if (lowerEmail.includes('chloe')) role = 'Reviewer (HR Lead)';
-        else if (lowerEmail.includes('melvyn')) role = 'External Advisor';
-        else if (lowerEmail.includes('sean')) role = 'Core Team Member';
-        else role = 'Team Member (Brother SG)';
-      }
+      const role = page.properties['Role']?.select?.name || page.properties['Role']?.rich_text?.[0]?.plain_text || 'Team Member';
+      const department = page.properties['Department']?.select?.name || page.properties['Department']?.rich_text?.[0]?.plain_text || 'Brother Singapore';
+      const responsibilities = page.properties['Responsibilities']?.rich_text?.[0]?.plain_text || 
+                               page.properties['Bio']?.rich_text?.[0]?.plain_text || 
+                               page.properties['Description']?.rich_text?.[0]?.plain_text || 
+                               'Content drafting, template usage, and workflow collaboration.';
 
-      let badge = 'User';
+      const lowerRole = (role || '').toLowerCase();
+      let badge = role || 'Team Member';
       let badgeColor = 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20';
       let avatarBg = 'bg-emerald-600';
 
-      if (role.toLowerCase().includes('admin') || lowerEmail.includes('allan')) {
+      if (lowerRole.includes('admin') || lowerRole.includes('lead')) {
         badge = 'Admin';
         badgeColor = 'bg-blue-500/10 text-[#0f2ea2] border-blue-500/20';
         avatarBg = 'bg-[#0f2ea2]';
-      } else if (role.toLowerCase().includes('reviewer') || role.toLowerCase().includes('hr') || lowerEmail.includes('chloe')) {
+      } else if (lowerRole.includes('reviewer') || lowerRole.includes('hr')) {
         badge = 'Reviewer';
         badgeColor = 'bg-purple-500/10 text-purple-600 border-purple-500/20';
         avatarBg = 'bg-purple-600';
-      } else if (role.toLowerCase().includes('advisor') || lowerEmail.includes('melvyn')) {
+      } else if (lowerRole.includes('advisor') || lowerRole.includes('external')) {
         badge = 'External Advisor';
         badgeColor = 'bg-amber-500/10 text-amber-600 border-amber-500/20';
         avatarBg = 'bg-amber-600';
+      } else if (lowerRole.includes('core')) {
+        badge = 'Core Member';
+        badgeColor = 'bg-indigo-500/10 text-indigo-600 border-indigo-500/20';
+        avatarBg = 'bg-indigo-600';
       }
 
-      let department = 'Brother Singapore';
-      if (lowerEmail.includes('allan')) department = 'Brother X & HR Function';
-      else if (lowerEmail.includes('chloe')) department = 'HR Function (Brother Singapore)';
-      else if (lowerEmail.includes('sean')) department = 'Brother X Core Team';
-      else if (lowerEmail.includes('melvyn')) department = 'Befinity AI Advisory';
-
-      let responsibilities = 'Content drafting, template usage, and workflow collaboration.';
-      if (lowerEmail.includes('allan')) responsibilities = 'Strategic project oversight, final publishing approval, API governance, stakeholder alignment.';
-      else if (lowerEmail.includes('chloe')) responsibilities = 'Brand voice vetting, employee spotlight validation, festive copy approval, employer branding alignment.';
-      else if (lowerEmail.includes('sean')) responsibilities = 'Prompt testing, prototype experimentation, workflow automation, KPI tracking.';
-      else if (lowerEmail.includes('melvyn')) responsibilities = 'Agentic pipeline architecture, Serper intelligence integration, Gemini model orchestration, SVG studio engineering.';
-      else if (lowerEmail.includes('zhi.jun')) responsibilities = 'Brother SG marketing campaigns, product promotions, and creative brand alignment.';
+      const approvedCount = typeof page.properties['Approved']?.number === 'number' ? page.properties['Approved'].number : (page.properties['Posts']?.number ?? 0);
+      const pendingCount = typeof page.properties['Pending']?.number === 'number' ? page.properties['Pending'].number : 0;
 
       return {
         id: page.id,
@@ -235,8 +226,8 @@ export default async function handler(req, res) {
         avatarBg,
         responsibilities,
         stats: {
-          approved: lowerEmail.includes('allan') ? 24 : lowerEmail.includes('chloe') ? 19 : lowerEmail.includes('melvyn') ? 32 : lowerEmail.includes('sean') ? 14 : 8,
-          pending: lowerEmail.includes('allan') ? 1 : lowerEmail.includes('chloe') ? 2 : 0
+          approved: approvedCount,
+          pending: pendingCount
         }
       };
     });

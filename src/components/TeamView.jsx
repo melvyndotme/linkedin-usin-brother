@@ -19,59 +19,8 @@ import {
 } from 'lucide-react';
 import { safeGetItem, safeSetItem } from '../lib/storage.js';
 
-const DEFAULT_MEMBERS = [
-  {
-    id: "allan",
-    name: "Allan Cheng",
-    role: "Admin",
-    department: "Brother X & HR Function",
-    email: "allan.cheng@brother.com.sg",
-    badge: "Admin",
-    badgeColor: "bg-blue-500/10 text-[#0f2ea2] border-blue-500/20",
-    avatarBg: "bg-[#0f2ea2]",
-    responsibilities: "Strategic project oversight, final publishing approval, API governance, stakeholder alignment.",
-    stats: { approved: 24, pending: 1 }
-  },
-  {
-    id: "chloe",
-    name: "Chloe Lee",
-    role: "Primary Reviewer / HR Lead",
-    department: "HR Function (Brother Singapore)",
-    email: "chloe.lee@brother.com.sg",
-    badge: "Reviewer",
-    badgeColor: "bg-purple-500/10 text-purple-600 border-purple-500/20",
-    avatarBg: "bg-purple-600",
-    responsibilities: "Brand voice vetting, employee spotlight validation, festive copy approval, employer branding alignment.",
-    stats: { approved: 19, pending: 2 }
-  },
-  {
-    id: "sean",
-    name: "Sean",
-    role: "Core Team Member",
-    department: "Brother X Core Team",
-    email: "sean.tan@brother.com.sg",
-    badge: "User",
-    badgeColor: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
-    avatarBg: "bg-emerald-600",
-    responsibilities: "Prompt testing, prototype experimentation, workflow automation, KPI tracking.",
-    stats: { approved: 14, pending: 0 }
-  },
-  {
-    id: "melvyn",
-    name: "Melvyn Tan",
-    role: "AI Consultant & Technical Lead",
-    department: "Befinity AI Advisory",
-    email: "melvyn@befinityai.com",
-    badge: "External Advisor",
-    badgeColor: "bg-amber-500/10 text-amber-600 border-amber-500/20",
-    avatarBg: "bg-amber-600",
-    responsibilities: "Agentic pipeline architecture, Serper intelligence integration, Gemini model orchestration, SVG studio engineering.",
-    stats: { approved: 32, pending: 0 }
-  }
-];
-
 export default function TeamView({ isDark, currentUser, onNavigateToProfile }) {
-  // Load cached team members instantly so names appear without waiting for Notion API
+  // Load cached team members from previous Notion fetch (if available)
   const [teamMembers, setTeamMembers] = useState(() => {
     try {
       const cached = safeGetItem('brother_team_cache');
@@ -79,10 +28,14 @@ export default function TeamView({ isDark, currentUser, onNavigateToProfile }) {
         const parsed = JSON.parse(cached);
         if (Array.isArray(parsed) && parsed.length > 0) return parsed;
       }
-    } catch (e) { /* ignore parse errors, fall through to defaults */ }
-    return DEFAULT_MEMBERS;
+    } catch (e) { /* ignore parse errors */ }
+    return [];
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(() => {
+    // If no cached members yet, show loading immediately
+    const cached = safeGetItem('brother_team_cache');
+    return !cached;
+  });
   const [lastSynced, setLastSynced] = useState(null);
   const [viewMode, setViewMode] = useState(() => {
     return safeGetItem('brother_team_view_mode') || 'cards';
@@ -247,8 +200,53 @@ export default function TeamView({ isDark, currentUser, onNavigateToProfile }) {
         </div>
       </div>
 
+      {/* Loading Skeleton */}
+      {loading && sortedMembers.length === 0 && (
+        viewMode === 'cards' ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-pulse">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className={`p-6 rounded-2xl border ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'} space-y-4`}>
+                <div className="flex items-center gap-3.5">
+                  <div className="w-12 h-12 rounded-2xl bg-slate-200 dark:bg-slate-800" />
+                  <div className="space-y-2 flex-1">
+                    <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-1/3" />
+                    <div className="h-3 bg-slate-200 dark:bg-slate-800 rounded w-1/2" />
+                  </div>
+                </div>
+                <div className="h-16 bg-slate-100 dark:bg-slate-950/60 rounded-xl" />
+                <div className="h-10 bg-slate-100 dark:bg-slate-950/60 rounded-xl" />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className={`p-12 rounded-2xl border text-center ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
+            <RefreshCw className="w-6 h-6 text-[#0f2ea2] dark:text-blue-400 animate-spin mx-auto mb-2" />
+            <p className="text-sm font-medium text-slate-500">Loading live team directory from Notion...</p>
+          </div>
+        )
+      )}
+
+      {/* Empty State */}
+      {!loading && sortedMembers.length === 0 && (
+        <div className={`p-12 rounded-2xl border text-center ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
+          <Users className="w-10 h-10 text-slate-400 mx-auto mb-3 opacity-60" />
+          <h3 className={`text-base font-bold mb-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>No Team Members Found</h3>
+          <p className="text-xs text-slate-500 mb-4 max-w-sm mx-auto">
+            Connect and sync with your Notion Team Directory database to load team members dynamically.
+          </p>
+          <button
+            type="button"
+            onClick={fetchLiveTeam}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0f2ea2] text-white text-xs font-semibold hover:bg-[#0c2482] transition-colors cursor-pointer"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+            <span>Sync from Notion</span>
+          </button>
+        </div>
+      )}
+
       {/* 1. CARDS VIEW */}
-      {viewMode === 'cards' && (
+      {viewMode === 'cards' && sortedMembers.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {sortedMembers.map((member) => {
             const isSelf = checkIsSelf(member);
@@ -343,7 +341,7 @@ export default function TeamView({ isDark, currentUser, onNavigateToProfile }) {
       )}
 
       {/* 2. LIST VIEW */}
-      {viewMode === 'list' && (
+      {viewMode === 'list' && sortedMembers.length > 0 && (
         <div className={`rounded-2xl border overflow-hidden shadow-sm transition-colors ${
           isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
         }`}>
