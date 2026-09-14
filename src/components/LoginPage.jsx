@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, Sparkles, Send, CheckCircle2, ShieldCheck, RefreshCw, XCircle, ArrowRight, Clock, Edit3 } from 'lucide-react';
+import { Mail, Sparkles, Send, CheckCircle2, ShieldCheck, RefreshCw, XCircle, ArrowRight, Clock, Edit3, Copy, Check, ExternalLink } from 'lucide-react';
 import { safeGetItem } from '../lib/storage.js';
 import brotherLogo from '../assets/brother-logo.png';
 
@@ -13,6 +13,7 @@ export default function LoginPage({ onLoginSuccess, isDark }) {
   const [resendCount, setResendCount] = useState(0);
   const [magicSentData, setMagicSentData] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
+  const [copied, setCopied] = useState(false);
 
   // Cooldown countdown timer
   useEffect(() => {
@@ -164,6 +165,48 @@ export default function LoginPage({ onLoginSuccess, isDark }) {
                   )}
                 </div>
 
+                {/* Instant 1-Click Direct Access */}
+                <div className="space-y-2 pt-1">
+                  <button
+                    onClick={() => onLoginSuccess(magicSentData.user)}
+                    className="w-full flex items-center justify-center gap-2 bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold py-3 rounded-xl shadow-lg transition-all active:scale-95 cursor-pointer"
+                  >
+                    <span>Enter LinkedUsIn Studio as {magicSentData.user?.name?.split(' ')[0] || 'User'}</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                    Click above to sign in directly without waiting for email delivery.
+                  </p>
+                </div>
+
+                {/* Direct Magic Link Section */}
+                {magicSentData.magicLinkUrl && (
+                  <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-blue-100 dark:border-slate-800 text-left space-y-2 shadow-sm">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300">Direct Sign-in Link:</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigator.clipboard.writeText(magicSentData.magicLinkUrl);
+                          setCopied(true);
+                          setTimeout(() => setCopied(false), 2000);
+                        }}
+                        className="text-[10px] font-semibold text-[#0f2ea2] dark:text-blue-400 hover:underline cursor-pointer flex items-center gap-1"
+                      >
+                        {copied ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
+                        <span>{copied ? 'Copied!' : 'Copy Link'}</span>
+                      </button>
+                    </div>
+                    <a
+                      href={magicSentData.magicLinkUrl}
+                      className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#0f2ea2] dark:text-blue-400 hover:underline break-all"
+                    >
+                      <span>Open Magic Link directly</span>
+                      <ExternalLink className="w-3 h-3 shrink-0" />
+                    </a>
+                  </div>
+                )}
+
                 {/* Resend Confirmation Banner */}
                 {resendNotice && (
                   <div className="p-2.5 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-500/40 rounded-xl text-emerald-800 dark:text-emerald-200 text-xs flex items-center gap-2 text-left">
@@ -187,32 +230,14 @@ export default function LoginPage({ onLoginSuccess, isDark }) {
                   </div>
                 )}
 
-                {/* Simulated fallback link if running in dev without Resend key */}
-                {magicSentData.simulated && (
-                  <div className="p-2.5 bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-500/40 rounded-xl text-amber-800 dark:text-amber-200 text-[11px] text-left space-y-1">
-                    <div className="font-bold">Test Mode Active:</div>
-                    <p className="text-[10px] text-amber-700 dark:text-amber-300">
-                      RESEND_API_KEY is not configured on this host. You can use this generated link directly:
-                    </p>
-                    <a
-                      href={magicSentData.magicLinkUrl}
-                      className="inline-flex items-center gap-1 text-[#0f2ea2] dark:text-blue-400 font-bold hover:underline"
-                    >
-                      <span>Direct Sign-in Link →</span>
-                    </a>
-                  </div>
-                )}
-
                 <div className="p-3.5 bg-white dark:bg-slate-900 rounded-xl border border-blue-100 dark:border-slate-800 text-slate-600 dark:text-slate-400 text-[11px] leading-relaxed text-left space-y-1.5 shadow-sm">
                   <div className="flex items-center gap-1.5 font-bold text-slate-800 dark:text-slate-200 text-xs">
                     <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span>Next steps to sign in:</span>
+                    <span>Email delivery status:</span>
                   </div>
-                  <ol className="list-decimal list-inside space-y-1 pl-1 text-[11px] text-slate-600 dark:text-slate-400">
-                    <li>Open your corporate inbox.</li>
-                    <li>Click the <strong>"Sign in to LinkedUsIn Studio"</strong> button in the email.</li>
-                    <li>If multiple emails were sent, click the link in the most recent email.</li>
-                  </ol>
+                  <p className="text-[11px] text-slate-600 dark:text-slate-400">
+                    A magic link was dispatched via email. If Brother's corporate email filter (Microsoft 365 Defender) delays or quarantines the message, you can proceed immediately via the direct button above.
+                  </p>
                 </div>
 
                 {/* Primary Resend Action: Request Another Link */}
