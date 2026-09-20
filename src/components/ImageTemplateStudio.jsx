@@ -43,7 +43,7 @@ export default function ImageTemplateStudio({
   const [aspectRatio, setAspectRatio] = useState('1:1'); // '1:1' (Square Carousel) or '1.91:1' (Landscape Banner)
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
   const [activeAssetTab, setActiveAssetTab] = useState('official'); // 'official' | 'festive'
-  const [selectedPhotoUrl, setSelectedPhotoUrl] = useState('');
+  const [slidePhotos, setSlidePhotos] = useState({}); // Per-slide background image mapping: { [slideIndex]: url }
   const [customPhotoUrl, setCustomPhotoUrl] = useState('');
   const [isAiGenerating, setIsAiGenerating] = useState(false);
   const [aiError, setAiError] = useState(null);
@@ -81,21 +81,59 @@ export default function ImageTemplateStudio({
     return CURATED_EVENT_PHOTOS[photoCategory] || CURATED_EVENT_PHOTOS['corporate'];
   }, [photoCategory]);
 
-  // Set default photo when occasion changes
-  useEffect(() => {
-    if (occasion?.eventType === 'promotion' || occasion?.theme === 'red') {
-      setActiveAssetTab('official');
-      setSelectedPhotoUrl(OFFICIAL_BROTHER_ASSETS[0]?.url || '');
-    } else if (festivePresets && festivePresets.length > 0) {
-      setActiveAssetTab('official');
-      setSelectedPhotoUrl(OFFICIAL_BROTHER_ASSETS[0]?.url || festivePresets[0].url);
-    }
-  }, [occasion, festivePresets]);
-
-  // Generate base 5-slide series
+  // Generate base 5-slide series tailored to active draft/angle
   const baseSlides = useMemo(() => {
     return generateCarouselSlideSeries(occasion, activeDraft);
   }, [occasion, activeDraft]);
+
+  // Synchronize curated distinct photos whenever baseSlides change
+  useEffect(() => {
+    const initialPhotos = {};
+    baseSlides.forEach((slide, idx) => {
+      initialPhotos[idx] = slide.defaultPhotoUrl || OFFICIAL_BROTHER_ASSETS[0]?.url;
+    });
+    setSlidePhotos(initialPhotos);
+    setCustomPhotoUrl('');
+  }, [baseSlides]);
+
+  // Helper to get effective photo URL for any given slide index
+  const getPhotoForSlide = (idx) => {
+    if (slidePhotos[idx]) return slidePhotos[idx];
+    if (baseSlides[idx]?.defaultPhotoUrl) return baseSlides[idx].defaultPhotoUrl;
+    return OFFICIAL_BROTHER_ASSETS[0]?.url;
+  };
+
+  // Active photo URL for current slide
+  const currentPhoto = getPhotoForSlide(activeSlideIndex);
+
+  // Assign photo to current active slide
+  const handleSelectPhotoForSlide = (url) => {
+    setSlidePhotos((prev) => ({
+      ...prev,
+      [activeSlideIndex]: url
+    }));
+    setCustomPhotoUrl('');
+  };
+
+  // Apply current active photo across all 5 slides
+  const handleApplyToAllSlides = (url) => {
+    const targetUrl = url || currentPhoto;
+    const all = {};
+    baseSlides.forEach((_, idx) => {
+      all[idx] = targetUrl;
+    });
+    setSlidePhotos(all);
+  };
+
+  // Reset all slides to their curated default images
+  const handleResetSlidePhotos = () => {
+    const curated = {};
+    baseSlides.forEach((s, idx) => {
+      curated[idx] = s.defaultPhotoUrl || OFFICIAL_BROTHER_ASSETS[0]?.url;
+    });
+    setSlidePhotos(curated);
+    setCustomPhotoUrl('');
+  };
 
   // Slide data with user overrides
   const currentSlide = useMemo(() => {
@@ -127,9 +165,6 @@ export default function ImageTemplateStudio({
     });
   };
 
-  // Active photo URL
-  const currentPhoto = customPhotoUrl || selectedPhotoUrl || OFFICIAL_BROTHER_ASSETS[0]?.url;
-
   // Handle slide navigation
   const handlePrevSlide = () => {
     setActiveSlideIndex((prev) => (prev > 0 ? prev - 1 : baseSlides.length - 1));
@@ -148,8 +183,11 @@ export default function ImageTemplateStudio({
     reader.onload = (event) => {
       const dataUrl = event.target?.result;
       if (typeof dataUrl === 'string') {
+        setSlidePhotos((prev) => ({
+          ...prev,
+          [activeSlideIndex]: dataUrl
+        }));
         setCustomPhotoUrl(dataUrl);
-        setSelectedPhotoUrl(dataUrl);
       }
     };
     reader.onerror = (err) => {
@@ -186,7 +224,7 @@ export default function ImageTemplateStudio({
     }
   };
 
-  // Handle full 5-slide batch download
+  // Handle full 5-slide batch download using each slide's tailored image
   const handleDownloadAllSlides = async () => {
     setDownloading(true);
     try {
@@ -194,10 +232,11 @@ export default function ImageTemplateStudio({
         const base = baseSlides[i];
         const overrides = customSlideText[i] || {};
         const slide = { ...base, ...overrides };
+        const slidePhoto = getPhotoForSlide(i);
 
         const dataUrl = await renderSlideToCanvas({
           slide,
-          photoUrl: currentPhoto,
+          photoUrl: slidePhoto,
           aspectRatio
         });
 
@@ -239,7 +278,10 @@ export default function ImageTemplateStudio({
       const data = await res.json();
       if (data.success && data.imageUrl) {
         setCustomPhotoUrl(data.imageUrl);
-        setSelectedPhotoUrl(data.imageUrl);
+        setSlidePhotos((prev) => ({
+          ...prev,
+          [activeSlideIndex]: data.imageUrl
+        }));
       } else {
         setAiError({
           message: data.error || 'Gemini image generation is currently unavailable.',
@@ -494,23 +536,34 @@ export default function ImageTemplateStudio({
       {aspectRatio === '1:1' && (
         <div className="flex items-center justify-between gap-2 overflow-x-auto pb-1 custom-scrollbar">
           <div className="flex items-center gap-1.5 sm:gap-2">
-            {baseSlides.map((slide, idx) => (
-              <button
-                key={slide.slideNumber}
-                type="button"
-                onClick={() => setActiveSlideIndex(idx)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer border ${
-                  activeSlideIndex === idx
-                    ? 'bg-[#0f2ea2] text-white border-[#0f2ea2] shadow-xs'
-                    : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-750'
-                }`}
-              >
-                <span className={`text-[10px] font-mono ${activeSlideIndex === idx ? 'text-blue-200' : 'text-slate-400'}`}>
-                  0{idx + 1}
-                </span>
-                <span>{slide.roleTitle}</span>
-              </button>
-            ))}
+            {baseSlides.map((slide, idx) => {
+              const slideImg = getPhotoForSlide(idx);
+              const isActive = activeSlideIndex === idx;
+              return (
+                <button
+                  key={slide.slideNumber}
+                  type="button"
+                  onClick={() => setActiveSlideIndex(idx)}
+                  className={`flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer border ${
+                    isActive
+                      ? 'bg-[#0f2ea2] text-white border-[#0f2ea2] shadow-xs ring-1 ring-[#0f2ea2]'
+                      : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-750'
+                  }`}
+                >
+                  <span className={`text-[10px] font-mono font-bold ${isActive ? 'text-blue-200' : 'text-slate-400'}`}>
+                    0{idx + 1}
+                  </span>
+                  {slideImg && (
+                    <img 
+                      src={slideImg} 
+                      alt="" 
+                      className="w-4 h-4 rounded-sm object-cover border border-white/20"
+                    />
+                  )}
+                  <span>{slide.roleTitle}</span>
+                </button>
+              );
+            })}
           </div>
 
           <div className="flex items-center gap-1 shrink-0">
@@ -838,10 +891,10 @@ export default function ImageTemplateStudio({
                 type="button"
                 onClick={() => {
                   setCustomPhotoUrl('');
-                  setSelectedPhotoUrl(OFFICIAL_BROTHER_ASSETS[0]?.url || '');
+                  handleSelectPhotoForSlide(baseSlides[activeSlideIndex]?.defaultPhotoUrl || OFFICIAL_BROTHER_ASSETS[0]?.url);
                 }}
                 className="px-2.5 py-1 text-xs font-bold text-slate-500 hover:text-rose-600 rounded-lg cursor-pointer transition-colors"
-                title="Remove custom photo and revert to official presets"
+                title="Remove custom photo and revert to curated preset"
               >
                 Remove
               </button>
@@ -849,16 +902,45 @@ export default function ImageTemplateStudio({
           </div>
         )}
 
+        {/* Active slide targeting badge and multi-photo controls */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1 pb-1 border-b border-slate-200 dark:border-slate-800 text-xs">
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-[#0f2ea2] dark:text-blue-400 flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-[#0f2ea2] dark:bg-blue-400 animate-pulse" />
+              Target: Slide 0{activeSlideIndex + 1} ({currentSlide.roleTitle})
+            </span>
+            <span className="text-[11px] text-slate-500 hidden md:inline">
+              • Click any image below to set background for this slide
+            </span>
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => handleApplyToAllSlides()}
+              className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 hover:text-[#0f2ea2] dark:hover:text-blue-400 px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 cursor-pointer transition-colors shadow-2xs"
+              title="Apply current photo to all 5 slides"
+            >
+              Apply Photo to All Slides
+            </button>
+            <button
+              type="button"
+              onClick={handleResetSlidePhotos}
+              className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 hover:text-[#0f2ea2] dark:hover:text-blue-400 px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 cursor-pointer transition-colors shadow-2xs"
+              title="Reset each slide to its curated default image"
+            >
+              Reset to Curated Images
+            </button>
+          </div>
+        </div>
+
         {/* Thumbnail Gallery based on active tab */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
           {(activeAssetTab === 'official' ? OFFICIAL_BROTHER_ASSETS : festivePresets).map((asset) => (
             <button
               key={asset.id}
               type="button"
-              onClick={() => {
-                setSelectedPhotoUrl(asset.url);
-                setCustomPhotoUrl('');
-              }}
+              onClick={() => handleSelectPhotoForSlide(asset.url)}
               className={`group relative aspect-video rounded-lg overflow-hidden border-2 transition-all cursor-pointer bg-slate-900 ${
                 currentPhoto === asset.url
                   ? 'border-[#0f2ea2] ring-2 ring-[#0f2ea2]/30 shadow-md'

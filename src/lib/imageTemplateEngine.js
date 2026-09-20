@@ -108,6 +108,18 @@ export const CURATED_EVENT_PHOTOS = {
       title: 'Full Moon Night Lights',
       url: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=1600&q=85',
       thumb: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=400&q=70'
+    },
+    {
+      id: 'ma-4',
+      title: 'Glowing Festival Lanterns',
+      url: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=1600&q=85',
+      thumb: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=400&q=70'
+    },
+    {
+      id: 'ma-5',
+      title: 'Evening Festive Gathering',
+      url: 'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&w=1600&q=85',
+      thumb: 'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&w=400&q=70'
     }
   ],
   'national-day': [
@@ -122,6 +134,24 @@ export const CURATED_EVENT_PHOTOS = {
       title: 'Singapore Cityscape Sunset',
       url: 'https://images.unsplash.com/photo-1506351421178-63b52a2d2562?auto=format&fit=crop&w=1600&q=85',
       thumb: 'https://images.unsplash.com/photo-1506351421178-63b52a2d2562?auto=format&fit=crop&w=400&q=70'
+    },
+    {
+      id: 'nd-3',
+      title: 'Gardens by the Bay Supertrees',
+      url: 'https://images.unsplash.com/photo-1565967511849-76a60a516170?auto=format&fit=crop&w=1600&q=85',
+      thumb: 'https://images.unsplash.com/photo-1565967511849-76a60a516170?auto=format&fit=crop&w=400&q=70'
+    },
+    {
+      id: 'nd-4',
+      title: 'Modern Singapore Central Business District',
+      url: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1600&q=85',
+      thumb: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=400&q=70'
+    },
+    {
+      id: 'nd-5',
+      title: 'Vibrant City Lights & Unity',
+      url: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1600&q=85',
+      thumb: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=400&q=70'
     }
   ],
   'deepavali': [
@@ -136,6 +166,24 @@ export const CURATED_EVENT_PHOTOS = {
       title: 'Festive Lights & Warm Glow',
       url: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1600&q=85',
       thumb: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=400&q=70'
+    },
+    {
+      id: 'dp-3',
+      title: 'Intricate Rangoli Art & Petals',
+      url: 'https://images.unsplash.com/photo-1576487248805-cf45f6bcc67f?auto=format&fit=crop&w=1600&q=85',
+      thumb: 'https://images.unsplash.com/photo-1576487248805-cf45f6bcc67f?auto=format&fit=crop&w=400&q=70'
+    },
+    {
+      id: 'dp-4',
+      title: 'Festive Celebration & Sparkling Lights',
+      url: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=1600&q=85',
+      thumb: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=400&q=70'
+    },
+    {
+      id: 'dp-5',
+      title: 'Warm Evening Lamps & Community Feast',
+      url: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=1600&q=85',
+      thumb: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=400&q=70'
     }
   ],
   'christmas': [
@@ -150,6 +198,24 @@ export const CURATED_EVENT_PHOTOS = {
       title: 'Warm Seasonal Workspace',
       url: 'https://images.unsplash.com/photo-1543258103-a62bdc069871?auto=format&fit=crop&w=1600&q=85',
       thumb: 'https://images.unsplash.com/photo-1543258103-a62bdc069871?auto=format&fit=crop&w=400&q=70'
+    },
+    {
+      id: 'xm-3',
+      title: 'Glowing Holiday Ornaments & Evergreen',
+      url: 'https://images.unsplash.com/photo-1576919228236-a097c32a5cd4?auto=format&fit=crop&w=1600&q=85',
+      thumb: 'https://images.unsplash.com/photo-1576919228236-a097c32a5cd4?auto=format&fit=crop&w=400&q=70'
+    },
+    {
+      id: 'xm-4',
+      title: 'Festive Gift Crafting & Precision Wrapping',
+      url: 'https://images.unsplash.com/photo-1513297887119-d46091b24bfa?auto=format&fit=crop&w=1600&q=85',
+      thumb: 'https://images.unsplash.com/photo-1513297887119-d46091b24bfa?auto=format&fit=crop&w=400&q=70'
+    },
+    {
+      id: 'xm-5',
+      title: 'Celebratory Team Toasts & Community',
+      url: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1600&q=85',
+      thumb: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=400&q=70'
     }
   ],
   'cny': [
@@ -164,6 +230,24 @@ export const CURATED_EVENT_PHOTOS = {
       title: 'Festive Mandarins & Gold Ornaments',
       url: 'https://images.unsplash.com/photo-1517867065802-2204d30bd72b?auto=format&fit=crop&w=1600&q=85',
       thumb: 'https://images.unsplash.com/photo-1517867065802-2204d30bd72b?auto=format&fit=crop&w=400&q=70'
+    },
+    {
+      id: 'cny-3',
+      title: 'Traditional Lunar New Year Street',
+      url: 'https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?auto=format&fit=crop&w=1600&q=85',
+      thumb: 'https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?auto=format&fit=crop&w=400&q=70'
+    },
+    {
+      id: 'cny-4',
+      title: 'Festive Red & Gold Prosperity Decor',
+      url: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=1600&q=85',
+      thumb: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=400&q=70'
+    },
+    {
+      id: 'cny-5',
+      title: 'Warm Spring Celebration & Tea',
+      url: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&fit=crop&w=1600&q=85',
+      thumb: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&fit=crop&w=400&q=70'
     }
   ],
   'sustainability': [
@@ -178,6 +262,24 @@ export const CURATED_EVENT_PHOTOS = {
       title: 'Eco Clean Office Workspace',
       url: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1600&q=85',
       thumb: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=400&q=70'
+    },
+    {
+      id: 'sus-3',
+      title: 'Clean Sustainable Energy & Solar',
+      url: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=1600&q=85',
+      thumb: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=400&q=70'
+    },
+    {
+      id: 'sus-4',
+      title: 'Green Architecture & Living Walls',
+      url: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1600&q=85',
+      thumb: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=400&q=70'
+    },
+    {
+      id: 'sus-5',
+      title: 'Eco Stewardship & Community Action',
+      url: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=1600&q=85',
+      thumb: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=400&q=70'
     }
   ],
   'promotion': [
@@ -192,6 +294,24 @@ export const CURATED_EVENT_PHOTOS = {
       title: 'Creative Studio Architecture',
       url: 'https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=1600&q=85',
       thumb: 'https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=400&q=70'
+    },
+    {
+      id: 'pro-3',
+      title: 'High Performance Business Operations',
+      url: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1600&q=85',
+      thumb: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=400&q=70'
+    },
+    {
+      id: 'pro-4',
+      title: 'Strategic B2B Partnership Discussion',
+      url: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1600&q=85',
+      thumb: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=400&q=70'
+    },
+    {
+      id: 'pro-5',
+      title: 'Enterprise Workspace Precision',
+      url: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1600&q=85',
+      thumb: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=400&q=70'
     }
   ],
   'corporate': [
@@ -206,6 +326,24 @@ export const CURATED_EVENT_PHOTOS = {
       title: 'High-Tech Singapore Skyline',
       url: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1600&q=85',
       thumb: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=400&q=70'
+    },
+    {
+      id: 'cor-3',
+      title: 'Executive Mentorship & Strategy Discussion',
+      url: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1600&q=85',
+      thumb: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=400&q=70'
+    },
+    {
+      id: 'cor-4',
+      title: 'Focused Innovation & Digital Workspace',
+      url: 'https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=1600&q=85',
+      thumb: 'https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=400&q=70'
+    },
+    {
+      id: 'cor-5',
+      title: 'Inclusive Team Camaraderie & Pantry',
+      url: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1600&q=85',
+      thumb: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=400&q=70'
     }
   ]
 };
@@ -228,7 +366,47 @@ export function getPhotoCategoryForOccasion(occasion) {
 }
 
 /**
- * Generate 5-Slide Narrative Series for an Occasion
+ * Returns a 5-image curated sequence tailored for the occasion category
+ * Combines atmospheric occasion hero, people/culture, team collaboration, official Brother hardware, and community discussion
+ */
+export function getDefaultPhotoSequence(photoCategory, occasion) {
+  const categoryPhotos = CURATED_EVENT_PHOTOS[photoCategory] || CURATED_EVENT_PHOTOS['corporate'];
+  const corpPhotos = CURATED_EVENT_PHOTOS['corporate'];
+  const brotherHardware = OFFICIAL_BROTHER_ASSETS[0]?.url; // Business Solutions & Enterprise Hardware
+  const brotherScanner = OFFICIAL_BROTHER_ASSETS[1]?.url || brotherHardware;
+
+  if (photoCategory === 'corporate' || photoCategory === 'promotion') {
+    return [
+      categoryPhotos[1]?.url || categoryPhotos[0]?.url, // Skyline / Hero
+      categoryPhotos[3]?.url || categoryPhotos[0]?.url, // Workspace
+      categoryPhotos[2]?.url || corpPhotos[2]?.url,     // Mentorship / Team
+      brotherHardware,                                  // Official Hardware
+      categoryPhotos[0]?.url || corpPhotos[0]?.url      // Collaborative discussion
+    ];
+  }
+
+  if (photoCategory === 'sustainability') {
+    return [
+      categoryPhotos[0]?.url, // Lush Greenery
+      categoryPhotos[1]?.url, // Eco Office
+      corpPhotos[0]?.url,     // Team Collaboration
+      brotherHardware,        // Eco-efficient Hardware
+      categoryPhotos[2]?.url || categoryPhotos[4]?.url  // Clean Energy
+    ];
+  }
+
+  // Festive events (Deepavali, CNY, Mid-Autumn, Christmas, National Day)
+  return [
+    categoryPhotos[0]?.url || corpPhotos[0]?.url, // Slide 1: Occasion Hero (Diyas / Lanterns / Fireworks)
+    categoryPhotos[1]?.url || categoryPhotos[2]?.url || corpPhotos[0]?.url, // Slide 2: Cultural warmth / lights
+    corpPhotos[0]?.url,                          // Slide 3: Brother collaborative team / people
+    brotherHardware,                             // Slide 4: Brother official hardware / solutions
+    categoryPhotos[2]?.url || categoryPhotos[3]?.url || categoryPhotos[0]?.url // Slide 5: Community celebration / discussion
+  ];
+}
+
+/**
+ * Generate 5-Slide Narrative Series tailored specifically to the selected Angle & Template
  */
 export function generateCarouselSlideSeries(occasion, activeDraft = null) {
   const occasionName = occasion?.name || 'Brother Singapore Special';
@@ -237,7 +415,474 @@ export function generateCarouselSlideSeries(occasion, activeDraft = null) {
   const subtitle = occasion?.subtitle || 'Standing "At your side" across Singapore';
   const hashtags = (occasion?.suggestedHashtags || ['#BrotherSingapore', '#AtYourSide']).slice(0, 3).join(' ');
 
-  const draftAngle = activeDraft?.name || 'Community & Workplace Harmony';
+  const photoCat = getPhotoCategoryForOccasion(occasion);
+  const photoSeq = getDefaultPhotoSequence(photoCat, occasion);
+
+  // Identify active angle or template
+  const tmplId = (activeDraft?.templateId || activeDraft?.id || '').toLowerCase();
+  const draftName = (activeDraft?.name || activeDraft?.templateName || '').toLowerCase();
+  const draftAngle = (activeDraft?.angle || activeDraft?.whyThisWorks || '').toLowerCase();
+
+  // Helper to determine theme
+  const theme = occasion?.theme || 'blue';
+
+  // --- ANGLE 1: WARM COMMUNITY GREETING (Wa, Multiracial Unity, Cultural Warmth) ---
+  if (
+    tmplId.includes('warm_greeting') ||
+    tmplId === 'draft-1' ||
+    draftName.includes('warm community') ||
+    draftName.includes('shared harmony') ||
+    draftAngle.includes('community unity') ||
+    draftAngle.includes('hofstede harmony')
+  ) {
+    return [
+      {
+        slideIndex: 1,
+        slideNumber: '01 / 05',
+        type: 'cover',
+        roleTitle: 'Cover Hook',
+        badge: 'Festive Greeting',
+        headline: occasionName,
+        subheadline: 'Warm Community Unity & Shared Harmony (Wa)',
+        supportingText: 'Wishing our clients, enterprise partners, and friends across Singapore joyous celebrations.',
+        footerText: 'Swipe to explore our festive story ➔',
+        theme,
+        defaultPhotoUrl: photoSeq[0]
+      },
+      {
+        slideIndex: 2,
+        slideNumber: '02 / 05',
+        type: 'insight',
+        roleTitle: 'Tradition & Spirit',
+        badge: 'Shared Heritage',
+        headline: 'Honoring Light, Hope & Unity',
+        subheadline: 'More than a calendar milestone, it is a moment to celebrate what connects us all.',
+        supportingText: 'From shared delicacies and family visits to the enduring warmth of neighborly goodwill, Singapore\'s multiracial harmony remains our greatest strength.',
+        footerText: 'Brother Singapore • Cultural Heritage & Harmony',
+        theme,
+        defaultPhotoUrl: photoSeq[1]
+      },
+      {
+        slideIndex: 3,
+        slideNumber: '03 / 05',
+        type: 'philosophy',
+        roleTitle: "Brother 'At Your Side'",
+        badge: 'At Your Side',
+        headline: 'Standing Beside Our Community',
+        subheadline: '"Our promise to be \'At your side\' extends far beyond workplace technology."',
+        supportingText: 'It is about honoring the rich cultural tapestry that makes Singapore resilient, united, and vibrant through every season.',
+        footerText: 'Brother Singapore • Brand Commitment',
+        theme,
+        defaultPhotoUrl: photoSeq[2]
+      },
+      {
+        slideIndex: 4,
+        slideNumber: '04 / 05',
+        type: 'action',
+        roleTitle: 'Everyday Workplaces',
+        badge: 'Empowering Workplaces',
+        headline: 'Fostering Meaningful Connections',
+        subheadline: 'Supporting the businesses, schools, and families who celebrate this special season.',
+        supportingText: 'Whether printing greeting cards, creating festive labels, or keeping offices running smoothly, we take pride in supporting your daily moments.',
+        footerText: 'Brother Document & Print Solutions',
+        theme,
+        defaultPhotoUrl: photoSeq[3]
+      },
+      {
+        slideIndex: 5,
+        slideNumber: '05 / 05',
+        type: 'cta',
+        roleTitle: 'Community Engagement',
+        badge: 'Join The Conversation',
+        headline: 'How Are You Celebrating?',
+        subheadline: 'What is your favorite festive tradition, family gathering, or workplace moment during this period?',
+        supportingText: `Share your thoughts with our community in the comments below! 👇\n${hashtags}`,
+        footerText: 'brother.com.sg • At your side',
+        theme,
+        defaultPhotoUrl: photoSeq[4]
+      }
+    ];
+  }
+
+  // --- ANGLE 2: VALUES, KAIZEN & CRAFTSMANSHIP ---
+  if (
+    tmplId.includes('reflection_values') ||
+    tmplId === 'draft-2' ||
+    draftName.includes('craftsmanship') ||
+    draftName.includes('kaizen') ||
+    draftName.includes('values & heritage') ||
+    draftAngle.includes('cultural craftsmanship')
+  ) {
+    return [
+      {
+        slideIndex: 1,
+        slideNumber: '01 / 05',
+        type: 'cover',
+        roleTitle: 'Strategic Cover',
+        badge: 'Values & Heritage',
+        headline: occasionName,
+        subheadline: 'Craftsmanship, Kaizen & Long-Term Purpose',
+        supportingText: 'Reflecting on the enduring foundations that anchor meaningful growth and collective trust.',
+        footerText: 'Swipe to explore our reflection ➔',
+        theme,
+        defaultPhotoUrl: photoSeq[0]
+      },
+      {
+        slideIndex: 2,
+        slideNumber: '02 / 05',
+        type: 'insight',
+        roleTitle: 'Continuous Care',
+        badge: 'Japanese Kaizen',
+        headline: 'The Spirit of Continuous Care',
+        subheadline: 'True progress isn\'t just about moving fast — it is about honoring strong foundations.',
+        supportingText: 'In both life and business, enduring success is built through steady care, continuous improvement (Kaizen), and unwavering attention to detail.',
+        footerText: 'Brother Singapore • Heritage & Excellence',
+        theme,
+        defaultPhotoUrl: photoSeq[1]
+      },
+      {
+        slideIndex: 3,
+        slideNumber: '03 / 05',
+        type: 'philosophy',
+        roleTitle: 'Sustainable Foundations',
+        badge: 'Long-Term Vision',
+        headline: 'People & Sustainability at the Core',
+        subheadline: '"Putting people, trust, and sustainable progress at the heart of everything we create."',
+        supportingText: 'As we celebrate, Brother Singapore reaffirms our commitment to walking alongside local businesses and nurturing long-term relationships that stand the test of time.',
+        footerText: 'Brother Singapore • Corporate Responsibility',
+        theme,
+        defaultPhotoUrl: photoSeq[2]
+      },
+      {
+        slideIndex: 4,
+        slideNumber: '04 / 05',
+        type: 'action',
+        roleTitle: 'Craft & Precision',
+        badge: 'Workplace Reliability',
+        headline: 'Precision in Every Detail',
+        subheadline: 'Crafting essential office workflows, durable labeling, and reliable printing with Japanese Kaizen standards.',
+        supportingText: 'When technology works seamlessly in the background, you are free to focus on what matters most: celebrating and growing together.',
+        footerText: 'Brother Hardware & Document Solutions',
+        theme,
+        defaultPhotoUrl: photoSeq[3]
+      },
+      {
+        slideIndex: 5,
+        slideNumber: '05 / 05',
+        type: 'cta',
+        roleTitle: 'Strategic Discussion',
+        badge: 'Leadership Reflection',
+        headline: 'What Values Anchor Your Team?',
+        subheadline: 'How does your organization balance modern operational speed with long-term trust and precision?',
+        supportingText: `Join the conversation on building resilient foundations for the years ahead. 👇\n${hashtags}`,
+        footerText: 'brother.com.sg • At your side for the road ahead',
+        theme,
+        defaultPhotoUrl: photoSeq[4]
+      }
+    ];
+  }
+
+  // --- ANGLE 3: INTERNAL TEAM & CULTURE SPOTLIGHT ---
+  if (
+    tmplId.includes('team_spotlight') ||
+    tmplId === 'draft-3' ||
+    draftName.includes('team culture') ||
+    draftName.includes('team & culture') ||
+    draftName.includes('behind-the-scenes') ||
+    draftAngle.includes('people-first')
+  ) {
+    return [
+      {
+        slideIndex: 1,
+        slideNumber: '01 / 05',
+        type: 'cover',
+        roleTitle: 'Culture Cover',
+        badge: 'Life At Brother',
+        headline: occasionName,
+        subheadline: 'Festive Energy & Team Culture Behind the Scenes',
+        supportingText: 'Peeking inside our Singapore family as we celebrate together with warmth and pride.',
+        footerText: 'Swipe to see life behind the scenes ➔',
+        theme,
+        defaultPhotoUrl: photoSeq[0]
+      },
+      {
+        slideIndex: 2,
+        slideNumber: '02 / 05',
+        type: 'insight',
+        roleTitle: 'Pantry Moments',
+        badge: 'Office Festivities',
+        headline: 'Pantry Delicacies & Shared Smiles',
+        subheadline: 'The festive energy is palpable across our Brother Singapore office.',
+        supportingText: 'From sharing traditional festive treats in the pantry to exchanging stories and well-wishes, cultural celebrations bring out our team\'s warmest camaraderie.',
+        footerText: 'Brother Singapore • Team Camaraderie',
+        theme,
+        defaultPhotoUrl: photoSeq[1]
+      },
+      {
+        slideIndex: 3,
+        slideNumber: '03 / 05',
+        type: 'philosophy',
+        roleTitle: 'People-First Culture',
+        badge: 'Inclusive Workplace',
+        headline: 'Diverse Traditions, One Team',
+        subheadline: '"Our greatest strength is the passionate, diverse people behind our brand."',
+        supportingText: 'Creating an inclusive environment where every culture is celebrated allows our people to bring their authentic selves to work every single day.',
+        footerText: 'Brother Singapore • Employer Branding',
+        theme,
+        defaultPhotoUrl: photoSeq[2]
+      },
+      {
+        slideIndex: 4,
+        slideNumber: '04 / 05',
+        type: 'action',
+        roleTitle: 'Frontline Dedication',
+        badge: 'Service Heroes',
+        headline: 'Powered by Passionate People',
+        subheadline: 'From customer service specialists to technical engineers standing beside your business daily.',
+        supportingText: 'Behind every reliable machine and enterprise solution is a dedicated Singapore team working with care to keep your operations moving forward.',
+        footerText: 'Brother Singapore • Service & Support Team',
+        theme,
+        defaultPhotoUrl: photoSeq[3]
+      },
+      {
+        slideIndex: 5,
+        slideNumber: '05 / 05',
+        type: 'cta',
+        roleTitle: 'Workplace Community',
+        badge: 'Team Engagement',
+        headline: 'How Is Your Workplace Celebrating?',
+        subheadline: 'Does your team have a favorite pantry snack, tradition, or festive ritual this week?',
+        supportingText: `Share your team\'s festivities and shout out your colleagues in the comments! 🇸🇬\n${hashtags} #LifeAtBrother #PeopleFirst`,
+        footerText: 'brother.com.sg • Join our growing team',
+        theme,
+        defaultPhotoUrl: photoSeq[4]
+      }
+    ];
+  }
+
+  // --- AI THOUGHT LEADERSHIP (3-Pillar Breakdown) ---
+  if (tmplId.includes('3pillar') || draftName.includes('3-pillar')) {
+    return [
+      {
+        slideIndex: 1,
+        slideNumber: '01 / 05',
+        type: 'cover',
+        roleTitle: 'Executive Hook',
+        badge: 'Executive Synthesis',
+        headline: occasionName,
+        subheadline: '3-Pillar Breakthrough Breakdown',
+        supportingText: 'Cutting through the noise: What it is, why it matters, and the tangible impact for Singapore enterprise.',
+        footerText: 'Swipe to explore the executive synthesis ➔',
+        theme,
+        defaultPhotoUrl: photoSeq[0]
+      },
+      {
+        slideIndex: 2,
+        slideNumber: '02 / 05',
+        type: 'insight',
+        roleTitle: 'Pillar 01: What It Is',
+        badge: '01 | What It Is',
+        headline: 'The Technology Breakthrough',
+        subheadline: 'Frontier AI models moving from experimentation into deterministic daily workflows.',
+        supportingText: 'Automating high-frequency administrative friction so knowledge workers can focus on high-judgment, creative problem solving.',
+        footerText: 'Brother Singapore • Tech Intelligence',
+        theme,
+        defaultPhotoUrl: photoSeq[1]
+      },
+      {
+        slideIndex: 3,
+        slideNumber: '03 / 05',
+        type: 'insight',
+        roleTitle: 'Pillar 02: Why It Matters',
+        badge: '02 | Why It Matters',
+        headline: 'The Macro Enterprise Shift',
+        subheadline: 'Operational velocity is becoming the true differentiator for modern enterprises.',
+        supportingText: 'Organizations that proactively redesign workflows around intelligent automation outpace peers in agility, cost-efficiency, and employee retention.',
+        footerText: 'Brother Singapore • Strategic Insights',
+        theme,
+        defaultPhotoUrl: photoSeq[2]
+      },
+      {
+        slideIndex: 4,
+        slideNumber: '04 / 05',
+        type: 'action',
+        roleTitle: 'Pillar 03: Brother Impact',
+        badge: '03 | Practical Impact',
+        headline: 'Turning Tools into Superpowers',
+        subheadline: 'Under our Brother Xplorer framework, we bridge digital intelligence with physical workplace reliability.',
+        supportingText: 'Equipping our employees and enterprise clients with integrated hardware and software solutions that eliminate routine drag.',
+        footerText: 'Brother Solutions • Future of Work',
+        theme,
+        defaultPhotoUrl: photoSeq[3]
+      },
+      {
+        slideIndex: 5,
+        slideNumber: '05 / 05',
+        type: 'cta',
+        roleTitle: 'Executive Discussion',
+        badge: 'Leadership Question',
+        headline: 'How Is Your Team Exploring AI?',
+        subheadline: 'Where is your organization finding the most practical, high-ROI workflow wins today?',
+        supportingText: `Join the discussion with enterprise peers in the comments below! 👇\n${hashtags}`,
+        footerText: 'brother.com.sg • Empowering smart workplaces',
+        theme,
+        defaultPhotoUrl: photoSeq[4]
+      }
+    ];
+  }
+
+  // --- EMPLOYER BRANDING: WORKPLACE FLEXIBILITY & FAMILY WELLBEING ---
+  if (tmplId.includes('flexibility') || draftName.includes('flexibility')) {
+    return [
+      {
+        slideIndex: 1,
+        slideNumber: '01 / 05',
+        type: 'cover',
+        roleTitle: 'Culture Cover',
+        badge: 'Employer Branding',
+        headline: 'Workplace Flexibility & Wellbeing',
+        subheadline: 'Fostering High Trust Over Face-Time Policing',
+        supportingText: 'How sustainable work-life integration powers multi-year team loyalty and consistent excellence.',
+        footerText: 'Swipe to see how we work ➔',
+        theme,
+        defaultPhotoUrl: photoSeq[0]
+      },
+      {
+        slideIndex: 2,
+        slideNumber: '02 / 05',
+        type: 'insight',
+        roleTitle: 'High-Trust Culture',
+        badge: 'Managerial Trust',
+        headline: 'Autonomy Powers Performance',
+        subheadline: 'Modern professionals in Singapore thrive when leadership values outcomes over physical desk presence.',
+        supportingText: 'Flexible work isn\'t about doing less — it is about empowering responsible self-management and preserving family harmony.',
+        footerText: 'Brother Singapore • Culture of Trust',
+        theme,
+        defaultPhotoUrl: photoSeq[1]
+      },
+      {
+        slideIndex: 3,
+        slideNumber: '03 / 05',
+        type: 'philosophy',
+        roleTitle: 'Flexible Fridays',
+        badge: 'Concrete Policies',
+        headline: 'Protected Time for What Matters',
+        subheadline: 'Year-round Flexible Fridays, protected focus blocks, and smooth weekend transitions.',
+        supportingText: 'Whether picking up children on time, pursuing professional courses, or enjoying uninterrupted creative focus, our policies support the whole person.',
+        footerText: 'Brother Singapore • Employee Wellbeing',
+        theme,
+        defaultPhotoUrl: photoSeq[2]
+      },
+      {
+        slideIndex: 4,
+        slideNumber: '04 / 05',
+        type: 'action',
+        roleTitle: 'Hybrid Excellence',
+        badge: 'Seamless Infrastructure',
+        headline: 'Equipped for Any Workspace',
+        subheadline: 'Durable Brother hardware and cloud print solutions supporting hybrid workflows across Singapore.',
+        supportingText: 'Reliable document solutions ensure teams collaborate seamlessly whether in our office or working from home.',
+        footerText: 'Brother Document & Hybrid Solutions',
+        theme,
+        defaultPhotoUrl: photoSeq[3]
+      },
+      {
+        slideIndex: 5,
+        slideNumber: '05 / 05',
+        type: 'cta',
+        roleTitle: 'HR Community',
+        badge: 'Join The Discussion',
+        headline: 'How Does Your Team Support Balance?',
+        subheadline: 'What workplace policy has made the biggest positive difference to your personal wellbeing?',
+        supportingText: `Share your experiences with our professional community below! 👇\n${hashtags} #LifeAtBrother`,
+        footerText: 'brother.com.sg • Careers at Brother SG',
+        theme,
+        defaultPhotoUrl: photoSeq[4]
+      }
+    ];
+  }
+
+  // --- EMPLOYER BRANDING: EARLY CAREER & INTERNSHIPS ---
+  if (tmplId.includes('early_career') || draftName.includes('early career') || draftName.includes('intern')) {
+    return [
+      {
+        slideIndex: 1,
+        slideNumber: '01 / 05',
+        type: 'cover',
+        roleTitle: 'Internship Hook',
+        badge: 'Talent Acquisition',
+        headline: 'Real Work & Real Ownership',
+        subheadline: 'Early Career Mentorship at Brother Singapore',
+        supportingText: 'Challenging the stereotype of passive entry-level training with hands-on enterprise impact.',
+        footerText: 'Swipe to see our intern journey ➔',
+        theme,
+        defaultPhotoUrl: photoSeq[0]
+      },
+      {
+        slideIndex: 2,
+        slideNumber: '02 / 05',
+        type: 'insight',
+        roleTitle: 'Real Ownership',
+        badge: 'Direct Impact',
+        headline: 'Substantial Projects from Day One',
+        subheadline: 'From B2B marketing initiatives to live technical deployments, our interns lead real business outcomes.',
+        supportingText: 'No photocopying coffee runs. Every intern contributes directly to customer-facing projects and strategic operations.',
+        footerText: 'Brother Singapore • Early Careers',
+        theme,
+        defaultPhotoUrl: photoSeq[1]
+      },
+      {
+        slideIndex: 3,
+        slideNumber: '03 / 05',
+        type: 'philosophy',
+        roleTitle: 'Senpai Mentorship',
+        badge: 'Accessible Leadership',
+        headline: 'Direct Guidance from Senior Leaders',
+        subheadline: 'Bridging organizational hierarchy through the Japanese tradition of Senpai-Kohai mentorship.',
+        supportingText: 'Senior managers provide weekly 1-on-1 coaching, career guidance, and technical masterclasses that accelerate lifelong career growth.',
+        footerText: 'Brother Singapore • Mentorship & Growth',
+        theme,
+        defaultPhotoUrl: photoSeq[2]
+      },
+      {
+        slideIndex: 4,
+        slideNumber: '04 / 05',
+        type: 'action',
+        roleTitle: 'Continuous Kaizen',
+        badge: 'Skills of Tomorrow',
+        headline: 'Building Practical Superpowers',
+        subheadline: 'Mastering modern digital tools, data synthesis, and enterprise client relations.',
+        supportingText: 'We celebrate our interns\' curiosity and fresh perspectives, thanking them for enriching our office culture every single day.',
+        footerText: 'Brother Singapore • Talent Community',
+        theme,
+        defaultPhotoUrl: photoSeq[3]
+      },
+      {
+        slideIndex: 5,
+        slideNumber: '05 / 05',
+        type: 'cta',
+        roleTitle: 'Application CTA',
+        badge: 'Join Our Cohort',
+        headline: 'Ready to Accelerate Your Career?',
+        subheadline: 'Applications for our next internship and graduate intake are now open across Singapore.',
+        supportingText: `Connect with our Talent Acquisition team or tag an ambitious student below! 👇\n${hashtags} #EarlyCareers #LifeAtBrother`,
+        footerText: 'brother.com.sg/careers • Apply Today',
+        theme,
+        defaultPhotoUrl: photoSeq[4]
+      }
+    ];
+  }
+
+  // --- DEFAULT / DYNAMIC FALLBACK (Tailored from draft title and snippet) ---
+  const dynamicTitle = activeDraft?.name || occasionName;
+  const postSnippets = (activeDraft?.post || activeDraft?.postContent || '')
+    .split('\n\n')
+    .filter(p => p.trim().length > 20 && !p.startsWith('#'));
+
+  const p1 = postSnippets[0] || 'Reflecting on what brings our community together — unity, care, and mutual respect.';
+  const p2 = postSnippets[1] || 'Our promise to stand \'At your side\' goes beyond technology to uplift the people we serve.';
+  const p3 = postSnippets[2] || 'Delivering precision hardware and digital solutions engineered to make everyday work seamless.';
+  const p4 = postSnippets[3] || 'How is your organization moving forward? We’d love to hear your perspectives below.';
 
   return [
     {
@@ -246,35 +891,38 @@ export function generateCarouselSlideSeries(occasion, activeDraft = null) {
       type: 'cover',
       roleTitle: 'Cover Hook',
       badge: badge,
-      headline: occasionName,
-      subheadline: draftAngle,
+      headline: dynamicTitle,
+      subheadline: activeDraft?.name || 'Standing "At your side" across Singapore',
       supportingText: subtitle,
       footerText: 'Swipe to explore our story ➔',
-      theme: occasion?.theme || 'blue'
+      theme,
+      defaultPhotoUrl: photoSeq[0]
     },
     {
       slideIndex: 2,
       slideNumber: '02 / 05',
       type: 'insight',
-      roleTitle: 'Tradition & Meaning',
-      badge: 'The Tradition & Spirit',
-      headline: 'Honoring Shared Roots',
-      subheadline: 'More than a calendar event, it is a moment to pause, reflect, and renew the bonds that anchor our community.',
-      supportingText: 'From shared tea and conversations to the values of mutual respect (Wa), true progress is rooted in meaningful human connection.',
-      footerText: 'Brother Singapore • Cultural Heritage',
-      theme: occasion?.theme || 'blue'
+      roleTitle: 'Core Insight',
+      badge: 'Key Perspective',
+      headline: 'Foundations of Meaningful Progress',
+      subheadline: p1.slice(0, 110) + (p1.length > 110 ? '...' : ''),
+      supportingText: 'True progress isn\'t just about moving fast — it is about honoring strong foundations, fostering trust, and ensuring every step forward uplifts those around us.',
+      footerText: 'Brother Singapore • Strategic Perspective',
+      theme,
+      defaultPhotoUrl: photoSeq[1]
     },
     {
       slideIndex: 3,
       slideNumber: '03 / 05',
       type: 'philosophy',
       roleTitle: "Brother 'At Your Side'",
-      badge: 'At Your Side',
+      badge: 'Brand Commitment',
       headline: 'Empowering Every Milestone',
-      subheadline: '"To stand at your side means walking together through every challenge, season, and shared celebration."',
+      subheadline: p2.slice(0, 110) + (p2.length > 110 ? '...' : ''),
       supportingText: 'Brother Singapore celebrates our clients, enterprise partners, and team members who build the future of Singapore every single day.',
-      footerText: 'Brother Singapore • Brand Commitment',
-      theme: occasion?.theme || 'blue'
+      footerText: 'Brother Singapore • At your side',
+      theme,
+      defaultPhotoUrl: photoSeq[2]
     },
     {
       slideIndex: 4,
@@ -283,10 +931,11 @@ export function generateCarouselSlideSeries(occasion, activeDraft = null) {
       roleTitle: 'Craft & Precision',
       badge: 'Workplace Reliability',
       headline: 'Precision in Every Detail',
-      subheadline: 'Crafting festive packages, essential office documents, or durable labeling with Japanese Kaizen standards.',
-      supportingText: 'When technology works seamlessly in the background, you are free to focus on what matters most: celebrating and growing together.',
+      subheadline: p3.slice(0, 110) + (p3.length > 110 ? '...' : ''),
+      supportingText: 'When technology works seamlessly in the background with Japanese Kaizen standards, you are free to focus on what matters most.',
       footerText: 'Brother Hardware & Document Solutions',
-      theme: occasion?.theme || 'blue'
+      theme,
+      defaultPhotoUrl: photoSeq[3]
     },
     {
       slideIndex: 5,
@@ -294,11 +943,12 @@ export function generateCarouselSlideSeries(occasion, activeDraft = null) {
       type: 'cta',
       roleTitle: 'Community Engagement',
       badge: 'Join The Conversation',
-      headline: 'How Is Your Team Celebrating?',
-      subheadline: 'What is your favorite tradition, family gathering, or workplace moment during this festive period?',
+      headline: 'What Are Your Thoughts?',
+      subheadline: p4.slice(0, 110) + (p4.length > 110 ? '...' : ''),
       supportingText: `Share your thoughts with our community in the comments below! 👇\n${hashtags}`,
       footerText: 'brother.com.sg • At your side',
-      theme: occasion?.theme || 'blue'
+      theme,
+      defaultPhotoUrl: photoSeq[4]
     }
   ];
 }
