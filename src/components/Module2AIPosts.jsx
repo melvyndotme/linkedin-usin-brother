@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { Newspaper, Search, RefreshCw, Copy, Check, Download, Layers, ShieldCheck, Clock, ArrowRight, ExternalLink, AlertCircle, Plus, Trash2, Sparkles, Database, X } from 'lucide-react';
-import { EXTENDED_AI_NEWS, searchSerperWithTimeframe, getEffectiveSerperKey, getGoogleNewsSearchUrl } from '../lib/serperEngine.js';
+import { Newspaper, Search, RefreshCw, Copy, Check, Download, Layers, ShieldCheck, Clock, ArrowRight, ExternalLink, AlertCircle, Plus, Trash2, Sparkles, Database, X, Radio } from 'lucide-react';
+import { EXTENDED_AI_NEWS, searchSerperWithTimeframe, getEffectiveSerperKey, getGoogleNewsSearchUrl, generateDynamicTopicalNews } from '../lib/serperEngine.js';
 import { generateAIDrafts } from '../lib/draftGenerator.js';
 import ImageTemplateStudio from './ImageTemplateStudio.jsx';
 import { safeGetItem, safeSetItem } from '../lib/storage.js';
@@ -9,16 +9,16 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
   const searchInputRef = useRef(null);
   // Up to 5 customizable search keywords, each with its own independent timeframe
   const [keywords, setKeywords] = useState([
-    { text: 'enterprise agentic AI', timeNumber: 24, timeUnit: 'hours' },
-    { text: 'workplace productivity', timeNumber: 48, timeUnit: 'hours' },
+    { text: 'Work-Life Balance & Flexibility', timeNumber: 7, timeUnit: 'days' },
+    { text: 'workplace productivity', timeNumber: 7, timeUnit: 'days' },
     { text: 'smart document automation', timeNumber: 7, timeUnit: 'days' },
-    { text: 'Brother Singapore', timeNumber: 24, timeUnit: 'hours' },
-    { text: 'epson singapore', timeNumber: 1, timeUnit: 'months' }
+    { text: 'Brother Singapore', timeNumber: 14, timeUnit: 'days' },
+    { text: 'enterprise agentic AI', timeNumber: 7, timeUnit: 'days' }
   ]);
 
   const [combinedTimeframe, setCombinedTimeframe] = useState({
-    timeNumber: 24,
-    timeUnit: 'hours'
+    timeNumber: 7,
+    timeUnit: 'days'
   });
 
   const [activeTab, setActiveTab] = useState('all'); // 'all' or 0, 1, 2, 3, 4
@@ -29,19 +29,19 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
     const initial = {
       'all': {
         isLive: false,
-        results: EXTENDED_AI_NEWS.slice(0, 5)
+        results: generateDynamicTopicalNews('Work-Life Balance & Flexibility', 5)
       }
     };
     [
-      { text: 'enterprise agentic AI', timeNumber: 24, timeUnit: 'hours' },
-      { text: 'workplace productivity', timeNumber: 48, timeUnit: 'hours' },
+      { text: 'Work-Life Balance & Flexibility', timeNumber: 7, timeUnit: 'days' },
+      { text: 'workplace productivity', timeNumber: 7, timeUnit: 'days' },
       { text: 'smart document automation', timeNumber: 7, timeUnit: 'days' },
-      { text: 'Brother Singapore', timeNumber: 24, timeUnit: 'hours' },
-      { text: 'epson singapore', timeNumber: 1, timeUnit: 'months' }
+      { text: 'Brother Singapore', timeNumber: 14, timeUnit: 'days' },
+      { text: 'enterprise agentic AI', timeNumber: 7, timeUnit: 'days' }
     ].forEach((kwObj, i) => {
       initial[i] = {
         isLive: false,
-        results: EXTENDED_AI_NEWS.slice(0, 5).map((item, idx) => ({
+        results: generateDynamicTopicalNews(kwObj.text, 5).map((item, idx) => ({
           ...item,
           id: `init-${i}-${idx}`,
           topic: kwObj.text
@@ -51,7 +51,7 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
     return initial;
   });
 
-  const [selectedNews, setSelectedNews] = useState(EXTENDED_AI_NEWS[0]);
+  const [selectedNews, setSelectedNews] = useState(null);
   const [loading, setLoading] = useState(false);
   const [loadingTab, setLoadingTab] = useState(null); // 'all', 0..4, or 'batch'
   const [copied, setCopied] = useState(false);
@@ -63,8 +63,9 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
     const key = getEffectiveSerperKey();
     if (key) {
       setHasKey(true);
-      handleFetchAllTabs();
     }
+    // Automatically trigger live news search across all tabs on mount!
+    handleFetchAllTabs();
   }, []);
 
   const activeTimeNumber = activeTab === 'all'
@@ -404,29 +405,31 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
         </div>
       </div>
 
-      {/* Offline baseline notice pointing to Settings */}
-      {!hasKey && (
-        <div className={`p-3.5 sm:p-4 rounded-2xl border text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
-          isDark ? 'bg-slate-900/80 border-slate-800 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-700'
-        }`}>
-          <div className="flex items-center gap-2.5">
-            <AlertCircle className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
-            <span>
-              Real-Time Search Inactive — Currently displaying curated baseline. Connect Google Search in <strong>Integrations</strong> to enable live Google News tracking.
-            </span>
-          </div>
-          {onNavigateToSettings && (
-            <button
-              type="button"
-              onClick={onNavigateToSettings}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2482] text-white font-bold text-xs shrink-0 transition-all active:scale-95 shadow-sm cursor-pointer self-start sm:self-auto"
-            >
-              <span>Open Integrations</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
-          )}
+      {/* Live Google News Engine indicator */}
+      <div className={`p-3.5 sm:p-4 rounded-2xl border text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+        isDark ? 'bg-slate-900/80 border-slate-800 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-700'
+      }`}>
+        <div className="flex items-center gap-2.5">
+          <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+          <span>
+            {hasKey ? (
+              <><strong>Real-Time Search Active</strong> — Powered by Serper.dev Google News indexing.</>
+            ) : (
+              <><strong>Real-Time News Engine Active</strong> — Powered by Google News Singapore feed (Zero-Key Real-Time Search). Fresh articles update dynamically for any search query.</>
+            )}
+          </span>
         </div>
-      )}
+        {onNavigateToSettings && (
+          <button
+            type="button"
+            onClick={onNavigateToSettings}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold text-[11px] shrink-0 transition-all cursor-pointer self-start sm:self-auto"
+          >
+            <span>{hasKey ? 'Manage API Key' : 'Add Serper Key (Optional)'}</span>
+            <ArrowRight className="w-3 h-3" />
+          </button>
+        )}
+      </div>
 
       {/* Sleek Search & Intelligence Console */}
       <div className={`p-4 sm:p-5 rounded-2xl border transition-all ${
@@ -455,7 +458,14 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
                 if (e.key === 'Enter') {
                   e.preventDefault();
                   if (activeTab === 'all') {
-                    handleFetchAllTabs();
+                    const val = (searchInputRef.current?.value || '').trim();
+                    if (val) {
+                      handleKeywordChange(0, val);
+                      setActiveTab(0);
+                      setTimeout(() => fetchTabResults(0), 50);
+                    } else {
+                      handleFetchAllTabs();
+                    }
                   } else {
                     fetchTabResults(activeTab);
                   }
@@ -463,7 +473,7 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
               }}
               placeholder={
                 activeTab === 'all'
-                  ? "Select a topic below to edit, or type to create and search..."
+                  ? "Type keyword (e.g. Work Life Balance) and press Enter to search live..."
                   : `Search news for Topic #${activeTab + 1}...`
               }
               className={`w-full pl-10 pr-9 py-2.5 rounded-xl text-xs font-semibold border transition-all ${
@@ -502,7 +512,7 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
                 }}
                 onBlur={() => {
                   if (!activeTimeNumber || activeTimeNumber < 1) {
-                    handleActiveTimeChange(24, activeTimeUnit, false);
+                    handleActiveTimeChange(7, activeTimeUnit, false);
                   }
                 }}
                 onKeyDown={(e) => {
@@ -520,7 +530,7 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
                     ? 'bg-slate-900 border-slate-700 text-white'
                     : 'bg-white border-slate-200 text-slate-900 shadow-2xs'
                 }`}
-                placeholder="24"
+                placeholder="7"
                 title="Enter number of time units"
               />
               <select
@@ -541,7 +551,14 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
               type="button"
               onClick={() => {
                 if (activeTab === 'all') {
-                  handleFetchAllTabs();
+                  const val = (searchInputRef.current?.value || '').trim();
+                  if (val) {
+                    handleKeywordChange(0, val);
+                    setActiveTab(0);
+                    setTimeout(() => fetchTabResults(0), 50);
+                  } else {
+                    handleFetchAllTabs();
+                  }
                 } else {
                   fetchTabResults(activeTab);
                 }
@@ -553,6 +570,33 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
               <span>{loading ? 'Searching...' : activeTab === 'all' ? 'Search All' : 'Search News'}</span>
             </button>
           </div>
+        </div>
+
+        {/* Quick Suggestion Chips */}
+        <div className="flex items-center gap-1.5 flex-wrap pt-0.5">
+          <span className="text-[11px] text-slate-400 font-semibold">Try keywords:</span>
+          {[
+            'Work Life Balance',
+            'Flexible Work Arrangements',
+            'Workplace Wellbeing',
+            'Brother Singapore',
+            'Smart Document AI',
+            'Sustainability & ESG'
+          ].map((tag) => (
+            <button
+              key={tag}
+              type="button"
+              onClick={() => {
+                const targetTab = activeTab === 'all' ? 0 : activeTab;
+                handleKeywordChange(targetTab, tag);
+                setActiveTab(targetTab);
+                setTimeout(() => fetchTabResults(targetTab), 50);
+              }}
+              className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-100 dark:bg-slate-800/80 hover:bg-blue-50 dark:hover:bg-blue-950 text-slate-700 dark:text-slate-300 hover:text-[#0f2ea2] dark:hover:text-blue-300 transition-all border border-slate-200/80 dark:border-slate-800 cursor-pointer"
+            >
+              + {tag}
+            </button>
+          ))}
         </div>
 
         {/* Active Topics Chips Bar */}
@@ -751,7 +795,17 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
             </div>
 
             <div className="space-y-3 max-h-[560px] overflow-y-auto pr-1 custom-scrollbar">
-              {newsList.length === 0 ? (
+              {loading && (loadingTab === activeTab || loadingTab === 'batch') ? (
+                <div className="p-8 text-center rounded-xl border border-dashed border-blue-200 dark:border-blue-900 bg-blue-50/40 dark:bg-blue-950/20 space-y-2.5">
+                  <RefreshCw className="w-5 h-5 text-[#0f2ea2] dark:text-blue-400 animate-spin mx-auto" />
+                  <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                    Searching Real-Time News...
+                  </h4>
+                  <p className="text-[11px] text-slate-500 max-w-xs mx-auto">
+                    Fetching latest verified headlines for <strong className="text-[#0f2ea2] dark:text-blue-300">"{activeTab === 'all' ? 'All Topics' : keywords[activeTab]?.text}"</strong>.
+                  </p>
+                </div>
+              ) : newsList.length === 0 ? (
                 /* Honest Zero-Result State (Zero-Padding & Zero-Hallucination) */
                 <div className="p-6 text-center rounded-xl border border-dashed border-slate-300 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40">
                   <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-950 text-[#0f2ea2] dark:text-blue-400 flex items-center justify-center mx-auto mb-2.5">
