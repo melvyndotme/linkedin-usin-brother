@@ -69,7 +69,7 @@ Upon logging in, team members and executives are greeted by the **Executive Miss
 ### Key Features:
 - **Telemetry KPI Banners**:
   - **5,240+ Corporate Followers**: Real-time tracking of the official Brother Singapore LinkedIn page audience.
-  - **6 Active Advocates**: Key division leaders actively driving employee-generated impressions.
+  - **5 Active Advocates**: Key division leaders actively driving employee-generated impressions.
   - **25k Weekly Target Impressions**: Advocacy reach goal progress tracker.
   - **88/100 Advocacy Health Score**: Composite metric measuring publishing frequency, template compliance, and hashtag governance.
 - **Live Official Benchmark Feed**: Real-time preview of the corporate Brother SG LinkedIn feed, allowing advocates to easily reshare or quote corporate announcements.
@@ -221,12 +221,11 @@ Employee advocacy succeeds when the entire organization participates. The **Team
 ![Team Directory & Advocate Management](screenshots/11_team_directory.png)
 
 ### Active Advocate Roster:
-- **Allan Cheng**: Enterprise POD Lead &bull; Commercial Solutions (`allan.cheng@brother.com.sg`)
-- **Chloe Lee**: Head of People & Culture &bull; Human Resources (`chloe.lee@brother.com.sg`)
-- **David Tan**: Technical Solutions Architect &bull; B2B Solutions & Systems (`david.tan@brother.com.sg`)
-- **Kenji Takahashi**: Managing Director &bull; Executive Leadership (`kenji.takahashi@brother.com.sg`)
-- **Nadia Yusof**: Sustainability & ESG Specialist &bull; Corporate Sustainability (`nadia.yusof@brother.com.sg`)
-- **Sarah Chen**: Corporate Communications Lead &bull; Marketing & Brand (`sarah.chen@brother.com.sg`)
+- **Allan Cheng**: Team Member &bull; Brother Singapore (`allan.cheng@brother.com.sg`)
+- **Chloe Lee**: Team Member &bull; Brother Singapore (`chloe.lee@brother.com.sg`)
+- **Melvyn Tan** *(You)*: Team Member &bull; Brother Singapore (`melvyn@befinityai.com`)
+- **Sean**: Team Member &bull; Brother Singapore (`sean.tan@brother.com.sg`)
+- **Zhi Jun**: Team Member &bull; Brother Singapore (`zhi.jun@brother.com.sg`)
 
 ### Management Capabilities:
 - **Filter by Department**: Focus on Sales, Marketing, Technical, or HR advocacy initiatives.
