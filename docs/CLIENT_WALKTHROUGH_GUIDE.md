@@ -10,48 +10,26 @@
 
 ---
 
-## Executive Summary & Solution Architecture
+## Executive Summary
 
 **Linked-Us-In** is a purpose-built B2B employee advocacy and content orchestration platform tailored specifically for **Brother Singapore**. It addresses the central operational challenge identified during the **Brother Xplorer POD 5** initiative: *empowering commercial leads, technical product specialists, and marketing directors to consistently publish high-authority thought leadership on LinkedIn without spending hours writing from scratch.*
-
-```
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                        FRONTEND APPLICATION (React 19 + Vite 6)                        │
-│   Tailwind CSS v4  •  Lucide Icons  •  HTML5 Canvas 2D Engine  •  LocalStorage Cache   │
-└───────────────────────────────┬────────────────────────────────┬───────────────────────┘
-                                │                                │
-                Direct Client Storage                    Serverless Proxy API
-                (brother_team_cache, etc.)               (/api/* on Vercel ESM)
-                                │                                │
-                                ▼                                ▼
-┌─────────────────────────────────────────┐   ┌─────────────────────────────────────────┐
-│           CLIENT ENGINES & UTILS        │   │       12 SERVERLESS ENDPOINTS (ESM)     │
-│ • serperEngine.js (RSS Aggregation)     │   │ • /api/serper/search.js (Google RSS)    │
-│ • imageTemplateEngine.js (Slide Canvas) │   │ • /api/linkedin/publish.js (OAuth 2.0)  │
-│ • draftGenerator.js (Hofstede Matrix)   │   │ • /api/notion/sync.js (Database Sync)   │
-│ • yamlTemplates.js (11 Blueprints)      │   │ • /api/notion/team.js (Whitelist DB)    │
-│ • storage.js (Encrypted Client Tokens)  │   │ • /api/auth/magic-link.js (Resend API)  │
-│ • templateExtractor.js (Ingestion)      │   │ • /api/mom/holidays.js (MOM Gazette)    │
-└─────────────────────────────────────────┘   └─────────────────────────────────────────┘
-```
 
 ---
 
 ## Table of Contents
 1. [POD 5 Project Genesis & The Challenge](#1-pod-5-project-genesis--the-challenge)
-2. [Technical Infrastructure & 12 Serverless Endpoints](#2-technical-infrastructure--12-serverless-endpoints)
-3. [Module 0: Access, Authentication & Whitelisting](#3-module-0-access-authentication--whitelisting)
-4. [Module 1: Executive Mission Control (Dashboard)](#4-module-1-executive-mission-control-dashboard)
-5. [Module 2: Singapore MOM 2026 Festive & Cultural Hub](#5-module-2-singapore-mom-2026-festive--cultural-hub)
-6. [Module 3: Real-Time News & Industry Trends Engine](#6-module-3-real-time-news--industry-trends-engine)
-7. [Module 4: Unified Content Studio & Visual Carousel Designer](#7-module-4-unified-content-studio--visual-carousel-designer)
-8. [Module 5: Template Ingestion Studio (AI Deconstruction)](#8-module-5-template-ingestion-studio-ai-deconstruction)
-9. [Module 6: Employee Advocacy Directory & Notion Governance](#9-module-6-employee-advocacy-directory--notion-governance)
-10. [Module 7: System Settings, Integrations & Security](#10-module-7-system-settings-integrations--security)
-11. [Hofstede Cultural Tuning Matrix (Japan HQ × Singapore)](#11-hofstede-cultural-tuning-matrix-japan-hq--singapore)
-12. [Brother Singapore Editorial Style Guide & Persona Blueprint](#12-brother-singapore-editorial-style-guide--persona-blueprint)
-13. [The 3-2-1 Weekly Advocacy Playbook](#13-the-3-2-1-weekly-advocacy-playbook)
-14. [Troubleshooting & Frequently Asked Questions (FAQs)](#14-troubleshooting--frequently-asked-questions-faqs)
+2. [Module 0: Access, Authentication & Whitelisting](#2-module-0-access-authentication--whitelisting)
+3. [Module 1: Executive Mission Control (Dashboard)](#3-module-1-executive-mission-control-dashboard)
+4. [Module 2: Singapore MOM 2026 Festive & Cultural Hub](#4-module-2-singapore-mom-2026-festive--cultural-hub)
+5. [Module 3: Serper.dev AI Market Intelligence & Industry Trends Engine](#5-module-3-serperdev-ai-market-intelligence--industry-trends-engine)
+6. [Module 4: Unified Content Studio & Visual Carousel Designer](#6-module-4-unified-content-studio--visual-carousel-designer)
+7. [Module 5: Template Ingestion Studio (AI Deconstruction)](#7-module-5-template-ingestion-studio-ai-deconstruction)
+8. [Module 6: Employee Advocacy Directory & Notion Governance](#8-module-6-employee-advocacy-directory--notion-governance)
+9. [Module 7: System Settings, Integrations & Security](#9-module-7-system-settings-integrations--security)
+10. [Hofstede Cultural Tuning Matrix (Japan HQ × Singapore)](#10-hofstede-cultural-tuning-matrix-japan-hq--singapore)
+11. [Brother Singapore Editorial Style Guide & Persona Blueprint](#11-brother-singapore-editorial-style-guide--persona-blueprint)
+12. [The 3-2-1 Weekly Advocacy Playbook](#12-the-3-2-1-weekly-advocacy-playbook)
+13. [Troubleshooting & Frequently Asked Questions (FAQs)](#13-troubleshooting--frequently-asked-questions-faqs)
 
 ---
 
@@ -66,25 +44,7 @@ Prior to Linked-Us-In, Brother Singapore's LinkedIn presence was bottlenecked by
 
 ---
 
-## 2. Technical Infrastructure & 12 Serverless Endpoints
-
-Deployed on Vercel's global edge network with Node.js ESM serverless functions, Linked-Us-In consolidates its backend into 12 compliant micro-endpoints:
-
-| Endpoint Path | HTTP Method | Function | Fallback Mechanism |
-| :--- | :--- | :--- | :--- |
-| `/api/serper/search.js` | GET, POST | Queries Google News Singapore live RSS and Serper. | Dynamic topical synthesis for AI, ESG, and workplace news. |
-| `/api/linkedin/publish.js` | POST | Publishes approved post text and asset URNs to Brother SG. | Simulated success response in sandbox demo mode. |
-| `/api/linkedin/data.js` | GET | Retrieves page followers and post engagement telemetry. | Returns cached telemetry if API quota is reached. |
-| `/api/auth/magic-link.js` | POST | Issues signed JWT magic links and sends via Resend. | Demo token fallback for development evaluation. |
-| `/api/notion/team.js` | POST, PATCH | Queries Brother SG team whitelist database in Notion. | Local browser cache (`brother_team_cache`). |
-| `/api/notion/sync.js` | POST | Two-way synchronization of drafted posts and templates. | Stores drafts in local client storage. |
-| `/api/mom/holidays.js` | GET | Fetches 2026 MOM gazetted public holidays. | Static fallback JSON with MOM statutory dates. |
-| `/api/ai/media.js` | POST | Generates AI imagery via Gemini and proxies external images. | Curated Brother hardware asset library. |
-| `/api/templates/ingest.js` | POST | Deconstructs ingested posts, screenshots, or PDFs. | Regex-based structural parser. |
-
----
-
-## 3. Module 0: Access, Authentication & Whitelisting
+## 2. Module 0: Access, Authentication & Whitelisting
 
 The portal enforces enterprise security while providing a frictionless, passwordless login flow.
 
@@ -103,7 +63,7 @@ The portal enforces enterprise security while providing a frictionless, password
 
 ---
 
-## 4. Module 1: Executive Mission Control (Dashboard)
+## 3. Module 1: Executive Mission Control (Dashboard)
 
 The command center providing real-time organizational telemetry and direct corporate feed benchmarks.
 
@@ -120,7 +80,7 @@ The right column renders an authentic simulation of the official Brother Singapo
 
 ---
 
-## 5. Module 2: Singapore MOM 2026 Festive & Cultural Hub
+## 4. Module 2: Singapore MOM 2026 Festive & Cultural Hub
 
 Tracks all gazetted Ministry of Manpower (MOM) 2026 public holidays and cultural festivals, automatically generating authentic, culturally resonant LinkedIn angles.
 
@@ -143,18 +103,30 @@ Tracks all gazetted Ministry of Manpower (MOM) 2026 public holidays and cultural
 
 ---
 
-## 6. Module 3: Real-Time News & Industry Trends Engine
+## 5. Module 3: Serper.dev AI Market Intelligence & Industry Trends Engine
 
-Continuously monitors Singapore tech, business, and enterprise developments using a zero-API-key Google News RSS aggregation pipeline.
+Autonomous market intelligence engine powered by Serper.dev Google News indexing and real-time search across 5 customizable B2B technology verticals.
 
 ![Module 2: Real-Time News & Trends Engine](screenshots/05_module2_news_trends.png)
 
-### 5 Pre-Seeded B2B Vertical Streams:
-1. **AI Office Automation**: Workflow optimization, intelligent document capture, robotic process automation.
-2. **Cybersecurity & Print Security**: Firmware integrity, endpoint document protection, PDPA compliance for office printers.
-3. **Sustainable Tech & ESG**: Low-energy hardware, non-toxic toners, closed-loop recycling in Singapore offices.
-4. **Hybrid Work & Enterprise Print**: Distributed office infrastructure, secure pull-printing, mobile print management.
-5. **Singapore SME Tech Adoption**: Productivity Solutions Grant (PSG), digital transformation trends among local enterprises.
+### Serper.dev Google News Search Architecture:
+* **Direct Google News Indexing**: Connects to the Serper.dev Google News Search API (`https://google.serper.dev/news`) with official Google timeframe filtering (`tbs: qdr:h, qdr:d, qdr:w, qdr:m`).
+* **5 Customizable Keyword Slots**: Modify any of the 5 keyword slots dynamically (e.g. *"Work-Life Balance & Flexibility"*, *"Brother Singapore"*, *"smart document automation"*).
+* **Independent Timeframe Dials**: Each keyword tab features its own independent freshness window (24 Hours, 48 Hours, 7 Days, 14 Days, or Custom) to ensure only fresh, relevant reporting is analyzed.
+* **Dynamic Keyword-Aware Synthesis Fallback**: When running without active API keys or offline, an intelligent fallback engine immediately generates structured, publication-grade industry summaries tailored to the search query.
+
+### 5 Pre-Configured Strategic B2B Verticals:
+1. **Work-Life Balance & Flexibility**: Tracks Singapore Tripartite Guidelines on Flexible Work Arrangements (FWA), employee wellness, and sustainable work rhythms under Brother's people-first culture.
+2. **Workplace Productivity**: Focuses on eliminating administrative friction, reducing meeting fatigue, and reclaiming 5+ hours of focused creative work weekly.
+3. **Smart Document Automation**: Monitors multimodal document AI, automated optical character recognition (OCR), secure cloud capture, and paper-to-digital workflows.
+4. **Brother Singapore**: Surfaces market developments in Managed Print Services (MPS), customer service excellence benchmarks, firmware endpoint cybersecurity, and eco-hardware.
+5. **Enterprise Agentic AI**: Synthesizes Singapore national AI upskilling programs (IMDA / SkillsFuture), autonomous multi-agent operational workflows, and practical human-AI pairing.
+
+### The "3-Pillar" Thought Leadership Framing (Phase 5 Blueprint):
+Every news article is processed through Brother Singapore's proprietary 3-pillar employer branding model:
+1. **1. What it is**: Clear, hype-free synthesis of the new technology, regulatory guideline, or industry benchmark.
+2. **2. Why it matters**: Practical business implications for Singapore enterprise operational velocity, governance, team collaboration, and capital allocation.
+3. **3. How it helps Brother Singapore**: Concrete applications for internal employees to eliminate administrative friction and embody the forward-looking *"Brother Xplorer"* ethos.
 
 ![B2B Thought Leadership Angles](screenshots/06_module2_b2b_drafts.png)
 
@@ -162,14 +134,14 @@ Continuously monitors Singapore tech, business, and enterprise developments usin
 * **Executive POV**: Strategic C-suite lens on business continuity and technology ROI.
 * **Industry Analysis**: Macro trends connecting supply chain shifts to document management.
 * **Solution / Practical**: Actionable tips and tactical best practices for IT managers and procurement teams.
-* **Provocative / Contrarian**: Counter-intuitive viewpoints that spark productive engagement and comments.
+* **Provocative / Contrarian**: Counter-intuitive viewpoints that spark productive engagement and thoughtful comments.
 * **Culture / Workplace**: The human impact on employee productivity, flexible work models, and office well-being.
 
-Clicking **"Send to Content Studio"** automatically populates the chosen angle and article reference into the editor.
+Clicking **"Open in Content Studio"** automatically populates the chosen angle, headline, source link, and hashtags directly into the dual-pane Content Studio.
 
 ---
 
-## 7. Module 4: Unified Content Studio & Visual Carousel Designer
+## 6. Module 4: Unified Content Studio & Visual Carousel Designer
 
 The flagship creative workshop combining a professional copy editor with a dedicated 5-slide visual carousel generator.
 
@@ -229,7 +201,7 @@ Clicking the **"Simulator"** tab switches to an authentic simulation of the Link
 
 ---
 
-## 8. Module 5: Template Ingestion Studio (AI Deconstruction)
+## 7. Module 5: Template Ingestion Studio (AI Deconstruction)
 
 Allows marketing administrators to reverse-engineer high-performing LinkedIn posts from external thought leaders or competitors and convert them into reusable internal blueprints.
 
@@ -242,7 +214,7 @@ Allows marketing administrators to reverse-engineer high-performing LinkedIn pos
 
 ---
 
-## 9. Module 6: Employee Advocacy Directory & Notion Governance
+## 8. Module 6: Employee Advocacy Directory & Notion Governance
 
 Employee advocacy succeeds when the entire organization participates. The **Team Directory** connects directly to Brother Singapore's Notion database.
 
@@ -265,7 +237,7 @@ Employee advocacy succeeds when the entire organization participates. The **Team
 
 ---
 
-## 10. Module 7: System Settings, Integrations & Security
+## 9. Module 7: System Settings, Integrations & Security
 
 Centralized control over API connections, security credentials, and system parameters.
 
@@ -282,7 +254,7 @@ Centralized control over API connections, security credentials, and system param
 
 ---
 
-## 11. Hofstede Cultural Tuning Matrix (Japan HQ × Singapore)
+## 10. Hofstede Cultural Tuning Matrix (Japan HQ × Singapore)
 
 To ensure Brother Singapore's LinkedIn thought leadership resonates both with local B2B buyers and honors Brother's Japanese corporate foundation, content generation is calibrated across **Hofstede's 6 Cultural Dimensions**:
 
@@ -297,7 +269,7 @@ To ensure Brother Singapore's LinkedIn thought leadership resonates both with lo
 
 ---
 
-## 12. Brother Singapore Editorial Style Guide & Persona Blueprint
+## 11. Brother Singapore Editorial Style Guide & Persona Blueprint
 
 ### Core Persona: The Empowering Innovator & Trusted Partner
 * **Tone & Voice**: Warm, professional, confident, approachable, and human. Avoid overly bureaucratic jargon or aggressive casual hype.
@@ -313,7 +285,7 @@ To ensure Brother Singapore's LinkedIn thought leadership resonates both with lo
 
 ---
 
-## 13. The 3-2-1 Weekly Advocacy Playbook
+## 12. The 3-2-1 Weekly Advocacy Playbook
 
 A structured, high-yield weekly cadence requiring under 45 minutes of total effort:
 * **3 Strategic Comments (20 mins)**: Engage on posts from Singapore SME leaders, IT procurement directors, and channel partners with substantive insights on Tuesday and Thursday.
@@ -322,7 +294,7 @@ A structured, high-yield weekly cadence requiring under 45 minutes of total effo
 
 ---
 
-## 14. Troubleshooting & Frequently Asked Questions (FAQs)
+## 13. Troubleshooting & Frequently Asked Questions (FAQs)
 
 * **Q: Magic link email is not arriving?**  
   *Check your corporate spam folder for an email from Resend. Verify that your email matches an authorized domain (`@brother.com.sg` or `@befinityai.com`). In testing environments, append `?token=demo-auth&email=your.name@brother.com.sg`.*

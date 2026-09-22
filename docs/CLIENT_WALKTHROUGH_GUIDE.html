@@ -958,7 +958,6 @@
       <div class="nav-section-title">Genesis & Overview</div>
       <ul class="toc-menu">
         <li><a href="#executive-genesis">00. POD 5 Project Genesis <span class="toc-badge">Charter</span></a></li>
-        <li><a href="#system-architecture">00. Architecture & Vercel API <span class="toc-badge">Tech</span></a></li>
       </ul>
 
       <div class="nav-section-title">Core Application Modules</div>
@@ -966,7 +965,7 @@
         <li><a href="#module-0">00. Access, Auth & Whitelist <span class="toc-badge">Auth</span></a></li>
         <li><a href="#module-1">01. Mission Control Telemetry <span class="toc-badge">KPIs</span></a></li>
         <li><a href="#module-2">02. Singapore MOM 2026 Hub <span class="toc-badge">Calendar</span></a></li>
-        <li><a href="#module-3">03. Real-Time News Engine <span class="toc-badge">RSS</span></a></li>
+        <li><a href="#module-3">03. Serper Market Intelligence <span class="toc-badge">Serper</span></a></li>
         <li><a href="#module-4">04. Content Studio & Carousels <span class="toc-badge">Editor</span></a></li>
         <li><a href="#module-5">05. Template Ingestion Studio <span class="toc-badge">AI</span></a></li>
         <li><a href="#module-6">06. Team Advocacy Directory <span class="toc-badge">Notion</span></a></li>
@@ -1066,107 +1065,6 @@
         <div class="callout tip">
           <div class="callout-title">POD 5 Core Hypothesis</div>
           By engineering an agentic content pipeline that automatically surfaces Singapore statutory holidays and live B2B industry trends, drafts Hofstede-aligned copy in 3 cultural angles, and automatically formats 5-slide editorial carousels, Brother Singapore eliminates 85% of manual drafting overhead while maintaining human review control over every post.
-        </div>
-      </section>
-
-      <!-- Section: Technical Architecture & Vercel Endpoints -->
-      <section class="module-section" id="system-architecture">
-        <div class="module-header">
-          <span class="module-badge">Architecture</span>
-          <h2 class="module-title">System Architecture & Infrastructure</h2>
-          <p class="module-summary">High-performance React 19 frontend paired with 12 serverless micro-endpoints deployed on Vercel.</p>
-        </div>
-
-        <div class="copy-block">
-<button class="copy-button" onclick="copySnippet(this)">Copy Architecture</button>
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                        FRONTEND APPLICATION (React 19 + Vite 6)                        │
-│   Tailwind CSS v4  •  Lucide Icons  •  HTML5 Canvas 2D Engine  •  LocalStorage Cache   │
-└───────────────────────────────┬────────────────────────────────┬───────────────────────┘
-                                │                                │
-                Direct Client Storage                    Serverless Proxy API
-                (brother_team_cache, etc.)               (/api/* on Vercel ESM)
-                                │                                │
-                                ▼                                ▼
-┌─────────────────────────────────────────┐   ┌─────────────────────────────────────────┐
-│           CLIENT ENGINES & UTILS        │   │       12 SERVERLESS ENDPOINTS (ESM)     │
-│ • serperEngine.js (RSS Aggregation)     │   │ • /api/serper/search.js (Google RSS)    │
-│ • imageTemplateEngine.js (Slide Canvas) │   │ • /api/linkedin/publish.js (OAuth 2.0)  │
-│ • draftGenerator.js (Hofstede Matrix)   │   │ • /api/notion/sync.js (Database Sync)   │
-│ • yamlTemplates.js (11 Blueprints)      │   │ • /api/notion/team.js (Whitelist DB)    │
-│ • storage.js (Encrypted Client Tokens)  │   │ • /api/auth/magic-link.js (Resend API)  │
-│ • templateExtractor.js (Ingestion)      │   │ • /api/mom/holidays.js (MOM Gazette)    │
-└─────────────────────────────────────────┘   └─────────────────────────────────────────┘
-        </div>
-
-        <h3 class="section-subtitle">The 12 Consolidated Vercel Serverless Endpoints</h3>
-        <div class="controls-table-wrapper">
-          <table class="controls-table">
-            <thead>
-              <tr>
-                <th>Endpoint Path</th>
-                <th>HTTP Method</th>
-                <th>Primary Function</th>
-                <th>Fallback Mechanism</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><span class="control-tag">/api/serper/search.js</span></td>
-                <td>GET, POST</td>
-                <td>Queries live Google News Singapore RSS and Serper API for real-time B2B articles.</td>
-                <td>Dynamic topical synthesis for AI, ESG, and Singapore workplace news.</td>
-              </tr>
-              <tr>
-                <td><span class="control-tag">/api/linkedin/publish.js</span></td>
-                <td>POST</td>
-                <td>Publishes approved post text and asset references to Brother Singapore's Organization page.</td>
-                <td>Simulated success response if running in demo sandbox.</td>
-              </tr>
-              <tr>
-                <td><span class="control-tag">/api/linkedin/data.js</span></td>
-                <td>GET</td>
-                <td>Retrieves organization analytics, follower counts, and post engagement telemetry.</td>
-                <td>Returns cached telemetry if API quota is reached.</td>
-              </tr>
-              <tr>
-                <td><span class="control-tag">/api/auth/magic-link.js</span></td>
-                <td>POST</td>
-                <td>Generates cryptographically signed JWT magic links and dispatches via Resend transactional email.</td>
-                <td>Demo token fallback for development evaluation.</td>
-              </tr>
-              <tr>
-                <td><span class="control-tag">/api/notion/team.js</span></td>
-                <td>POST, PATCH</td>
-                <td>Queries Brother Singapore's team whitelist database in Notion, deduplicates records, and updates profiles.</td>
-                <td>Local browser cache (<code>brother_team_cache</code>).</td>
-              </tr>
-              <tr>
-                <td><span class="control-tag">/api/notion/sync.js</span></td>
-                <td>POST</td>
-                <td>Two-way synchronization of drafted posts, status flags, and custom templates with Notion.</td>
-                <td>Stores drafts in local client storage.</td>
-              </tr>
-              <tr>
-                <td><span class="control-tag">/api/mom/holidays.js</span></td>
-                <td>GET</td>
-                <td>Fetches 2026 Singapore Ministry of Manpower gazetted public holidays.</td>
-                <td>Static fallback JSON containing MOM 2026 statutory dates.</td>
-              </tr>
-              <tr>
-                <td><span class="control-tag">/api/ai/media.js</span></td>
-                <td>POST</td>
-                <td>Generates AI imagery via Gemini / Imagen 3 and proxies external images to bypass CORS.</td>
-                <td>Curated Brother hardware asset library.</td>
-              </tr>
-              <tr>
-                <td><span class="control-tag">/api/templates/ingest.js</span></td>
-                <td>POST</td>
-                <td>Deconstructs ingested post copy, screenshots, or PDFs into reusable YAML blueprints.</td>
-                <td>Regex-based structural parser.</td>
-              </tr>
-            </tbody>
-          </table>
         </div>
       </section>
 
@@ -1399,12 +1297,12 @@
         </div>
       </section>
 
-      <!-- Module 3: Real-Time News & Industry Trends Engine -->
+      <!-- Module 3: Serper.dev AI Market Intelligence & Industry Trends Engine -->
       <section class="module-section" id="module-3">
         <div class="module-header">
           <span class="module-badge">Module 03</span>
-          <h2 class="module-title">Real-Time News & Industry Trends Engine</h2>
-          <p class="module-summary">Zero-API-key Google News RSS engine aggregated across 5 high-intent B2B technology verticals.</p>
+          <h2 class="module-title">Serper.dev AI Market Intelligence & Industry Trends Engine</h2>
+          <p class="module-summary">Autonomous market intelligence engine powered by Serper.dev Google News indexing and real-time search across 5 customizable B2B technology verticals.</p>
         </div>
 
         <div class="screenshot-frame">
@@ -1414,42 +1312,75 @@
             <span class="window-dot green"></span>
             <span class="window-title">https://linked-us-in.vercel.app/trends</span>
           </div>
-          <div class="screenshot-container" onclick="openModal('screenshots/05_module2_news_trends.png', 'Module 03: Real-Time News & Trends Engine')">
-            <img src="screenshots/05_module2_news_trends.png" alt="News Engine" />
+          <div class="screenshot-container" onclick="openModal('screenshots/05_module2_news_trends.png', 'Module 03: Serper.dev AI Market Intelligence & Trends Engine')">
+            <img src="screenshots/05_module2_news_trends.png" alt="Serper.dev News & Trends Engine" />
           </div>
           <div class="screenshot-caption">
-            <span>Live RSS feed monitor, active keyword categories, and publication source links (Straits Times, SBR, etc.).</span>
+            <span>Live news intelligence monitor, active keyword categories, customizable search windows (24h, 48h, 7d, 14d), and verified publication source links (The Straits Times, Business Times, CNA, TechCrunch).</span>
             <span class="caption-hint">Click image to enlarge &rarr;</span>
           </div>
         </div>
 
-        <h3 class="section-subtitle">5 Pre-Seeded B2B Vertical Streams</h3>
+        <h3 class="section-subtitle">Serper.dev Google News Search Architecture</h3>
+        <p style="font-size: 0.92rem; color: var(--slate-700); margin-bottom: 1.25rem; line-height: 1.6;">
+          Rather than relying on outdated static feeds, Linked-Us-In connects directly to the <strong>Serper.dev Google News Search API</strong> (<code>https://google.serper.dev/news</code>). The engine queries live Google News indexes in real time, filtering results using the official Google search timeframe parameter (<code>tbs: qdr:h, qdr:d, qdr:w, qdr:m</code>) and enforcing client-side freshness verification so older articles never leak into tight publication windows.
+        </p>
+
         <div class="features-grid">
           <div class="feature-card">
-            <div class="feature-icon">AI</div>
-            <div class="feature-name">1. AI Office Automation</div>
-            <div class="feature-desc">Intelligent document processing, automated OCR capture, and robotic process automation in Singapore corporate headquarters.</div>
+            <div class="feature-icon">&#128269;</div>
+            <div class="feature-name">5 Customizable Keyword Slots</div>
+            <div class="feature-desc">Advocates can modify any of the 5 keyword slots dynamically (e.g. typing <em>"Brother Singapore"</em>, <em>"smart document automation"</em>, or custom industry terms) to instantly pull fresh coverage.</div>
           </div>
           <div class="feature-card">
-            <div class="feature-icon">&#128274;</div>
-            <div class="feature-name">2. Cybersecurity & Print Security</div>
-            <div class="feature-desc">Network printer firmware hardening, secure PIN pull-printing, and PDPA compliance for legal, healthcare, and finance sectors.</div>
+            <div class="feature-icon">&#9201;</div>
+            <div class="feature-name">Independent Timeframe Controls</div>
+            <div class="feature-desc">Each keyword tab has its own dedicated timeframe dial (24 Hours, 48 Hours, 7 Days, 14 Days, or Custom). The engine maps user selections to exact Google News freshness windows.</div>
           </div>
           <div class="feature-card">
-            <div class="feature-icon">&#127793;</div>
-            <div class="feature-name">3. Sustainable Tech & ESG</div>
-            <div class="feature-desc">Low-energy hardware, closed-loop toner cartridge recycling, and Singapore Green Plan 2030 corporate sustainability benchmarks.</div>
+            <div class="feature-icon">&#129302;</div>
+            <div class="feature-name">Dynamic Keyword Synthesis Fallback</div>
+            <div class="feature-desc">When running offline or without an active API key, an intelligent topical synthesis engine immediately generates structured, publication-grade industry summaries tailored to the search query.</div>
+          </div>
+        </div>
+
+        <h3 class="section-subtitle">5 Pre-Configured Strategic B2B Verticals</h3>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">&#128147;</div>
+            <div class="feature-name">1. Work-Life Balance & Flexibility</div>
+            <div class="feature-desc">Tracks Singapore Tripartite Guidelines on Flexible Work Arrangements (FWA), employee wellness initiatives, psychological safety, and sustainable work rhythms under Brother's people-first culture.</div>
           </div>
           <div class="feature-card">
-            <div class="feature-icon">&#128188;</div>
-            <div class="feature-name">4. Hybrid Work & Enterprise Print</div>
-            <div class="feature-desc">MOM Flexible Work Arrangement (FWA) guidelines, decentralised branch printing, and cloud-managed document workflows.</div>
+            <div class="feature-icon">&#9889;</div>
+            <div class="feature-name">2. Workplace Productivity</div>
+            <div class="feature-desc">Identifies corporate research and operational benchmarks on eliminating administrative bottleneck drag, reducing routine meeting fatigue, and reclaiming 5+ hours of focused creative work weekly.</div>
           </div>
           <div class="feature-card">
-            <div class="feature-icon">&#128640;</div>
-            <div class="feature-name">5. Singapore SME Tech Adoption</div>
-            <div class="feature-desc">Productivity Solutions Grant (PSG), Enterprise Singapore subsidies, and digital transformation roadmaps for local enterprises.</div>
+            <div class="feature-icon">&#128196;</div>
+            <div class="feature-name">3. Smart Document Automation</div>
+            <div class="feature-desc">Monitors multimodal document AI, automated optical character recognition (OCR), secure cloud capture, and technologies bridging physical paper documents with modern enterprise digital pipelines.</div>
           </div>
+          <div class="feature-card">
+            <div class="feature-icon">&#128424;</div>
+            <div class="feature-name">4. Brother Singapore</div>
+            <div class="feature-desc">Surfaces market developments in Managed Print Services (MPS), customer service excellence benchmarks, firmware endpoint cybersecurity, and energy-efficient hardware aligned with Brother's global <em>"At your side"</em> motto.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">&#129302;</div>
+            <div class="feature-name">5. Enterprise Agentic AI</div>
+            <div class="feature-desc">Synthesizes Singapore national AI upskilling programs (IMDA / SkillsFuture), autonomous multi-agent operational workflows, and practical human-AI pairing frameworks driving measurable business transformation.</div>
+          </div>
+        </div>
+
+        <div class="callout tip">
+          <div class="callout-title">The "3-Pillar" Thought Leadership Framing (Phase 5 Blueprint)</div>
+          To prevent superficial commentary, every news article is deconstructed and re-framed through Brother Singapore's proprietary 3-pillar employer branding model:
+          <ol style="margin-top: 0.6rem; padding-left: 1.2rem; line-height: 1.6;">
+            <li><strong>1. What it is:</strong> A clear, hype-free synthesis of the new technology, regulatory guideline, or industry benchmark.</li>
+            <li><strong>2. Why it matters:</strong> Practical business implications for Singapore enterprise operational velocity, governance, team collaboration, and capital allocation.</li>
+            <li><strong>3. How it helps Brother Singapore:</strong> Concrete applications for internal employees to eliminate administrative friction and embody the forward-looking <em>"Brother Xplorer"</em> ethos.</li>
+          </ol>
         </div>
 
         <div class="screenshot-frame">
@@ -1497,7 +1428,7 @@
               <tr>
                 <td><strong>Provocative / Contrarian</strong></td>
                 <td>LinkedIn Tech Commentators</td>
-                <td>Challenges conventional wisdom (e.g. <em>"The 100% paperless office was a myth — here is why smart hybrid document flows matter more"</em>) to stimulate comments.</td>
+                <td>Challenges conventional wisdom (e.g. <em>"The 100% paperless office was a myth — here is why smart hybrid document flows matter more"</em>) to stimulate thoughtful comments and engagement.</td>
               </tr>
               <tr>
                 <td><strong>Culture / Workplace</strong></td>
@@ -1509,8 +1440,8 @@
         </div>
 
         <div class="callout tip">
-          <div class="callout-title">One-Click "Send to Content Studio" Workflow</div>
-          Clicking the blue <strong>"Send to Content Studio"</strong> button below any generated angle automatically transfers the selected headline, commentary draft, source link, and suggested corporate hashtags directly into the dual-pane Content Studio without requiring manual copy-pasting.
+          <div class="callout-title">One-Click "Open in Content Studio" Workflow</div>
+          Clicking the blue <strong>"Open in Content Studio"</strong> button below any generated angle automatically transfers the selected headline, commentary draft, source link, and suggested corporate hashtags directly into the dual-pane Content Studio without requiring manual copy-pasting.
         </div>
       </section>
 
