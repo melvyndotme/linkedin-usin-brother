@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Linked-Us-In | Brother Singapore Client Walkthrough & User Guide</title>
+  <link rel="icon" type="image/svg+xml" href="screenshots/01_login_page.png" />
+  <style>
+    :root {
+      --brother-blue: #003399;
+      --brother-dark: #002266;
+      --brother-light: #e6edff;
+      --slate-900: #0f172a;
+      --slate-800: #1e293b;
+      --slate-700: #334155;
+      --slate-600: #475569;
+      --slate-500: #64748b;
+      --slate-400: #94a3b8;
+      --slate-200: #e2e8f0;
+      --slate-100: #f1f5f9;
+      --slate-50: #f8fafc;
+      --emerald-600: #059669;
+      --emerald-50: #ecfdf5;
+      --amber-600: #d97706;
+      --amber-50: #fffbeb;
+      --rose-600: #e11d48;
+      --rose-50: #fff1f2;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.08);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.08);
+      --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: var(--slate-800);
+      background-color: #f8fafc;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Top Navigation Bar */
+    header.top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--slate-200);
+      padding: 0.75rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .brand-logo-badge {
+      background: var(--brother-blue);
+      color: white;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      font-size: 1.1rem;
+      padding: 0.35rem 0.85rem;
+      border-radius: var(--radius-sm);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .brand-title {
+      font-weight: 700;
+      color: var(--slate-900);
+      font-size: 1.05rem;
+    }
+
+    .brand-subtitle {
+      font-size: 0.8rem;
+      color: var(--slate-500);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 0.45rem 0.9rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid transparent;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+
+    .btn-secondary {
+      background: white;
+      border-color: var(--slate-200);
+      color: var(--slate-700);
+    }
+    .btn-secondary:hover {
+      background: var(--slate-50);
+      border-color: var(--slate-400);
+      color: var(--slate-900);
+    }
+
+    .btn-primary {
+      background: var(--brother-blue);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: var(--brother-dark);
+    }
+
+    /* Main Container with Sidebar */
+    .app-layout {
+      display: flex;
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 2rem;
+      gap: 2.5rem;
+    }
+
+    /* Left Sidebar Navigation */
+    aside.sidebar {
+      width: 280px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 5rem;
+      height: calc(100vh - 6.5rem);
+      overflow-y: auto;
+      padding-right: 0.75rem;
+    }
+
+    aside.sidebar::-webkit-scrollbar {
+      width: 4px;
+    }
+    aside.sidebar::-webkit-scrollbar-thumb {
+      background: var(--slate-200);
+      border-radius: 4px;
+    }
+
+    .nav-section-title {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      color: var(--slate-400);
+      margin: 1.25rem 0 0.5rem 0.75rem;
+    }
+
+    .nav-section-title:first-child {
+      margin-top: 0;
+    }
+
+    .toc-menu {
+      list-style: none;
+    }
+
+    .toc-menu li a {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.85rem;
+      color: var(--slate-600);
+      text-decoration: none;
+      border-radius: var(--radius-sm);
+      transition: all 0.15s ease;
+      line-height: 1.3;
+    }
+
+    .toc-menu li a:hover {
+      background: var(--slate-100);
+      color: var(--brother-blue);
+    }
+
+    .toc-menu li a.active {
+      background: var(--brother-light);
+      color: var(--brother-blue);
+      font-weight: 600;
+    }
+
+    .toc-badge {
+      font-size: 0.7rem;
+      padding: 0.15rem 0.4rem;
+      border-radius: 9999px;
+      background: var(--slate-100);
+      color: var(--slate-600);
+      margin-left: auto;
+      font-weight: 600;
+    }
+
+    /* Content Area */
+    main.content-area {
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* Hero Banner */
+    .hero-banner {
+      background: linear-gradient(135deg, var(--brother-blue) 0%, #001f5c 100%);
+      color: white;
+      padding: 2.5rem;
+      border-radius: var(--radius-lg);
+      margin-bottom: 2.5rem;
+      box-shadow: var(--shadow-lg);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-banner::after {
+      content: "";
+      position: absolute;
+      top: -50%;
+      right: -10%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .hero-tag {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      background: rgba(255, 255, 255, 0.15);
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      margin-bottom: 0.75rem;
+    }
+
+    .hero-title {
+      font-size: 2.2rem;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 0.75rem;
+    }
+
+    .hero-desc {
+      font-size: 1.05rem;
+      opacity: 0.9;
+      max-width: 780px;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+      padding-top: 1.25rem;
+    }
+
+    .meta-item {
+      font-size: 0.85rem;
+    }
+
+    .meta-label {
+      opacity: 0.7;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .meta-value {
+      font-weight: 600;
+      margin-top: 0.15rem;
+    }
+
+    /* KPI Summary Cards */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .kpi-card {
+      background: white;
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .kpi-num {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: var(--slate-900);
+      line-height: 1.1;
+      margin-bottom: 0.25rem;
+    }
+
+    .kpi-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--slate-500);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .kpi-sub {
+      font-size: 0.75rem;
+      color: var(--emerald-600);
+      font-weight: 600;
+      margin-top: 0.35rem;
+    }
+
+    /* Modules Section Styling */
+    section.module-section {
+      background: white;
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-lg);
+      padding: 2.25rem;
+      margin-bottom: 2.5rem;
+      box-shadow: var(--shadow-sm);
+      scroll-margin-top: 5rem;
+    }
+
+    .module-header {
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--slate-100);
+      padding-bottom: 1.25rem;
+    }
+
+    .module-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--brother-blue);
+      background: var(--brother-light);
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      margin-bottom: 0.5rem;
+    }
+
+    .module-title {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--slate-900);
+      line-height: 1.3;
+    }
+
+    .module-summary {
+      font-size: 0.95rem;
+      color: var(--slate-600);
+      margin-top: 0.35rem;
+    }
+
+    /* UI Screenshot Window Mockup */
+    .screenshot-frame {
+      border: 1px solid var(--slate-300);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: #0f172a;
+      box-shadow: var(--shadow-md);
+      margin: 1.5rem 0 2rem 0;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .screenshot-frame:hover {
+      box-shadow: var(--shadow-xl);
+    }
+
+    .window-header {
+      background: #1e293b;
+      padding: 0.6rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-bottom: 1px solid #334155;
+    }
+
+    .window-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+    }
+    .window-dot.red { background: #ef4444; }
+    .window-dot.yellow { background: #f59e0b; }
+    .window-dot.green { background: #10b981; }
+
+    .window-title {
+      font-size: 0.75rem;
+      color: var(--slate-400);
+      font-family: monospace;
+      margin-left: 0.5rem;
+    }
+
+    .screenshot-container {
+      position: relative;
+      cursor: zoom-in;
+      background: #0b132b;
+      display: block;
+    }
+
+    .screenshot-container img {
+      width: 100%;
+      height: auto;
+      display: block;
+      transition: opacity 0.2s ease;
+    }
+
+    .screenshot-container:hover img {
+      opacity: 0.96;
+    }
+
+    .screenshot-caption {
+      padding: 0.6rem 1rem;
+      background: white;
+      border-top: 1px solid var(--slate-200);
+      font-size: 0.8rem;
+      color: var(--slate-600);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .screenshot-caption .caption-hint {
+      color: var(--brother-blue);
+      font-weight: 600;
+      font-size: 0.75rem;
+    }
+
+    /* Callout Boxes */
+    .callout {
+      padding: 1.1rem 1.25rem;
+      border-radius: var(--radius-md);
+      margin: 1.25rem 0;
+      font-size: 0.9rem;
+      border-left: 4px solid;
+    }
+
+    .callout-title {
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .callout.tip {
+      background: var(--emerald-50);
+      border-left-color: var(--emerald-600);
+      color: #064e3b;
+    }
+    .callout.tip .callout-title {
+      color: var(--emerald-600);
+    }
+
+    .callout.note {
+      background: var(--brother-light);
+      border-left-color: var(--brother-blue);
+      color: #1e3a8a;
+    }
+    .callout.note .callout-title {
+      color: var(--brother-blue);
+    }
+
+    .callout.important {
+      background: var(--amber-50);
+      border-left-color: var(--amber-600);
+      color: #78350f;
+    }
+    .callout.important .callout-title {
+      color: var(--amber-600);
+    }
+
+    /* Feature Grid */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+      margin: 1.5rem 0;
+    }
+
+    .feature-card {
+      background: var(--slate-50);
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+    }
+
+    .feature-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      background: var(--brother-light);
+      color: var(--brother-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      margin-bottom: 0.75rem;
+      font-weight: bold;
+    }
+
+    .feature-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--slate-900);
+      margin-bottom: 0.35rem;
+    }
+
+    .feature-desc {
+      font-size: 0.85rem;
+      color: var(--slate-600);
+    }
+
+    /* Steps List */
+    .step-list {
+      list-style: none;
+      counter-reset: step-counter;
+      margin: 1.25rem 0;
+    }
+
+    .step-item {
+      position: relative;
+      padding-left: 2.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .step-item::before {
+      counter-increment: step-counter;
+      content: counter(step-counter);
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 28px;
+      height: 28px;
+      background: var(--brother-blue);
+      color: white;
+      font-weight: 700;
+      font-size: 0.85rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .step-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--slate-900);
+    }
+
+    .step-body {
+      font-size: 0.85rem;
+      color: var(--slate-600);
+      margin-top: 0.2rem;
+    }
+
+    /* Badges & Tags */
+    .theme-pill {
+      display: inline-block;
+      padding: 0.2rem 0.55rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-right: 0.4rem;
+    }
+    .pill-blue { background: #dbeafe; color: #1e40af; }
+    .pill-green { background: #d1fae5; color: #065f46; }
+    .pill-red { background: #fee2e2; color: #991b1b; }
+    .pill-amber { background: #fef3c7; color: #92400e; }
+
+    /* Lightbox Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.9);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-content {
+      position: relative;
+      max-width: 90vw;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .modal-image {
+      max-width: 100%;
+      max-height: 82vh;
+      border-radius: var(--radius-md);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .modal-caption {
+      color: white;
+      font-size: 0.9rem;
+      margin-top: 1rem;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: -3rem;
+      right: 0;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      font-size: 1.25rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+
+    .modal-close:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+
+    /* Print Styles */
+    @media print {
+      header.top-nav, aside.sidebar, .nav-actions, .screenshot-caption .caption-hint {
+        display: none !important;
+      }
+      .app-layout {
+        display: block;
+        padding: 0;
+      }
+      section.module-section {
+        page-break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #ccc;
+        margin-bottom: 2rem;
+      }
+      .screenshot-frame {
+        box-shadow: none;
+        border: 1px solid #ddd;
+      }
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      aside.sidebar {
+        display: none;
+      }
+      .app-layout {
+        padding: 1rem;
+      }
+      .kpi-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Sticky Nav -->
+  <header class="top-nav">
+    <div class="brand-group">
+      <div class="brand-logo-badge">brother</div>
+      <div>
+        <div class="brand-title">Linked-Us-In <span style="font-weight:400; color:var(--slate-500);">| Client Walkthrough & User Guide</span></div>
+        <div class="brand-subtitle">Brother International Singapore Pte Ltd &bull; Employee Advocacy & Content Portal</div>
+      </div>
+    </div>
+    <div class="nav-actions">
+      <button class="btn btn-secondary" onclick="window.print()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v8H6z"/></svg>
+        Export PDF
+      </button>
+      <a href="https://linked-us-in.vercel.app" target="_blank" class="btn btn-primary">
+        Launch Live Portal
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
+      </a>
+    </div>
+  </header>
+
+  <!-- App Layout -->
+  <div class="app-layout">
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="nav-section-title">Getting Started</div>
+      <ul class="toc-menu">
+        <li><a href="#executive-summary">Executive Summary</a></li>
+        <li><a href="#module-0">00. Access & Security <span class="toc-badge">Auth</span></a></li>
+        <li><a href="#module-1">01. Mission Control <span class="toc-badge">Telemetry</span></a></li>
+      </ul>
+
+      <div class="nav-section-title">Core Modules</div>
+      <ul class="toc-menu">
+        <li><a href="#module-2">02. MOM Festive Calendar <span class="toc-badge">2026</span></a></li>
+        <li><a href="#module-3">03. Real-Time News Engine <span class="toc-badge">RSS</span></a></li>
+        <li><a href="#module-4">04. Content Studio <span class="toc-badge">5-Slide</span></a></li>
+        <li><a href="#module-5">05. Template Ingestion <span class="toc-badge">AI</span></a></li>
+      </ul>
+
+      <div class="nav-section-title">Administration</div>
+      <ul class="toc-menu">
+        <li><a href="#module-6">06. Team Directory <span class="toc-badge">Notion</span></a></li>
+        <li><a href="#module-7">07. System Settings <span class="toc-badge">OAuth</span></a></li>
+        <li><a href="#operational-framework">08. Advocacy Rhythm <span class="toc-badge">3-2-1</span></a></li>
+      </ul>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="content-area">
+
+      <!-- Hero Banner -->
+      <div class="hero-banner" id="executive-summary">
+        <span class="hero-tag">Official Client Documentation &bull; v2.4.0</span>
+        <h1 class="hero-title">Linked-Us-In Portal Walkthrough</h1>
+        <p class="hero-desc">
+          Empowering Brother Singapore's technical leaders, department directors, and commercial teams to publish authoritative B2B thought leadership, track Singapore industry trends, and drive authentic employee advocacy on LinkedIn.
+        </p>
+        <div class="hero-meta-grid">
+          <div class="meta-item">
+            <div class="meta-label">Client</div>
+            <div class="meta-value">Brother International Singapore</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Brand Philosophy</div>
+            <div class="meta-value">"At your side" &bull; Takumi Craft</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Design Language</div>
+            <div class="meta-value">Precision Blue &bull; Slate 900 &bull; ESG Emerald</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Production Status</div>
+            <div class="meta-value">Live on Vercel Enterprise</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI Summary Row -->
+      <div class="kpi-row">
+        <div class="kpi-card">
+          <div class="kpi-num">5,240+</div>
+          <div class="kpi-title">Corporate Followers</div>
+          <div class="kpi-sub">&uarr; +18.4% YoY Brother SG</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-num">6</div>
+          <div class="kpi-title">Active Leaders</div>
+          <div class="kpi-sub">Across Sales, Marketing, Tech</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-num">25,000</div>
+          <div class="kpi-title">Weekly Target Reach</div>
+          <div class="kpi-sub">Multiplied Employee Organic</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-num">88/100</div>
+          <div class="kpi-title">Advocacy Health Score</div>
+          <div class="kpi-sub">Governance & Brand Compliance</div>
+        </div>
+      </div>
+
+      <!-- Module 0: Access & Security -->
+      <section class="module-section" id="module-0">
+        <div class="module-header">
+          <span class="module-badge">Module 00</span>
+          <h2 class="module-title">Access, Authentication & Security</h2>
+          <p class="module-summary">Frictionless, passwordless sign-in restricted strictly to verified Brother corporate email domains.</p>
+        </div>
+
+        <div class="screenshot-frame">
+          <div class="window-header">
+            <span class="window-dot red"></span>
+            <span class="window-dot yellow"></span>
+            <span class="window-dot green"></span>
+            <span class="window-title">https://linked-us-in.vercel.app/login</span>
+          </div>
+          <div class="screenshot-container" onclick="openModal('screenshots/01_login_page.png', 'Module 00: Passwordless Corporate Magic Link Login Page')">
+            <img src="screenshots/01_login_page.png" alt="Login Page" />
+          </div>
+          <div class="screenshot-caption">
+            <span>Corporate login screen with domain verification and instant magic link generation.</span>
+            <span class="caption-hint">Click image to enlarge &rarr;</span>
+          </div>
+        </div>
+
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">&Phi;</div>
+            <div class="feature-name">Passwordless Magic Links</div>
+            <div class="feature-desc">Advocates authenticate securely using one-click magic links sent directly to their corporate inbox via Resend. No passwords to compromise.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">&sect;</div>
+            <div class="feature-name">Strict Domain Whitelist</div>
+            <div class="feature-desc">Restricted exclusively to <code>@brother.com.sg</code>, <code>@brother.sg</code>, and authorized Brother corporate domains.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">&#9881;</div>
+            <div class="feature-name">Workshop / Demo Access</div>
+            <div class="feature-desc">Instant evaluation mode using <code>?token=demo-auth&email=allan.cheng@brother.com.sg</code> for executive presentations.</div>
+          </div>
+        </div>
+
+        <div class="callout note">
+          <div class="callout-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+            How to Sign In
+          </div>
+          Enter your official corporate email address, click <strong>"Send Magic Link"</strong>, and tap the sign-in confirmation sent to your inbox. Your session will remain securely active on your browser.
+        </div>
+      </section>
+
+      <!-- Module 1: Mission Control -->
+      <section class="module-section" id="module-1">
+        <div class="module-header">
+          <span class="module-badge">Module 01</span>
+          <h2 class="module-title">Executive Mission Control (Dashboard)</h2>
+          <p class="module-summary">Real-time organizational telemetry, Brother SG audience growth, and direct corporate feed benchmarks.</p>
+        </div>
+
+        <div class="screenshot-frame">
+          <div class="window-header">
+            <span class="window-dot red"></span>
+            <span class="window-dot yellow"></span>
+            <span class="window-dot green"></span>
+            <span class="window-title">https://linked-us-in.vercel.app/dashboard</span>
+          </div>
+          <div class="screenshot-container" onclick="openModal('screenshots/02_home_dashboard.png', 'Module 01: Executive Mission Control Dashboard')">
+            <img src="screenshots/02_home_dashboard.png" alt="Executive Dashboard" />
+          </div>
+          <div class="screenshot-caption">
+            <span>Executive Mission Control: 4 core KPI cards, live company post simulation, and quick module navigation.</span>
+            <span class="caption-hint">Click image to enlarge &rarr;</span>
+          </div>
+        </div>
+
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">&#9733;</div>
+            <div class="feature-name">Advocacy Telemetry</div>
+            <div class="feature-desc">Tracks follower milestones, advocate engagement quotas, and overall corporate advocacy health index.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">&#9874;</div>
+            <div class="feature-name">Official Feed Benchmarking</div>
+            <div class="feature-desc">Live simulation of the official Brother Singapore LinkedIn presence so advocates can amplify corporate product launches.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">&#10148;</div>
+            <div class="feature-name">One-Click Module Launcher</div>
+            <div class="feature-desc">Rapid transitions into the Festive Hub, News Engine, Content Studio, Template Studio, or Team Directory.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Module 2: Festive & Cultural Hub -->
+      <section class="module-section" id="module-2">
+        <div class="module-header">
+          <span class="module-badge">Module 02</span>
+          <h2 class="module-title">Singapore MOM 2026 Festive & Cultural Hub</h2>
+          <p class="module-summary">Automatic tracking of gazetted Ministry of Manpower public holidays, cultural festivals, and corporate milestones.</p>
+        </div>
+
+        <div class="screenshot-frame">
+          <div class="window-header">
+            <span class="window-dot red"></span>
+            <span class="window-dot yellow"></span>
+            <span class="window-dot green"></span>
+            <span class="window-title">https://linked-us-in.vercel.app/events</span>
+          </div>
+          <div class="screenshot-container" onclick="openModal('screenshots/03_module1_events_calendar.png', 'Module 02: MOM 2026 Public Holidays & Cultural Calendar')">
+            <img src="screenshots/03_module1_events_calendar.png" alt="Festive Calendar" />
+          </div>
+          <div class="screenshot-caption">
+            <span>MOM 2026 gazetted holidays, live countdown tickers, and 4 theme categorization badges.</span>
+            <span class="caption-hint">Click image to enlarge &rarr;</span>
+          </div>
+        </div>
+
+        <h3 style="font-size: 1.1rem; margin: 1.5rem 0 0.75rem 0; font-weight:700;">4 Color-Coded Event Themes:</h3>
+        <p style="margin-bottom: 1rem; font-size: 0.9rem; color: var(--slate-600);">Events are categorized into 4 strategic buckets to ensure a balanced brand presence:</p>
+        
+        <div style="display:flex; flex-wrap:wrap; gap:0.75rem; margin-bottom: 1.5rem;">
+          <span class="theme-pill pill-blue">&bull; Corporate & Innovation (Blue)</span>
+          <span class="theme-pill pill-green">&bull; Sustainability & ESG (Green)</span>
+          <span class="theme-pill pill-red">&bull; MOM Gazetted Holidays (Red)</span>
+          <span class="theme-pill pill-amber">&bull; Cultural & Community (Amber)</span>
+        </div>
+
+        <div class="screenshot-frame">
+          <div class="window-header">
+            <span class="window-dot red"></span>
+            <span class="window-dot yellow"></span>
+            <span class="window-dot green"></span>
+            <span class="window-title">https://linked-us-in.vercel.app/events/modal</span>
+          </div>
+          <div class="screenshot-container" onclick="openModal('screenshots/04_module1_custom_event_modal.png', 'Custom Corporate Event & Promotion Creation Modal')">
+            <img src="screenshots/04_module1_custom_event_modal.png" alt="Custom Event Modal" />
+          </div>
+          <div class="screenshot-caption">
+            <span>Custom Event Modal: Schedule trade-in promotions, product expos, and sustainability webinars.</span>
+            <span class="caption-hint">Click image to enlarge &rarr;</span>
+          </div>
+        </div>
+
+        <div class="callout tip">
+          <div class="callout-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            Hofstede Cultural Tuning Engine
+          </div>
+          Clicking <strong>"Generate Angles"</strong> on any event produces culturally resonant drafts balancing Singapore's multicultural business rhythm with Brother's Japanese heritage:
+          <ul style="margin: 0.5rem 0 0 1.5rem; font-size: 0.85rem;">
+            <li><strong>Wa (Harmony & Family)</strong>: Celebrating festive unity and community connections.</li>
+            <li><strong>Kaizen (Continuous Improvement)</strong>: Process optimization and reflection during holiday breaks.</li>
+            <li><strong>Team Solidarity</strong>: Honoring customer support, technicians, and warehouse logistics teams.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Module 3: News Engine -->
+      <section class="module-section" id="module-3">
+        <div class="module-header">
+          <span class="module-badge">Module 03</span>
+          <h2 class="module-title">Real-Time News & Industry Trends Engine</h2>
+          <p class="module-summary">Zero-API-key Google News Singapore RSS engine aggregated across 5 high-intent B2B technology verticals.</p>
+        </div>
+
+        <div class="screenshot-frame">
+          <div class="window-header">
+            <span class="window-dot red"></span>
+            <span class="window-dot yellow"></span>
+            <span class="window-dot green"></span>
+            <span class="window-title">https://linked-us-in.vercel.app/trends</span>
+          </div>
+          <div class="screenshot-container" onclick="openModal('screenshots/05_module2_news_trends.png', 'Module 03: Real-Time News & Trends Engine')">
+            <img src="screenshots/05_module2_news_trends.png" alt="News Engine" />
+          </div>
+          <div class="screenshot-caption">
+            <span>Live RSS feed monitor, active keyword categories, and direct publication source links.</span>
+            <span class="caption-hint">Click image to enlarge &rarr;</span>
+          </div>
+        </div>
+
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">AI</div>
+            <div class="feature-name">AI Office Automation</div>
+            <div class="feature-desc">Smart document capture, automated OCR processing, and intelligent enterprise printing workflows.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">&#128274;</div>
+            <div class="feature-name">Print Cybersecurity & PDPA</div>
+            <div class="feature-desc">Firmware hardening, secure PIN pull-printing, and endpoint compliance for Singapore financial and legal sectors.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">&#127793;</div>
+            <div class="feature-name">Sustainable Tech & ESG</div>
+            <div class="feature-desc">Brother Earth initiatives, closed-loop toner cartridge recycling, and low-TEC energy hardware.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">&#128188;</div>
+            <div class="feature-name">Singapore SME Tech Adoption</div>
+            <div class="feature-desc">Productivity Solutions Grant (PSG), enterprise digitization, and decentralised hybrid workforces.</div>
+          </div>
+        </div>
+
+        <div class="screenshot-frame">
+          <div class="window-header">
+            <span class="window-dot red"></span>
+            <span class="window-dot yellow"></span>
+            <span class="window-dot green"></span>
+            <span class="window-title">https://linked-us-in.vercel.app/trends/angles</span>
+          </div>
+          <div class="screenshot-container" onclick="openModal('screenshots/06_module2_b2b_drafts.png', 'B2B Thought-Leadership Angle Generator')">
+            <img src="screenshots/06_module2_b2b_drafts.png" alt="B2B Angles" />
+          </div>
+          <div class="screenshot-caption">
+            <span>5 Thought-Leadership Angles: Executive POV, Industry Analysis, Solution/Practical, Contrarian, and Workplace Culture.</span>
+            <span class="caption-hint">Click image to enlarge &rarr;</span>
+          </div>
+        </div>
+
+        <div class="callout tip">
+          <div class="callout-title">One-Click "Send to Content Studio"</div>
+          Select any angle to instantly transfer the commentary, source citation, and key takeaway directly into the drafting studio without copy-pasting.
+        </div>
+      </section>
+
+      <!-- Module 4: Unified Content Studio -->
+      <section class="module-section" id="module-4">
+        <div class="module-header">
+          <span class="module-badge">Module 04</span>
+          <h2 class="module-title">Unified Content Studio & Visual Carousel Designer</h2>
+          <p class="module-summary">Dual-pane drafting studio pairing narrative copywriting with a 5-slide visual carousel generator (1080x1080).</p>
+        </div>
+
+        <div class="screenshot-frame">
+          <div class="window-header">
+            <span class="window-dot red"></span>
+            <span class="window-dot yellow"></span>
+            <span class="window-dot green"></span>
+            <span class="window-title">https://linked-us-in.vercel.app/studio</span>
+          </div>
+          <div class="screenshot-container" onclick="openModal('screenshots/07_content_draft_studio.png', 'Module 04: Unified Content Studio & Fold-Line Visualizer')">
+            <img src="screenshots/07_content_draft_studio.png" alt="Content Studio" />
+          </div>
+          <div class="screenshot-caption">
+            <span>Dual-pane studio: Left pane copy editor with character counters and mobile fold-line visualizer; Right pane slide designer.</span>
+            <span class="caption-hint">Click image to enlarge &rarr;</span>
+          </div>
+        </div>
+
+        <h3 style="font-size: 1.1rem; margin: 1.5rem 0 0.75rem 0; font-weight:700;">Left Pane: Narrative & Hook Engineering</h3>
+        <p style="margin-bottom: 1rem; font-size: 0.9rem; color: var(--slate-600);">
+          The editor includes an interactive <strong>Mobile Fold Line</strong> indicator. On LinkedIn mobile, users only see the first 140 to 210 characters before the <code>...see more</code> link. The studio warns advocates if their opening hook is obscured.
+        </p>
+
+        <div class="screenshot-frame">
+          <div class="window-header">
+            <span class="window-dot red"></span>
+            <span class="window-dot yellow"></span>
+            <span class="window-dot green"></span>
+            <span class="window-title">https://linked-us-in.vercel.app/studio/templates</span>
+          </div>
+          <div class="screenshot-container" onclick="openModal('screenshots/08_content_studio_template_library_modal.png', '11 Curated Benchmark Enterprise Templates')">
+            <img src="screenshots/08_content_studio_template_library_modal.png" alt="Template Library" />
+          </div>
+          <div class="screenshot-caption">
+            <span>Template Library Modal: 11 high-engagement architectural formats (Problem-Agitation-Solution, Case Study, Contrarian, etc.).</span>
+            <span class="caption-hint">Click image to enlarge &rarr;</span>
+          </div>
+        </div>
+
+        <h3 style="font-size: 1.1rem; margin: 2rem 0 0.75rem 0; font-weight:700;">Right Pane: 5-Slide Visual Carousel Designer</h3>
+        <p style="margin-bottom: 1rem; font-size: 0.9rem; color: var(--slate-600);">
+          Carousels generate the highest dwell time and reshares on LinkedIn. The visual studio designs square 1080x1080 slides ready for PDF export.
+        </p>
+
+        <div class="screenshot-frame">
+          <div class="window-header">
+            <span class="window-dot red"></span>
+            <span class="window-dot yellow"></span>
+            <span class="window-dot green"></span>
+            <span class="window-title">https://linked-us-in.vercel.app/studio/visual-carousel</span>
+          </div>
+          <div class="screenshot-container" onclick="openModal('screenshots/08_visual_carousel_studio.png', 'Visual Carousel Studio: Slide 2 Problem Architecture')">
+            <img src="screenshots/08_visual_carousel_studio.png" alt="Visual Carousel Studio" />
+          </div>
+          <div class="screenshot-caption">
+            <span>Visual Carousel Studio: Slide 2 product image layout with high-contrast typography.</span>
+            <span class="caption-hint">Click image to enlarge &rarr;</span>
+          </div>
+        </div>
+
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-name">1. Hook Cover (Slide 1)</div>
+            <div class="feature-desc">Bold headline, eyebrow tag, and high-contrast color scheme to stop user scroll.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-name">2. Problem Breakdown (Slide 2)</div>
+            <div class="feature-desc">Highlighting enterprise friction: print costs, security vulnerabilities, or paper waste.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-name">3. Solution Framework (Slide 3)</div>
+            <div class="feature-desc">Actionable steps, process flow diagrams, or strategic industry recommendations.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-name">4. Hardware Proof (Slide 4)</div>
+            <div class="feature-desc">Brother SG hardware showcase (HL-L6400DW laser, MFC-J6940DW A3, P-touch labellers).</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-name">5. Actionable CTA (Slide 5)</div>
+            <div class="feature-desc">Consultation booking link, Brother Singapore contact point, and branded closing banner.</div>
+          </div>
+        </div>
+
+        <div class="screenshot-frame">
+          <div class="window-header">
+            <span class="window-dot red"></span>
+            <span class="window-dot yellow"></span>
+            <span class="window-dot green"></span>
+            <span class="window-title">https://linked-us-in.vercel.app/studio/typography</span>
+          </div>
+          <div class="screenshot-container" onclick="openModal('screenshots/09_visual_studio_text_editor.png', 'Visual Studio Typography & Branding Controls')">
+            <img src="screenshots/09_visual_studio_text_editor.png" alt="Typography Controls" />
+          </div>
+          <div class="screenshot-caption">
+            <span>Typography styling controls: Font scaling, alignment, color themes, and Brother "At your side" watermark toggle.</span>
+            <span class="caption-hint">Click image to enlarge &rarr;</span>
+          </div>
+        </div>
+
+        <div class="screenshot-frame">
+          <div class="window-header">
+            <span class="window-dot red"></span>
+            <span class="window-dot yellow"></span>
+            <span class="window-dot green"></span>
+            <span class="window-title">https://linked-us-in.vercel.app/studio/simulator</span>
+          </div>
+          <div class="screenshot-container" onclick="openModal('screenshots/09_linkedin_simulator.png', 'Realistic LinkedIn Mobile & Desktop Feed Simulator')">
+            <img src="screenshots/09_linkedin_simulator.png" alt="LinkedIn Simulator" />
+          </div>
+          <div class="screenshot-caption">
+            <span>Realistic LinkedIn Feed Simulator: Verify author headline, text line breaks, carousel swiping, and social engagement bar.</span>
+            <span class="caption-hint">Click image to enlarge &rarr;</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Module 5: Template Ingestion Studio -->
+      <section class="module-section" id="module-5">
+        <div class="module-header">
+          <span class="module-badge">Module 05</span>
+          <h2 class="module-title">Template Ingestion Studio</h2>
+          <p class="module-summary">Reverse-engineer viral LinkedIn posts, competitor case studies, and PDFs into reusable internal blueprints.</p>
+        </div>
+
+        <div class="screenshot-frame">
+          <div class="window-header">
+            <span class="window-dot red"></span>
+            <span class="window-dot yellow"></span>
+            <span class="window-dot green"></span>
+            <span class="window-title">https://linked-us-in.vercel.app/ingestion</span>
+          </div>
+          <div class="screenshot-container" onclick="openModal('screenshots/10_template_ingestion_studio.png', 'Module 05: Template Ingestion Studio')">
+            <img src="screenshots/10_template_ingestion_studio.png" alt="Template Ingestion Studio" />
+          </div>
+          <div class="screenshot-caption">
+            <span>Template Ingestion Studio: Convert URLs, images, or PDFs into structured narrative blueprints.</span>
+            <span class="caption-hint">Click image to enlarge &rarr;</span>
+          </div>
+        </div>
+
+        <ol class="step-list">
+          <li class="step-item">
+            <div class="step-title">Select Ingestion Source</div>
+            <div class="step-body">Paste a live LinkedIn URL, upload a full-length screenshot, or drop a multi-page PDF document.</div>
+          </li>
+          <li class="step-item">
+            <div class="step-title">Structural Pattern Deconstruction</div>
+            <div class="step-body">The engine isolates the opening hook mechanics, paragraph whitespace cadence, and closing CTA format.</div>
+          </li>
+          <li class="step-item">
+            <div class="step-title">Save to Brother SG Library</div>
+            <div class="step-body">Assign category tags and save the structural blueprint to your team repository for immediate team reuse.</div>
+          </li>
+        </ol>
+      </section>
+
+      <!-- Module 6: Team Advocacy Directory -->
+      <section class="module-section" id="module-6">
+        <div class="module-header">
+          <span class="module-badge">Module 06</span>
+          <h2 class="module-title">Employee Advocacy & Team Directory</h2>
+          <p class="module-summary">Real-time Notion synchronization displaying Brother Singapore department leaders, roles, and publication metrics.</p>
+        </div>
+
+        <div class="screenshot-frame">
+          <div class="window-header">
+            <span class="window-dot red"></span>
+            <span class="window-dot yellow"></span>
+            <span class="window-dot green"></span>
+            <span class="window-title">https://linked-us-in.vercel.app/team</span>
+          </div>
+          <div class="screenshot-container" onclick="openModal('screenshots/11_team_directory.png', 'Module 06: Team Advocacy Directory & Notion Sync')">
+            <img src="screenshots/11_team_directory.png" alt="Team Directory" />
+          </div>
+          <div class="screenshot-caption">
+            <span>Brother SG Team Directory: 6 active advocates across Sales, Marketing, Technical, and Leadership.</span>
+            <span class="caption-hint">Click image to enlarge &rarr;</span>
+          </div>
+        </div>
+
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-name">Allan Cheng</div>
+            <div class="feature-desc"><strong>POD Lead</strong> &bull; Enterprise Print Solutions & Production Systems</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-name">Sarah Tan</div>
+            <div class="feature-desc"><strong>Marketing Communications</strong> &bull; Brand PR & Sustainable Hardware Campaigns</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-name">David Lim</div>
+            <div class="feature-desc"><strong>Senior B2B Specialist</strong> &bull; Industrial Labelling & Commercial Inkjet Hardware</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-name">Michelle Koh</div>
+            <div class="feature-desc"><strong>Enterprise Sales Director</strong> &bull; Corporate Fleet Modernization & PSG Grant Packages</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-name">Kelvin Wong</div>
+            <div class="feature-desc"><strong>Technical Support Lead</strong> &bull; Endpoint Firmware Security & Remote Fleet Management</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-name">Rachel Neo</div>
+            <div class="feature-desc"><strong>People & Culture Champion</strong> &bull; Workplace Wellness & Employee Advocacy Initiatives</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Module 7: Settings & Integrations -->
+      <section class="module-section" id="module-7">
+        <div class="module-header">
+          <span class="module-badge">Module 07</span>
+          <h2 class="module-title">System Settings, Governance & Integrations</h2>
+          <p class="module-summary">Centralized API management, security PIN locks, and external database connectivity.</p>
+        </div>
+
+        <div class="screenshot-frame">
+          <div class="window-header">
+            <span class="window-dot red"></span>
+            <span class="window-dot yellow"></span>
+            <span class="window-dot green"></span>
+            <span class="window-title">https://linked-us-in.vercel.app/settings</span>
+          </div>
+          <div class="screenshot-container" onclick="openModal('screenshots/12_settings_integrations.png', 'Module 07: System Settings & Integrations')">
+            <img src="screenshots/12_settings_integrations.png" alt="Settings & Integrations" />
+          </div>
+          <div class="screenshot-caption">
+            <span>Settings & Integrations: Notion database sync, LinkedIn OAuth 2.0 API, MOM statutory calendar, and PIN lock.</span>
+            <span class="caption-hint">Click image to enlarge &rarr;</span>
+          </div>
+        </div>
+
+        <div class="callout important">
+          <div class="callout-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Security PIN Protection
+          </div>
+          Critical settings (such as LinkedIn OAuth credentials, Notion Database IDs, and domain rules) are locked behind an administrative PIN to prevent unauthorized adjustments.
+        </div>
+      </section>
+
+      <!-- Operational Framework -->
+      <section class="module-section" id="operational-framework">
+        <div class="module-header">
+          <span class="module-badge">Operational Playbook</span>
+          <h2 class="module-title">The 3-2-1 Weekly Advocacy Rhythm</h2>
+          <p class="module-summary">Recommended cadence for Brother Singapore department leaders to maximize reach with under 45 minutes of weekly effort.</p>
+        </div>
+
+        <div class="features-grid">
+          <div class="feature-card" style="border-top: 4px solid var(--brother-blue);">
+            <div class="feature-icon" style="background:var(--brother-light); color:var(--brother-blue);">3</div>
+            <div class="feature-name">3 Strategic Comments</div>
+            <div class="feature-desc">Engage on posts from Singapore SME leaders, IT procurement directors, and channel partners with substantive insights.</div>
+          </div>
+          <div class="feature-card" style="border-top: 4px solid var(--emerald-600);">
+            <div class="feature-icon" style="background:var(--emerald-50); color:var(--emerald-600);">2</div>
+            <div class="feature-name">2 Curated News Shares</div>
+            <div class="feature-desc">Use <strong>Module 03 (News Engine)</strong> to share an AI or ESG article with an Executive POV commentary.</div>
+          </div>
+          <div class="feature-card" style="border-top: 4px solid var(--amber-600);">
+            <div class="feature-icon" style="background:var(--amber-50); color:var(--amber-600);">1</div>
+            <div class="feature-name">1 Original 5-Slide Carousel</div>
+            <div class="feature-desc">Use <strong>Module 04 (Content Studio)</strong> with a Problem-Agitation-Solution blueprint showcasing Brother reliability.</div>
+          </div>
+        </div>
+
+        <div class="callout tip">
+          <div class="callout-title">The "At your side" Brand Standard</div>
+          Always prioritize the customer's operational reality over pure product promotion. Explain how Brother's Japanese craftsmanship (*Takumi*) and low-waste design solves downtime for Singapore enterprises.
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Lightbox Modal -->
+  <div class="modal-overlay" id="lightboxModal" onclick="closeModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+      <img class="modal-image" id="modalImg" src="" alt="Enlarged view" />
+      <div class="modal-caption" id="modalCaption"></div>
+    </div>
+  </div>
+
+  <script>
+    // Lightbox modal logic
+    function openModal(imageSrc, captionText) {
+      document.getElementById('modalImg').src = imageSrc;
+      document.getElementById('modalCaption').innerText = captionText;
+      document.getElementById('lightboxModal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      document.getElementById('lightboxModal').classList.remove('active');
+      document.body.style.overflow = 'auto';
+    }
+
+    // Close on escape key
+    window.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeModal();
+    });
+
+    // Scrollspy for sidebar active link
+    const sections = document.querySelectorAll('section.module-section, .hero-banner');
+    const navLinks = document.querySelectorAll('.toc-menu li a');
+
+    window.addEventListener('scroll', () => {
+      let current = '';
+      sections.forEach(section => {
+        const sectionTop = section.offsetTop - 120;
+        if (window.pageYOffset >= sectionTop) {
+          current = section.getAttribute('id');
+        }
+      });
+
+      navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === `#${current}`) {
+          link.classList.add('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

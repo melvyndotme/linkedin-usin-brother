@@ -326,11 +326,11 @@ export default function TeamView({ isDark, currentUser, onNavigateToProfile }) {
                   <div className="pt-2 flex items-center justify-between border-t border-slate-100 dark:border-slate-800 text-[11px]">
                     <span className="text-slate-500 flex items-center gap-1">
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                      <strong>{member.stats.approved}</strong> drafts approved
+                      <strong>{member.stats?.approved ?? member.approvedCount ?? 0}</strong> drafts approved
                     </span>
                     <span className="text-slate-500 flex items-center gap-1">
                       <Clock className="w-3.5 h-3.5 text-amber-500" />
-                      <strong>{member.stats.pending}</strong> pending review
+                      <strong>{member.stats?.pending ?? member.pendingCount ?? 0}</strong> pending review
                     </span>
                   </div>
                 </div>
@@ -493,11 +493,11 @@ export default function TeamView({ isDark, currentUser, onNavigateToProfile }) {
                         <div className="flex items-center gap-3 text-[11px]">
                           <span className="text-slate-600 dark:text-slate-400 flex items-center gap-1" title="Approved drafts">
                             <CheckCircle2 className="w-3 h-3 text-emerald-500" />
-                            <strong>{member.stats.approved}</strong>
+                            <strong>{member.stats?.approved ?? member.approvedCount ?? 0}</strong>
                           </span>
                           <span className="text-slate-600 dark:text-slate-400 flex items-center gap-1" title="Pending review">
                             <Clock className="w-3 h-3 text-amber-500" />
-                            <strong>{member.stats.pending}</strong>
+                            <strong>{member.stats?.pending ?? member.pendingCount ?? 0}</strong>
                           </span>
                         </div>
                       </td>
