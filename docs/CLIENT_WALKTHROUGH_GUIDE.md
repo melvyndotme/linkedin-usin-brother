@@ -1,7 +1,7 @@
 # Linked-Us-In: Master Client Walkthrough & Enterprise User Guide
 ### Brother International Singapore Pte Ltd — POD 5 LinkedUsIn Framework
 
-> **Production Application**: [https://linked-us-in.vercel.app](https://linked-us-in.vercel.app)  
+> **Production Application**: [https://linkedin.bro-x.org/](https://linkedin.bro-x.org/)  
 > **Target Enterprise**: Brother International Singapore Pte Ltd  
 > **Project POD**: POD 5 LinkedUsIn (Brother Xplorer Framework, Jul 2026 – Jan 2027)  
 > **Brand Motto**: *"At your side"* | **Design Language**: Brother Precision Blue (`#003399`), Deep Slate (`#0B132B`), Emerald ESG (`#059669`)  
@@ -56,7 +56,7 @@ The portal enforces enterprise security while providing a frictionless, password
 * **Instant Demo Mode**: For internal workshops and demos, append `?token=demo-auth&email=allan.cheng@brother.com.sg` to bypass email dispatch.
 
 ### Step-by-Step Login Walkthrough:
-1. Navigate to `https://linked-us-in.vercel.app` in your browser.
+1. Navigate to `https://linkedin.bro-x.org/` in your browser.
 2. Enter your authorized Brother corporate email address.
 3. Click **"Send Magic Link"** and check your corporate inbox.
 4. Click the **"Log In to Linked-Us-In"** button in the email to securely open Mission Control.
@@ -226,7 +226,7 @@ Employee advocacy succeeds when the entire organization participates. The **Team
 |---|:---|:---|:---|:---|:---|
 | 1 | **Allan Cheng** | Brother Singapore | `allan.cheng@brother.com.sg` | Team Member | POD Lead for POD 5 LinkedUsIn; manages enterprise print solutions and commercial workflow collaboration. |
 | 2 | **Chloe Lee** | Brother Singapore | `chloe.lee@brother.com.sg` | Team Member | HR Function collaborator; focuses on people & culture, employer branding, and workplace wellness. |
-| 3 | **Melvyn Tan** *(You)* | Brother Singapore | `melvyn@befinityai.com` | Team Member | External AI trainer / consultant; architecture lead and workflow designer for agentic content systems. |
+| 3 | **Melvyn Tan** | Brother Singapore | `melvyn@befinityai.com` | Team Member | External AI trainer / consultant; architecture lead and workflow designer for agentic content systems. |
 | 4 | **Sean** | Brother Singapore | `sean.tan@brother.com.sg` | Team Member | POD Member for POD 5; oversees Brother X operational experiments and digital innovation tracking. |
 | 5 | **Zhi Jun** | Brother Singapore | `zhi.jun@brother.com.sg` | Team Member | Brother Singapore team member; supports commercial sales advocacy and customer relationship content. |
 

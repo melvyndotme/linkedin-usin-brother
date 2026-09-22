@@ -282,12 +282,6 @@ export default function TeamView({ isDark, currentUser, onNavigateToProfile }) {
                           </h3>
                         )}
 
-                        {isSelf && (
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-[#0f2ea2] dark:bg-blue-950 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-                            You
-                          </span>
-                        )}
-
                         <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${member.badgeColor}`}>
                           {member.badge}
                         </span>
@@ -452,11 +446,6 @@ export default function TeamView({ isDark, currentUser, onNavigateToProfile }) {
                               ) : (
                                 <span className={`font-bold text-sm cursor-default select-text ${isDark ? 'text-white' : 'text-slate-900'}`}>
                                   {member.name}
-                                </span>
-                              )}
-                              {isSelf && (
-                                <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-blue-100 text-[#0f2ea2] dark:bg-blue-950 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-                                  You
                                 </span>
                               )}
                             </div>
