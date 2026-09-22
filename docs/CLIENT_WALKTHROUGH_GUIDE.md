@@ -221,12 +221,12 @@ Employee advocacy succeeds when the entire organization participates. The **Team
 ![Team Directory & Advocate Management](screenshots/11_team_directory.png)
 
 ### Active Advocate Roster:
-- **Allan Cheng**: POD Lead & Enterprise Print Solutions Specialist
-- **Sarah Tan**: Marketing Communications & PR Manager
-- **David Lim**: Senior B2B Product Specialist
-- **Michelle Koh**: Enterprise Sales Director
-- **Kelvin Wong**: Technical Support & Solutions Engineering Lead
-- **Rachel Neo**: People Experience & Workplace Culture Champion
+- **Allan Cheng**: Enterprise POD Lead &bull; Commercial Solutions (`allan.cheng@brother.com.sg`)
+- **Chloe Lee**: Head of People & Culture &bull; Human Resources (`chloe.lee@brother.com.sg`)
+- **David Tan**: Technical Solutions Architect &bull; B2B Solutions & Systems (`david.tan@brother.com.sg`)
+- **Kenji Takahashi**: Managing Director &bull; Executive Leadership (`kenji.takahashi@brother.com.sg`)
+- **Nadia Yusof**: Sustainability & ESG Specialist &bull; Corporate Sustainability (`nadia.yusof@brother.com.sg`)
+- **Sarah Chen**: Corporate Communications Lead &bull; Marketing & Brand (`sarah.chen@brother.com.sg`)
 
 ### Management Capabilities:
 - **Filter by Department**: Focus on Sales, Marketing, Technical, or HR advocacy initiatives.
