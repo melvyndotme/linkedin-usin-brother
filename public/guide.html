@@ -3,31 +3,37 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Linked-Us-In | Brother Singapore Client Walkthrough & User Guide</title>
+  <title>Linked-Us-In | Master Client Walkthrough & Enterprise User Guide</title>
   <link rel="icon" type="image/svg+xml" href="screenshots/01_login_page.png" />
   <style>
     :root {
       --brother-blue: #003399;
-      --brother-dark: #002266;
+      --brother-dark: #001f5c;
       --brother-light: #e6edff;
+      --brother-cyan: #00d4ff;
+      --slate-950: #020617;
       --slate-900: #0f172a;
       --slate-800: #1e293b;
       --slate-700: #334155;
       --slate-600: #475569;
       --slate-500: #64748b;
       --slate-400: #94a3b8;
+      --slate-300: #cbd5e1;
       --slate-200: #e2e8f0;
       --slate-100: #f1f5f9;
       --slate-50: #f8fafc;
       --emerald-600: #059669;
+      --emerald-500: #10b981;
       --emerald-50: #ecfdf5;
       --amber-600: #d97706;
+      --amber-500: #f59e0b;
       --amber-50: #fffbeb;
       --rose-600: #e11d48;
       --rose-50: #fff1f2;
       --radius-sm: 6px;
       --radius-md: 10px;
       --radius-lg: 16px;
+      --radius-xl: 24px;
       --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
       --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.08);
       --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.08);
@@ -48,11 +54,11 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       color: var(--slate-800);
       background-color: #f8fafc;
-      line-height: 1.6;
+      line-height: 1.65;
       -webkit-font-smoothing: antialiased;
     }
 
-    /* Top Navigation Bar */
+    /* Top Sticky Navigation Bar */
     header.top-nav {
       position: sticky;
       top: 0;
@@ -64,6 +70,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      box-shadow: var(--shadow-sm);
     }
 
     .brand-group {
@@ -77,23 +84,26 @@
       color: white;
       font-weight: 800;
       letter-spacing: -0.5px;
-      font-size: 1.1rem;
-      padding: 0.35rem 0.85rem;
+      font-size: 1.15rem;
+      padding: 0.4rem 0.95rem;
       border-radius: var(--radius-sm);
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
+      box-shadow: 0 2px 4px rgba(0, 51, 153, 0.25);
     }
 
     .brand-title {
-      font-weight: 700;
+      font-weight: 800;
       color: var(--slate-900);
       font-size: 1.05rem;
+      letter-spacing: -0.01em;
     }
 
     .brand-subtitle {
       font-size: 0.8rem;
       color: var(--slate-500);
+      font-weight: 500;
     }
 
     .nav-actions {
@@ -105,20 +115,20 @@
     .btn {
       display: inline-flex;
       align-items: center;
-      gap: 0.4rem;
+      gap: 0.45rem;
       font-size: 0.85rem;
       font-weight: 600;
-      padding: 0.45rem 0.9rem;
+      padding: 0.5rem 1rem;
       border-radius: var(--radius-sm);
       border: 1px solid transparent;
       cursor: pointer;
       text-decoration: none;
-      transition: all 0.15s ease;
+      transition: all 0.18s ease;
     }
 
     .btn-secondary {
       background: white;
-      border-color: var(--slate-200);
+      border-color: var(--slate-300);
       color: var(--slate-700);
     }
     .btn-secondary:hover {
@@ -130,15 +140,17 @@
     .btn-primary {
       background: var(--brother-blue);
       color: white;
+      box-shadow: 0 2px 6px rgba(0, 51, 153, 0.3);
     }
     .btn-primary:hover {
       background: var(--brother-dark);
+      transform: translateY(-1px);
     }
 
-    /* Main Container with Sidebar */
+    /* Main Container with Sticky Sidebar */
     .app-layout {
       display: flex;
-      max-width: 1440px;
+      max-width: 1520px;
       margin: 0 auto;
       padding: 2rem;
       gap: 2.5rem;
@@ -146,30 +158,60 @@
 
     /* Left Sidebar Navigation */
     aside.sidebar {
-      width: 280px;
+      width: 300px;
       flex-shrink: 0;
       position: sticky;
       top: 5rem;
       height: calc(100vh - 6.5rem);
       overflow-y: auto;
-      padding-right: 0.75rem;
+      padding-right: 1rem;
     }
 
     aside.sidebar::-webkit-scrollbar {
       width: 4px;
     }
     aside.sidebar::-webkit-scrollbar-thumb {
-      background: var(--slate-200);
+      background: var(--slate-300);
       border-radius: 4px;
     }
 
+    .sidebar-search {
+      margin-bottom: 1.25rem;
+      position: relative;
+    }
+
+    .sidebar-search input {
+      width: 100%;
+      padding: 0.55rem 0.85rem 0.55rem 2.25rem;
+      font-size: 0.82rem;
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-sm);
+      background: white;
+      color: var(--slate-800);
+      outline: none;
+      transition: border 0.15s;
+    }
+
+    .sidebar-search input:focus {
+      border-color: var(--brother-blue);
+      box-shadow: 0 0 0 2px var(--brother-light);
+    }
+
+    .sidebar-search svg {
+      position: absolute;
+      left: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--slate-400);
+    }
+
     .nav-section-title {
-      font-size: 0.7rem;
+      font-size: 0.72rem;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      font-weight: 700;
+      font-weight: 800;
       color: var(--slate-400);
-      margin: 1.25rem 0 0.5rem 0.75rem;
+      margin: 1.5rem 0 0.5rem 0.75rem;
     }
 
     .nav-section-title:first-child {
@@ -180,38 +222,49 @@
       list-style: none;
     }
 
+    .toc-menu li {
+      margin-bottom: 0.2rem;
+    }
+
     .toc-menu li a {
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      padding: 0.5rem 0.75rem;
-      font-size: 0.85rem;
+      padding: 0.55rem 0.85rem;
+      font-size: 0.86rem;
       color: var(--slate-600);
       text-decoration: none;
       border-radius: var(--radius-sm);
       transition: all 0.15s ease;
-      line-height: 1.3;
+      line-height: 1.35;
+      font-weight: 500;
     }
 
     .toc-menu li a:hover {
       background: var(--slate-100);
       color: var(--brother-blue);
+      transform: translateX(2px);
     }
 
     .toc-menu li a.active {
       background: var(--brother-light);
       color: var(--brother-blue);
-      font-weight: 600;
+      font-weight: 700;
     }
 
     .toc-badge {
-      font-size: 0.7rem;
-      padding: 0.15rem 0.4rem;
+      font-size: 0.68rem;
+      padding: 0.15rem 0.45rem;
       border-radius: 9999px;
       background: var(--slate-100);
       color: var(--slate-600);
       margin-left: auto;
       font-weight: 600;
+    }
+
+    .toc-menu li a.active .toc-badge {
+      background: white;
+      color: var(--brother-blue);
     }
 
     /* Content Area */
@@ -222,170 +275,192 @@
 
     /* Hero Banner */
     .hero-banner {
-      background: linear-gradient(135deg, var(--brother-blue) 0%, #001f5c 100%);
+      background: linear-gradient(135deg, var(--brother-blue) 0%, #081a42 100%);
       color: white;
-      padding: 2.5rem;
-      border-radius: var(--radius-lg);
+      padding: 3rem;
+      border-radius: var(--radius-xl);
       margin-bottom: 2.5rem;
-      box-shadow: var(--shadow-lg);
+      box-shadow: var(--shadow-xl);
       position: relative;
       overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .hero-banner::after {
       content: "";
       position: absolute;
-      top: -50%;
+      top: -40%;
       right: -10%;
-      width: 400px;
-      height: 400px;
-      background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 70%);
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(0, 212, 255, 0.2) 0%, rgba(255,255,255,0) 70%);
       border-radius: 50%;
       pointer-events: none;
     }
 
     .hero-tag {
-      display: inline-block;
-      font-size: 0.75rem;
-      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.78rem;
+      font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.08em;
       background: rgba(255, 255, 255, 0.15);
-      padding: 0.25rem 0.75rem;
+      padding: 0.35rem 0.85rem;
       border-radius: 9999px;
-      margin-bottom: 0.75rem;
+      margin-bottom: 1rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
     .hero-title {
-      font-size: 2.2rem;
-      font-weight: 800;
-      line-height: 1.2;
-      margin-bottom: 0.75rem;
+      font-size: 2.6rem;
+      font-weight: 900;
+      line-height: 1.15;
+      margin-bottom: 1rem;
+      letter-spacing: -0.02em;
     }
 
     .hero-desc {
-      font-size: 1.05rem;
-      opacity: 0.9;
-      max-width: 780px;
-      margin-bottom: 1.5rem;
+      font-size: 1.1rem;
+      opacity: 0.92;
+      max-width: 860px;
+      margin-bottom: 2rem;
+      line-height: 1.7;
     }
 
     .hero-meta-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 1rem;
-      border-top: 1px solid rgba(255, 255, 255, 0.15);
-      padding-top: 1.25rem;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.25rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.18);
+      padding-top: 1.75rem;
     }
 
     .meta-item {
-      font-size: 0.85rem;
+      font-size: 0.88rem;
     }
 
     .meta-label {
       opacity: 0.7;
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.06em;
+      font-weight: 700;
     }
 
     .meta-value {
-      font-weight: 600;
-      margin-top: 0.15rem;
+      font-weight: 700;
+      margin-top: 0.25rem;
+      font-size: 0.98rem;
     }
 
     /* KPI Summary Cards */
     .kpi-row {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 1rem;
+      gap: 1.25rem;
       margin-bottom: 2.5rem;
     }
 
     .kpi-card {
       background: white;
       border: 1px solid var(--slate-200);
-      border-radius: var(--radius-md);
-      padding: 1.25rem;
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
       box-shadow: var(--shadow-sm);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
     }
 
     .kpi-num {
-      font-size: 1.85rem;
-      font-weight: 800;
+      font-size: 2.2rem;
+      font-weight: 900;
       color: var(--slate-900);
       line-height: 1.1;
-      margin-bottom: 0.25rem;
+      margin-bottom: 0.35rem;
+      letter-spacing: -0.02em;
     }
 
     .kpi-title {
-      font-size: 0.8rem;
-      font-weight: 600;
+      font-size: 0.82rem;
+      font-weight: 700;
       color: var(--slate-500);
       text-transform: uppercase;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.05em;
     }
 
     .kpi-sub {
-      font-size: 0.75rem;
+      font-size: 0.8rem;
       color: var(--emerald-600);
-      font-weight: 600;
-      margin-top: 0.35rem;
+      font-weight: 700;
+      margin-top: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
     }
 
     /* Modules Section Styling */
     section.module-section {
       background: white;
       border: 1px solid var(--slate-200);
-      border-radius: var(--radius-lg);
-      padding: 2.25rem;
-      margin-bottom: 2.5rem;
+      border-radius: var(--radius-xl);
+      padding: 2.75rem;
+      margin-bottom: 3rem;
       box-shadow: var(--shadow-sm);
       scroll-margin-top: 5rem;
     }
 
     .module-header {
-      margin-bottom: 1.5rem;
+      margin-bottom: 2rem;
       border-bottom: 1px solid var(--slate-100);
-      padding-bottom: 1.25rem;
+      padding-bottom: 1.5rem;
     }
 
     .module-badge {
       display: inline-flex;
       align-items: center;
-      gap: 0.4rem;
+      gap: 0.45rem;
       font-size: 0.75rem;
-      font-weight: 700;
+      font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.08em;
       color: var(--brother-blue);
       background: var(--brother-light);
-      padding: 0.25rem 0.65rem;
+      padding: 0.3rem 0.75rem;
       border-radius: 9999px;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.65rem;
     }
 
     .module-title {
-      font-size: 1.6rem;
-      font-weight: 800;
+      font-size: 1.9rem;
+      font-weight: 900;
       color: var(--slate-900);
-      line-height: 1.3;
+      line-height: 1.25;
+      letter-spacing: -0.02em;
     }
 
     .module-summary {
-      font-size: 0.95rem;
+      font-size: 1.05rem;
       color: var(--slate-600);
-      margin-top: 0.35rem;
+      margin-top: 0.5rem;
+      line-height: 1.6;
     }
 
     /* UI Screenshot Window Mockup */
     .screenshot-frame {
       border: 1px solid var(--slate-300);
-      border-radius: var(--radius-md);
+      border-radius: var(--radius-lg);
       overflow: hidden;
       background: #0f172a;
-      box-shadow: var(--shadow-md);
-      margin: 1.5rem 0 2rem 0;
+      box-shadow: var(--shadow-lg);
+      margin: 2rem 0;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
@@ -395,16 +470,16 @@
 
     .window-header {
       background: #1e293b;
-      padding: 0.6rem 1rem;
+      padding: 0.75rem 1.25rem;
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.55rem;
       border-bottom: 1px solid #334155;
     }
 
     .window-dot {
-      width: 11px;
-      height: 11px;
+      width: 12px;
+      height: 12px;
       border-radius: 50%;
     }
     .window-dot.red { background: #ef4444; }
@@ -412,10 +487,11 @@
     .window-dot.green { background: #10b981; }
 
     .window-title {
-      font-size: 0.75rem;
+      font-size: 0.8rem;
       color: var(--slate-400);
-      font-family: monospace;
-      margin-left: 0.5rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      margin-left: 0.75rem;
+      font-weight: 500;
     }
 
     .screenshot-container {
@@ -433,41 +509,47 @@
     }
 
     .screenshot-container:hover img {
-      opacity: 0.96;
+      opacity: 0.97;
     }
 
     .screenshot-caption {
-      padding: 0.6rem 1rem;
+      padding: 0.85rem 1.25rem;
       background: white;
       border-top: 1px solid var(--slate-200);
-      font-size: 0.8rem;
-      color: var(--slate-600);
+      font-size: 0.88rem;
+      color: var(--slate-700);
       display: flex;
       justify-content: space-between;
       align-items: center;
+      font-weight: 500;
     }
 
     .screenshot-caption .caption-hint {
       color: var(--brother-blue);
-      font-weight: 600;
-      font-size: 0.75rem;
+      font-weight: 700;
+      font-size: 0.8rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
     }
 
     /* Callout Boxes */
     .callout {
-      padding: 1.1rem 1.25rem;
+      padding: 1.35rem 1.5rem;
       border-radius: var(--radius-md);
-      margin: 1.25rem 0;
-      font-size: 0.9rem;
+      margin: 1.75rem 0;
+      font-size: 0.92rem;
       border-left: 4px solid;
+      line-height: 1.65;
     }
 
     .callout-title {
-      font-weight: 700;
-      margin-bottom: 0.25rem;
+      font-weight: 800;
+      margin-bottom: 0.45rem;
       display: flex;
       align-items: center;
-      gap: 0.4rem;
+      gap: 0.5rem;
+      font-size: 0.98rem;
     }
 
     .callout.tip {
@@ -497,58 +579,163 @@
       color: var(--amber-600);
     }
 
-    /* Feature Grid */
+    /* Subheadings */
+    h3.section-subtitle {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--slate-900);
+      margin: 2rem 0 1rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      letter-spacing: -0.01em;
+    }
+
+    /* Detailed UI Control Tables */
+    .controls-table-wrapper {
+      overflow-x: auto;
+      margin: 1.5rem 0 2rem 0;
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+    }
+
+    table.controls-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      text-align: left;
+    }
+
+    table.controls-table th {
+      background: var(--slate-50);
+      padding: 0.85rem 1.1rem;
+      font-weight: 800;
+      color: var(--slate-700);
+      border-bottom: 1px solid var(--slate-200);
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      letter-spacing: 0.05em;
+    }
+
+    table.controls-table td {
+      padding: 0.9rem 1.1rem;
+      border-bottom: 1px solid var(--slate-100);
+      color: var(--slate-700);
+      vertical-align: top;
+    }
+
+    table.controls-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    table.controls-table tr:hover td {
+      background: #fafcff;
+    }
+
+    .control-tag {
+      display: inline-block;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.8rem;
+      background: var(--slate-100);
+      color: var(--brother-blue);
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      font-weight: 700;
+      border: 1px solid var(--slate-200);
+    }
+
+    /* Feature Cards Grid */
     .features-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.25rem;
-      margin: 1.5rem 0;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin: 1.75rem 0;
     }
 
     .feature-card {
       background: var(--slate-50);
       border: 1px solid var(--slate-200);
-      border-radius: var(--radius-md);
-      padding: 1.25rem;
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      transition: all 0.2s ease;
+    }
+
+    .feature-card:hover {
+      background: white;
+      border-color: var(--slate-300);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
     }
 
     .feature-icon {
-      width: 36px;
-      height: 36px;
+      width: 40px;
+      height: 40px;
       border-radius: var(--radius-sm);
       background: var(--brother-light);
       color: var(--brother-blue);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.1rem;
-      margin-bottom: 0.75rem;
-      font-weight: bold;
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+      font-weight: 900;
     }
 
     .feature-name {
-      font-size: 0.95rem;
-      font-weight: 700;
+      font-size: 1.05rem;
+      font-weight: 800;
       color: var(--slate-900);
-      margin-bottom: 0.35rem;
+      margin-bottom: 0.45rem;
+      letter-spacing: -0.01em;
     }
 
     .feature-desc {
-      font-size: 0.85rem;
+      font-size: 0.88rem;
       color: var(--slate-600);
+      line-height: 1.6;
     }
 
-    /* Steps List */
+    /* Numbered Step-by-Step Scenario Box */
+    .scenario-box {
+      background: #fdfdfd;
+      border: 1px solid var(--slate-200);
+      border-left: 4px solid var(--brother-blue);
+      border-radius: var(--radius-md);
+      padding: 1.75rem;
+      margin: 2rem 0;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .scenario-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--slate-900);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .scenario-intro {
+      font-size: 0.9rem;
+      color: var(--slate-600);
+      margin-bottom: 1.25rem;
+    }
+
     .step-list {
       list-style: none;
       counter-reset: step-counter;
-      margin: 1.25rem 0;
     }
 
     .step-item {
       position: relative;
-      padding-left: 2.75rem;
-      margin-bottom: 1.25rem;
+      padding-left: 3rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .step-item:last-child {
+      margin-bottom: 0;
     }
 
     .step-item::before {
@@ -557,50 +744,86 @@
       position: absolute;
       left: 0;
       top: 0;
-      width: 28px;
-      height: 28px;
+      width: 32px;
+      height: 32px;
       background: var(--brother-blue);
       color: white;
-      font-weight: 700;
-      font-size: 0.85rem;
+      font-weight: 800;
+      font-size: 0.9rem;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
+      box-shadow: 0 2px 4px rgba(0, 51, 153, 0.25);
     }
 
     .step-title {
-      font-weight: 700;
-      font-size: 0.95rem;
+      font-weight: 800;
+      font-size: 0.98rem;
       color: var(--slate-900);
     }
 
     .step-body {
-      font-size: 0.85rem;
+      font-size: 0.88rem;
       color: var(--slate-600);
-      margin-top: 0.2rem;
+      margin-top: 0.35rem;
+      line-height: 1.6;
     }
 
-    /* Badges & Tags */
+    /* Code & Copy Snippets */
+    .copy-block {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 1.25rem;
+      border-radius: var(--radius-md);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.84rem;
+      line-height: 1.65;
+      margin: 1rem 0;
+      position: relative;
+      overflow-x: auto;
+      border: 1px solid #1e293b;
+    }
+
+    .copy-button {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      background: #334155;
+      color: white;
+      border: none;
+      padding: 0.3rem 0.65rem;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .copy-button:hover {
+      background: var(--brother-blue);
+    }
+
+    /* Theme Badges */
     .theme-pill {
       display: inline-block;
-      padding: 0.2rem 0.55rem;
-      border-radius: 4px;
-      font-size: 0.75rem;
-      font-weight: 700;
+      padding: 0.25rem 0.65rem;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 800;
       margin-right: 0.4rem;
     }
-    .pill-blue { background: #dbeafe; color: #1e40af; }
-    .pill-green { background: #d1fae5; color: #065f46; }
-    .pill-red { background: #fee2e2; color: #991b1b; }
-    .pill-amber { background: #fef3c7; color: #92400e; }
+    .pill-blue { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+    .pill-green { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+    .pill-red { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+    .pill-amber { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
 
     /* Lightbox Modal */
     .modal-overlay {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(15, 23, 42, 0.9);
+      background: rgba(15, 23, 42, 0.92);
       backdrop-filter: blur(8px);
       z-index: 100;
       align-items: center;
@@ -614,8 +837,8 @@
 
     .modal-content {
       position: relative;
-      max-width: 90vw;
-      max-height: 90vh;
+      max-width: 92vw;
+      max-height: 92vh;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -623,31 +846,32 @@
 
     .modal-image {
       max-width: 100%;
-      max-height: 82vh;
+      max-height: 84vh;
       border-radius: var(--radius-md);
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.15);
     }
 
     .modal-caption {
       color: white;
-      font-size: 0.9rem;
-      margin-top: 1rem;
-      font-weight: 500;
+      font-size: 0.95rem;
+      margin-top: 1.25rem;
+      font-weight: 600;
       text-align: center;
+      letter-spacing: 0.01em;
     }
 
     .modal-close {
       position: absolute;
       top: -3rem;
       right: 0;
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.25);
       color: white;
       border: none;
-      width: 36px;
-      height: 36px;
+      width: 38px;
+      height: 38px;
       border-radius: 50%;
-      font-size: 1.25rem;
+      font-size: 1.35rem;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -656,12 +880,12 @@
     }
 
     .modal-close:hover {
-      background: rgba(255, 255, 255, 0.4);
+      background: rgba(255, 255, 255, 0.45);
     }
 
-    /* Print Styles */
+    /* Print Formatting */
     @media print {
-      header.top-nav, aside.sidebar, .nav-actions, .screenshot-caption .caption-hint {
+      header.top-nav, aside.sidebar, .nav-actions, .screenshot-caption .caption-hint, .copy-button {
         display: none !important;
       }
       .app-layout {
@@ -673,6 +897,7 @@
         box-shadow: none;
         border: 1px solid #ccc;
         margin-bottom: 2rem;
+        padding: 1.5rem;
       }
       .screenshot-frame {
         box-shadow: none;
@@ -681,7 +906,7 @@
     }
 
     /* Responsive */
-    @media (max-width: 1024px) {
+    @media (max-width: 1080px) {
       aside.sidebar {
         display: none;
       }
@@ -691,24 +916,27 @@
       .kpi-row {
         grid-template-columns: repeat(2, 1fr);
       }
+      .hero-title {
+        font-size: 2.1rem;
+      }
     }
   </style>
 </head>
 <body>
 
-  <!-- Top Sticky Nav -->
+  <!-- Top Sticky Header -->
   <header class="top-nav">
     <div class="brand-group">
       <div class="brand-logo-badge">brother</div>
       <div>
-        <div class="brand-title">Linked-Us-In <span style="font-weight:400; color:var(--slate-500);">| Client Walkthrough & User Guide</span></div>
-        <div class="brand-subtitle">Brother International Singapore Pte Ltd &bull; Employee Advocacy & Content Portal</div>
+        <div class="brand-title">Linked-Us-In <span style="font-weight:400; color:var(--slate-500);">| Master Client Walkthrough & Portal Guide</span></div>
+        <div class="brand-subtitle">Brother International Singapore Pte Ltd &bull; POD 5 LinkedUsIn Framework</div>
       </div>
     </div>
     <div class="nav-actions">
       <button class="btn btn-secondary" onclick="window.print()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v8H6z"/></svg>
-        Export PDF
+        Export PDF Report
       </button>
       <a href="https://linked-us-in.vercel.app" target="_blank" class="btn btn-primary">
         Launch Live Portal
@@ -720,91 +948,234 @@
   <!-- App Layout -->
   <div class="app-layout">
 
-    <!-- Sidebar Navigation -->
+    <!-- Sticky Navigation Sidebar -->
     <aside class="sidebar">
-      <div class="nav-section-title">Getting Started</div>
+      <div class="sidebar-search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="guideSearch" placeholder="Search guide or feature..." onkeyup="filterSidebar(this.value)" />
+      </div>
+
+      <div class="nav-section-title">Genesis & Overview</div>
       <ul class="toc-menu">
-        <li><a href="#executive-summary">Executive Summary</a></li>
-        <li><a href="#module-0">00. Access & Security <span class="toc-badge">Auth</span></a></li>
-        <li><a href="#module-1">01. Mission Control <span class="toc-badge">Telemetry</span></a></li>
+        <li><a href="#executive-genesis">00. POD 5 Project Genesis <span class="toc-badge">Charter</span></a></li>
+        <li><a href="#system-architecture">00. Architecture & Vercel API <span class="toc-badge">Tech</span></a></li>
       </ul>
 
-      <div class="nav-section-title">Core Modules</div>
+      <div class="nav-section-title">Core Application Modules</div>
       <ul class="toc-menu">
-        <li><a href="#module-2">02. MOM Festive Calendar <span class="toc-badge">2026</span></a></li>
+        <li><a href="#module-0">00. Access, Auth & Whitelist <span class="toc-badge">Auth</span></a></li>
+        <li><a href="#module-1">01. Mission Control Telemetry <span class="toc-badge">KPIs</span></a></li>
+        <li><a href="#module-2">02. Singapore MOM 2026 Hub <span class="toc-badge">Calendar</span></a></li>
         <li><a href="#module-3">03. Real-Time News Engine <span class="toc-badge">RSS</span></a></li>
-        <li><a href="#module-4">04. Content Studio <span class="toc-badge">5-Slide</span></a></li>
-        <li><a href="#module-5">05. Template Ingestion <span class="toc-badge">AI</span></a></li>
+        <li><a href="#module-4">04. Content Studio & Carousels <span class="toc-badge">Editor</span></a></li>
+        <li><a href="#module-5">05. Template Ingestion Studio <span class="toc-badge">AI</span></a></li>
+        <li><a href="#module-6">06. Team Advocacy Directory <span class="toc-badge">Notion</span></a></li>
+        <li><a href="#module-7">07. Settings & Integrations <span class="toc-badge">OAuth</span></a></li>
       </ul>
 
-      <div class="nav-section-title">Administration</div>
+      <div class="nav-section-title">Playbooks & Governance</div>
       <ul class="toc-menu">
-        <li><a href="#module-6">06. Team Directory <span class="toc-badge">Notion</span></a></li>
-        <li><a href="#module-7">07. System Settings <span class="toc-badge">OAuth</span></a></li>
-        <li><a href="#operational-framework">08. Advocacy Rhythm <span class="toc-badge">3-2-1</span></a></li>
+        <li><a href="#hofstede-tuning">08. Hofstede Cultural Tuning <span class="toc-badge">Matrix</span></a></li>
+        <li><a href="#style-guide">09. Brand Voice & Style Guide <span class="toc-badge">Rules</span></a></li>
+        <li><a href="#advocacy-playbook">10. The 3-2-1 Weekly Playbook <span class="toc-badge">Workflow</span></a></li>
+        <li><a href="#troubleshooting-faq">11. Troubleshooting & FAQs <span class="toc-badge">Help</span></a></li>
       </ul>
     </aside>
 
-    <!-- Main Content Area -->
+    <!-- Main Documentation Body -->
     <main class="content-area">
 
-      <!-- Hero Banner -->
-      <div class="hero-banner" id="executive-summary">
-        <span class="hero-tag">Official Client Documentation &bull; v2.4.0</span>
+      <!-- Hero Header -->
+      <div class="hero-banner" id="executive-genesis">
+        <span class="hero-tag">Brother Xplorer Framework &bull; POD 5 LinkedUsIn Master Manual</span>
         <h1 class="hero-title">Linked-Us-In Portal Walkthrough</h1>
         <p class="hero-desc">
-          Empowering Brother Singapore's technical leaders, department directors, and commercial teams to publish authoritative B2B thought leadership, track Singapore industry trends, and drive authentic employee advocacy on LinkedIn.
+          An enterprise-grade operational manual and architectural guide for Brother International Singapore. Designed to institutionalize continuous B2B employee advocacy, automated statutory calendar tracking, live market intelligence, and multi-slide visual storytelling on LinkedIn.
         </p>
         <div class="hero-meta-grid">
           <div class="meta-item">
-            <div class="meta-label">Client</div>
-            <div class="meta-value">Brother International Singapore</div>
+            <div class="meta-label">Client Enterprise</div>
+            <div class="meta-value">Brother International Singapore Pte Ltd</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Project POD</div>
+            <div class="meta-value">POD 5 — LinkedUsIn (Jul 2026 – Jan 2027)</div>
           </div>
           <div class="meta-item">
             <div class="meta-label">Brand Philosophy</div>
-            <div class="meta-value">"At your side" &bull; Takumi Craft</div>
+            <div class="meta-value">"At your side" &bull; Takumi Precision Craft</div>
           </div>
           <div class="meta-item">
-            <div class="meta-label">Design Language</div>
-            <div class="meta-value">Precision Blue &bull; Slate 900 &bull; ESG Emerald</div>
-          </div>
-          <div class="meta-item">
-            <div class="meta-label">Production Status</div>
-            <div class="meta-value">Live on Vercel Enterprise</div>
+            <div class="meta-label">Deployment</div>
+            <div class="meta-value">Vercel Enterprise Edge + Global CDN</div>
           </div>
         </div>
       </div>
 
-      <!-- KPI Summary Row -->
+      <!-- Live Telemetry KPI Summary -->
       <div class="kpi-row">
         <div class="kpi-card">
           <div class="kpi-num">5,240+</div>
           <div class="kpi-title">Corporate Followers</div>
-          <div class="kpi-sub">&uarr; +18.4% YoY Brother SG</div>
+          <div class="kpi-sub">&uarr; +18.4% YoY Brother SG Organic</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-num">5</div>
           <div class="kpi-title">Active Advocates</div>
-          <div class="kpi-sub">Brother Singapore Team</div>
+          <div class="kpi-sub">Brother Singapore Team Roster</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-num">25,000</div>
-          <div class="kpi-title">Weekly Target Reach</div>
-          <div class="kpi-sub">Multiplied Employee Organic</div>
+          <div class="kpi-title">Target Weekly Reach</div>
+          <div class="kpi-sub">Aggregated Employee Multiplier</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-num">88/100</div>
           <div class="kpi-title">Advocacy Health Score</div>
-          <div class="kpi-sub">Governance & Brand Compliance</div>
+          <div class="kpi-sub">Brand Governance & Compliance</div>
         </div>
       </div>
 
-      <!-- Module 0: Access & Security -->
+      <!-- Section: Project Genesis & The Challenge -->
+      <section class="module-section" id="executive-genesis">
+        <div class="module-header">
+          <span class="module-badge">Project Genesis</span>
+          <h2 class="module-title">The Challenge: Why Linked-Us-In Was Built</h2>
+          <p class="module-summary">Addressing the friction points of enterprise employee advocacy and manual content creation.</p>
+        </div>
+
+        <p style="font-size: 0.95rem; color: var(--slate-700); margin-bottom: 1.25rem;">
+          Prior to the creation of Linked-Us-In, Brother Singapore's presence on LinkedIn faced three structural hurdles identified during the <strong>Brother Xplorer POD 5</strong> kickoff:
+        </p>
+
+        <div class="features-grid">
+          <div class="feature-card" style="border-top: 4px solid var(--rose-600);">
+            <div class="feature-name">1. The Silent Calendar Dilemma</div>
+            <div class="feature-desc">Posting depended on manual employee memory. Busy team leaders missed statutory milestones (e.g. Earth Day, Labour Day, SME Innovation Week), creating silence on the corporate page and employee channels.</div>
+          </div>
+          <div class="feature-card" style="border-top: 4px solid var(--amber-600);">
+            <div class="feature-name">2. The 90-Minute Blank Page Tax</div>
+            <div class="feature-desc">Drafting an authentic, technically accurate B2B post that complies with Brother brand guidelines took technical specialists and directors between 60 to 90 minutes each week.</div>
+          </div>
+          <div class="feature-card" style="border-top: 4px solid var(--brother-blue);">
+            <div class="feature-name">3. Carousel Graphic Bottlenecks</div>
+            <div class="feature-desc">Carousels generate up to 5&times; more dwell time and reshares on LinkedIn, but producing 5-slide 1080&times;1080 graphics previously required external creative agencies or designer bandwidth.</div>
+          </div>
+        </div>
+
+        <div class="callout tip">
+          <div class="callout-title">POD 5 Core Hypothesis</div>
+          By engineering an agentic content pipeline that automatically surfaces Singapore statutory holidays and live B2B industry trends, drafts Hofstede-aligned copy in 3 cultural angles, and automatically formats 5-slide editorial carousels, Brother Singapore eliminates 85% of manual drafting overhead while maintaining human review control over every post.
+        </div>
+      </section>
+
+      <!-- Section: Technical Architecture & Vercel Endpoints -->
+      <section class="module-section" id="system-architecture">
+        <div class="module-header">
+          <span class="module-badge">Architecture</span>
+          <h2 class="module-title">System Architecture & Infrastructure</h2>
+          <p class="module-summary">High-performance React 19 frontend paired with 12 serverless micro-endpoints deployed on Vercel.</p>
+        </div>
+
+        <div class="copy-block">
+<button class="copy-button" onclick="copySnippet(this)">Copy Architecture</button>
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                        FRONTEND APPLICATION (React 19 + Vite 6)                        │
+│   Tailwind CSS v4  •  Lucide Icons  •  HTML5 Canvas 2D Engine  •  LocalStorage Cache   │
+└───────────────────────────────┬────────────────────────────────┬───────────────────────┘
+                                │                                │
+                Direct Client Storage                    Serverless Proxy API
+                (brother_team_cache, etc.)               (/api/* on Vercel ESM)
+                                │                                │
+                                ▼                                ▼
+┌─────────────────────────────────────────┐   ┌─────────────────────────────────────────┐
+│           CLIENT ENGINES & UTILS        │   │       12 SERVERLESS ENDPOINTS (ESM)     │
+│ • serperEngine.js (RSS Aggregation)     │   │ • /api/serper/search.js (Google RSS)    │
+│ • imageTemplateEngine.js (Slide Canvas) │   │ • /api/linkedin/publish.js (OAuth 2.0)  │
+│ • draftGenerator.js (Hofstede Matrix)   │   │ • /api/notion/sync.js (Database Sync)   │
+│ • yamlTemplates.js (11 Blueprints)      │   │ • /api/notion/team.js (Whitelist DB)    │
+│ • storage.js (Encrypted Client Tokens)  │   │ • /api/auth/magic-link.js (Resend API)  │
+│ • templateExtractor.js (Ingestion)      │   │ • /api/mom/holidays.js (MOM Gazette)    │
+└─────────────────────────────────────────┘   └─────────────────────────────────────────┘
+        </div>
+
+        <h3 class="section-subtitle">The 12 Consolidated Vercel Serverless Endpoints</h3>
+        <div class="controls-table-wrapper">
+          <table class="controls-table">
+            <thead>
+              <tr>
+                <th>Endpoint Path</th>
+                <th>HTTP Method</th>
+                <th>Primary Function</th>
+                <th>Fallback Mechanism</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="control-tag">/api/serper/search.js</span></td>
+                <td>GET, POST</td>
+                <td>Queries live Google News Singapore RSS and Serper API for real-time B2B articles.</td>
+                <td>Dynamic topical synthesis for AI, ESG, and Singapore workplace news.</td>
+              </tr>
+              <tr>
+                <td><span class="control-tag">/api/linkedin/publish.js</span></td>
+                <td>POST</td>
+                <td>Publishes approved post text and asset references to Brother Singapore's Organization page.</td>
+                <td>Simulated success response if running in demo sandbox.</td>
+              </tr>
+              <tr>
+                <td><span class="control-tag">/api/linkedin/data.js</span></td>
+                <td>GET</td>
+                <td>Retrieves organization analytics, follower counts, and post engagement telemetry.</td>
+                <td>Returns cached telemetry if API quota is reached.</td>
+              </tr>
+              <tr>
+                <td><span class="control-tag">/api/auth/magic-link.js</span></td>
+                <td>POST</td>
+                <td>Generates cryptographically signed JWT magic links and dispatches via Resend transactional email.</td>
+                <td>Demo token fallback for development evaluation.</td>
+              </tr>
+              <tr>
+                <td><span class="control-tag">/api/notion/team.js</span></td>
+                <td>POST, PATCH</td>
+                <td>Queries Brother Singapore's team whitelist database in Notion, deduplicates records, and updates profiles.</td>
+                <td>Local browser cache (<code>brother_team_cache</code>).</td>
+              </tr>
+              <tr>
+                <td><span class="control-tag">/api/notion/sync.js</span></td>
+                <td>POST</td>
+                <td>Two-way synchronization of drafted posts, status flags, and custom templates with Notion.</td>
+                <td>Stores drafts in local client storage.</td>
+              </tr>
+              <tr>
+                <td><span class="control-tag">/api/mom/holidays.js</span></td>
+                <td>GET</td>
+                <td>Fetches 2026 Singapore Ministry of Manpower gazetted public holidays.</td>
+                <td>Static fallback JSON containing MOM 2026 statutory dates.</td>
+              </tr>
+              <tr>
+                <td><span class="control-tag">/api/ai/media.js</span></td>
+                <td>POST</td>
+                <td>Generates AI imagery via Gemini / Imagen 3 and proxies external images to bypass CORS.</td>
+                <td>Curated Brother hardware asset library.</td>
+              </tr>
+              <tr>
+                <td><span class="control-tag">/api/templates/ingest.js</span></td>
+                <td>POST</td>
+                <td>Deconstructs ingested post copy, screenshots, or PDFs into reusable YAML blueprints.</td>
+                <td>Regex-based structural parser.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Module 0: Access & Authentication -->
       <section class="module-section" id="module-0">
         <div class="module-header">
           <span class="module-badge">Module 00</span>
-          <h2 class="module-title">Access, Authentication & Security</h2>
-          <p class="module-summary">Frictionless, passwordless sign-in restricted strictly to verified Brother corporate email domains.</p>
+          <h2 class="module-title">Enterprise Authentication & Domain Whitelisting</h2>
+          <p class="module-summary">Frictionless, passwordless magic links strictly restricted to authorized corporate personnel.</p>
         </div>
 
         <div class="screenshot-frame">
@@ -814,43 +1185,69 @@
             <span class="window-dot green"></span>
             <span class="window-title">https://linked-us-in.vercel.app/login</span>
           </div>
-          <div class="screenshot-container" onclick="openModal('screenshots/01_login_page.png', 'Module 00: Passwordless Corporate Magic Link Login Page')">
-            <img src="screenshots/01_login_page.png" alt="Login Page" />
+          <div class="screenshot-container" onclick="openModal('screenshots/01_login_page.png', 'Module 00: Passwordless Corporate Magic Link Authentication Screen')">
+            <img src="screenshots/01_login_page.png" alt="Login Screen" />
           </div>
           <div class="screenshot-caption">
-            <span>Corporate login screen with domain verification and instant magic link generation.</span>
+            <span>Corporate login screen featuring domain verification, Resend email dispatch, and demo bypass modes.</span>
             <span class="caption-hint">Click image to enlarge &rarr;</span>
           </div>
         </div>
 
-        <div class="features-grid">
-          <div class="feature-card">
-            <div class="feature-icon">&Phi;</div>
-            <div class="feature-name">Passwordless Magic Links</div>
-            <div class="feature-desc">Advocates authenticate securely using one-click magic links sent directly to their corporate inbox via Resend. No passwords to compromise.</div>
-          </div>
-          <div class="feature-card">
-            <div class="feature-icon">&sect;</div>
-            <div class="feature-name">Strict Domain Whitelist</div>
-            <div class="feature-desc">Restricted exclusively to <code>@brother.com.sg</code>, <code>@brother.sg</code>, and authorized Brother corporate domains.</div>
-          </div>
-          <div class="feature-card">
-            <div class="feature-icon">&#9881;</div>
-            <div class="feature-name">Workshop / Demo Access</div>
-            <div class="feature-desc">Instant evaluation mode using <code>?token=demo-auth&email=allan.cheng@brother.com.sg</code> for executive presentations.</div>
-          </div>
+        <h3 class="section-subtitle">UI Controls & Elements Dictionary</h3>
+        <div class="controls-table-wrapper">
+          <table class="controls-table">
+            <thead>
+              <tr>
+                <th>UI Control</th>
+                <th>Type</th>
+                <th>Behavior & Validation</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="control-tag">Work Email Input</span></td>
+                <td>Email Field</td>
+                <td>Validates input against corporate whitelist: <code>@brother.com.sg</code>, <code>@brother.sg</code>, and <code>@befinityai.com</code>. Rejects personal domains like Gmail or Yahoo.</td>
+              </tr>
+              <tr>
+                <td><span class="control-tag">Send Magic Link</span></td>
+                <td>Primary Button</td>
+                <td>Triggers <code>/api/auth/magic-link</code>. Dispatches an encrypted, 15-minute expiration login link to the user's inbox via Resend.</td>
+              </tr>
+              <tr>
+                <td><span class="control-tag">Instant Demo Mode</span></td>
+                <td>URL Parameter</td>
+                <td>Appending <code>?token=demo-auth&email=allan.cheng@brother.com.sg</code> bypasses email dispatch for executive reviews and offline evaluations.</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
-        <div class="callout note">
-          <div class="callout-title">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-            How to Sign In
+        <div class="scenario-box">
+          <div class="scenario-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Step-by-Step Advocate Authentication Walkthrough
           </div>
-          Enter your official corporate email address, click <strong>"Send Magic Link"</strong>, and tap the sign-in confirmation sent to your inbox. Your session will remain securely active on your browser.
+          <div class="scenario-intro">How a Brother Singapore team member logs in on desktop or mobile:</div>
+          <ol class="step-list">
+            <li class="step-item">
+              <div class="step-title">Access the Portal</div>
+              <div class="step-body">Open <a href="https://linked-us-in.vercel.app" target="_blank" style="color:var(--brother-blue); font-weight:700;">https://linked-us-in.vercel.app</a> in Chrome, Safari, or Edge.</div>
+            </li>
+            <li class="step-item">
+              <div class="step-title">Submit Corporate Credentials</div>
+              <div class="step-body">Type your corporate email (e.g. <code>allan.cheng@brother.com.sg</code> or <code>chloe.lee@brother.com.sg</code>) and click <strong>"Send Magic Link"</strong>.</div>
+            </li>
+            <li class="step-item">
+              <div class="step-title">Authenticate via Inbox</div>
+              <div class="step-body">Open the notification email from <em>Brother Advocacy Dispatcher</em> and click <strong>"Log In to Linked-Us-In"</strong>. Your browser stores an encrypted session token and opens Executive Mission Control.</div>
+            </li>
+          </ol>
         </div>
       </section>
 
-      <!-- Module 1: Mission Control -->
+      <!-- Module 1: Mission Control Telemetry -->
       <section class="module-section" id="module-1">
         <div class="module-header">
           <span class="module-badge">Module 01</span>
@@ -865,40 +1262,62 @@
             <span class="window-dot green"></span>
             <span class="window-title">https://linked-us-in.vercel.app/dashboard</span>
           </div>
-          <div class="screenshot-container" onclick="openModal('screenshots/02_home_dashboard.png', 'Module 01: Executive Mission Control Dashboard')">
-            <img src="screenshots/02_home_dashboard.png" alt="Executive Dashboard" />
+          <div class="screenshot-container" onclick="openModal('screenshots/02_home_dashboard.png', 'Module 01: Executive Mission Control Dashboard & Telemetry')">
+            <img src="screenshots/02_home_dashboard.png" alt="Dashboard Screen" />
           </div>
           <div class="screenshot-caption">
-            <span>Executive Mission Control: 4 core KPI cards, live company post simulation, and quick module navigation.</span>
+            <span>Executive Mission Control: 4 KPI metric banners, corporate feed simulation, and direct module jump station.</span>
             <span class="caption-hint">Click image to enlarge &rarr;</span>
           </div>
         </div>
 
-        <div class="features-grid">
-          <div class="feature-card">
-            <div class="feature-icon">&#9733;</div>
-            <div class="feature-name">Advocacy Telemetry</div>
-            <div class="feature-desc">Tracks follower milestones, advocate engagement quotas, and overall corporate advocacy health index.</div>
-          </div>
-          <div class="feature-card">
-            <div class="feature-icon">&#9874;</div>
-            <div class="feature-name">Official Feed Benchmarking</div>
-            <div class="feature-desc">Live simulation of the official Brother Singapore LinkedIn presence so advocates can amplify corporate product launches.</div>
-          </div>
-          <div class="feature-card">
-            <div class="feature-icon">&#10148;</div>
-            <div class="feature-name">One-Click Module Launcher</div>
-            <div class="feature-desc">Rapid transitions into the Festive Hub, News Engine, Content Studio, Template Studio, or Team Directory.</div>
-          </div>
+        <h3 class="section-subtitle">Telemetry Metric Card Definitions</h3>
+        <div class="controls-table-wrapper">
+          <table class="controls-table">
+            <thead>
+              <tr>
+                <th>KPI Metric</th>
+                <th>Current Value</th>
+                <th>Business Significance & Calculation</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="control-tag">Corporate Followers</span></td>
+                <td><strong>5,240+</strong></td>
+                <td>Tracks the official Brother Singapore LinkedIn company page followers. Up +18.4% year-over-year.</td>
+              </tr>
+              <tr>
+                <td><span class="control-tag">Active Advocates</span></td>
+                <td><strong>5 Members</strong></td>
+                <td>Tracks whitelisted Brother Singapore personnel actively contributing to organic reach: Allan Cheng, Chloe Lee, Melvyn Tan, Sean, and Zhi Jun.</td>
+              </tr>
+              <tr>
+                <td><span class="control-tag">Target Weekly Reach</span></td>
+                <td><strong>25,000 Impressions</strong></td>
+                <td>Calculated based on employee network multiplication (5 team advocates &times; 5,000 average 2nd-degree connections).</td>
+              </tr>
+              <tr>
+                <td><span class="control-tag">Advocacy Health Score</span></td>
+                <td><strong>88 / 100</strong></td>
+                <td>Composite index scoring publishing frequency (min. 2 posts/week), brand compliance, hashtag hygiene, and fold-line optimization.</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
+
+        <h3 class="section-subtitle">Live Benchmark Feed & Quick Jump Station</h3>
+        <p style="font-size: 0.92rem; color: var(--slate-700); margin-bottom: 1.25rem;">
+          The right column renders an authentic simulation of the official Brother Singapore corporate LinkedIn feed. Advocates can review the latest official product releases (e.g., Brother Earth toner recycling drives, A3 Inkjet launches) and click <strong>"Amplify Post"</strong> to craft a personal executive commentary quoting the corporate announcement.
+        </p>
       </section>
 
-      <!-- Module 2: Festive & Cultural Hub -->
+      <!-- Module 2: Singapore MOM 2026 Festive & Cultural Hub -->
       <section class="module-section" id="module-2">
         <div class="module-header">
           <span class="module-badge">Module 02</span>
           <h2 class="module-title">Singapore MOM 2026 Festive & Cultural Hub</h2>
-          <p class="module-summary">Automatic tracking of gazetted Ministry of Manpower public holidays, cultural festivals, and corporate milestones.</p>
+          <p class="module-summary">Automated tracking of gazetted Ministry of Manpower public holidays, cultural festivals, and corporate milestones.</p>
         </div>
 
         <div class="screenshot-frame">
@@ -908,23 +1327,33 @@
             <span class="window-dot green"></span>
             <span class="window-title">https://linked-us-in.vercel.app/events</span>
           </div>
-          <div class="screenshot-container" onclick="openModal('screenshots/03_module1_events_calendar.png', 'Module 02: MOM 2026 Public Holidays & Cultural Calendar')">
+          <div class="screenshot-container" onclick="openModal('screenshots/03_module1_events_calendar.png', 'Module 02: Singapore MOM 2026 Statutory & Cultural Calendar Hub')">
             <img src="screenshots/03_module1_events_calendar.png" alt="Festive Calendar" />
           </div>
           <div class="screenshot-caption">
-            <span>MOM 2026 gazetted holidays, live countdown tickers, and 4 theme categorization badges.</span>
+            <span>MOM 2026 gazetted public holidays, active countdown tickers, and theme category badges.</span>
             <span class="caption-hint">Click image to enlarge &rarr;</span>
           </div>
         </div>
 
-        <h3 style="font-size: 1.1rem; margin: 1.5rem 0 0.75rem 0; font-weight:700;">4 Color-Coded Event Themes:</h3>
-        <p style="margin-bottom: 1rem; font-size: 0.9rem; color: var(--slate-600);">Events are categorized into 4 strategic buckets to ensure a balanced brand presence:</p>
-        
-        <div style="display:flex; flex-wrap:wrap; gap:0.75rem; margin-bottom: 1.5rem;">
-          <span class="theme-pill pill-blue">&bull; Corporate & Innovation (Blue)</span>
-          <span class="theme-pill pill-green">&bull; Sustainability & ESG (Green)</span>
-          <span class="theme-pill pill-red">&bull; MOM Gazetted Holidays (Red)</span>
-          <span class="theme-pill pill-amber">&bull; Cultural & Community (Amber)</span>
+        <h3 class="section-subtitle">The 4 Strategic Event Classification Pillars</h3>
+        <div class="features-grid">
+          <div class="feature-card" style="border-left: 4px solid var(--brother-blue);">
+            <div class="feature-name"><span class="theme-pill pill-blue">● Blue</span> Corporate & Innovation</div>
+            <div class="feature-desc">Brother milestone anniversaries, B2B product launches, Singapore SME trade expos, and customer appreciation initiatives.</div>
+          </div>
+          <div class="feature-card" style="border-left: 4px solid var(--emerald-600);">
+            <div class="feature-name"><span class="theme-pill pill-green">● Green</span> Sustainability & ESG</div>
+            <div class="feature-desc">Brother Earth environmental campaigns, e-waste recycling drives, energy-saving hardware showcases, and paper-reduction milestones.</div>
+          </div>
+          <div class="feature-card" style="border-left: 4px solid var(--rose-600);">
+            <div class="feature-name"><span class="theme-pill pill-red">● Red</span> MOM Gazetted Holidays</div>
+            <div class="feature-desc">Official Singapore statutory holidays: National Day, Chinese New Year, Hari Raya Puasa, Deepavali, Good Friday, Labour Day, and New Year's Day.</div>
+          </div>
+          <div class="feature-card" style="border-left: 4px solid var(--amber-600);">
+            <div class="feature-name"><span class="theme-pill pill-amber">● Amber</span> Cultural & Community</div>
+            <div class="feature-desc">Multiracial celebrations, Mid-Autumn Festival, Mother's/Father's Day, and SME Digitalisation week.</div>
+          </div>
         </div>
 
         <div class="screenshot-frame">
@@ -934,35 +1363,48 @@
             <span class="window-dot green"></span>
             <span class="window-title">https://linked-us-in.vercel.app/events/modal</span>
           </div>
-          <div class="screenshot-container" onclick="openModal('screenshots/04_module1_custom_event_modal.png', 'Custom Corporate Event & Promotion Creation Modal')">
+          <div class="screenshot-container" onclick="openModal('screenshots/04_module1_custom_event_modal.png', 'Custom Corporate Event & Promotion Modal')">
             <img src="screenshots/04_module1_custom_event_modal.png" alt="Custom Event Modal" />
           </div>
           <div class="screenshot-caption">
-            <span>Custom Event Modal: Schedule trade-in promotions, product expos, and sustainability webinars.</span>
+            <span>Custom Event Creation Modal: Configure internal promotions, product webinars, and regional milestones.</span>
             <span class="caption-hint">Click image to enlarge &rarr;</span>
           </div>
         </div>
 
-        <div class="callout tip">
-          <div class="callout-title">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-            Hofstede Cultural Tuning Engine
+        <div class="scenario-box">
+          <div class="scenario-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Step-by-Step: Adding a Custom Corporate Promotion
           </div>
-          Clicking <strong>"Generate Angles"</strong> on any event produces culturally resonant drafts balancing Singapore's multicultural business rhythm with Brother's Japanese heritage:
-          <ul style="margin: 0.5rem 0 0 1.5rem; font-size: 0.85rem;">
-            <li><strong>Wa (Harmony & Family)</strong>: Celebrating festive unity and community connections.</li>
-            <li><strong>Kaizen (Continuous Improvement)</strong>: Process optimization and reflection during holiday breaks.</li>
-            <li><strong>Team Solidarity</strong>: Honoring customer support, technicians, and warehouse logistics teams.</li>
-          </ul>
+          <div class="scenario-intro">How Allan or Chloe adds a bespoke promotional campaign to the shared calendar:</div>
+          <ol class="step-list">
+            <li class="step-item">
+              <div class="step-title">Click "+ Add Custom Event"</div>
+              <div class="step-body">Locate the button in the upper-right corner of the calendar module to launch the modal dialog.</div>
+            </li>
+            <li class="step-item">
+              <div class="step-title">Define Event Parameters</div>
+              <div class="step-body">Enter the Title (e.g. <em>"Brother SG Corporate Printer Trade-In Expo"</em>), select the calendar date, and assign a category badge (Blue for Corporate, Green for ESG).</div>
+            </li>
+            <li class="step-item">
+              <div class="step-title">Assign Internal Metadata Tags</div>
+              <div class="step-body">Input comma-separated tags (e.g. <code>trade-in</code>, <code>sme</code>, <code>b2b-promo</code>) and click <strong>"Save Event"</strong>. The event is persisted in local storage and synced to the team Notion database.</div>
+            </li>
+            <li class="step-item">
+              <div class="step-title">Trigger 1-Click Angle Generation</div>
+              <div class="step-body">Click <strong>"Generate Angles"</strong> on the newly created event card to formulate 3 distinct post drafts tailored to this promotion.</div>
+            </li>
+          </ol>
         </div>
       </section>
 
-      <!-- Module 3: News Engine -->
+      <!-- Module 3: Real-Time News & Industry Trends Engine -->
       <section class="module-section" id="module-3">
         <div class="module-header">
           <span class="module-badge">Module 03</span>
           <h2 class="module-title">Real-Time News & Industry Trends Engine</h2>
-          <p class="module-summary">Zero-API-key Google News Singapore RSS engine aggregated across 5 high-intent B2B technology verticals.</p>
+          <p class="module-summary">Zero-API-key Google News RSS engine aggregated across 5 high-intent B2B technology verticals.</p>
         </div>
 
         <div class="screenshot-frame">
@@ -976,31 +1418,37 @@
             <img src="screenshots/05_module2_news_trends.png" alt="News Engine" />
           </div>
           <div class="screenshot-caption">
-            <span>Live RSS feed monitor, active keyword categories, and direct publication source links.</span>
+            <span>Live RSS feed monitor, active keyword categories, and publication source links (Straits Times, SBR, etc.).</span>
             <span class="caption-hint">Click image to enlarge &rarr;</span>
           </div>
         </div>
 
+        <h3 class="section-subtitle">5 Pre-Seeded B2B Vertical Streams</h3>
         <div class="features-grid">
           <div class="feature-card">
             <div class="feature-icon">AI</div>
-            <div class="feature-name">AI Office Automation</div>
-            <div class="feature-desc">Smart document capture, automated OCR processing, and intelligent enterprise printing workflows.</div>
+            <div class="feature-name">1. AI Office Automation</div>
+            <div class="feature-desc">Intelligent document processing, automated OCR capture, and robotic process automation in Singapore corporate headquarters.</div>
           </div>
           <div class="feature-card">
             <div class="feature-icon">&#128274;</div>
-            <div class="feature-name">Print Cybersecurity & PDPA</div>
-            <div class="feature-desc">Firmware hardening, secure PIN pull-printing, and endpoint compliance for Singapore financial and legal sectors.</div>
+            <div class="feature-name">2. Cybersecurity & Print Security</div>
+            <div class="feature-desc">Network printer firmware hardening, secure PIN pull-printing, and PDPA compliance for legal, healthcare, and finance sectors.</div>
           </div>
           <div class="feature-card">
             <div class="feature-icon">&#127793;</div>
-            <div class="feature-name">Sustainable Tech & ESG</div>
-            <div class="feature-desc">Brother Earth initiatives, closed-loop toner cartridge recycling, and low-TEC energy hardware.</div>
+            <div class="feature-name">3. Sustainable Tech & ESG</div>
+            <div class="feature-desc">Low-energy hardware, closed-loop toner cartridge recycling, and Singapore Green Plan 2030 corporate sustainability benchmarks.</div>
           </div>
           <div class="feature-card">
             <div class="feature-icon">&#128188;</div>
-            <div class="feature-name">Singapore SME Tech Adoption</div>
-            <div class="feature-desc">Productivity Solutions Grant (PSG), enterprise digitization, and decentralised hybrid workforces.</div>
+            <div class="feature-name">4. Hybrid Work & Enterprise Print</div>
+            <div class="feature-desc">MOM Flexible Work Arrangement (FWA) guidelines, decentralised branch printing, and cloud-managed document workflows.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">&#128640;</div>
+            <div class="feature-name">5. Singapore SME Tech Adoption</div>
+            <div class="feature-desc">Productivity Solutions Grant (PSG), Enterprise Singapore subsidies, and digital transformation roadmaps for local enterprises.</div>
           </div>
         </div>
 
@@ -1011,27 +1459,67 @@
             <span class="window-dot green"></span>
             <span class="window-title">https://linked-us-in.vercel.app/trends/angles</span>
           </div>
-          <div class="screenshot-container" onclick="openModal('screenshots/06_module2_b2b_drafts.png', 'B2B Thought-Leadership Angle Generator')">
+          <div class="screenshot-container" onclick="openModal('screenshots/06_module2_b2b_drafts.png', 'B2B Thought-Leadership Angle Engine')">
             <img src="screenshots/06_module2_b2b_drafts.png" alt="B2B Angles" />
           </div>
           <div class="screenshot-caption">
-            <span>5 Thought-Leadership Angles: Executive POV, Industry Analysis, Solution/Practical, Contrarian, and Workplace Culture.</span>
+            <span>5 Thought-Leadership Angles: Executive POV, Industry Analysis, Practical Solutions, Contrarian, and Workplace Culture.</span>
             <span class="caption-hint">Click image to enlarge &rarr;</span>
           </div>
         </div>
 
+        <h3 class="section-subtitle">The 5 Thought-Leadership Angles Explained</h3>
+        <div class="controls-table-wrapper">
+          <table class="controls-table">
+            <thead>
+              <tr>
+                <th>Angle Archetype</th>
+                <th>Target Audience</th>
+                <th>Narrative Structure & Focus</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Executive POV</strong></td>
+                <td>C-Suite & Managing Directors</td>
+                <td>Strategic, high-altitude perspective. Connects macro industry news to business continuity, capital allocation, and long-term organizational resilience.</td>
+              </tr>
+              <tr>
+                <td><strong>Industry Analysis</strong></td>
+                <td>IT Directors & Procurement Leads</td>
+                <td>Data-driven breakdown of supply chain shifts, technology adoption statistics, and total cost of ownership (TCO) comparisons.</td>
+              </tr>
+              <tr>
+                <td><strong>Solution / Practical</strong></td>
+                <td>Office Managers & Sysadmins</td>
+                <td>Hands-on, actionable best practices. Explains exactly how to implement secure printing or automated scanning in under 3 steps.</td>
+              </tr>
+              <tr>
+                <td><strong>Provocative / Contrarian</strong></td>
+                <td>LinkedIn Tech Commentators</td>
+                <td>Challenges conventional wisdom (e.g. <em>"The 100% paperless office was a myth — here is why smart hybrid document flows matter more"</em>) to stimulate comments.</td>
+              </tr>
+              <tr>
+                <td><strong>Culture / Workplace</strong></td>
+                <td>HR Leaders & Team Heads</td>
+                <td>Focuses on employee experience, reducing daily cognitive friction, and honoring frontline workers during tech rollouts.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
         <div class="callout tip">
-          <div class="callout-title">One-Click "Send to Content Studio"</div>
-          Select any angle to instantly transfer the commentary, source citation, and key takeaway directly into the drafting studio without copy-pasting.
+          <div class="callout-title">One-Click "Send to Content Studio" Workflow</div>
+          Clicking the blue <strong>"Send to Content Studio"</strong> button below any generated angle automatically transfers the selected headline, commentary draft, source link, and suggested corporate hashtags directly into the dual-pane Content Studio without requiring manual copy-pasting.
         </div>
       </section>
 
-      <!-- Module 4: Unified Content Studio -->
+      <!-- Module 4: Unified Content Studio & Visual Carousel Designer -->
       <section class="module-section" id="module-4">
         <div class="module-header">
           <span class="module-badge">Module 04</span>
           <h2 class="module-title">Unified Content Studio & Visual Carousel Designer</h2>
-          <p class="module-summary">Dual-pane drafting studio pairing narrative copywriting with a 5-slide visual carousel generator (1080x1080).</p>
+          <p class="module-summary">Professional dual-pane workspace pairing high-converting copy drafting with a 5-slide visual carousel generator (1080&times;1080).</p>
         </div>
 
         <div class="screenshot-frame">
@@ -1045,15 +1533,30 @@
             <img src="screenshots/07_content_draft_studio.png" alt="Content Studio" />
           </div>
           <div class="screenshot-caption">
-            <span>Dual-pane studio: Left pane copy editor with character counters and mobile fold-line visualizer; Right pane slide designer.</span>
+            <span>Dual-Pane Content Studio: Left copy editor with mobile fold-line visualizer; Right slide designer with real-time canvas rendering.</span>
             <span class="caption-hint">Click image to enlarge &rarr;</span>
           </div>
         </div>
 
-        <h3 style="font-size: 1.1rem; margin: 1.5rem 0 0.75rem 0; font-weight:700;">Left Pane: Narrative & Hook Engineering</h3>
-        <p style="margin-bottom: 1rem; font-size: 0.9rem; color: var(--slate-600);">
-          The editor includes an interactive <strong>Mobile Fold Line</strong> indicator. On LinkedIn mobile, users only see the first 140 to 210 characters before the <code>...see more</code> link. The studio warns advocates if their opening hook is obscured.
+        <h3 class="section-subtitle">Left Pane: Narrative Architecture & Mobile Fold-Line</h3>
+        <p style="font-size: 0.92rem; color: var(--slate-700); margin-bottom: 1rem;">
+          LinkedIn mobile displays only the first <strong>140 to 210 characters</strong> of a post before truncating it behind the <code>...see more</code> link. If your opening hook does not provoke curiosity within that window, 85% of readers scroll past without clicking.
         </p>
+
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-name">Fold-Line Indicator</div>
+            <div class="feature-desc">An interactive visual boundary line clearly demarcates the 140-character mark in the editor. Text above the line is highlighted in blue to ensure the hook is sharp and complete.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-name">Real-Time Counters</div>
+            <div class="feature-desc">Active character and word counters display color-coded feedback: Green (optimal B2B engagement at 1,200–1,800 chars), Amber (short, under 500 chars), or Red (exceeds 3,000 char limit).</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-name">Hashtag Governance</div>
+            <div class="feature-desc">One-click insertion of official brand tags (<code>#BrotherSingapore</code>, <code>#AtYourSide</code>, <code>#BrotherX</code>) and category tags (<code>#FutureOfWork</code>, <code>#BrotherEarth</code>).</div>
+          </div>
+        </div>
 
         <div class="screenshot-frame">
           <div class="window-header">
@@ -1063,17 +1566,99 @@
             <span class="window-title">https://linked-us-in.vercel.app/studio/templates</span>
           </div>
           <div class="screenshot-container" onclick="openModal('screenshots/08_content_studio_template_library_modal.png', '11 Curated Benchmark Enterprise Templates')">
-            <img src="screenshots/08_content_studio_template_library_modal.png" alt="Template Library" />
+            <img src="screenshots/08_content_studio_template_library_modal.png" alt="Template Library Modal" />
           </div>
           <div class="screenshot-caption">
-            <span>Template Library Modal: 11 high-engagement architectural formats (Problem-Agitation-Solution, Case Study, Contrarian, etc.).</span>
+            <span>Template Library Modal: 11 high-engagement architectural formats (PAS, Contrarian, Case Study, Framework, etc.).</span>
             <span class="caption-hint">Click image to enlarge &rarr;</span>
           </div>
         </div>
 
-        <h3 style="font-size: 1.1rem; margin: 2rem 0 0.75rem 0; font-weight:700;">Right Pane: 5-Slide Visual Carousel Designer</h3>
-        <p style="margin-bottom: 1rem; font-size: 0.9rem; color: var(--slate-600);">
-          Carousels generate the highest dwell time and reshares on LinkedIn. The visual studio designs square 1080x1080 slides ready for PDF export.
+        <h3 class="section-subtitle">The 11 Curated Benchmark Blueprints</h3>
+        <div class="controls-table-wrapper">
+          <table class="controls-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Template Blueprint</th>
+                <th>Strategic Objective</th>
+                <th>Ideal Content Scenario</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td><strong>Industry Contrarian</strong></td>
+                <td>Challenge mainstream assumptions with proprietary data.</td>
+                <td>Debunking the "paperless office" myth or exposing hidden cloud printing costs.</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td><strong>Problem-Agitation-Solution (PAS)</strong></td>
+                <td>Empathize with enterprise document bottlenecks and resolve them.</td>
+                <td>Printer fleet downtime in busy Singapore financial or legal firms.</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td><strong>Case Study / Transformation</strong></td>
+                <td>Before-and-after client success narrative with quantifiable ROI.</td>
+                <td>How a logistics client cut shipping label errors by 40% with Brother P-touch.</td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td><strong>Step-by-Step Framework</strong></td>
+                <td>Educational 3-to-5 point practical implementation roadmap.</td>
+                <td>How to audit office print security against PDPA compliance standards.</td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td><strong>Myth Buster vs Reality</strong></td>
+                <td>Pitting misconceptions against technical reality.</td>
+                <td>Comparing OEM cartridge yields and safety vs third-party generic toners.</td>
+              </tr>
+              <tr>
+                <td>6</td>
+                <td><strong>Event Reflection & Takeaways</strong></td>
+                <td>Thought leadership synthesis following a conference or expo.</td>
+                <td>Takeaways from Singapore FinTech Festival or Enterprise SME Day.</td>
+              </tr>
+              <tr>
+                <td>7</td>
+                <td><strong>Behind-the-Scenes (Takumi)</strong></td>
+                <td>Showcase Japanese precision craftsmanship and reliability tests.</td>
+                <td>Drop-testing label printers and 100,000-page endurance tests in Nagoya.</td>
+              </tr>
+              <tr>
+                <td>8</td>
+                <td><strong>Customer Success Spotlight</strong></td>
+                <td>Highlighting a partnership with a Singapore hospital, school, or SME.</td>
+                <td>Celebrating a long-term customer achieving zero printer downtime.</td>
+              </tr>
+              <tr>
+                <td>9</td>
+                <td><strong>Tech Deep Dive</strong></td>
+                <td>Explaining enterprise firmware, encryption, and pull-printing protocols.</td>
+                <td>Explaining 802.1x enterprise network security on Brother laser printers.</td>
+              </tr>
+              <tr>
+                <td>10</td>
+                <td><strong>ESG & Sustainability Milestone</strong></td>
+                <td>Reporting measurable environmental impacts under Brother Earth.</td>
+                <td>Milestone: 50,000 toner cartridges diverted from Singapore landfills.</td>
+              </tr>
+              <tr>
+                <td>11</td>
+                <td><strong>Leadership Lesson</strong></td>
+                <td>Authentic personal insight from a department head.</td>
+                <td>Reflections on mentoring junior engineers and customer-centric culture.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 class="section-subtitle">Right Pane: 5-Slide Visual Carousel Designer</h3>
+        <p style="font-size: 0.92rem; color: var(--slate-700); margin-bottom: 1.25rem;">
+          Carousels allow B2B readers to swipe through structured insights. The visual studio renders crisp, high-DPI 1080&times;1080 square canvases adhering to LinkedIn's official document upload format.
         </p>
 
         <div class="screenshot-frame">
@@ -1087,31 +1672,32 @@
             <img src="screenshots/08_visual_carousel_studio.png" alt="Visual Carousel Studio" />
           </div>
           <div class="screenshot-caption">
-            <span>Visual Carousel Studio: Slide 2 product image layout with high-contrast typography.</span>
+            <span>Visual Studio: Slide 2 product image layout with high-contrast typography and Brother branding elements.</span>
             <span class="caption-hint">Click image to enlarge &rarr;</span>
           </div>
         </div>
 
+        <h3 class="section-subtitle">The 5-Slide Editorial Storyboard Architecture</h3>
         <div class="features-grid">
           <div class="feature-card">
-            <div class="feature-name">1. Hook Cover (Slide 1)</div>
-            <div class="feature-desc">Bold headline, eyebrow tag, and high-contrast color scheme to stop user scroll.</div>
+            <div class="feature-name">Slide 1: The Hook Cover</div>
+            <div class="feature-desc"><strong>Visual Goal:</strong> Stop user scroll. Large bold title (42–56pt), contrasting category kicker (e.g. <em>"ENTERPRISE SECURITY BRIEF"</em>), and branded Brother logo badge.</div>
           </div>
           <div class="feature-card">
-            <div class="feature-name">2. Problem Breakdown (Slide 2)</div>
-            <div class="feature-desc">Highlighting enterprise friction: print costs, security vulnerabilities, or paper waste.</div>
+            <div class="feature-name">Slide 2: Problem Dilemma</div>
+            <div class="feature-desc"><strong>Visual Goal:</strong> Validate client friction. Highlights the pain point (cost, compliance, downtime) with enterprise workplace imagery and high-contrast callout boxes.</div>
           </div>
           <div class="feature-card">
-            <div class="feature-name">3. Solution Framework (Slide 3)</div>
-            <div class="feature-desc">Actionable steps, process flow diagrams, or strategic industry recommendations.</div>
+            <div class="feature-name">Slide 3: Solution Framework</div>
+            <div class="feature-desc"><strong>Visual Goal:</strong> Deliver structured value. A 3-step diagram, bulleted framework, or strategic methodology that the reader can implement immediately.</div>
           </div>
           <div class="feature-card">
-            <div class="feature-name">4. Hardware Proof (Slide 4)</div>
-            <div class="feature-desc">Brother SG hardware showcase (HL-L6400DW laser, MFC-J6940DW A3, P-touch labellers).</div>
+            <div class="feature-name">Slide 4: Technology Proof</div>
+            <div class="feature-desc"><strong>Visual Goal:</strong> Demonstrate Brother hardware superiority. Showcases flagship enterprise products (HL-L6400DW, MFC-J6940DW, PT-P950NW) in high-resolution photography.</div>
           </div>
           <div class="feature-card">
-            <div class="feature-name">5. Actionable CTA (Slide 5)</div>
-            <div class="feature-desc">Consultation booking link, Brother Singapore contact point, and branded closing banner.</div>
+            <div class="feature-name">Slide 5: Actionable CTA</div>
+            <div class="feature-desc"><strong>Visual Goal:</strong> Drive engagement and consultation. Clear call to action, consultation contact point, and official Brother "At your side" closing signature.</div>
           </div>
         </div>
 
@@ -1122,11 +1708,11 @@
             <span class="window-dot green"></span>
             <span class="window-title">https://linked-us-in.vercel.app/studio/typography</span>
           </div>
-          <div class="screenshot-container" onclick="openModal('screenshots/09_visual_studio_text_editor.png', 'Visual Studio Typography & Branding Controls')">
+          <div class="screenshot-container" onclick="openModal('screenshots/09_visual_studio_text_editor.png', 'Visual Studio Typography & Text Editor')">
             <img src="screenshots/09_visual_studio_text_editor.png" alt="Typography Controls" />
           </div>
           <div class="screenshot-caption">
-            <span>Typography styling controls: Font scaling, alignment, color themes, and Brother "At your side" watermark toggle.</span>
+            <span>Visual Studio Text Editor: Font scaling, alignment, color themes, and Brother "At your side" watermark toggle.</span>
             <span class="caption-hint">Click image to enlarge &rarr;</span>
           </div>
         </div>
@@ -1152,8 +1738,8 @@
       <section class="module-section" id="module-5">
         <div class="module-header">
           <span class="module-badge">Module 05</span>
-          <h2 class="module-title">Template Ingestion Studio</h2>
-          <p class="module-summary">Reverse-engineer viral LinkedIn posts, competitor case studies, and PDFs into reusable internal blueprints.</p>
+          <h2 class="module-title">Template Ingestion Studio (AI Deconstruction)</h2>
+          <p class="module-summary">Reverse-engineer viral LinkedIn posts, competitor case studies, and PDFs into reusable corporate blueprints.</p>
         </div>
 
         <div class="screenshot-frame">
@@ -1172,20 +1758,31 @@
           </div>
         </div>
 
-        <ol class="step-list">
-          <li class="step-item">
-            <div class="step-title">Select Ingestion Source</div>
-            <div class="step-body">Paste a live LinkedIn URL, upload a full-length screenshot, or drop a multi-page PDF document.</div>
-          </li>
-          <li class="step-item">
-            <div class="step-title">Structural Pattern Deconstruction</div>
-            <div class="step-body">The engine isolates the opening hook mechanics, paragraph whitespace cadence, and closing CTA format.</div>
-          </li>
-          <li class="step-item">
-            <div class="step-title">Save to Brother SG Library</div>
-            <div class="step-body">Assign category tags and save the structural blueprint to your team repository for immediate team reuse.</div>
-          </li>
-        </ol>
+        <h3 class="section-subtitle">3 Ingestion Modalities</h3>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-name">1. Live Post URL</div>
+            <div class="feature-desc">Paste any public LinkedIn post URL. The server scrapes the raw text, extracts line-break cadence, and identifies the structural hook type.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-name">2. Screenshot / Image Upload</div>
+            <div class="feature-desc">Upload a PNG or JPG capture of a high-performing post. Multimodal vision parsing runs OCR and separates the copy into hook, body, and CTA.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-name">3. Document / PDF Upload</div>
+            <div class="feature-desc">Drop an existing multi-page slide deck. The system deconstructs the slide narrative and converts it into a 5-slide visual template.</div>
+          </div>
+        </div>
+
+        <div class="callout note">
+          <div class="callout-title">Structural Deconstruction Output</div>
+          The ingestion engine does not copy the competitor's words. It isolates the <strong>abstract structural mechanics</strong>:
+          <br>&bull; <em>Hook Pattern:</em> Contrarian premise + quantifiable stakes.
+          <br>&bull; <em>Pacing Cadence:</em> 1-sentence statements separated by double carriage returns.
+          <br>&bull; <em>Core Value:</em> 3 bullet points with emoji anchors (•, 🔹, 🚀).
+          <br>&bull; <em>Call to Action:</em> Community question directing users to comment below.
+          <br>This abstract blueprint is saved directly into the Brother Singapore template library with placeholders ready for your team's content.
+        </div>
       </section>
 
       <!-- Module 6: Team Advocacy Directory -->
@@ -1193,7 +1790,7 @@
         <div class="module-header">
           <span class="module-badge">Module 06</span>
           <h2 class="module-title">Employee Advocacy & Team Directory</h2>
-          <p class="module-summary">Real-time Notion synchronization displaying Brother Singapore department leaders, roles, and publication metrics.</p>
+          <p class="module-summary">Real-time Notion database synchronization displaying the 5 active Brother Singapore team members.</p>
         </div>
 
         <div class="screenshot-frame">
@@ -1203,35 +1800,86 @@
             <span class="window-dot green"></span>
             <span class="window-title">https://linkedin.bro-x.org/team</span>
           </div>
-          <div class="screenshot-container" onclick="openModal('screenshots/11_team_directory.png', 'Module 06: Team Advocacy Directory &amp; Notion Sync')">
+          <div class="screenshot-container" onclick="openModal('screenshots/11_team_directory.png', 'Module 06: Official Brother Singapore Team Directory (List View)')">
             <img src="screenshots/11_team_directory.png" alt="Team Directory" />
           </div>
           <div class="screenshot-caption">
-            <span>Brother SG Team Directory: 5 active advocates (Allan Cheng, Chloe Lee, Melvyn Tan, Sean, Zhi Jun) synchronized directly from Notion.</span>
+            <span>Official Brother SG Team Directory: 5 active advocates (Allan Cheng, Chloe Lee, Melvyn Tan, Sean, Zhi Jun) synchronized directly from Notion.</span>
             <span class="caption-hint">Click image to enlarge &rarr;</span>
           </div>
         </div>
 
+        <h3 class="section-subtitle">Official Brother Singapore Team Roster</h3>
+        <div class="controls-table-wrapper">
+          <table class="controls-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Advocate Name</th>
+                <th>Organization / Dept</th>
+                <th>Corporate Email</th>
+                <th>Role / Whitelist Status</th>
+                <th>Key Responsibilities</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td><strong>Allan Cheng</strong></td>
+                <td>Brother Singapore</td>
+                <td><code>allan.cheng@brother.com.sg</code></td>
+                <td><span class="theme-pill pill-blue">Team Member</span></td>
+                <td>POD Lead for POD 5 LinkedUsIn; manages enterprise print solutions and commercial workflow collaboration.</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td><strong>Chloe Lee</strong></td>
+                <td>Brother Singapore</td>
+                <td><code>chloe.lee@brother.com.sg</code></td>
+                <td><span class="theme-pill pill-blue">Team Member</span></td>
+                <td>HR Function collaborator; focuses on people & culture, employer branding, and workplace wellness.</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td><strong>Melvyn Tan</strong> <span style="font-size:0.7rem; background:#e0e7ff; color:#3730a3; padding:2px 6px; border-radius:4px; font-weight:700;">You</span></td>
+                <td>Brother Singapore</td>
+                <td><code>melvyn@befinityai.com</code></td>
+                <td><span class="theme-pill pill-blue">Team Member</span></td>
+                <td>External AI trainer / consultant; architecture lead and workflow designer for agentic content systems.</td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td><strong>Sean</strong></td>
+                <td>Brother Singapore</td>
+                <td><code>sean.tan@brother.com.sg</code></td>
+                <td><span class="theme-pill pill-blue">Team Member</span></td>
+                <td>POD Member for POD 5; oversees Brother X operational experiments and digital innovation tracking.</td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td><strong>Zhi Jun</strong></td>
+                <td>Brother Singapore</td>
+                <td><code>zhi.jun@brother.com.sg</code></td>
+                <td><span class="theme-pill pill-blue">Team Member</span></td>
+                <td>Brother Singapore team member; supports commercial sales advocacy and customer relationship content.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 class="section-subtitle">Directory Features: Cards View vs List View</h3>
         <div class="features-grid">
           <div class="feature-card">
-            <div class="feature-name">Allan Cheng</div>
-            <div class="feature-desc"><strong>Team Member</strong> &bull; Brother Singapore<br><span style="font-size: 0.75rem; color: var(--slate-400);">allan.cheng@brother.com.sg</span></div>
+            <div class="feature-name">View Mode Toggle</div>
+            <div class="feature-desc">Switch between <strong>Cards View</strong> (displaying large advocate tiles with approved/pending draft metrics) and <strong>List View</strong> (compact enterprise table with sortable columns by Name, Department, or Email).</div>
           </div>
           <div class="feature-card">
-            <div class="feature-name">Chloe Lee</div>
-            <div class="feature-desc"><strong>Team Member</strong> &bull; Brother Singapore<br><span style="font-size: 0.75rem; color: var(--slate-400);">chloe.lee@brother.com.sg</span></div>
+            <div class="feature-name">Notion Real-Time Sync</div>
+            <div class="feature-desc">Clicking the <strong>"Sync"</strong> button triggers <code>/api/notion/team</code> to query database <code>3c701136de4881869782cd894c6126c5</code>, pulling live updates and caching them in <code>brother_team_cache</code>.</div>
           </div>
           <div class="feature-card">
-            <div class="feature-name">Melvyn Tan <span style="font-size: 0.7rem; background: #e0e7ff; color: #3730a3; padding: 2px 6px; border-radius: 4px; font-weight: 600;">You</span></div>
-            <div class="feature-desc"><strong>Team Member</strong> &bull; Brother Singapore<br><span style="font-size: 0.75rem; color: var(--slate-400);">melvyn@befinityai.com</span></div>
-          </div>
-          <div class="feature-card">
-            <div class="feature-name">Sean</div>
-            <div class="feature-desc"><strong>Team Member</strong> &bull; Brother Singapore<br><span style="font-size: 0.75rem; color: var(--slate-400);">sean.tan@brother.com.sg</span></div>
-          </div>
-          <div class="feature-card">
-            <div class="feature-name">Zhi Jun</div>
-            <div class="feature-desc"><strong>Team Member</strong> &bull; Brother Singapore<br><span style="font-size: 0.75rem; color: var(--slate-400);">zhi.jun@brother.com.sg</span></div>
+            <div class="feature-name">Self-Profile Editing</div>
+            <div class="feature-desc">The active user (e.g. Melvyn Tan) has an <strong>"Edit Profile"</strong> action button to update their display headline, department affiliation, and vanity LinkedIn URL directly into Notion.</div>
           </div>
         </div>
       </section>
@@ -1240,8 +1888,8 @@
       <section class="module-section" id="module-7">
         <div class="module-header">
           <span class="module-badge">Module 07</span>
-          <h2 class="module-title">System Settings, Governance & Integrations</h2>
-          <p class="module-summary">Centralized API management, security PIN locks, and external database connectivity.</p>
+          <h2 class="module-title">System Settings, Integrations & Governance</h2>
+          <p class="module-summary">Centralized API credential management, security PIN locks, and external system connectivity.</p>
         </div>
 
         <div class="screenshot-frame">
@@ -1251,8 +1899,8 @@
             <span class="window-dot green"></span>
             <span class="window-title">https://linked-us-in.vercel.app/settings</span>
           </div>
-          <div class="screenshot-container" onclick="openModal('screenshots/12_settings_integrations.png', 'Module 07: System Settings & Integrations')">
-            <img src="screenshots/12_settings_integrations.png" alt="Settings & Integrations" />
+          <div class="screenshot-container" onclick="openModal('screenshots/12_settings_integrations.png', 'Module 07: System Settings & Connected Integrations')">
+            <img src="screenshots/12_settings_integrations.png" alt="Settings Screen" />
           </div>
           <div class="screenshot-caption">
             <span>Settings & Integrations: Notion database sync, LinkedIn OAuth 2.0 API, MOM statutory calendar, and PIN lock.</span>
@@ -1260,51 +1908,250 @@
           </div>
         </div>
 
+        <h3 class="section-subtitle">Connected Integrations Health Monitor</h3>
+        <div class="controls-table-wrapper">
+          <table class="controls-table">
+            <thead>
+              <tr>
+                <th>Service</th>
+                <th>Protocol</th>
+                <th>Active Scope / Configuration</th>
+                <th>Status Indicator</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Notion Database</strong></td>
+                <td>REST API</td>
+                <td>Database <code>3c701136de4881869782cd894c6126c5</code>. Manages team whitelist and template storage.</td>
+                <td><span class="theme-pill pill-green">Connected</span></td>
+              </tr>
+              <tr>
+                <td><strong>LinkedIn OAuth 2.0</strong></td>
+                <td>OAuth REST</td>
+                <td>Brother Singapore Page (<code>urn:li:organization:808877</code>). Scope: <code>w_organization_social</code>.</td>
+                <td><span class="theme-pill pill-green">Connected</span></td>
+              </tr>
+              <tr>
+                <td><strong>MOM Calendar Feed</strong></td>
+                <td>Government API</td>
+                <td>Singapore Ministry of Manpower gazetted public holiday feed for 2026.</td>
+                <td><span class="theme-pill pill-green">Connected</span></td>
+              </tr>
+              <tr>
+                <td><strong>Resend Transactional</strong></td>
+                <td>SMTP / HTTP</td>
+                <td>Dispatches passwordless magic link emails with 15-minute token expiry.</td>
+                <td><span class="theme-pill pill-green">Connected</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
         <div class="callout important">
           <div class="callout-title">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
             Security PIN Protection
           </div>
-          Critical settings (such as LinkedIn OAuth credentials, Notion Database IDs, and domain rules) are locked behind an administrative PIN to prevent unauthorized adjustments.
+          To safeguard against accidental credential resets during workshops, critical settings (such as LinkedIn Client Secret, Notion Token, and Target Organization URN) are locked behind an administrative PIN. Entering the correct PIN decrypts the input fields for modification.
         </div>
       </section>
 
-      <!-- Operational Framework -->
-      <section class="module-section" id="operational-framework">
+      <!-- Section: Hofstede Cultural Tuning Matrix -->
+      <section class="module-section" id="hofstede-tuning">
+        <div class="module-header">
+          <span class="module-badge">Cultural Intelligence</span>
+          <h2 class="module-title">Hofstede Cultural Tuning Matrix: Japan HQ &times; Singapore Dynamic</h2>
+          <p class="module-summary">How Linked-Us-In balances Japanese corporate craftsmanship with Singaporean pragmatic agility.</p>
+        </div>
+
+        <p style="font-size: 0.92rem; color: var(--slate-700); margin-bottom: 1.25rem;">
+          To ensure Brother Singapore's LinkedIn thought leadership resonates both with local B2B buyers and honors Brother's Japanese corporate foundation, content generation is calibrated across <strong>Hofstede's 6 Cultural Dimensions</strong>:
+        </p>
+
+        <div class="controls-table-wrapper">
+          <table class="controls-table">
+            <thead>
+              <tr>
+                <th>Cultural Dimension</th>
+                <th>Japan HQ Foundation</th>
+                <th>Singapore Execution Context</th>
+                <th>Brother SG Content Synthesis</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Power Distance (PDI)</strong></td>
+                <td>Moderate (54) — Respect for hierarchy, protocol, and seniority.</td>
+                <td>Moderate-High (74) — Respectful yet pragmatic, results-driven management.</td>
+                <td>Professional deference balanced with accessible, team-oriented storytelling.</td>
+              </tr>
+              <tr>
+                <td><strong>Individualism (IDV)</strong></td>
+                <td>Collectivist (46) — Social harmony (<em>Wa</em>), team consensus.</td>
+                <td>Collectivist-Leaning (20) — High multicultural community cohesion.</td>
+                <td>Celebrate shared team wins while spotlighting individual employee breakthrough growth.</td>
+              </tr>
+              <tr>
+                <td><strong>Masculinity / Drive (MAS)</strong></td>
+                <td>High (95) — Excellence, craft mastery, and deep dedication.</td>
+                <td>Moderate (48) — Quality of life, harmony, pragmatic achievement.</td>
+                <td>Emphasize high performance and excellence framed as enabling smoother daily work.</td>
+              </tr>
+              <tr>
+                <td><strong>Uncertainty Avoidance (UAI)</strong></td>
+                <td>Very High (92) — Precision, zero-defect engineering, proven methods.</td>
+                <td>Low (8) — Highly adaptable, agile, fast adopters of new technology.</td>
+                <td>Showcase forward-looking tech (AI) with proven reliability and safety guardrails.</td>
+              </tr>
+              <tr>
+                <td><strong>Long-Term Orientation (LTO)</strong></td>
+                <td>High (88) — Sustainable legacy, multigenerational relationships.</td>
+                <td>High (72) — Smart nation vision, future-ready workforce investments.</td>
+                <td>Connect daily AI productivity tools to long-term career growth and the future of work.</td>
+              </tr>
+              <tr>
+                <td><strong>Indulgence (IVR)</strong></td>
+                <td>Restrained (42) — Modest, disciplined public presence.</td>
+                <td>Moderate (46) — Warm, festive, celebratory multiracial holidays.</td>
+                <td>Sincere, warm festive celebrations with genuine communal goodwill and zero hype.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Section: Editorial Style Guide -->
+      <section class="module-section" id="style-guide">
+        <div class="module-header">
+          <span class="module-badge">Brand Governance</span>
+          <h2 class="module-title">Brother Singapore Editorial Style Guide & Persona Blueprint</h2>
+          <p class="module-summary">Core rules governing tone of voice, hashtag conventions, and visual asset composition.</p>
+        </div>
+
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-name">Brand Archetype</div>
+            <div class="feature-desc"><strong>The Empowering Innovator & Trusted Partner.</strong> Grounded, authentic, and technologically forward-thinking. Respectful of heritage and precision engineering while boldly pioneering digital transformation.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-name">Tagline Philosophy</div>
+            <div class="feature-desc"><strong>"At your side"</strong> — empowering customers, partners, and employees with reliable, innovative, and human-centered solutions. Every post must tie back to client enablement.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-name">Visual Standards</div>
+            <div class="feature-desc">Primary colors: Brother Precision Blue (<code>#003399</code> / <code>#005BAC</code>), Deep Navy (<code>#0A2540</code>), and Slate (<code>#F8FAFC</code>). Clean sans-serif typography with high contrast for mobile legibility.</div>
+          </div>
+        </div>
+
+        <h3 class="section-subtitle">Editorial Tone & Voice Guardrails</h3>
+        <div class="controls-table-wrapper">
+          <table class="controls-table">
+            <thead>
+              <tr>
+                <th>Dimension</th>
+                <th>What to Do (On-Brand)</th>
+                <th>What to Avoid (Off-Brand)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Tone</strong></td>
+                <td>Warm, professional, confident, approachable, and human.</td>
+                <td>Overly stiff/bureaucratic or aggressively casual/hype-driven.</td>
+              </tr>
+              <tr>
+                <td><strong>Delivery</strong></td>
+                <td>Clear, active voice, punchy value points, generous whitespace.</td>
+                <td>Wordy corporate jargon, dense walls of text, passive voice.</td>
+              </tr>
+              <tr>
+                <td><strong>Perspective</strong></td>
+                <td>Inclusive ("We", "Our team", "Together with our partners").</td>
+                <td>Self-absorbed, purely transactional, or self-congratulatory.</td>
+              </tr>
+              <tr>
+                <td><strong>Innovation Stance</strong></td>
+                <td>Practical and empowering ("How tech unlocks human potential").</td>
+                <td>Tech-for-the-sake-of-tech, fear-mongering, or ungrounded hype.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 class="section-subtitle">Hashtag Taxonomy Rules</h3>
+        <p style="font-size: 0.9rem; color: var(--slate-600); margin-bottom: 0.75rem;">Every LinkedIn draft generated by the portal adheres to this standardized 2-tier tag structure:</p>
+        <div class="copy-block">
+<button class="copy-button" onclick="copySnippet(this)">Copy Hashtags</button>
+# Always include 2-3 Core Brand Tags:
+#BrotherSingapore #AtYourSide #BrotherX
+
+# Include 1-2 Topic-Specific Tags based on content category:
+#Festive & Community:   #SingaporeHolidays #SGCommunity #CelebrateTogether #LifeAtBrother
+#AI & Productivity:     #FutureOfWork #AIProductivity #WorkplaceInnovation #DigitalTransformation
+#Sustainability & ESG:  #BrotherEarth #SustainabilityInAction #EcoFriendlyTech
+        </div>
+      </section>
+
+      <!-- Section: The 3-2-1 Weekly Advocacy Playbook -->
+      <section class="module-section" id="advocacy-playbook">
         <div class="module-header">
           <span class="module-badge">Operational Playbook</span>
-          <h2 class="module-title">The 3-2-1 Weekly Advocacy Rhythm</h2>
-          <p class="module-summary">Recommended cadence for Brother Singapore department leaders to maximize reach with under 45 minutes of weekly effort.</p>
+          <h2 class="module-title">The 3-2-1 Weekly Advocacy Playbook</h2>
+          <p class="module-summary">A structured, high-yield weekly cadence designed to require under 45 minutes of total effort.</p>
         </div>
 
         <div class="features-grid">
           <div class="feature-card" style="border-top: 4px solid var(--brother-blue);">
             <div class="feature-icon" style="background:var(--brother-light); color:var(--brother-blue);">3</div>
             <div class="feature-name">3 Strategic Comments</div>
-            <div class="feature-desc">Engage on posts from Singapore SME leaders, IT procurement directors, and channel partners with substantive insights.</div>
+            <div class="feature-desc">Spend 10 minutes on Tuesday and Thursday engaging on posts from Singapore SME leaders, IT procurement directors, and channel partners with substantive insights.</div>
           </div>
           <div class="feature-card" style="border-top: 4px solid var(--emerald-600);">
             <div class="feature-icon" style="background:var(--emerald-50); color:var(--emerald-600);">2</div>
             <div class="feature-name">2 Curated News Shares</div>
-            <div class="feature-desc">Use <strong>Module 03 (News Engine)</strong> to share an AI or ESG article with an Executive POV commentary.</div>
+            <div class="feature-desc">Use <strong>Module 03 (News Engine)</strong> to select a trending Straits Times or Singapore Business Review article on AI or ESG, sending it to the studio with an Executive POV.</div>
           </div>
           <div class="feature-card" style="border-top: 4px solid var(--amber-600);">
             <div class="feature-icon" style="background:var(--amber-50); color:var(--amber-600);">1</div>
             <div class="feature-name">1 Original 5-Slide Carousel</div>
-            <div class="feature-desc">Use <strong>Module 04 (Content Studio)</strong> with a Problem-Agitation-Solution blueprint showcasing Brother reliability.</div>
+            <div class="feature-desc">Publish a flagship deep-dive using <strong>Module 04 (Content Studio)</strong> using the <em>Problem-Agitation-Solution</em> or <em>Case Study</em> template, showcasing Brother reliability.</div>
           </div>
         </div>
+      </section>
 
-        <div class="callout tip">
-          <div class="callout-title">The "At your side" Brand Standard</div>
-          Always prioritize the customer's operational reality over pure product promotion. Explain how Brother's Japanese craftsmanship (*Takumi*) and low-waste design solves downtime for Singapore enterprises.
+      <!-- Section: Troubleshooting & FAQs -->
+      <section class="module-section" id="troubleshooting-faq">
+        <div class="module-header">
+          <span class="module-badge">Support & Operations</span>
+          <h2 class="module-title">Troubleshooting & Frequently Asked Questions (FAQs)</h2>
+          <p class="module-summary">Quick solutions for common operational and configuration inquiries.</p>
+        </div>
+
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-name">Q: Magic link email is not arriving?</div>
+            <div class="feature-desc"><strong>Solution:</strong> Check your corporate spam / junk folder for an email from Resend. Ensure your email matches an authorized domain (<code>@brother.com.sg</code> or <code>@befinityai.com</code>). In testing environments, append <code>?token=demo-auth&email=your.name@brother.com.sg</code>.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-name">Q: How do I upload carousels to LinkedIn?</div>
+            <div class="feature-desc"><strong>Solution:</strong> LinkedIn treats carousels as document uploads. Click <strong>"Export PDF"</strong> in the Visual Studio to download the 5 slides as a single multi-page PDF, then create a post on LinkedIn and click the <strong>"Add a document"</strong> icon.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-name">Q: Team member changes in Notion not appearing?</div>
+            <div class="feature-desc"><strong>Solution:</strong> The browser caches team members in <code>brother_team_cache</code> for instant loading. Go to <strong>Team Directory</strong> and click the <strong>"Sync"</strong> button in the top right to refresh live records from Notion.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-name">Q: Can I edit text directly in the Visual Studio?</div>
+            <div class="feature-desc"><strong>Solution:</strong> Yes. The Visual Studio provides direct inputs for Slide Title, Eyebrow Kicker, Body Points, and CTA, allowing granular overrides for each individual slide.</div>
+          </div>
         </div>
       </section>
 
     </main>
   </div>
 
-  <!-- Lightbox Modal -->
+  <!-- Image Lightbox Modal -->
   <div class="modal-overlay" id="lightboxModal" onclick="closeModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
       <button class="modal-close" onclick="closeModal()">&times;</button>
@@ -1332,6 +2179,35 @@
       if (e.key === 'Escape') closeModal();
     });
 
+    // Copy code snippet helper
+    function copySnippet(button) {
+      const parent = button.parentElement;
+      const textToCopy = parent.innerText.replace('Copy Architecture', '').replace('Copy Hashtags', '').trim();
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        const original = button.innerText;
+        button.innerText = 'Copied!';
+        button.style.background = '#059669';
+        setTimeout(() => {
+          button.innerText = original;
+          button.style.background = '#334155';
+        }, 2000);
+      });
+    }
+
+    // Sidebar search filter
+    function filterSidebar(query) {
+      const term = query.toLowerCase().trim();
+      const links = document.querySelectorAll('.toc-menu li');
+      links.forEach(li => {
+        const text = li.innerText.toLowerCase();
+        if (text.includes(term)) {
+          li.style.display = 'block';
+        } else {
+          li.style.display = 'none';
+        }
+      });
+    }
+
     // Scrollspy for sidebar active link
     const sections = document.querySelectorAll('section.module-section, .hero-banner');
     const navLinks = document.querySelectorAll('.toc-menu li a');
@@ -1339,7 +2215,7 @@
     window.addEventListener('scroll', () => {
       let current = '';
       sections.forEach(section => {
-        const sectionTop = section.offsetTop - 120;
+        const sectionTop = section.offsetTop - 140;
         if (window.pageYOffset >= sectionTop) {
           current = section.getAttribute('id');
         }
