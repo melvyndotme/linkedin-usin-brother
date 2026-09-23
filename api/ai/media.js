@@ -118,7 +118,63 @@ export default async function handler(req, res) {
     }
 
     try {
-      // Candidate image generation endpoints for Google AI Studio / Gemini Imagen
+      let lastError = null;
+
+      // 1. Primary Strategy: Native Gemini Multimodal Image Generation (:generateContent)
+      const selectedModel = model || 'gemini-3.1-flash-image';
+      const geminiImageModels = [
+        selectedModel,
+        'gemini-3.1-flash-image',
+        'gemini-3.1-flash-lite-image',
+        'gemini-2.5-flash-image',
+        'gemini-3-pro-image'
+      ].filter((m, i, arr) => m && arr.indexOf(m) === i && !m.startsWith('imagen-'));
+
+      for (const m of geminiImageModels) {
+        try {
+          const geminiRes = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${apiKey}`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                contents: [
+                  {
+                    parts: [
+                      {
+                        text: `Generate an image: ${enhancedPrompt}`
+                      }
+                    ]
+                  }
+                ]
+              })
+            }
+          );
+
+          if (geminiRes.ok) {
+            const data = await geminiRes.json();
+            const parts = data.candidates?.[0]?.content?.parts || [];
+            const imgPart = parts.find((p) => p.inlineData?.data);
+            if (imgPart) {
+              const mime = imgPart.inlineData.mimeType || 'image/jpeg';
+              return res.status(200).json({
+                success: true,
+                source: 'google-ai',
+                modelUsed: m,
+                imageUrl: `data:${mime};base64,${imgPart.inlineData.data}`,
+                prompt: enhancedPrompt
+              });
+            }
+          } else {
+            const errData = await geminiRes.json().catch(() => ({}));
+            lastError = errData.error?.message || `HTTP ${geminiRes.status} ${geminiRes.statusText}`;
+          }
+        } catch (fetchErr) {
+          lastError = fetchErr.message;
+        }
+      }
+
+      // 2. Secondary Strategy: Imagen Predict Endpoints (:predict)
       const candidateModels = [
         'imagen-3.0-generate-002',
         'imagen-3.0-fast-generate-001',
@@ -127,8 +183,6 @@ export default async function handler(req, res) {
       const candidateEndpoints = candidateModels.map(
         (m) => `https://generativelanguage.googleapis.com/v1beta/models/${m}:predict?key=${apiKey}`
       );
-
-      let lastError = null;
 
       for (const endpoint of candidateEndpoints) {
         try {
