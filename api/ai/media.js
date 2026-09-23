@@ -59,7 +59,7 @@ export default async function handler(req, res) {
   }
 
   // 1. Image Proxy Mode (GET /api/ai/media?url=...)
-  if (req.method === 'GET' || imageUrl) {
+  if (imageUrl) {
     if (!imageUrl || !/^https?:\/\//i.test(imageUrl)) {
       return res.status(400).json({ error: 'Valid image URL is required' });
     }
