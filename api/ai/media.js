@@ -32,21 +32,27 @@ export default async function handler(req, res) {
     });
   }
 
-  // 0.1 List Models for Diagnostics (GET /api/ai/media?check=models)
-  if (req.method === 'GET' && queryCheck === 'models') {
+  // 0.2 Test Gemini Image Model generateContent (GET /api/ai/media?check=test-gemini-image)
+  if (req.method === 'GET' && queryCheck === 'test-gemini-image') {
     const apiKey = 
       process.env.GEMINI_API_KEY || 
       process.env.GOOGLE_API_KEY || 
       process.env.GOOGLE_GEMINI_API_KEY || 
       process.env.VITE_GEMINI_API_KEY;
-    if (!apiKey) return res.status(200).json({ error: 'No key found' });
+    if (!apiKey) return res.status(200).json({ error: 'No key' });
     try {
-      const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
-      const data = await resp.json();
-      return res.status(200).json({
-        total: (data.models || []).length,
-        models: (data.models || []).map(m => ({ name: m.name, methods: m.supportedGenerationMethods }))
+      const targetModel = req.query?.model || 'gemini-3.1-flash-image';
+      const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{ text: 'Generate an image of a sleek modern Brother Singapore printer on an executive office desk, professional corporate photography.' }]
+          }]
+        })
       });
+      const data = await resp.json();
+      return res.status(200).json({ status: resp.status, data });
     } catch (e) {
       return res.status(500).json({ error: e.message });
     }
