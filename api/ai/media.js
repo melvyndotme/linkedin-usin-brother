@@ -14,6 +14,20 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
+  // 0. Server Environment Status Check (GET /api/ai/media?check=status)
+  if (req.method === 'GET' && req.query?.check === 'status') {
+    const hasEnv = Boolean(
+      process.env.GEMINI_API_KEY ||
+      process.env.GOOGLE_API_KEY ||
+      process.env.GOOGLE_GEMINI_API_KEY ||
+      process.env.VITE_GEMINI_API_KEY
+    );
+    return res.status(200).json({
+      configured: hasEnv,
+      source: hasEnv ? 'vercel-environment' : 'none'
+    });
+  }
+
   // 1. Image Proxy Mode (GET /api/ai/media?url=...)
   const imageUrl = req.query?.url;
   if (req.method === 'GET' || imageUrl) {
@@ -53,7 +67,14 @@ export default async function handler(req, res) {
       aspectRatio = '1:1', 
       model = 'gemini-3.1-flash-image' 
     } = req.body || {};
-    const apiKey = process.env.GEMINI_API_KEY || req.headers['x-gemini-key'] || req.body?.apiKey;
+
+    const clientKey = (req.headers['x-gemini-key'] || req.body?.apiKey || '').trim();
+    const apiKey = 
+      clientKey ||
+      process.env.GEMINI_API_KEY ||
+      process.env.GOOGLE_API_KEY ||
+      process.env.GOOGLE_GEMINI_API_KEY ||
+      process.env.VITE_GEMINI_API_KEY;
 
     const enhancedPrompt = prompt || `High-end commercial corporate photography for ${occasionName || 'Brother Singapore'}. Professional lighting, authentic cultural celebration in Singapore, elegant modern aesthetic, cinematic 8k resolution, photorealistic corporate editorial style. No text, no distorted hands, clean composition.`;
 
@@ -62,17 +83,21 @@ export default async function handler(req, res) {
         success: false,
         errorType: 'MISSING_API_KEY',
         modelUsed: model,
-        error: 'No Gemini API Key found. Please add your Gemini API Key in Settings to generate AI visuals.',
-        troubleshooting: 'Go to Settings > Gemini API to enter your API key from Google AI Studio.'
+        error: 'No Gemini API Key found. You can add GEMINI_API_KEY directly to your Vercel Project Environment Variables, or enter it in Settings > Gemini API.',
+        troubleshooting: 'In Vercel: Project Settings > Environment Variables > Add GEMINI_API_KEY. Alternatively, go to Settings in this app to enter your Google AI Studio API key.'
       });
     }
 
     try {
-      // Candidate image generation endpoints for Google AI Studio / Gemini
-      const candidateEndpoints = [
-        `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-fast-generate-001:predict?key=${apiKey}`,
-        `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict?key=${apiKey}`
+      // Candidate image generation endpoints for Google AI Studio / Gemini Imagen
+      const candidateModels = [
+        'imagen-3.0-generate-002',
+        'imagen-3.0-fast-generate-001',
+        'imagen-3.0-generate-001'
       ];
+      const candidateEndpoints = candidateModels.map(
+        (m) => `https://generativelanguage.googleapis.com/v1beta/models/${m}:predict?key=${apiKey}`
+      );
 
       let lastError = null;
 
@@ -85,8 +110,7 @@ export default async function handler(req, res) {
               instances: [{ prompt: enhancedPrompt }],
               parameters: {
                 sampleCount: 1,
-                aspectRatio: aspectRatio === '1.91:1' ? '16:9' : '1:1',
-                personGeneration: 'ALLOW_ADULT'
+                aspectRatio: aspectRatio === '1.91:1' ? '16:9' : '1:1'
               }
             })
           });
@@ -98,7 +122,7 @@ export default async function handler(req, res) {
               return res.status(200).json({
                 success: true,
                 source: 'google-ai',
-                modelUsed: model,
+                modelUsed: model || 'imagen-3.0',
                 imageUrl: `data:image/jpeg;base64,${b64}`,
                 prompt: enhancedPrompt
               });
@@ -112,25 +136,33 @@ export default async function handler(req, res) {
         }
       }
 
-      // Check if the error is due to tier restriction / missing predict permission
+      // Diagnose API error category
+      const isInvalidKey = lastError && (lastError.includes('API_KEY_INVALID') || lastError.includes('key not valid'));
       const isTierIssue =
         !lastError ||
         lastError.includes('is not found') ||
         lastError.includes('not supported for predict') ||
         lastError.includes('PERMISSION_DENIED') ||
-        lastError.includes('API_KEY_INVALID') ||
+        lastError.includes('BILLING_DISABLED') ||
         lastError.includes('404');
+
+      let errorMsg = lastError || 'Image generation API was unable to generate an image.';
+      let troubleMsg = 'Please verify your API key in Vercel Environment Variables or in Settings.';
+
+      if (isInvalidKey) {
+        errorMsg = 'Google AI Studio: The provided API key is invalid or has expired.';
+        troubleMsg = 'Please verify the GEMINI_API_KEY environment variable in Vercel or Settings.';
+      } else if (isTierIssue) {
+        errorMsg = `Google AI Studio: Imagen 3 requires an account with billing enabled (Tier 1/Pay-As-You-Go). Free-tier API keys do not include access to the Imagen predict API.`;
+        troubleMsg = "To generate custom AI images: 1) Go to aistudio.google.com, 2) Link a billing project for Pay-As-You-Go access, and 3) Add GEMINI_API_KEY to Vercel Environment Variables. Alternatively, choose from Brother's 12 official SG assets or curated Singapore photography below (0 tokens required).";
+      }
 
       return res.status(200).json({
         success: false,
-        errorType: isTierIssue ? 'TIER_BILLING_REQUIRED' : 'API_ERROR',
+        errorType: isInvalidKey ? 'INVALID_KEY' : isTierIssue ? 'TIER_BILLING_REQUIRED' : 'API_ERROR',
         modelUsed: model,
-        error: isTierIssue
-          ? `Google AI Studio: The model "${model}" requires an account with billing enabled (Tier 1/Pay-As-You-Go). Free-tier Google AI Studio API keys do not include access to the Imagen predict image generation API.`
-          : (lastError || 'Image generation API was unable to generate an image.'),
-        troubleshooting: isTierIssue
-          ? 'To generate custom AI images: 1) Go to aistudio.google.com, 2) Link a billing project for Pay-As-You-Go access, and 3) Generate an API key. Alternatively, pick from Brother\'s 12 official SG assets or curated Singapore photography below (0 tokens required).'
-          : 'Please check your API key in Settings.',
+        error: errorMsg,
+        troubleshooting: troubleMsg,
         prompt: enhancedPrompt
       });
     } catch (error) {

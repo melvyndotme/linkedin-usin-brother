@@ -7,7 +7,13 @@ export default async function handler(req, res) {
   }
 
   const { type, content, base64Image, title, modelName } = req.body || {};
-  const apiKey = process.env.GEMINI_API_KEY || req.headers['x-gemini-key'] || req.body?.apiKey;
+  const clientKey = (req.headers['x-gemini-key'] || req.body?.apiKey || '').trim();
+  const apiKey = 
+    clientKey ||
+    process.env.GEMINI_API_KEY || 
+    process.env.GOOGLE_API_KEY || 
+    process.env.GOOGLE_GEMINI_API_KEY || 
+    process.env.VITE_GEMINI_API_KEY;
 
   let postContent = content;
   let detectedTitle = title;

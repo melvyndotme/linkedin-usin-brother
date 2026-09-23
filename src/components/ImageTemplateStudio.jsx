@@ -31,7 +31,8 @@ import {
   CURATED_EVENT_PHOTOS, 
   getPhotoCategoryForOccasion, 
   generateCarouselSlideSeries, 
-  renderSlideToCanvas 
+  renderSlideToCanvas,
+  getEffectiveFooterText
 } from '../lib/imageTemplateEngine.js';
 import { safeGetItem, safeSetItem } from '../lib/storage.js';
 
@@ -67,6 +68,19 @@ export default function ImageTemplateStudio({
   const [cloudSaving, setCloudSaving] = useState(false);
   const [cloudSuccess, setCloudSuccess] = useState(null);
   const [cloudError, setCloudError] = useState(null);
+  const [serverGeminiConfigured, setServerGeminiConfigured] = useState(false);
+
+  // Check if server-side GEMINI_API_KEY is configured in Vercel environment
+  useEffect(() => {
+    fetch('/api/ai/media?check=status')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.configured) {
+          setServerGeminiConfigured(true);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   // Custom text overlay editor state
   const [showTextEditor, setShowTextEditor] = useState(false);
@@ -655,9 +669,9 @@ export default function ImageTemplateStudio({
               )}
             </div>
 
-            {/* Bottom Footer: Official Tagline */}
+            {/* Bottom Footer: Official Tagline (Omits swipe prompts on 1.91:1 Banners) */}
             <div className="pt-3 border-t border-white/15 flex items-center justify-between text-[11px] text-slate-400 font-medium">
-              <span>{currentSlide.footerText}</span>
+              <span>{getEffectiveFooterText(currentSlide, aspectRatio)}</span>
             </div>
           </div>
         </div>
@@ -755,6 +769,26 @@ export default function ImageTemplateStudio({
               className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0f2ea2] resize-none"
             />
           </div>
+
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                Footer Tagline / Watermark
+              </label>
+              {aspectRatio === '1.91:1' && /swipe/i.test(currentSlide.footerText || '') && (
+                <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
+                  (Swipe cues auto-replaced with brand tagline in Banner mode)
+                </span>
+              )}
+            </div>
+            <input
+              type="text"
+              value={currentSlide.footerText || ''}
+              onChange={(e) => updateSlideField('footerText', e.target.value)}
+              placeholder={aspectRatio === '1.91:1' ? 'Brother Singapore • At your side' : 'Swipe to explore our story ➔'}
+              className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0f2ea2]"
+            />
+          </div>
         </div>
       )}
 
@@ -841,20 +875,29 @@ export default function ImageTemplateStudio({
         </div>
 
         {aiError && (
-          <div className="flex items-center justify-between p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700/60 text-xs text-amber-900 dark:text-amber-200 animate-in fade-in duration-200">
-            <div className="flex items-center gap-2 min-w-0">
-              <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
-              <span className="font-medium truncate">
-                {typeof aiError === 'string' ? aiError : aiError.message}
-              </span>
+          <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700/60 text-xs text-amber-900 dark:text-amber-200 animate-in fade-in duration-200 space-y-1.5">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start gap-2.5 min-w-0">
+                <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                <div className="space-y-1">
+                  <p className="font-bold text-xs leading-snug">
+                    {typeof aiError === 'string' ? aiError : aiError.message}
+                  </p>
+                  {aiError.troubleshooting && (
+                    <p className="text-[11px] text-amber-800/90 dark:text-amber-300/90 leading-relaxed font-normal">
+                      {aiError.troubleshooting}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setAiError(null)}
+                className="text-[11px] font-bold px-2 py-1 rounded text-amber-800 hover:bg-amber-100 dark:text-amber-300 dark:hover:bg-amber-900/60 cursor-pointer shrink-0"
+              >
+                Dismiss
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={() => setAiError(null)}
-              className="text-[11px] font-bold px-2 py-1 rounded text-amber-800 hover:bg-amber-100 dark:text-amber-300 dark:hover:bg-amber-900/60 cursor-pointer shrink-0"
-            >
-              Dismiss
-            </button>
           </div>
         )}
 
@@ -993,6 +1036,33 @@ export default function ImageTemplateStudio({
               </p>
               <p className="text-[11px] text-amber-800 dark:text-amber-300 leading-relaxed">
                 By clicking <strong>Continue</strong>, you understand that generating this custom image will consume tokens from your linked Google Gemini API account.
+              </p>
+            </div>
+
+            {/* API Key Connection Source Indicator */}
+            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-slate-700 dark:text-slate-300 text-[11px]">API Key Source:</span>
+                {serverGeminiConfigured ? (
+                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">
+                    <Check className="w-3 h-3" /> Vercel Env (GEMINI_API_KEY)
+                  </span>
+                ) : safeGetItem('key_gemini') ? (
+                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/50 px-2 py-0.5 rounded-full border border-blue-200 dark:border-blue-800">
+                    <Check className="w-3 h-3" /> Client Key (Settings)
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/50 px-2 py-0.5 rounded-full border border-amber-200 dark:border-amber-800">
+                    <AlertCircle className="w-3 h-3" /> Not Configured Yet
+                  </span>
+                )}
+              </div>
+              <p className="text-[10px] text-slate-500 dark:text-slate-400">
+                {serverGeminiConfigured
+                  ? 'Serverless Gemini generation is active via your Vercel project environment variables.'
+                  : safeGetItem('key_gemini')
+                  ? 'Using client API key saved in browser Settings.'
+                  : 'Add GEMINI_API_KEY in Vercel Environment Variables, or enter your key in Settings.'}
               </p>
             </div>
 

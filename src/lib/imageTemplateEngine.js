@@ -1060,8 +1060,8 @@ export async function renderSlideToCanvas({
     ctx.restore();
   }
 
-  // Slide Numbering (e.g. 01 / 05 in official Brother Blue)
-  if (slide?.slideNumber) {
+  // Slide Numbering (e.g. 01 / 05 in official Brother Blue) — Carousel only, omitted on 1.91:1 banner
+  if (slide?.slideNumber && !isBanner) {
     ctx.save();
     ctx.font = 'bold 13px "Plus Jakarta Sans", monospace';
     const numWidth = ctx.measureText(slide.slideNumber).width;
@@ -1136,7 +1136,7 @@ export async function renderSlideToCanvas({
     ctx.restore();
   }
 
-  // 8. Bottom Footer & Official Channel Watermark
+  // 8. Bottom Footer & Official Channel Watermark (Banners replace carousel "swipe" cues with corporate tagline)
   ctx.save();
   const footerY = height - 50;
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
@@ -1148,11 +1148,27 @@ export async function renderSlideToCanvas({
 
   ctx.fillStyle = '#64748B';
   ctx.font = '500 13px "Plus Jakarta Sans", system-ui, sans-serif';
-  ctx.fillText(slide?.footerText || 'Brother Singapore • At your side', 70, footerY + 5);
+  const effectiveFooter = getEffectiveFooterText(slide, aspectRatio);
+  ctx.fillText(effectiveFooter, 70, footerY + 5);
 
   ctx.restore();
 
   return canvas.toDataURL('image/png');
+}
+
+/**
+ * Resolves effective footer text based on aspect ratio format.
+ * In 1.91:1 Banner mode, carousel-specific prompts like "Swipe to explore..." are omitted
+ * and gracefully replaced with the corporate tagline.
+ */
+export function getEffectiveFooterText(slide, aspectRatio) {
+  const rawText = slide?.footerText || 'Brother Singapore • At your side';
+  if (aspectRatio === '1.91:1') {
+    if (/swipe/i.test(rawText)) {
+      return 'Brother Singapore • At your side';
+    }
+  }
+  return rawText;
 }
 
 function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
