@@ -14,8 +14,12 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
+  const urlObj = new URL(req.url, 'http://localhost');
+  const queryCheck = req.query?.check || urlObj.searchParams.get('check');
+  const imageUrl = req.query?.url || urlObj.searchParams.get('url');
+
   // 0. Server Environment Status Check (GET /api/ai/media?check=status)
-  if (req.method === 'GET' && req.query?.check === 'status') {
+  if (req.method === 'GET' && queryCheck === 'status') {
     const hasEnv = Boolean(
       process.env.GEMINI_API_KEY ||
       process.env.GOOGLE_API_KEY ||
@@ -29,7 +33,6 @@ export default async function handler(req, res) {
   }
 
   // 1. Image Proxy Mode (GET /api/ai/media?url=...)
-  const imageUrl = req.query?.url;
   if (req.method === 'GET' || imageUrl) {
     if (!imageUrl || !/^https?:\/\//i.test(imageUrl)) {
       return res.status(400).json({ error: 'Valid image URL is required' });
