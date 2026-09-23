@@ -165,6 +165,7 @@ export default async function handler(req, res) {
         errorType: isInvalidKey ? 'INVALID_KEY' : isTierIssue ? 'TIER_BILLING_REQUIRED' : 'API_ERROR',
         modelUsed: model,
         error: errorMsg,
+        rawGoogleError: lastError,
         troubleshooting: troubleMsg,
         prompt: enhancedPrompt
       });
