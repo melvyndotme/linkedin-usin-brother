@@ -32,6 +32,26 @@ export default async function handler(req, res) {
     });
   }
 
+  // 0.1 List Models for Diagnostics (GET /api/ai/media?check=models)
+  if (req.method === 'GET' && queryCheck === 'models') {
+    const apiKey = 
+      process.env.GEMINI_API_KEY || 
+      process.env.GOOGLE_API_KEY || 
+      process.env.GOOGLE_GEMINI_API_KEY || 
+      process.env.VITE_GEMINI_API_KEY;
+    if (!apiKey) return res.status(200).json({ error: 'No key found' });
+    try {
+      const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+      const data = await resp.json();
+      return res.status(200).json({
+        total: (data.models || []).length,
+        models: (data.models || []).map(m => ({ name: m.name, methods: m.supportedGenerationMethods }))
+      });
+    } catch (e) {
+      return res.status(500).json({ error: e.message });
+    }
+  }
+
   // 1. Image Proxy Mode (GET /api/ai/media?url=...)
   if (req.method === 'GET' || imageUrl) {
     if (!imageUrl || !/^https?:\/\//i.test(imageUrl)) {
