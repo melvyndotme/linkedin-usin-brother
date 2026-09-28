@@ -362,9 +362,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
           isLive: true,
           publishedAt: result.publishedAt || new Date().toLocaleTimeString(),
           notionStatus: 'Synced to Notion Repository',
-          postUrl: result.provider === 'buffer' 
-            ? 'https://publish.buffer.com' 
-            : (result.urn ? `https://www.linkedin.com/feed/update/${result.urn}` : 'https://www.linkedin.com/company/brother-international-singapore-pte-ltd/posts/')
+          postUrl: 'https://www.linkedin.com/company/brother-international-singapore-pte-ltd/posts/'
         });
         handleSaveToNotionRepository(result.urn);
         return;
