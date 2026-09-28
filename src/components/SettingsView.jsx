@@ -728,68 +728,46 @@ export default function SettingsView({ isDark }) {
             </div>
           </div>
         </div>
-        {/* Gemini API & Model Switcher (Primary Engine) */}
+        {/* Gemini AI Engine & Model Switcher (Primary Engine) */}
         <div className="p-5 rounded-xl bg-blue-50/60 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-500/30 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-[#0f2ea2] dark:text-blue-400" />
               <h3 className="text-xs font-bold text-[#0f2ea2] dark:text-blue-300 uppercase tracking-wider">
-                Google Gemini AI Engine Integration (Primary LLM & Visuals)
+                Google Gemini AI Engine (Primary LLM & Visuals)
               </h3>
             </div>
             <div className="flex items-center gap-1.5 self-start sm:self-auto">
-              {serverGeminiConfigured && (
-                <span className="text-[10px] font-mono bg-emerald-600 text-white px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
-                  <Check className="w-3 h-3" /> Vercel Env Active
-                </span>
-              )}
+              <span className="text-[10px] font-mono bg-emerald-600 text-white px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
+                <Check className="w-3 h-3" /> Vercel Env Active
+              </span>
               <span className="text-[10px] font-mono bg-[#0f2ea2] text-white px-2 py-0.5 rounded-full font-bold">
                 Active LLM
               </span>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center justify-between">
-                <span>Gemini Engine Key</span>
-                {serverGeminiConfigured && (
-                  <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-semibold">
-                    (Defaulting to Vercel env)
-                  </span>
-                )}
-              </label>
-              <input
-                type="password"
-                value={geminiKey}
-                onChange={(e) => updateSetting('key_gemini', e.target.value, setGeminiKey)}
-                placeholder={serverGeminiConfigured ? "Configured via Vercel GEMINI_API_KEY" : "AIzaSy... (or set GEMINI_API_KEY in Vercel)"}
-                className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none"
-              />
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
-                You can configure <code className="bg-blue-100 dark:bg-blue-900/60 px-1 py-0.5 rounded text-[10px] font-mono text-[#0f2ea2] dark:text-blue-300 font-bold">GEMINI_API_KEY</code> in your Vercel Project Environment Variables so all advocates can generate AI visuals without saving client keys.
-              </p>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center justify-between">
-                <span>Model Selection</span>
-                <span className="text-[10px] text-[#0f2ea2] dark:text-blue-400 font-semibold">Active: {geminiModel}</span>
-              </label>
-              <select
-                value={geminiModel}
-                onChange={(e) => updateSetting('model_gemini', e.target.value, setGeminiModel)}
-                className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none cursor-pointer"
-              >
-                <option value="gemini-3.8-flash">gemini-3.8-flash (Next-Gen High Velocity Reasoning)</option>
-                <option value="gemini-3.7-flash">gemini-3.7-flash (Hybrid Reasoning & High Velocity)</option>
-                <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite (Ultra Lightweight & Fast)</option>
-                <option value="gemini-3.1-flash-lite-image">gemini-3.1-flash-lite-image (Lite Multimodal Asset Processing)</option>
-                <option value="gemini-3.1-flash-image">gemini-3.1-flash-image (Multimodal Vision & Asset Synthesis)</option>
-                <option value="gemini-3-pro-image">gemini-3-pro-image (Advanced Creative Image Studio)</option>
-                <option value="gemini-2.5-flash-image">gemini-2.5-flash-image (Fast Multimodal Asset Processing)</option>
-              </select>
-            </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center justify-between">
+              <span>Active Model Selection</span>
+              <span className="text-[10px] text-[#0f2ea2] dark:text-blue-400 font-semibold">{geminiModel}</span>
+            </label>
+            <select
+              value={geminiModel}
+              onChange={(e) => updateSetting('model_gemini', e.target.value, setGeminiModel)}
+              className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none cursor-pointer"
+            >
+              <option value="gemini-3.8-flash">gemini-3.8-flash (Next-Gen High Velocity Reasoning)</option>
+              <option value="gemini-3.7-flash">gemini-3.7-flash (Hybrid Reasoning & High Velocity)</option>
+              <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite (Ultra Lightweight & Fast)</option>
+              <option value="gemini-3.1-flash-lite-image">gemini-3.1-flash-lite-image (Lite Multimodal Asset Processing)</option>
+              <option value="gemini-3.1-flash-image">gemini-3.1-flash-image (Multimodal Vision & Asset Synthesis)</option>
+              <option value="gemini-3-pro-image">gemini-3-pro-image (Advanced Creative Image Studio)</option>
+              <option value="gemini-2.5-flash-image">gemini-2.5-flash-image (Fast Multimodal Asset Processing)</option>
+            </select>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1.5">
+              Powered by <code className="bg-blue-100 dark:bg-blue-900/60 px-1 py-0.5 rounded text-[10px] font-mono text-[#0f2ea2] dark:text-blue-300 font-bold">GEMINI_API_KEY</code> on Vercel. All advocates generate high-converting copy and carousel visuals with zero manual key setup.
+            </p>
           </div>
 
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-1 border-t border-blue-200/60 dark:border-blue-800/40">
@@ -843,92 +821,13 @@ export default function SettingsView({ isDark }) {
           </div>
         </div>
 
-        {/* Buffer API & 1-Click LinkedIn Publishing (Recommended) */}
-        <div className="p-5 rounded-xl bg-sky-50/60 dark:bg-sky-950/30 border border-sky-200 dark:border-sky-500/30 space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-sky-600 dark:text-sky-400" />
-              <h3 className="text-xs font-bold text-sky-900 dark:text-sky-300 uppercase tracking-wider">
-                Buffer 1-Click LinkedIn Publishing (Recommended)
-              </h3>
-            </div>
-            <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold self-start sm:self-auto ${
-              serverBufferConfigured 
-                ? 'bg-emerald-600 text-white' 
-                : 'bg-sky-600 text-white'
-            }`}>
-              {serverBufferConfigured ? '✓ Vercel Configured (Zero Input Needed)' : 'Auto-Discovery Active'}
-            </span>
-          </div>
-
-          <p className="text-xs text-sky-900/80 dark:text-sky-300/80">
-            Publish seamlessly to the official Brother Singapore LinkedIn page via Buffer without requiring complex LinkedIn Developer App approvals or expiring tokens.
-            {serverBufferConfigured && (
-              <span className="block mt-1 font-semibold text-emerald-800 dark:text-emerald-300">
-                ✓ BUFFER_API_KEY is already active in your Vercel project environment. You can leave the fields below completely blank!
-              </span>
-            )}
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                Buffer API Key / Access Token (Optional Override)
-              </label>
-              <input
-                type="password"
-                disabled={!isAdminUnlocked}
-                value={isAdminUnlocked ? bufferApiKey : (bufferApiKey ? '••••••••••••••••••••••••••••' : '')}
-                onChange={(e) => updateSetting('key_buffer', e.target.value, setBufferApiKey)}
-                placeholder={serverBufferConfigured ? "Preconfigured in Vercel (BUFFER_API_KEY)" : "buf_... or paste Buffer API Token"}
-                className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed"
-              />
-              <p className="text-[10px] text-slate-400 mt-1">Preconfigured via BUFFER_API_KEY in Vercel. Optional local client override.</p>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                Buffer LinkedIn Channel ID (Optional)
-              </label>
-              <input
-                type="text"
-                disabled={!isAdminUnlocked}
-                value={bufferChannelId}
-                onChange={(e) => updateSetting('buffer_channel_id', e.target.value, setBufferChannelId)}
-                placeholder="Auto-discovered if left blank"
-                className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed"
-              />
-              <p className="text-[10px] text-slate-400 mt-1">Automatically resolves to Brother Singapore LinkedIn Page.</p>
-            </div>
-          </div>
-
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-1 border-t border-sky-100 dark:border-sky-900/50">
-            <button
-              onClick={handleTestBuffer}
-              disabled={bufferTesting}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold transition-all disabled:opacity-50 cursor-pointer shadow-sm active:scale-95"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 ${bufferTesting ? 'animate-spin' : ''}`} />
-              <span>{bufferTesting ? 'Verifying Buffer...' : '⚡ Test Buffer Connection & Channel'}</span>
-            </button>
-
-            {bufferTestStatus && (
-              <span className={`text-xs font-semibold ${
-                bufferTestStatus.status === 'success' ? 'text-emerald-700 dark:text-emerald-300' : 'text-rose-600 dark:text-rose-400'
-              }`}>
-                {bufferTestStatus.message}
-              </span>
-            )}
-          </div>
-        </div>
-
         {/* LinkedIn Developer API & Company Publishing */}
         <div className="p-5 rounded-xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-500/30 space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Building2 className="w-4 h-4 text-[#0f2ea2] dark:text-blue-400" />
               <h3 className="text-xs font-bold text-[#0f2ea2] dark:text-blue-300 uppercase tracking-wider">
-                LinkedIn Organization & Company Page Integration (Direct REST API)
+                LinkedIn Organization & Company Page Integration
               </h3>
             </div>
             <span className="text-[10px] font-mono bg-[#0f2ea2] text-white px-2 py-0.5 rounded-full font-bold">
@@ -937,10 +836,10 @@ export default function SettingsView({ isDark }) {
           </div>
 
           <p className="text-xs text-slate-600 dark:text-slate-400">
-            Configure direct LinkedIn Developer App connectivity if not using Buffer. Enables 1-click live publishing to company feed and retrieves official page analytics.
+            Configure your LinkedIn Developer App & Company Page connection. 1-click live publishing is managed by Buffer, while official company telemetry and analytics are retrieved below.
           </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Organization ID */}
             <div>
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
@@ -956,22 +855,6 @@ export default function SettingsView({ isDark }) {
               <p className="text-[10px] text-slate-400 mt-1">
                 Resolved URN: <span className="font-mono text-slate-800 dark:text-slate-200 font-bold">urn:li:organization:{cleanLinkedInOrgId(linkedInOrgId) || '808877'}</span>
               </p>
-            </div>
-
-            {/* OAuth Bearer Token */}
-            <div>
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center justify-between">
-                <span>OAuth 2.0 Access Token</span>
-                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">Auto-Refresh Enabled (365-day)</span>
-              </label>
-              <input
-                type="password"
-                value={linkedInToken}
-                onChange={(e) => updateSetting('key_linkedin', e.target.value, setLinkedInToken)}
-                placeholder="AQV... or paste Bearer token"
-                className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none"
-              />
-              <p className="text-[10px] text-slate-400 mt-1">Bearer token generated with <span className="font-mono text-slate-600 dark:text-slate-300">w_organization_social</span>. (Optional: public telemetry auto-pulls if left blank).</p>
             </div>
 
             {/* Client ID */}
