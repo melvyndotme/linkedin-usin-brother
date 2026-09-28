@@ -107,12 +107,14 @@ export function formatLinkedInOrgUrn(input) {
   return cleanId ? `urn:li:organization:${cleanId}` : '';
 }
 
-export async function publishToLinkedInApi({ commentary, orgId, token, refreshToken, clientId, clientSecret }) {
+export async function publishToLinkedInApi({ commentary, orgId, token, refreshToken, clientId, clientSecret, bufferApiKey, bufferChannelId, imageUrl }) {
   const cleanId = cleanLinkedInOrgId(orgId || '808877');
   const activeToken = token || safeGetItem('key_linkedin');
   const activeRefresh = refreshToken || safeGetItem('linkedin_refresh_token');
   const activeClientId = clientId || safeGetItem('linkedin_client_id') || '8660fx8uvz5z8a';
   const activeSecret = clientSecret || safeGetItem('linkedin_client_secret');
+  const activeBufferKey = bufferApiKey || safeGetItem('key_buffer');
+  const activeBufferChannel = bufferChannelId || safeGetItem('buffer_channel_id');
 
   const res = await fetch('/api/linkedin/publish', {
     method: 'POST',
@@ -123,7 +125,10 @@ export async function publishToLinkedInApi({ commentary, orgId, token, refreshTo
       token: activeToken,
       refreshToken: activeRefresh,
       clientId: activeClientId,
-      clientSecret: activeSecret
+      clientSecret: activeSecret,
+      bufferApiKey: activeBufferKey,
+      bufferChannelId: activeBufferChannel,
+      imageUrl
     })
   });
   const data = await res.json();
@@ -131,6 +136,21 @@ export async function publishToLinkedInApi({ commentary, orgId, token, refreshTo
     safeSetItem('key_linkedin', data.refreshedToken);
   }
   return data;
+}
+
+export async function testBufferCredentials({ apiKey, channelId } = {}) {
+  const activeKey = apiKey || safeGetItem('key_buffer');
+  const activeChannel = channelId || safeGetItem('buffer_channel_id');
+  const res = await fetch('/api/linkedin/publish?test=true', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      bufferApiKey: activeKey,
+      bufferChannelId: activeChannel,
+      isTest: true
+    })
+  });
+  return await res.json();
 }
 
 export async function testLinkedInCredentials({ orgId, token }) {

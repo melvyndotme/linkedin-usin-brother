@@ -348,6 +348,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
     const orgId = safeGetItem('linkedin_org_id') || '808877';
 
     try {
+      const bufferKey = safeGetItem('key_buffer');
       const result = await publishToLinkedInApi({ commentary: content, orgId, token: token || undefined });
 
       if (result && result.success) {
@@ -355,26 +356,31 @@ To everyone celebrating, how is your team marking this special day? Share your f
         setPublishError(null);
         setPublishedData({
           urn: result.urn,
-          status: 'Live on LinkedIn',
+          status: result.status || 'Live on LinkedIn',
+          provider: result.provider || 'direct',
+          channelId: result.channelId,
           isLive: true,
           publishedAt: result.publishedAt || new Date().toLocaleTimeString(),
           notionStatus: 'Synced to Notion Repository',
-          postUrl: result.urn ? `https://www.linkedin.com/feed/update/${result.urn}` : null
+          postUrl: result.provider === 'buffer' 
+            ? 'https://publish.buffer.com' 
+            : (result.urn ? `https://www.linkedin.com/feed/update/${result.urn}` : 'https://www.linkedin.com/company/brother-international-singapore-pte-ltd/posts/')
         });
         handleSaveToNotionRepository(result.urn);
         return;
       } else {
         setPublishing(false);
         setPublishError({
-          message: result?.error || 'LinkedIn API returned an error. Ensure your OAuth 2.0 token with w_organization_social scope is configured.',
-          needsToken: !token
+          message: result?.error || (bufferKey ? 'Buffer API error occurred.' : 'LinkedIn API returned an error. Ensure Buffer API Key or OAuth 2.0 token is configured.'),
+          needsToken: !token && !bufferKey
         });
       }
     } catch (err) {
+      const bufferKey = safeGetItem('key_buffer');
       setPublishing(false);
       setPublishError({
-        message: err.message || 'Network error connecting to LinkedIn publishing API.',
-        needsToken: !token
+        message: err.message || 'Network error connecting to publishing API.',
+        needsToken: !token && !bufferKey
       });
     }
   };

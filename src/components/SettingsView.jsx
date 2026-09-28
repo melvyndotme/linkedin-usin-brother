@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Settings, Key, Check, ShieldCheck, Sparkles, Sliders, RefreshCw, Cpu, AlertCircle, Lock, Unlock, Database, Building2, Copy, ExternalLink, HelpCircle, Mail, Globe, CheckCircle2, Send } from 'lucide-react';
 import { testSerperKey } from '../lib/serperEngine.js';
-import { cleanLinkedInOrgId, formatLinkedInOrgUrn, testLinkedInCredentials } from '../lib/linkedInApi.js';
+import { cleanLinkedInOrgId, formatLinkedInOrgUrn, testLinkedInCredentials, testBufferCredentials } from '../lib/linkedInApi.js';
 import { safeGetItem, safeSetItem } from '../lib/storage.js';
 
 export default function SettingsView({ isDark }) {
@@ -9,6 +9,12 @@ export default function SettingsView({ isDark }) {
   const [serperKey, setSerperKey] = useState(safeGetItem('key_serper') || '');
   const [sendPilotKey, setSendPilotKey] = useState(safeGetItem('key_sendpilot') || '');
   
+  // Buffer API Configuration (Recommended 1-Click Publishing to LinkedIn)
+  const [bufferApiKey, setBufferApiKey] = useState(safeGetItem('key_buffer') || '');
+  const [bufferChannelId, setBufferChannelId] = useState(safeGetItem('buffer_channel_id') || '');
+  const [bufferTesting, setBufferTesting] = useState(false);
+  const [bufferTestStatus, setBufferTestStatus] = useState(null);
+
   // Resend API & Magic Link Configuration (rs.bro-x.org)
   const [resendKey, setResendKey] = useState(safeGetItem('key_resend') || '');
   const [resendSender, setResendSender] = useState(safeGetItem('resend_sender') || 'LinkedUsIn Studio <linkusin@rs.bro-x.org>');
@@ -139,6 +145,8 @@ export default function SettingsView({ isDark }) {
     safeSetItem('key_openai', openAIKey);
     safeSetItem('key_serper', serperKey);
     safeSetItem('key_sendpilot', sendPilotKey);
+    safeSetItem('key_buffer', bufferApiKey);
+    safeSetItem('buffer_channel_id', bufferChannelId);
     safeSetItem('key_resend', resendKey);
     safeSetItem('resend_sender', resendSender);
     safeSetItem('linkedin_org_id', cleanLinkedInOrgId(linkedInOrgId));
@@ -153,6 +161,41 @@ export default function SettingsView({ isDark }) {
     setSaved(true);
     setAutoSaveStatus('saved');
     setTimeout(() => setSaved(false), 2500);
+  };
+
+  const handleTestBuffer = async () => {
+    setBufferTesting(true);
+    setBufferTestStatus(null);
+    try {
+      const activeKey = (bufferApiKey || safeGetItem('key_buffer') || '').trim();
+      const activeChannel = (bufferChannelId || safeGetItem('buffer_channel_id') || '').trim();
+      const res = await testBufferCredentials({
+        apiKey: activeKey || undefined,
+        channelId: activeChannel || undefined
+      });
+      if (res.success) {
+        setBufferTestStatus({
+          status: 'success',
+          message: res.message || 'Connected to Buffer!'
+        });
+        if (res.channelId && !bufferChannelId) {
+          setBufferChannelId(res.channelId);
+          safeSetItem('buffer_channel_id', res.channelId);
+        }
+      } else {
+        setBufferTestStatus({
+          status: 'error',
+          message: res.error || 'Failed to connect to Buffer'
+        });
+      }
+    } catch (err) {
+      setBufferTestStatus({
+        status: 'error',
+        message: err.message || 'Network error connecting to Buffer API'
+      });
+    } finally {
+      setBufferTesting(false);
+    }
   };
 
   const handleUnlockAdmin = (e, explicitPin) => {
@@ -181,6 +224,23 @@ export default function SettingsView({ isDark }) {
     const activeSerperKey = (serperKey || safeGetItem('key_serper') || '').trim();
     const reports = [];
     let hasError = false;
+
+    // Test Buffer.com integration
+    try {
+      const activeBufferKey = (bufferApiKey || safeGetItem('key_buffer') || '').trim();
+      const activeBufferChannel = (bufferChannelId || safeGetItem('buffer_channel_id') || '').trim();
+      const bufRes = await testBufferCredentials({
+        apiKey: activeBufferKey || undefined,
+        channelId: activeBufferChannel || undefined
+      });
+      if (bufRes?.success) {
+        reports.push(`✅ Buffer: ${bufRes.message}`);
+      } else {
+        reports.push(`ℹ️ Buffer: ${bufRes?.error || 'Not configured'}`);
+      }
+    } catch (err) {
+      // Buffer optional check
+    }
 
     // Test Serper.dev
     if (activeSerperKey) {
@@ -774,6 +834,76 @@ export default function SettingsView({ isDark }) {
               placeholder="Paste Serper API Key"
               className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none"
             />
+          </div>
+        </div>
+
+        {/* Buffer API & 1-Click LinkedIn Publishing (Recommended) */}
+        <div className="p-5 rounded-xl bg-sky-50/60 dark:bg-sky-950/30 border border-sky-200 dark:border-sky-500/30 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+              <h3 className="text-xs font-bold text-sky-900 dark:text-sky-300 uppercase tracking-wider">
+                Buffer 1-Click LinkedIn Publishing (Recommended)
+              </h3>
+            </div>
+            <span className="text-[10px] font-mono bg-sky-600 text-white px-2 py-0.5 rounded-full font-bold self-start sm:self-auto">
+              Auto-Discovery Active
+            </span>
+          </div>
+
+          <p className="text-xs text-sky-900/80 dark:text-sky-300/80">
+            Publish seamlessly to the official Brother Singapore LinkedIn page via Buffer without requiring complex LinkedIn Developer App approvals or expiring tokens.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                Buffer API Key / Access Token
+              </label>
+              <input
+                type="password"
+                disabled={!isAdminUnlocked}
+                value={isAdminUnlocked ? bufferApiKey : (bufferApiKey ? '••••••••••••••••••••••••••••' : '')}
+                onChange={(e) => updateSetting('key_buffer', e.target.value, setBufferApiKey)}
+                placeholder="buf_... or paste Buffer API Token"
+                className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed"
+              />
+              <p className="text-[10px] text-slate-400 mt-1">From buffer.com/manage/apps. Also preconfigured via BUFFER_API_KEY on Vercel.</p>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                Buffer LinkedIn Channel ID (Optional)
+              </label>
+              <input
+                type="text"
+                disabled={!isAdminUnlocked}
+                value={bufferChannelId}
+                onChange={(e) => updateSetting('buffer_channel_id', e.target.value, setBufferChannelId)}
+                placeholder="Auto-discovered if left blank"
+                className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed"
+              />
+              <p className="text-[10px] text-slate-400 mt-1">Leave empty to auto-detect Brother Singapore LinkedIn Channel.</p>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-1 border-t border-sky-100 dark:border-sky-900/50">
+            <button
+              onClick={handleTestBuffer}
+              disabled={bufferTesting}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold transition-all disabled:opacity-50 cursor-pointer shadow-sm active:scale-95"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${bufferTesting ? 'animate-spin' : ''}`} />
+              <span>{bufferTesting ? 'Verifying Buffer...' : '⚡ Test Buffer Connection & Channel'}</span>
+            </button>
+
+            {bufferTestStatus && (
+              <span className={`text-xs font-semibold ${
+                bufferTestStatus.status === 'success' ? 'text-emerald-700 dark:text-emerald-300' : 'text-rose-600 dark:text-rose-400'
+              }`}>
+                {bufferTestStatus.message}
+              </span>
+            )}
           </div>
         </div>
 
