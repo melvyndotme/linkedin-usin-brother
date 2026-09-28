@@ -160,6 +160,16 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
+  // Quick configuration status check
+  if (req.query?.check === "status" || req.query?.check === "buffer") {
+    const configured = Boolean(process.env.BUFFER_API_KEY);
+    return res.status(200).json({
+      configured,
+      provider: "buffer",
+      hasChannelId: Boolean(process.env.BUFFER_CHANNEL_ID)
+    });
+  }
+
   const commentary = req.body?.commentary || req.body?.content;
   const imageUrl = req.body?.imageUrl || req.body?.mediaUrl || req.body?.image;
   const isTest = req.query?.test === "true" || req.body?.isTest === true;

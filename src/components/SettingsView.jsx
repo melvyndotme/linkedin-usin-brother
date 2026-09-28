@@ -5,13 +5,12 @@ import { cleanLinkedInOrgId, formatLinkedInOrgUrn, testLinkedInCredentials, test
 import { safeGetItem, safeSetItem } from '../lib/storage.js';
 
 export default function SettingsView({ isDark }) {
-  const [openAIKey, setOpenAIKey] = useState(safeGetItem('key_openai') || '');
   const [serperKey, setSerperKey] = useState(safeGetItem('key_serper') || '');
-  const [sendPilotKey, setSendPilotKey] = useState(safeGetItem('key_sendpilot') || '');
   
   // Buffer API Configuration (Recommended 1-Click Publishing to LinkedIn)
   const [bufferApiKey, setBufferApiKey] = useState(safeGetItem('key_buffer') || '');
   const [bufferChannelId, setBufferChannelId] = useState(safeGetItem('buffer_channel_id') || '');
+  const [serverBufferConfigured, setServerBufferConfigured] = useState(false);
   const [bufferTesting, setBufferTesting] = useState(false);
   const [bufferTestStatus, setBufferTestStatus] = useState(null);
 
@@ -53,7 +52,7 @@ export default function SettingsView({ isDark }) {
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState(null);
 
-  // Server-side Gemini Environment Configuration status
+  // Server-side Environment Configuration status
   const [serverGeminiConfigured, setServerGeminiConfigured] = useState(false);
   const [geminiTesting, setGeminiTesting] = useState(false);
   const [geminiTestStatus, setGeminiTestStatus] = useState(null);
@@ -64,6 +63,15 @@ export default function SettingsView({ isDark }) {
       .then((data) => {
         if (data?.configured) {
           setServerGeminiConfigured(true);
+        }
+      })
+      .catch(() => {});
+
+    fetch('/api/linkedin/publish?check=status')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.configured) {
+          setServerBufferConfigured(true);
         }
       })
       .catch(() => {});
@@ -142,9 +150,7 @@ export default function SettingsView({ isDark }) {
   };
 
   const handleSave = () => {
-    safeSetItem('key_openai', openAIKey);
     safeSetItem('key_serper', serperKey);
-    safeSetItem('key_sendpilot', sendPilotKey);
     safeSetItem('key_buffer', bufferApiKey);
     safeSetItem('buffer_channel_id', bufferChannelId);
     safeSetItem('key_resend', resendKey);
@@ -846,29 +852,38 @@ export default function SettingsView({ isDark }) {
                 Buffer 1-Click LinkedIn Publishing (Recommended)
               </h3>
             </div>
-            <span className="text-[10px] font-mono bg-sky-600 text-white px-2 py-0.5 rounded-full font-bold self-start sm:self-auto">
-              Auto-Discovery Active
+            <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold self-start sm:self-auto ${
+              serverBufferConfigured 
+                ? 'bg-emerald-600 text-white' 
+                : 'bg-sky-600 text-white'
+            }`}>
+              {serverBufferConfigured ? '✓ Vercel Configured (Zero Input Needed)' : 'Auto-Discovery Active'}
             </span>
           </div>
 
           <p className="text-xs text-sky-900/80 dark:text-sky-300/80">
             Publish seamlessly to the official Brother Singapore LinkedIn page via Buffer without requiring complex LinkedIn Developer App approvals or expiring tokens.
+            {serverBufferConfigured && (
+              <span className="block mt-1 font-semibold text-emerald-800 dark:text-emerald-300">
+                ✓ BUFFER_API_KEY is already active in your Vercel project environment. You can leave the fields below completely blank!
+              </span>
+            )}
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                Buffer API Key / Access Token
+                Buffer API Key / Access Token (Optional Override)
               </label>
               <input
                 type="password"
                 disabled={!isAdminUnlocked}
                 value={isAdminUnlocked ? bufferApiKey : (bufferApiKey ? '••••••••••••••••••••••••••••' : '')}
                 onChange={(e) => updateSetting('key_buffer', e.target.value, setBufferApiKey)}
-                placeholder="buf_... or paste Buffer API Token"
+                placeholder={serverBufferConfigured ? "Preconfigured in Vercel (BUFFER_API_KEY)" : "buf_... or paste Buffer API Token"}
                 className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed"
               />
-              <p className="text-[10px] text-slate-400 mt-1">From buffer.com/manage/apps. Also preconfigured via BUFFER_API_KEY on Vercel.</p>
+              <p className="text-[10px] text-slate-400 mt-1">Preconfigured via BUFFER_API_KEY in Vercel. Optional local client override.</p>
             </div>
 
             <div>
@@ -883,7 +898,7 @@ export default function SettingsView({ isDark }) {
                 placeholder="Auto-discovered if left blank"
                 className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed"
               />
-              <p className="text-[10px] text-slate-400 mt-1">Leave empty to auto-detect Brother Singapore LinkedIn Channel.</p>
+              <p className="text-[10px] text-slate-400 mt-1">Automatically resolves to Brother Singapore LinkedIn Page.</p>
             </div>
           </div>
 
@@ -913,7 +928,7 @@ export default function SettingsView({ isDark }) {
             <div className="flex items-center gap-2">
               <Building2 className="w-4 h-4 text-[#0f2ea2] dark:text-blue-400" />
               <h3 className="text-xs font-bold text-[#0f2ea2] dark:text-blue-300 uppercase tracking-wider">
-                LinkedIn Organization & Company Page Integration
+                LinkedIn Organization & Company Page Integration (Direct REST API)
               </h3>
             </div>
             <span className="text-[10px] font-mono bg-[#0f2ea2] text-white px-2 py-0.5 rounded-full font-bold">
@@ -922,7 +937,7 @@ export default function SettingsView({ isDark }) {
           </div>
 
           <p className="text-xs text-slate-600 dark:text-slate-400">
-            Configure your LinkedIn Developer App & Company Page connection. This enables 1-click live publishing to your company feed and retrieves official page analytics.
+            Configure direct LinkedIn Developer App connectivity if not using Buffer. Enables 1-click live publishing to company feed and retrieves official page analytics.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1093,37 +1108,6 @@ export default function SettingsView({ isDark }) {
           )}
         </div>
 
-        {/* SendPilot & OpenAI Fallback Integrations */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1.5">
-              <Key className="w-3.5 h-3.5 text-purple-600" />
-              SendPilot Notification Integration Key
-            </label>
-            <input
-              type="password"
-              value={sendPilotKey}
-              onChange={(e) => updateSetting('key_sendpilot', e.target.value, setSendPilotKey)}
-              placeholder="sp_live_..."
-              className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1.5">
-              <Key className="w-3.5 h-3.5 text-emerald-600" />
-              OpenAI Fallback Integration Key
-            </label>
-            <input
-              type="password"
-              value={openAIKey}
-              onChange={(e) => updateSetting('key_openai', e.target.value, setOpenAIKey)}
-              placeholder="sk-proj-..."
-              className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none"
-            />
-          </div>
-        </div>
-
         {/* Test Connection Button */}
         <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
           <button
@@ -1137,7 +1121,7 @@ export default function SettingsView({ isDark }) {
 
           <button
             onClick={handleSave}
-            className="flex items-center gap-2 bg-[#0f2ea2] hover:bg-[#004b8f] text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-md transition-all"
+            className="flex items-center gap-2 bg-[#0f2ea2] hover:bg-[#004b8f] text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-md transition-all cursor-pointer"
           >
             {saved ? <Check className="w-4 h-4 text-emerald-300" /> : <ShieldCheck className="w-4 h-4" />}
             {saved ? 'Saved!' : 'Save Credentials'}
