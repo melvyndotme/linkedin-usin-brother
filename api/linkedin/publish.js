@@ -25,6 +25,128 @@ async function tryRefreshToken({ refreshToken, clientId, clientSecret }) {
   return null;
 }
 
+// Buffer GraphQL API integration
+async function handleBufferPublish({ apiKey, channelId, commentary, imageUrl, isTest }) {
+  let targetChannelId = channelId;
+  let targetChannelName = "LinkedIn Page";
+
+  // If channelId is missing or if this is a test, discover the connected organization and channels
+  if (!targetChannelId || isTest) {
+    const orgsRes = await fetch("https://api.buffer.com", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        query: `query { account { organizations { id name } } }`
+      })
+    });
+    const orgsJson = await orgsRes.json();
+    if (orgsJson.errors?.length) {
+      throw new Error(`Buffer API Error: ${orgsJson.errors.map(e => e.message).join(", ")}`);
+    }
+
+    const org = orgsJson?.data?.account?.organizations?.[0];
+    if (!org?.id) {
+      throw new Error("No organization found under the provided Buffer API Key.");
+    }
+
+    const channelsRes = await fetch("https://api.buffer.com", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        query: `query GetChannels($input: ChannelsInput!) { channels(input: $input) { id name service } }`,
+        variables: { input: { organizationId: org.id } }
+      })
+    });
+    const channelsJson = await channelsRes.json();
+    const channels = channelsJson?.data?.channels || [];
+    const liChannel = channels.find(c => c.service?.toLowerCase() === 'linkedin') || channels[0];
+
+    if (!liChannel) {
+      throw new Error("No connected social channels found in your Buffer organization.");
+    }
+
+    targetChannelId = targetChannelId || liChannel.id;
+    targetChannelName = liChannel.name || "LinkedIn Page";
+  }
+
+  // If this is a connectivity test
+  if (isTest) {
+    return {
+      success: true,
+      message: `Successfully connected to Buffer: ${targetChannelName} (Channel ID: ${targetChannelId})`,
+      channelId: targetChannelId,
+      provider: "buffer"
+    };
+  }
+
+  // Real post publishing
+  if (!commentary || !commentary.trim()) {
+    throw new Error("Post commentary text cannot be empty.");
+  }
+
+  const input = {
+    text: commentary.trim(),
+    channelId: targetChannelId,
+    schedulingType: "automatic",
+    mode: "shareNow"
+  };
+
+  if (imageUrl) {
+    input.assets = [{ image: { url: imageUrl } }];
+  }
+
+  const postRes = await fetch("https://api.buffer.com", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({
+      query: `
+        mutation CreatePost($input: CreatePostInput!) {
+          createPost(input: $input) {
+            ... on PostActionSuccess {
+              post {
+                id
+                status
+              }
+            }
+            ... on MutationError {
+              message
+            }
+          }
+        }
+      `,
+      variables: { input }
+    })
+  });
+
+  const postJson = await postRes.json();
+  if (postJson.errors?.length) {
+    throw new Error(postJson.errors.map(e => e.message).join(", "));
+  }
+
+  const result = postJson?.data?.createPost;
+  if (result?.message) {
+    throw new Error(result.message);
+  }
+
+  return {
+    success: true,
+    urn: result?.post?.id || `urn:buffer:post:${Date.now()}`,
+    status: "Live on LinkedIn (via Buffer)",
+    publishedAt: new Date().toLocaleTimeString(),
+    channelId: targetChannelId,
+    provider: "buffer"
+  };
+}
+
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Credentials", true);
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -38,13 +160,39 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
+  const commentary = req.body?.commentary || req.body?.content;
+  const imageUrl = req.body?.imageUrl || req.body?.mediaUrl || req.body?.image;
+  const isTest = req.query?.test === "true" || req.body?.isTest === true;
+
+  // 1. Buffer API Priority Flow (Bypasses LinkedIn Review)
+  const bufferApiKey = req.body?.bufferApiKey || process.env.BUFFER_API_KEY;
+  const bufferChannelId = req.body?.bufferChannelId || process.env.BUFFER_CHANNEL_ID;
+
+  if (bufferApiKey) {
+    try {
+      const bufferResult = await handleBufferPublish({
+        apiKey: bufferApiKey,
+        channelId: bufferChannelId,
+        commentary,
+        imageUrl,
+        isTest
+      });
+      return res.status(200).json(bufferResult);
+    } catch (err) {
+      return res.status(500).json({
+        success: false,
+        error: `Buffer publishing error: ${err.message}`,
+        provider: "buffer"
+      });
+    }
+  }
+
+  // 2. Direct LinkedIn REST API Fallback
   let token = req.body?.token || req.headers?.authorization?.replace("Bearer ", "") || process.env.LINKEDIN_ACCESS_TOKEN || process.env.LINKEDIN_TOKEN;
   const refreshToken = req.body?.refreshToken || process.env.LINKEDIN_REFRESH_TOKEN;
   const clientId = req.body?.clientId || process.env.LINKEDIN_CLIENT_ID || '8660fx8uvz5z8a';
   const clientSecret = req.body?.clientSecret || process.env.LINKEDIN_CLIENT_SECRET;
   const orgId = req.body?.orgId || process.env.LINKEDIN_ORG_ID || "808877";
-  const commentary = req.body?.commentary || req.body?.content;
-  const isTest = req.query?.test === "true" || req.body?.isTest === true;
 
   let refreshedTokenData = null;
 
@@ -59,7 +207,7 @@ export default async function handler(req, res) {
   if (!token) {
     return res.status(400).json({
       success: false,
-      error: "Missing LinkedIn Bearer Token. Please click 'Authorize & Connect Brother Account' in Settings or configure your OAuth 2.0 token."
+      error: "Missing LinkedIn Bearer Token or BUFFER_API_KEY. Configure BUFFER_API_KEY in Vercel or connect LinkedIn OAuth."
     });
   }
 
