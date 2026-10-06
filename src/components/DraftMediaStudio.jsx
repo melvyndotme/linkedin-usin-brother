@@ -1,14 +1,16 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Edit3, Send, CheckCircle2, Copy, Check, Sparkles, AlertCircle, Database, 
-  ExternalLink, BookOpen, Layers, Search, X, Filter, ArrowRight, ChevronDown 
+  ExternalLink, BookOpen, Layers, Search, X, Filter, ArrowRight, ChevronDown,
+  CalendarDays, Clock, Zap, ShieldCheck, Upload, Link2, RefreshCw
 } from 'lucide-react';
 import NotionIcon from './icons/NotionIcon.jsx';
 import ImageTemplateStudio from './ImageTemplateStudio.jsx';
 import { publishToLinkedInApi } from '../lib/linkedInApi.js';
 import { safeGetItem, safeSetItem } from '../lib/storage.js';
 import { generateAIDrafts, generateFestiveDrafts } from '../lib/draftGenerator.js';
-import { BENCHMARK_TEMPLATES } from '../lib/templateExtractor.js';
+import { BENCHMARK_TEMPLATES, extractTemplateFromInput } from '../lib/templateExtractor.js';
+import { getSavedStyleGuides, saveStyleGuide } from '../lib/styleGuideLibrary.js';
 import { logActivity } from '../lib/auditLogger.js';
 
 export default function DraftMediaStudio({ 
@@ -56,6 +58,24 @@ To everyone celebrating, how is your team marking this special day? Share your f
   const [notionSaving, setNotionSaving] = useState(false);
   const [notionSavedData, setNotionSavedData] = useState(null);
   const [notionError, setNotionError] = useState(null);
+
+  // Style Guide Library & Extraction state
+  const [savedStyleGuides, setSavedStyleGuides] = useState(getSavedStyleGuides);
+  const [selectedStyleGuideId, setSelectedStyleGuideId] = useState(() => {
+    const list = getSavedStyleGuides();
+    return list[0]?.id || 'sme-commercial-savings';
+  });
+  const [referenceMode, setReferenceMode] = useState('saved'); // 'saved' | 'reference'
+  const [referenceText, setReferenceText] = useState('');
+  const [generatingAiDrafts, setGeneratingAiDrafts] = useState(false);
+  const [aiDraftError, setAiDraftError] = useState(null);
+
+  // Buffer Scheduling Modal state
+  const [showScheduleModal, setShowScheduleModal] = useState(false);
+  const [scheduledDateTime, setScheduledDateTime] = useState('');
+  const [scheduleConflict, setScheduleConflict] = useState(null);
+  const [schedulingLoading, setSchedulingLoading] = useState(false);
+  const [scheduleSuccessMsg, setScheduleSuccessMsg] = useState(null);
 
   // Sync state when props update (e.g., navigating from Events or News & Trends)
   useEffect(() => {
@@ -294,7 +314,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleSaveToNotionRepository = async (passedUrn = null) => {
+  const handleSaveToNotionRepository = async (passedUrn = null, customStatus = 'Published') => {
     const token = safeGetItem('notion_token') || safeGetItem('token_notion');
     const explicitDb = safeGetItem('notion_database_id') || '3c701136de4881de9d29ca4ea415e856';
 
@@ -305,7 +325,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
       title: title || 'Brother Singapore Official Post',
       content: content,
       category: effectiveOccasion?.category || 'AI & Employer Branding',
-      status: 'Published',
+      status: customStatus,
       author: 'Allan Cheng',
       date: new Date().toISOString().split('T')[0],
       urn: passedUrn || publishedData?.urn || `urn:li:share:${Math.floor(100000000 + Math.random() * 900000000)}`,
@@ -330,7 +350,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
       if (res.ok && data.success) {
         setNotionSavedData({
           url: data.url,
-          message: 'Saved to Notion Enterprise Repository'
+          message: customStatus === 'Working Draft' ? 'Saved as Working Draft in Notion!' : 'Saved to Notion Enterprise Repository'
         });
       } else {
         setNotionError(data.error || 'Failed to archive in Notion');
@@ -339,6 +359,201 @@ To everyone celebrating, how is your team marking this special day? Share your f
       setNotionError(e.message);
     } finally {
       setNotionSaving(false);
+    }
+  };
+
+  // Generate 3 AI Drafts using Style Guide and Occasion/Facts
+  const handleGenerate3Drafts = async () => {
+    setGeneratingAiDrafts(true);
+    setAiDraftError(null);
+    try {
+      let activeGuide = savedStyleGuides.find(g => g.id === selectedStyleGuideId) || savedStyleGuides[0];
+
+      // If user extracted from a reference post
+      if (referenceMode === 'reference' && referenceText.trim()) {
+        const extracted = extractTemplateFromInput({
+          type: 'text',
+          content: referenceText.trim(),
+          title: `Extracted: ${title || 'Reference Post'}`
+        });
+        activeGuide = {
+          id: extracted.id,
+          name: extracted.name,
+          client: 'Brother Singapore',
+          platform: 'LinkedIn',
+          audience: 'Singapore professionals & SMEs',
+          tone: extracted.tone,
+          rules: {
+            hookStyle: 'Extracted benchmark hook format',
+            narrativeStructure: 'Extracted benchmark structural flow',
+            ctaStyle: 'Consultative community prompt'
+          }
+        };
+        saveStyleGuide(activeGuide);
+        setSavedStyleGuides(getSavedStyleGuides());
+      }
+
+      const res = await fetch('/api/ai/media', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'drafts',
+          occasionName: effectiveOccasion?.name || title,
+          occasionDetails: effectiveOccasion?.details || effectiveOccasion?.subtitle || content,
+          styleGuide: activeGuide,
+          audience: activeGuide?.audience
+        })
+      });
+
+      let generated = [];
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && Array.isArray(data.drafts) && data.drafts.length > 0) {
+          generated = data.drafts;
+        }
+      }
+
+      // Fallback to cultural or B2B templates if endpoint returns empty
+      if (!generated || generated.length === 0) {
+        if (effectiveOccasion) {
+          generated = generateFestiveDrafts({
+            name: effectiveOccasion.name,
+            culturalContext: effectiveOccasion.details,
+            suggestedHashtags: effectiveOccasion.suggestedHashtags
+          });
+        } else {
+          generated = generateAIDrafts({
+            title: title || 'Workplace Innovation',
+            snippet: content,
+            sourceTitle: 'Brother Singapore Intelligence'
+          });
+        }
+      }
+
+      setAvailableDrafts(generated);
+      if (generated[0]) {
+        const firstText = generated[0].postContent || generated[0].post || '';
+        setContent(firstText);
+        setActiveDraft(generated[0]);
+        setSelectedTemplateId(generated[0].id || 'draft-0');
+        setCurrentRationale(generated[0].whyThisWorks || generated[0].angle || '');
+      }
+
+      // Automatically persist all 3 candidate drafts to Notion as "Generated Candidate"
+      const token = safeGetItem('notion_token') || safeGetItem('token_notion');
+      if (token && generated.length > 0) {
+        const postsToSync = generated.map((g, idx) => ({
+          title: `${title || 'Post'} (Candidate 0${idx + 1} - ${g.name || g.angle || 'Draft'})`,
+          content: g.postContent || g.post,
+          status: 'Generated Candidate',
+          category: effectiveOccasion?.category || 'AI Generated Drafts',
+          author: 'Allan Cheng',
+          date: new Date().toISOString().split('T')[0]
+        }));
+        fetch('/api/notion/sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            apiKey: token,
+            posts: postsToSync
+          })
+        }).catch(err => console.warn('Notion candidate sync warning:', err));
+      }
+
+      logActivity({
+        event: 'Generated 3 AI Drafts',
+        category: 'Content Generation',
+        details: `Generated 3 drafts with style guide "${activeGuide?.name}" for "${title}"`,
+        status: 'Success'
+      });
+    } catch (err) {
+      setAiDraftError(err.message || 'Error generating drafts with AI');
+    } finally {
+      setGeneratingAiDrafts(false);
+    }
+  };
+
+  // Schedule Post via Buffer API with 1-Post-per-Day Collision Check
+  const handleBufferSchedule = async () => {
+    if (!scheduledDateTime) {
+      setScheduleConflict('Please select a scheduled date and time.');
+      return;
+    }
+
+    setSchedulingLoading(true);
+    setScheduleConflict(null);
+
+    // Collision check against brother_calendar_posts (Max 1 post per day)
+    let existingDates = [];
+    try {
+      const stored = JSON.parse(safeGetItem('brother_calendar_posts') || '[]');
+      existingDates = stored.map(p => p.scheduledDate).filter(Boolean);
+    } catch (e) {}
+
+    const targetDay = scheduledDateTime.slice(0, 10);
+    const hasConflict = existingDates.some(d => String(d).slice(0, 10) === targetDay);
+    if (hasConflict) {
+      setScheduleConflict(`⚠️ A post is already scheduled for ${targetDay}. To maintain engagement cadence, only 1 post per day can be scheduled. Please choose another date or use "1-Click Publish Now" to post immediately.`);
+      setSchedulingLoading(false);
+      return;
+    }
+
+    try {
+      const bufferKey = safeGetItem('key_buffer');
+      const bufferChannel = safeGetItem('buffer_channel_id');
+      const result = await publishToLinkedInApi({
+        commentary: content,
+        scheduledDate: scheduledDateTime,
+        bufferApiKey: bufferKey,
+        bufferChannelId: bufferChannel,
+        existingScheduledDates: existingDates
+      });
+
+      if (result.success) {
+        // Record in Notion as Scheduled
+        const token = safeGetItem('notion_token');
+        if (token) {
+          fetch('/api/notion/sync', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              apiKey: token,
+              post: {
+                title,
+                content,
+                status: 'Scheduled',
+                date: scheduledDateTime,
+                scheduledDate: scheduledDateTime,
+                urn: result.urn
+              }
+            })
+          }).catch(() => {});
+        }
+
+        // Add to calendar posts cache
+        const newPost = {
+          id: `post-${Date.now()}`,
+          title,
+          content,
+          status: 'Scheduled',
+          scheduledDate: scheduledDateTime,
+          urn: result.urn
+        };
+        const currentCal = JSON.parse(safeGetItem('brother_calendar_posts') || '[]');
+        safeSetItem('brother_calendar_posts', JSON.stringify([...currentCal, newPost]));
+
+        setScheduleSuccessMsg(`🎉 Successfully scheduled for ${targetDay} via Buffer API!`);
+        setTimeout(() => {
+          setShowScheduleModal(false);
+          setScheduleSuccessMsg(null);
+        }, 1800);
+      } else {
+        setScheduleConflict(result.error || 'Failed to schedule via Buffer API.');
+      }
+    } catch (e) {
+      setScheduleConflict(e.message);
+    } finally {
+      setSchedulingLoading(false);
     }
   };
 
@@ -454,12 +669,25 @@ To everyone celebrating, how is your team marking this special day? Share your f
 
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <button
-              onClick={() => handleSaveToNotionRepository()}
-              disabled={notionSaving || Boolean(notionSavedData)}
+              onClick={() => handleSaveToNotionRepository(null, 'Working Draft')}
+              disabled={notionSaving}
               className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm disabled:opacity-50 cursor-pointer"
+              title="Save current post in Notion as Working Draft"
             >
               <NotionIcon className={`w-3.5 h-3.5 ${notionSaving ? 'animate-spin' : ''}`} />
-              <span>{notionSaving ? 'Archiving...' : notionSavedData ? 'In Notion Repo' : 'Archive to Notion'}</span>
+              <span>{notionSaving ? 'Saving Draft...' : 'Save Draft (Notion)'}</span>
+            </button>
+            <button
+              onClick={() => {
+                setShowScheduleModal(true);
+                setScheduleConflict(null);
+                setScheduleSuccessMsg(null);
+              }}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-950/40 text-[#0f2ea2] dark:text-blue-300 text-xs font-bold hover:bg-blue-100 dark:hover:bg-blue-900/60 transition-all shadow-sm cursor-pointer"
+              title="Schedule post via Buffer API"
+            >
+              <CalendarDays className="w-3.5 h-3.5" />
+              <span>Schedule (Buffer)</span>
             </button>
             <button
               onClick={handlePublishToLinkedIn}
@@ -477,7 +705,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
               ) : (
                 <Send className="w-4 h-4" />
               )}
-              {publishing ? 'Connecting to LinkedIn...' : publishedData ? 'Published on LinkedIn!' : '1-Click Publish to LinkedIn'}
+              {publishing ? 'Connecting to LinkedIn...' : publishedData ? 'Published on LinkedIn!' : '1-Click Publish'}
             </button>
           </div>
         </div>
@@ -587,6 +815,182 @@ To everyone celebrating, how is your team marking this special day? Share your f
           </div>
         </div>
       )}
+
+      {/* Style Guide Extraction & 3-Draft AI Engine */}
+      <div className={`p-4 sm:p-5 rounded-2xl border transition-colors ${
+        isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+      } space-y-3.5`}>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-[#0f2ea2] text-white flex items-center justify-center font-bold text-sm shadow-sm shrink-0">
+              <Sparkles className="w-4 h-4" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className={`text-xs sm:text-sm font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                  Style Guide & 3-Draft AI Engine
+                </h3>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/60 text-[#0f2ea2] dark:text-blue-300 font-bold">
+                  LinkedUs In Specification
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                Extract style rules from high-performing reference posts or select saved style guides, then generate 3 targeted LinkedIn drafts.
+              </p>
+            </div>
+          </div>
+
+          {/* Mode Switcher: Saved Style Guide vs Reference Post */}
+          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-950 p-1 rounded-xl self-start md:self-auto border border-slate-200 dark:border-slate-800">
+            <button
+              type="button"
+              onClick={() => setReferenceMode('saved')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                referenceMode === 'saved'
+                  ? 'bg-white dark:bg-slate-800 text-[#0f2ea2] dark:text-blue-300 shadow-xs'
+                  : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              Saved Style Guide ({savedStyleGuides.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setReferenceMode('reference')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                referenceMode === 'reference'
+                  ? 'bg-white dark:bg-slate-800 text-[#0f2ea2] dark:text-blue-300 shadow-xs'
+                  : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              Reference Social Post
+            </button>
+          </div>
+        </div>
+
+        {/* Style Guide Controls */}
+        {referenceMode === 'saved' ? (
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+            <div className="md:col-span-8">
+              <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                Choose Reusable Style Guide:
+              </label>
+              <select
+                value={selectedStyleGuideId}
+                onChange={(e) => setSelectedStyleGuideId(e.target.value)}
+                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#0f2ea2] cursor-pointer"
+              >
+                {savedStyleGuides.map((g) => (
+                  <option key={g.id} value={g.id}>
+                    {g.name} • Audience: {g.audience} ({g.tone})
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="md:col-span-4 flex items-end">
+              <button
+                type="button"
+                onClick={handleGenerate3Drafts}
+                disabled={generatingAiDrafts}
+                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold transition-all shadow-md active:scale-95 disabled:opacity-50 cursor-pointer"
+              >
+                <Sparkles className={`w-3.5 h-3.5 ${generatingAiDrafts ? 'animate-spin' : ''}`} />
+                <span>{generatingAiDrafts ? 'Generating with Gemini...' : 'Generate 3 Drafts with AI'}</span>
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-2.5">
+            <div className="flex items-center justify-between">
+              <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                Paste Reference Social Post (Caption or Transcript):
+              </label>
+              <span className="text-[10px] text-slate-400">
+                Extracts hook techniques, rhythm & value proposition without duplicating text
+              </span>
+            </div>
+            <textarea
+              rows={3}
+              value={referenceText}
+              onChange={(e) => setReferenceText(e.target.value)}
+              placeholder="Paste a viral or high-performing LinkedIn post here to deconstruct and adopt its communication style..."
+              className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-3 text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:border-[#0f2ea2]"
+            />
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={handleGenerate3Drafts}
+                disabled={generatingAiDrafts || !referenceText.trim()}
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold transition-all shadow-md active:scale-95 disabled:opacity-50 cursor-pointer"
+              >
+                <Sparkles className={`w-3.5 h-3.5 ${generatingAiDrafts ? 'animate-spin' : ''}`} />
+                <span>{generatingAiDrafts ? 'Extracting & Generating...' : 'Extract Style & Generate 3 Drafts'}</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* AI Draft Error */}
+        {aiDraftError && (
+          <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 text-xs text-rose-800 dark:text-rose-300 flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>{aiDraftError}</span>
+          </div>
+        )}
+
+        {/* 3 Generated Candidate Drafts Cards */}
+        {availableDrafts && availableDrafts.length > 0 && (
+          <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 space-y-2">
+            <div className="flex items-center justify-between text-[11px]">
+              <span className="font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                <span>Generated Candidate Drafts (3 Options) • Auto-saved to Notion Candidates</span>
+              </span>
+              <span className="text-slate-400 hidden sm:inline">Select a draft below to edit</span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
+              {availableDrafts.slice(0, 3).map((draft, idx) => {
+                const draftText = draft.postContent || draft.post || '';
+                const isSelected = activeDraft?.id === draft.id || content === draftText;
+                return (
+                  <div
+                    key={draft.id || idx}
+                    onClick={() => {
+                      setContent(draftText);
+                      setActiveDraft(draft);
+                      setSelectedTemplateId(draft.id || `draft-${idx}`);
+                      setCurrentRationale(draft.whyThisWorks || draft.angle || draft.description || '');
+                    }}
+                    className={`p-3 rounded-xl border text-left cursor-pointer transition-all ${
+                      isSelected
+                        ? 'border-[#0f2ea2] bg-blue-50/70 dark:bg-blue-950/40 ring-2 ring-[#0f2ea2]/20'
+                        : 'border-slate-200 dark:border-slate-800 bg-slate-50/40 dark:bg-slate-950/40 hover:border-slate-300 dark:hover:border-slate-700'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-1 mb-1">
+                      <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                        Draft 0{idx + 1}: {draft.name || draft.angle || `Option ${idx + 1}`}
+                      </span>
+                      {isSelected ? (
+                        <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-[#0f2ea2] text-white shrink-0">
+                          Editing
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-bold text-slate-400 hover:text-slate-600">
+                          Select
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                      {draft.whyThisWorks || draft.angle || draftText.slice(0, 80) + '...'}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* 2-Column Responsive Layout: Post Copy Editor (Left) + Visual Template Studio (Right) */}
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 sm:gap-6">
@@ -938,6 +1342,116 @@ To everyone celebrating, how is your team marking this special day? Share your f
                 className="px-3.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 font-bold hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
               >
                 Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Buffer Scheduling Modal */}
+      {showScheduleModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4 animate-in fade-in duration-150">
+          <div className="w-full max-w-lg bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden">
+            {/* Modal Header */}
+            <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/40">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-[#0f2ea2] text-white flex items-center justify-center">
+                  <CalendarDays className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
+                    Schedule via Buffer API
+                  </h3>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                    Singapore Cadence Guard: 1 scheduled post per day limit
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowScheduleModal(false)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-4 sm:p-5 space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                  Publishing Date & Time (Singapore Time SGT)
+                </label>
+                <input
+                  type="datetime-local"
+                  value={scheduledDateTime}
+                  onChange={(e) => {
+                    setScheduledDateTime(e.target.value);
+                    setScheduleConflict(null);
+                  }}
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0f2ea2]"
+                />
+                <p className="text-[11px] text-slate-400 mt-1">
+                  Buffer queues and publishes this post to Brother Singapore LinkedIn page at the specified time.
+                </p>
+              </div>
+
+              {/* Conflict Alert / Warning */}
+              {scheduleConflict && (
+                <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700 text-xs text-amber-900 dark:text-amber-200 space-y-2">
+                  <div className="flex items-start gap-2">
+                    <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                    <p className="leading-relaxed">{scheduleConflict}</p>
+                  </div>
+                  <div className="pt-2 border-t border-amber-200 dark:border-amber-800/60 flex items-center justify-between">
+                    <span className="text-[11px] font-semibold text-amber-800 dark:text-amber-300">
+                      Need multiple posts today?
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowScheduleModal(false);
+                        handlePublishToLinkedIn();
+                      }}
+                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-xs cursor-pointer"
+                    >
+                      <Zap className="w-3.5 h-3.5" />
+                      <span>1-Click Publish Now</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Success Message */}
+              {scheduleSuccessMsg && (
+                <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700 text-xs text-emerald-800 dark:text-emerald-200 flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                  <span className="font-bold">{scheduleSuccessMsg}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/40">
+              <button
+                type="button"
+                onClick={() => setShowScheduleModal(false)}
+                className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleBufferSchedule}
+                disabled={schedulingLoading || !scheduledDateTime}
+                className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold shadow-md transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
+              >
+                {schedulingLoading ? (
+                  <Sparkles className="w-4 h-4 animate-spin" />
+                ) : (
+                  <CalendarDays className="w-4 h-4" />
+                )}
+                <span>{schedulingLoading ? 'Scheduling via Buffer...' : 'Confirm Schedule'}</span>
               </button>
             </div>
           </div>

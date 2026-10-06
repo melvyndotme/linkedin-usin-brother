@@ -87,6 +87,89 @@ export default async function handler(req, res) {
     }
   }
 
+  // 1.5 Gemini 3-Draft Post Generation Mode (POST /api/ai/media with type: 'drafts')
+  if (req.method === 'POST' && req.body?.type === 'drafts') {
+    const { occasionName, occasionDetails, styleGuide, facts, audience } = req.body;
+    const clientKey = (req.headers['x-gemini-key'] || req.body?.apiKey || '').trim();
+    const apiKey = 
+      clientKey ||
+      process.env.GEMINI_API_KEY ||
+      process.env.GOOGLE_API_KEY ||
+      process.env.GOOGLE_GEMINI_API_KEY ||
+      process.env.VITE_GEMINI_API_KEY;
+
+    if (!apiKey) {
+      return res.status(200).json({
+        success: false,
+        errorType: 'MISSING_API_KEY',
+        error: 'No Gemini API Key found. Add GEMINI_API_KEY in environment or app settings.'
+      });
+    }
+
+    const systemPrompt = `You are the lead LinkedIn editorial strategist for Brother Singapore.
+Generate exactly 3 distinct, high-impact LinkedIn post drafts for Brother Singapore based on the following style guide rules and context.
+
+STYLE GUIDE NAME: ${styleGuide?.name || 'Brother Benchmark'}
+TONE: ${styleGuide?.tone || 'Consultative, humble yet authoritative, grounded'}
+AUDIENCE: ${audience || styleGuide?.audience || 'Singapore professionals, SMEs, and community partners'}
+TOPIC / OCCASION: ${occasionName || 'Workplace Productivity & Innovation'}
+SOURCE FACTS: ${occasionDetails || facts || 'Brother "At your side" philosophy, Japanese craftsmanship (Kaizen), long-term reliability.'}
+HOOK RULES: ${styleGuide?.rules?.hookStyle || 'Strong operational tension, reflective observation, or warm community greeting'}
+CTA RULES: ${styleGuide?.rules?.ctaStyle || 'Sincere consultative inquiry inviting community perspectives in comments'}
+CULTURAL CALIBRATION: ${styleGuide?.rules?.hofstedeAlignment || 'Asian collectivist warmth, high Long-Term Orientation (LTO), respect for craft'}
+
+Return ONLY a strict JSON array of exactly 3 objects:
+[
+  {
+    "id": "draft-1",
+    "name": "Concise Descriptive Title for Angle 1",
+    "angle": "Specific Angle & Strategic Rationale",
+    "whyThisWorks": "Detailed explanation of why this hooks and persuades the target audience",
+    "postContent": "Complete LinkedIn post with hook, narrative spacing, bullet points, call to action, and hashtags #BrotherSingapore #AtYourSide"
+  },
+  {
+    "id": "draft-2",
+    "name": "Concise Descriptive Title for Angle 2",
+    "angle": "Specific Angle & Strategic Rationale",
+    "whyThisWorks": "Detailed explanation of why this hooks and persuades the target audience",
+    "postContent": "Complete LinkedIn post with hook, narrative spacing, bullet points, call to action, and hashtags #BrotherSingapore #AtYourSide"
+  },
+  {
+    "id": "draft-3",
+    "name": "Concise Descriptive Title for Angle 3",
+    "angle": "Specific Angle & Strategic Rationale",
+    "whyThisWorks": "Detailed explanation of why this hooks and persuades the target audience",
+    "postContent": "Complete LinkedIn post with hook, narrative spacing, bullet points, call to action, and hashtags #BrotherSingapore #AtYourSide"
+  }
+]`;
+
+    try {
+      const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: systemPrompt }] }],
+          generationConfig: {
+            responseMimeType: 'application/json',
+            temperature: 0.7
+          }
+        })
+      });
+
+      if (!resp.ok) {
+        const errJson = await resp.json().catch(() => ({}));
+        return res.status(resp.status).json({ success: false, error: errJson.error?.message || resp.statusText });
+      }
+
+      const data = await resp.json();
+      const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      const parsedDrafts = JSON.parse(rawText);
+      return res.status(200).json({ success: true, drafts: parsedDrafts });
+    } catch (err) {
+      return res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
   // 2. AI Image Generation Mode (POST /api/ai/media)
   if (req.method === 'POST') {
     const { 

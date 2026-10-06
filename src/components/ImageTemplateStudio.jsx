@@ -37,6 +37,44 @@ import {
 import { safeGetItem, safeSetItem } from '../lib/storage.js';
 import { logActivity } from '../lib/auditLogger.js';
 
+export const GEMINI_STYLE_PROMPT_GUIDES = [
+  {
+    id: 'commercial-product',
+    name: 'Product Mockups & Commercial Photography',
+    description: 'Clean, professional product shots for ecommerce, advertising, or branding.',
+    badge: 'Studio Lighting',
+    getSamplePrompt: (name) => `A high-resolution, studio-lit commercial product photograph of a modern Brother Singapore office printer in matte black and titanium finish, presented on a polished concrete surface. The lighting is a three-point softbox setup designed to create soft, diffused highlights and eliminate harsh shadows. The camera angle is a slightly elevated 45-degree shot to showcase its clean lines. Ultra-realistic, with sharp focus. Clean composition, text-free.`
+  },
+  {
+    id: 'cultural-festive',
+    name: 'Authentic Cultural & Festive Celebration',
+    description: 'Warm, authentic community celebration photography for Singapore festivals.',
+    badge: 'Festive Editorial',
+    getSamplePrompt: (name) => `Authentic, warm corporate editorial photograph celebrating ${name || 'Deepavali festive occasion'} in a contemporary Singapore workplace setting. Warm golden ambient evening illumination, traditional festive decorative accents, colleagues gathered in joyful conversation. Cinematic bokeh, natural realistic lighting, text-free.`
+  },
+  {
+    id: 'modern-kaizen',
+    name: 'Modern Office & Kaizen Craftsmanship',
+    description: 'Minimalist Tokyo/Singapore corporate workspace with craft precision.',
+    badge: 'Monozukuri Aesthetic',
+    getSamplePrompt: (name) => `Minimalist modern Singapore executive office with Japanese architectural symmetry and natural daylight. Clean lines, warm cedarwood desk, subtle brushed steel accents, calm productivity atmosphere. Photorealistic corporate architecture, 8k resolution, text-free.`
+  },
+  {
+    id: 'sustainable-green',
+    name: 'Sustainability & Eco-Conscious Innovation',
+    description: 'Biophilic Singapore architecture and environmental commitment.',
+    badge: 'Brother Earth',
+    getSamplePrompt: (name) => `Contemporary sustainability corporate photography in Singapore. Biophilic green atrium with lush indoor vertical foliage, soft morning sunlight streaming through glass louvers, clean eco-conscious recycling hub. Crisp focus, vibrant natural greens, text-free.`
+  },
+  {
+    id: 'thought-leadership',
+    name: 'Executive Tech & Thought Leadership',
+    description: 'High-tech corporate editorial for enterprise innovation and automation.',
+    badge: 'Executive Editorial',
+    getSamplePrompt: (name) => `High-end business editorial photograph of an enterprise innovation hub. Sleek glass partitions, sophisticated blue and graphite ambient tones, executives reviewing digital documents on sleek tablets. Ultra-realistic corporate photography, text-free composition.`
+  }
+];
+
 export default function ImageTemplateStudio({ 
   occasion, 
   activeDraft, 
@@ -50,6 +88,16 @@ export default function ImageTemplateStudio({
   const [isAiGenerating, setIsAiGenerating] = useState(false);
   const [aiError, setAiError] = useState(null);
   const [downloading, setDownloading] = useState(false);
+
+  // Gemini Style Presets & Prompt State
+  const [selectedStyleGuideId, setSelectedStyleGuideId] = useState(() => {
+    return occasion?.eventType === 'cultural' || occasion?.theme === 'amber' ? 'cultural-festive' : 'commercial-product';
+  });
+  const [imagePrompt, setImagePrompt] = useState(() => {
+    const guide = GEMINI_STYLE_PROMPT_GUIDES.find(g => g.id === (occasion?.eventType === 'cultural' ? 'cultural-festive' : 'commercial-product')) || GEMINI_STYLE_PROMPT_GUIDES[0];
+    return guide.getSamplePrompt(occasion?.name);
+  });
+  const [promptLanguage, setPromptLanguage] = useState('English');
 
   // AI model selector and token advisory alert
   const [selectedAiModel, setSelectedAiModel] = useState(() => {
@@ -294,6 +342,7 @@ export default function ImageTemplateStudio({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          prompt: imagePrompt || undefined,
           occasionName: occasion?.name,
           theme: occasion?.theme,
           aspectRatio,
@@ -309,6 +358,43 @@ export default function ImageTemplateStudio({
           ...prev,
           [activeSlideIndex]: data.imageUrl
         }));
+
+        // Auto-archive clean text-free image layer to Vercel Blob and Notion
+        try {
+          const blobRes = await fetch('/api/blob', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              filename: `clean-visual-${Date.now()}.png`,
+              imageBase64: data.imageUrl,
+              access: 'private'
+            })
+          });
+          if (blobRes.ok) {
+            const blobData = await blobRes.json();
+            const cleanUrl = blobData.publicUrl || blobData.url;
+            const notionToken = safeGetItem('notion_token');
+            if (notionToken && cleanUrl) {
+              await fetch('/api/notion/sync', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  apiKey: notionToken,
+                  post: {
+                    title: `${occasion?.name || 'Brother Singapore'} (Clean Image Layer)`,
+                    status: 'Generated Candidate',
+                    category: occasion?.category || 'AI Visual Generation',
+                    cleanImageUrl: cleanUrl,
+                    imageType: aspectRatio === '1:1' ? 'Carousel (1:1)' : 'Banner (1.91:1)',
+                    slideCount: aspectRatio === '1:1' ? baseSlides.length : 1
+                  }
+                })
+              });
+            }
+          }
+        } catch (syncErr) {
+          console.warn('Could not auto-archive clean image to Notion:', syncErr);
+        }
       } else {
         setAiError({
           message: data.error || 'Gemini image generation is currently unavailable.',
@@ -383,8 +469,11 @@ export default function ImageTemplateStudio({
                 title: `${occasion?.name || 'Brother SG'} - Slide ${currentSlide.slideIndex} (${currentSlide.roleTitle})`,
                 content: activeDraft?.post || currentSlide.headline,
                 imageUrl: visualUrl,
+                compositeImageUrl: visualUrl,
+                imageType: aspectRatio === '1:1' ? 'Carousel (1:1)' : 'Banner (1.91:1)',
+                slideCount: aspectRatio === '1:1' ? baseSlides.length : 1,
                 category: occasion?.category || 'AI & Employer Branding',
-                status: 'Draft',
+                status: 'Working Draft',
                 author: 'Allan Cheng',
                 date: new Date().toISOString().split('T')[0]
               }
@@ -805,6 +894,106 @@ export default function ImageTemplateStudio({
         </div>
       )}
 
+      {/* Gemini AI Generative Image Studio Panel */}
+      <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950 flex items-center justify-center text-[#0f2ea2] dark:text-blue-400">
+              <Sparkles className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                Gemini Image Generation Studio
+                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                  Text-Free Layer
+                </span>
+              </h3>
+              <p className="text-[11px] text-slate-500">
+                Instructional prompt presets calibrated from Google Gemini Image Documentation.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-bold text-slate-500">Language:</span>
+            <span className="text-xs font-bold px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700">
+              English
+            </span>
+          </div>
+        </div>
+
+        {/* Style Presets Pills */}
+        <div>
+          <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+            Select Visual Style (Auto-populates Suggested Prompt):
+          </label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+            {GEMINI_STYLE_PROMPT_GUIDES.map(guide => (
+              <button
+                key={guide.id}
+                type="button"
+                onClick={() => {
+                  setSelectedStyleGuideId(guide.id);
+                  setImagePrompt(guide.getSamplePrompt(occasion?.name));
+                }}
+                className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                  selectedStyleGuideId === guide.id
+                    ? 'border-[#0f2ea2] bg-blue-50/60 dark:bg-blue-950/40 text-[#0f2ea2] dark:text-blue-300 ring-1 ring-[#0f2ea2]'
+                    : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 bg-slate-50/50 dark:bg-slate-800/40 text-slate-700 dark:text-slate-300'
+                }`}
+              >
+                <div className="flex items-center justify-between gap-1 mb-1">
+                  <span className="text-xs font-bold leading-tight truncate">{guide.name}</span>
+                  <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-white dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-700 shrink-0">
+                    {guide.badge}
+                  </span>
+                </div>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 line-clamp-2">
+                  {guide.description}
+                </p>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Prompt Input Box */}
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between">
+            <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+              Describe the image you want to create (Instructional Prompt):
+            </label>
+            <span className="text-[10px] text-slate-400">
+              Clean background layer • Text overlay edited separately
+            </span>
+          </div>
+          <textarea
+            rows={3}
+            value={imagePrompt}
+            onChange={(e) => setImagePrompt(e.target.value)}
+            placeholder="A high-resolution, studio-lit commercial photograph of..."
+            className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-[#0f2ea2] leading-relaxed resize-none font-normal"
+          />
+        </div>
+
+        <div className="flex items-center justify-between gap-2 pt-1">
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] text-slate-500">
+              Targeting: <strong className="text-slate-800 dark:text-slate-200">Slide 0{activeSlideIndex + 1} ({aspectRatio === '1:1' ? '1:1 Square' : '1.91:1 Banner'})</strong>
+            </span>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setShowConfirmModal(true)}
+            disabled={isAiGenerating}
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-gradient-to-r from-[#0f2ea2] to-blue-700 hover:from-[#0c2480] hover:to-blue-800 px-4 py-2 rounded-xl shadow-md transition-all cursor-pointer disabled:opacity-50"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>{isAiGenerating ? 'Generating Text-Free Visual...' : 'Generate with Gemini AI'}</span>
+          </button>
+        </div>
+      </div>
+
       {/* Visual Asset Customizer & Photo Chooser Bar */}
       <div className="p-3 sm:p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
@@ -1042,14 +1231,19 @@ export default function ImageTemplateStudio({
               </button>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/80 text-xs text-amber-900 dark:text-amber-200 space-y-1.5">
-              <p className="font-bold flex items-center gap-1.5">
+            <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/80 text-xs text-amber-900 dark:text-amber-200 space-y-2">
+              <div className="flex items-center gap-1.5 font-bold">
                 <Coins className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                Gemini Token Notice
-              </p>
+                <span>Credit & Token Consumption Advisory</span>
+              </div>
               <p className="text-[11px] text-amber-800 dark:text-amber-300 leading-relaxed">
-                By clicking <strong>Continue</strong>, you understand that generating this custom image will consume tokens from your linked Google Gemini API account.
+                Generating this visual utilizes <strong>Google Gemini / Imagen API credits</strong> (~1 credit per generation, est. $0.03 – $0.05).
               </p>
+              <div className="text-[10px] text-amber-900/80 dark:text-amber-200/80 bg-amber-100/50 dark:bg-amber-900/30 p-2 rounded-lg space-y-1">
+                <p>• <strong>Selected Format:</strong> {aspectRatio === '1:1' ? '1:1 Square Carousel' : '1.91:1 Landscape Banner'}</p>
+                <p>• <strong>Output Layer:</strong> Clean, text-free background image will be generated and saved to Notion as a clean asset.</p>
+                <p>• <strong>Typography & Overlays:</strong> You will be able to edit headlines, text overlays, and Brother branding directly in the editor before final save.</p>
+              </div>
             </div>
 
             {/* API Key Connection Source Indicator */}

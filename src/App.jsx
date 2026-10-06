@@ -8,6 +8,7 @@ import Module2AIPosts from './components/Module2AIPosts.jsx';
 import TemplateIngestionStudio from './components/TemplateIngestionStudio.jsx';
 import DraftMediaStudio from './components/DraftMediaStudio.jsx';
 import NotionDatabaseHub from './components/NotionDatabaseHub.jsx';
+import ContentCalendar from './components/ContentCalendar.jsx';
 import TeamView from './components/TeamView.jsx';
 import SettingsView from './components/SettingsView.jsx';
 import ProfileView from './components/ProfileView.jsx';
@@ -349,6 +350,13 @@ export default function App() {
                 initialDraft={draftStudioPayload.activeDraft}
                 initialAvailableDrafts={draftStudioPayload.availableDrafts}
                 onNavigateToSettings={() => setActiveTab('settings')}
+              />
+            )}
+
+            {activeTab === 'calendar' && (
+              <ContentCalendar
+                isDark={isDark}
+                onNavigateToStudio={handleNavigateToDraftStudio}
               />
             )}
 

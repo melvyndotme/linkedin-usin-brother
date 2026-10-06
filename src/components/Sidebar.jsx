@@ -15,7 +15,8 @@ import {
   ChevronLeft,
   ChevronRight,
   PanelLeftClose,
-  PanelLeftOpen
+  PanelLeftOpen,
+  CalendarDays
 } from 'lucide-react';
 import NotionIcon from './icons/NotionIcon.jsx';
 
@@ -58,6 +59,7 @@ export default function Sidebar({
       title: 'STUDIO',
       items: [
         { id: 'draft-studio', label: 'Content Studio', icon: Edit3 },
+        { id: 'calendar', label: 'Content Calendar', icon: CalendarDays },
         { id: 'template-studio', label: 'Templates', icon: Layers },
         { id: 'notion-hub', label: 'Notion', icon: NotionIcon }
       ]

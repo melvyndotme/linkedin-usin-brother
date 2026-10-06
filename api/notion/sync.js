@@ -372,7 +372,168 @@ export default async function handler(req, res) {
     }
   }
 
-  // 4. Post Sync Routine
+  // 4. Get Posts / Calendar Posts Routine
+  if (action === 'get_posts' || action === 'get_calendar_posts' || action === 'list_posts') {
+    try {
+      let targetDbId = (databaseId || '3c701136de4881de9d29ca4ea415e856').replace(/-/g, '');
+      if (targetDbId.includes('000b3c706126') || targetDbId.includes('8101')) {
+        targetDbId = '3c701136de4881de9d29ca4ea415e856';
+      }
+
+      const queryRes = await fetch(`https://api.notion.com/v1/databases/${targetDbId}/query`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          page_size: 100,
+          sorts: [
+            {
+              property: 'Scheduled Date',
+              direction: 'ascending'
+            }
+          ]
+        })
+      });
+
+      let resultsData = null;
+      if (queryRes.ok) {
+        resultsData = await queryRes.json();
+      } else {
+        const retryRes = await fetch(`https://api.notion.com/v1/databases/${targetDbId}/query`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ page_size: 100 })
+        });
+        if (retryRes.ok) {
+          resultsData = await retryRes.json();
+        }
+      }
+
+      if (!resultsData) {
+        return res.status(200).json({ success: true, posts: [], total: 0 });
+      }
+
+      const formattedPosts = (resultsData.results || []).map(page => {
+        const props = page.properties || {};
+        const title = props['Title']?.title?.[0]?.plain_text || props['Title']?.title?.[0]?.text?.content || 'Untitled Post';
+        const status = props['Status']?.select?.name || 'Working Draft';
+        const category = props['Category']?.select?.name || 'General';
+        const author = props['Author']?.select?.name || 'Brother Singapore';
+        const scheduledDate = props['Scheduled Date']?.date?.start || null;
+        const cleanImageUrl = props['Clean Image URL']?.url || props['Clean Image URL']?.rich_text?.[0]?.plain_text || '';
+        const compositeImageUrl = props['Composite Image URL']?.url || props['Composite Image URL']?.rich_text?.[0]?.plain_text || '';
+        const imageType = props['Image Type']?.select?.name || props['Image Type']?.rich_text?.[0]?.plain_text || '';
+        const slideCount = props['Slide Count']?.number || 1;
+        const urn = props['LinkedIn URN']?.rich_text?.[0]?.plain_text || '';
+        const postContent = props['Post Content']?.rich_text?.[0]?.plain_text || '';
+
+        return {
+          id: page.id,
+          pageId: page.id,
+          title,
+          status,
+          category,
+          author,
+          scheduledDate,
+          cleanImageUrl,
+          compositeImageUrl,
+          imageType,
+          slideCount,
+          urn,
+          content: postContent,
+          url: page.url
+        };
+      });
+
+      return res.status(200).json({
+        success: true,
+        posts: formattedPosts,
+        total: formattedPosts.length,
+        databaseId: targetDbId
+      });
+    } catch (e) {
+      console.error('Error fetching posts from Notion:', e);
+      return res.status(500).json({ success: false, error: e.message });
+    }
+  }
+
+  // 5. Update Single Post in Notion Routine
+  if (action === 'update_post') {
+    const { pageId, post } = req.body || {};
+    if (!pageId || !post) {
+      return res.status(400).json({ success: false, error: 'pageId and post are required for update_post.' });
+    }
+
+    try {
+      const updatePayload = {
+        properties: {}
+      };
+
+      if (post.title) {
+        updatePayload.properties['Title'] = {
+          title: [{ type: 'text', text: { content: post.title } }]
+        };
+      }
+      if (post.status) {
+        updatePayload.properties['Status'] = {
+          select: { name: post.status }
+        };
+      }
+      if (post.scheduledDate) {
+        updatePayload.properties['Scheduled Date'] = {
+          date: { start: post.scheduledDate }
+        };
+      }
+      if (post.content) {
+        updatePayload.properties['Post Content'] = {
+          rich_text: [{ type: 'text', text: { content: String(post.content).slice(0, 2000) } }]
+        };
+      }
+      if (post.cleanImageUrl) {
+        updatePayload.properties['Clean Image URL'] = {
+          url: post.cleanImageUrl
+        };
+      }
+      if (post.compositeImageUrl) {
+        updatePayload.properties['Composite Image URL'] = {
+          url: post.compositeImageUrl
+        };
+      }
+      if (post.imageType) {
+        updatePayload.properties['Image Type'] = {
+          rich_text: [{ type: 'text', text: { content: post.imageType } }]
+        };
+      }
+      if (post.slideCount !== undefined) {
+        updatePayload.properties['Slide Count'] = {
+          number: Number(post.slideCount) || 1
+        };
+      }
+
+      const patchRes = await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
+        method: 'PATCH',
+        headers,
+        body: JSON.stringify(updatePayload)
+      });
+
+      if (!patchRes.ok) {
+        const errJson = await patchRes.json();
+        return res.status(patchRes.status).json({ success: false, error: errJson.message });
+      }
+
+      const updatedPage = await patchRes.json();
+      return res.status(200).json({
+        success: true,
+        pageId: updatedPage.id,
+        url: updatedPage.url,
+        message: 'Post updated in Notion'
+      });
+    } catch (e) {
+      console.error('Error updating post in Notion:', e);
+      return res.status(500).json({ success: false, error: e.message });
+    }
+  }
+
+  // 6. Post Sync Routine
   const singlePost = req.body?.post;
   const postsList = req.body?.posts || (singlePost ? [singlePost] : null);
 
@@ -425,7 +586,7 @@ export default async function handler(req, res) {
       console.warn('Database discovery warning:', e.message);
     }
 
-    // Ensure database has telemetry columns (Impressions, Reactions, Comments, Reposts, Engagement Rate, LinkedIn URN)
+    // Ensure database has telemetry and asset columns
     try {
       const missingProps = {};
       const lowerPropKeys = Object.keys(dbProps).map(k => k.toLowerCase());
@@ -446,6 +607,21 @@ export default async function handler(req, res) {
       }
       if (!lowerPropKeys.includes('linkedin urn') && !lowerPropKeys.includes('urn')) {
         missingProps['LinkedIn URN'] = { rich_text: {} };
+      }
+      if (!lowerPropKeys.includes('clean image url')) {
+        missingProps['Clean Image URL'] = { url: {} };
+      }
+      if (!lowerPropKeys.includes('composite image url')) {
+        missingProps['Composite Image URL'] = { url: {} };
+      }
+      if (!lowerPropKeys.includes('image type')) {
+        missingProps['Image Type'] = { rich_text: {} };
+      }
+      if (!lowerPropKeys.includes('slide count')) {
+        missingProps['Slide Count'] = { number: { format: 'number' } };
+      }
+      if (!lowerPropKeys.includes('post content')) {
+        missingProps['Post Content'] = { rich_text: {} };
       }
 
       if (Object.keys(missingProps).length > 0) {
@@ -520,6 +696,15 @@ export default async function handler(req, res) {
       if (post.reposts !== undefined) assignIfSchema('Reposts', post.reposts, 'number');
       if (post.engagementRate !== undefined) assignIfSchema('Engagement Rate', post.engagementRate, 'rich_text');
       if (post.urn) assignIfSchema('LinkedIn URN', post.urn, 'rich_text');
+
+      if (post.cleanImageUrl) assignIfSchema('Clean Image URL', post.cleanImageUrl, 'rich_text');
+      if (post.compositeImageUrl) assignIfSchema('Composite Image URL', post.compositeImageUrl, 'rich_text');
+      if (post.imageType) assignIfSchema('Image Type', post.imageType, 'rich_text');
+      if (post.slideCount !== undefined) assignIfSchema('Slide Count', post.slideCount, 'number');
+      if (post.content || post.finalContent) {
+        const textContent = String(post.content || post.finalContent || '').slice(0, 2000);
+        assignIfSchema('Post Content', textContent, 'rich_text');
+      }
 
       return props;
     };

@@ -1,0 +1,26 @@
+flowchart TD
+    A["Sub-Menus: Events or News & Trends"] --> B["Select Event or Topic (e.g. Deepavali)"]
+    B --> C["Open in Content Studio"]
+    C --> D{"Style Guide Selection"}
+    D -->|"Option A"| D1["Saved Style Guide Library<br/>(Brother SG B2B, Festive, etc.)"]
+    D -->|"Option B"| D2["Deconstruct Reference Post<br/>(Extract hook, rhythm, CTA)"]
+    D1 --> E["Click 'Generate 3 Drafts with AI'"]
+    D2 --> E
+    E --> F["Auto-Sync 3 Candidates to Notion<br/>(Status: 'Generated Candidate')"]
+    F --> G["Select Preferred Draft from 3 Cards"]
+    G --> H["Edit Copy in Textarea & Verify Fold (140 chars)"]
+    H --> I["Click 'Save Draft (Notion)'<br/>(Status: 'Working Draft')"]
+    I --> J["Visual Generation Studio"]
+    J --> K["Choose Format: Carousel (1:1, up to 5 slides) or Banner (1.91:1)"]
+    K --> L["Gemini Documentation Prompt Guide & Styles"]
+    L --> M["Token / Credit Advisory Alert Modal"]
+    M --> N["Generate Text-Free Clean Artwork & Upload to Blob<br/>(Saved to Notion: 'Clean Image URL')"]
+    N --> O["Edit Text Overlay on Canvas & Save Composite Image<br/>(Saved to Notion: 'Composite Image URL')"]
+    O --> P{"Publishing / Scheduling"}
+    P -->|"Option 1"| Q["Buffer Scheduling Modal (Date & Time Picker)"]
+    Q --> R{"Collision Check:<br/>Already booked on date?"}
+    R -->|"Conflict"| S["Alert: 1-Post/Day Limit Reached<br/>Choose another date or use 1-Click Publish"]
+    R -->|"No Conflict"| T["Schedule via Buffer API<br/>(Saved to Notion: 'Scheduled')"]
+    P -->|"Option 2"| U["1-Click Publish to LinkedIn<br/>(Saved to Notion: 'Published')"]
+    T --> V["Content Calendar (Month / Week / List Views)"]
+    U --> V

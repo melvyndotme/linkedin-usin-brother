@@ -1,0 +1,3244 @@
+{
+  "summary": [
+    {
+      "country": "Japan",
+      "site": "Brother Japan",
+      "url": "https://www.brother.co.jp/",
+      "count": 38
+    },
+    {
+      "country": "Singapore",
+      "site": "Brother Singapore",
+      "url": "https://www.brother.com.sg/en",
+      "count": 67
+    },
+    {
+      "country": "Malaysia",
+      "site": "Brother Malaysia",
+      "url": "https://www.brother.com.my/en",
+      "count": 48
+    },
+    {
+      "country": "Taiwan",
+      "site": "Brother Taiwan",
+      "url": "https://www.brother.tw/zh-tw",
+      "count": 46
+    },
+    {
+      "country": "South Korea",
+      "site": "Brother Korea",
+      "url": "https://www.brother-korea.com/ko-kr",
+      "count": 62
+    },
+    {
+      "country": "Indonesia",
+      "site": "Brother Indonesia",
+      "url": "https://www.brother.co.id/id-id",
+      "count": 45
+    },
+    {
+      "country": "Philippines",
+      "site": "Brother Philippines",
+      "url": "https://www.brother.com.ph/en",
+      "count": 49
+    }
+  ],
+  "total": 355,
+  "records": [
+    {
+      "id": "jp-1",
+      "name": "ブラザー工業株式会社",
+      "country": "Japan",
+      "sourceSite": "Brother Japan",
+      "category": "Logo",
+      "imageUrl": "https://www.brother.co.jp/-/media/cojp/common/img/header/logo_brother.ashx",
+      "filename": "logo_brother.ashx"
+    },
+    {
+      "id": "jp-2",
+      "name": "ブラザーオンライン(ユーザー登録)",
+      "country": "Japan",
+      "sourceSite": "Brother Japan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.co.jp/-/media/cojp/common/img/header/button_login.ashx",
+      "filename": "button_login.ashx"
+    },
+    {
+      "id": "jp-3",
+      "name": "検索",
+      "country": "Japan",
+      "sourceSite": "Brother Japan",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.co.jp/-/media/cojp/common/img/header/button_search.ashx",
+      "filename": "button_search.ashx"
+    },
+    {
+      "id": "jp-4",
+      "name": "Search",
+      "country": "Japan",
+      "sourceSite": "Brother Japan",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.co.jp/-/media/cojp/common/img/header/button_search4.ashx",
+      "filename": "button_search4.ashx"
+    },
+    {
+      "id": "jp-5",
+      "name": "[新しいウィンドウ]",
+      "country": "Japan",
+      "sourceSite": "Brother Japan",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.co.jp/-/media/cojp/common/img/link_icon/new_win.ashx",
+      "filename": "new_win.ashx"
+    },
+    {
+      "id": "jp-6",
+      "name": "製品に関する重要なお知らせ",
+      "country": "Japan",
+      "sourceSite": "Brother Japan",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.co.jp/-/media/cojp/common/img/header/icon_important.ashx",
+      "filename": "icon_important.ashx"
+    },
+    {
+      "id": "jp-7",
+      "name": "プリンター・複合機",
+      "country": "Japan",
+      "sourceSite": "Brother Japan",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.co.jp/-/media/cojp/common/img/header/pic_home_printers.ashx",
+      "filename": "pic_home_printers.ashx"
+    },
+    {
+      "id": "jp-8",
+      "name": "家庭用ミシン",
+      "country": "Japan",
+      "sourceSite": "Brother Japan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.co.jp/-/media/cojp/common/img/header/pic_home_sawing_machines.ashx",
+      "filename": "pic_home_sawing_machines.ashx"
+    },
+    {
+      "id": "jp-9",
+      "name": "工作機械",
+      "country": "Japan",
+      "sourceSite": "Brother Japan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.co.jp/-/media/cojp/common/img/header/pic_industry_machines.ashx",
+      "filename": "pic_industry_machines.ashx"
+    },
+    {
+      "id": "jp-10",
+      "name": "工業用ミシン",
+      "country": "Japan",
+      "sourceSite": "Brother Japan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.co.jp/-/media/cojp/common/img/header/pic_industry_sawing_machines.ashx",
+      "filename": "pic_industry_sawing_machines.ashx"
+    },
+    {
+      "id": "jp-11",
+      "name": "あなたの課題を解決するビジネス製品",
+      "country": "Japan",
+      "sourceSite": "Brother Japan",
+      "category": "Banner / Campaign",
+      "imageUrl": "https://www.brother.co.jp/-/media/cojp/home/img/top-busines-banner.ashx",
+      "filename": "top-busines-banner.ashx"
+    },
+    {
+      "id": "jp-12",
+      "name": "暮らしを豊かにする家庭向け製品",
+      "country": "Japan",
+      "sourceSite": "Brother Japan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.co.jp/-/media/cojp/home/img/brother-home-pc.ashx",
+      "filename": "brother-home-pc.ashx"
+    },
+    {
+      "id": "jp-13",
+      "name": "製造現場を支える工作機械",
+      "country": "Japan",
+      "sourceSite": "Brother Japan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.co.jp/-/media/cojp/home/img/carousal-small-industry.ashx",
+      "filename": "carousal-small-industry.ashx"
+    },
+    {
+      "id": "jp-14",
+      "name": "プリンター",
+      "country": "Japan",
+      "sourceSite": "Brother Japan",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.co.jp/-/media/cojp/home/img/lineup-printer2.ashx",
+      "filename": "lineup-printer2.ashx"
+    },
+    {
+      "id": "jp-15",
+      "name": "家庭用ミシン",
+      "country": "Japan",
+      "sourceSite": "Brother Japan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.co.jp/-/media/cojp/home/img/lineup-hsm.ashx",
+      "filename": "lineup-hsm.ashx"
+    },
+    {
+      "id": "jp-16",
+      "name": "工作機械",
+      "country": "Japan",
+      "sourceSite": "Brother Japan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.co.jp/-/media/cojp/home/img/lineup-machine.ashx",
+      "filename": "lineup-machine.ashx"
+    },
+    {
+      "id": "jp-17",
+      "name": "工業用ミシン",
+      "country": "Japan",
+      "sourceSite": "Brother Japan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.co.jp/-/media/cojp/home/img/lineup-ism.ashx",
+      "filename": "lineup-ism.ashx"
+    },
+    {
+      "id": "jp-18",
+      "name": "ラベルプリンター",
+      "country": "Japan",
+      "sourceSite": "Brother Japan",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.co.jp/-/media/cojp/home/img/lineup-labelprinter.ashx",
+      "filename": "lineup-labelprinter.ashx"
+    },
+    {
+      "id": "jp-19",
+      "name": "商用・大判プリンター",
+      "country": "Japan",
+      "sourceSite": "Brother Japan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.co.jp/-/media/cojp/home/img/lineup-garment.ashx",
+      "filename": "lineup-garment.ashx"
+    },
+    {
+      "id": "jp-20",
+      "name": "モバイルプリンター",
+      "country": "Japan",
+      "sourceSite": "Brother Japan",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.co.jp/-/media/cojp/home/img/lineup-mwprinter.ashx",
+      "filename": "lineup-mwprinter.ashx"
+    },
+    {
+      "id": "jp-21",
+      "name": "カッティングマシン",
+      "country": "Japan",
+      "sourceSite": "Brother Japan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.co.jp/-/media/cojp/home/img/lineup-cuttingmachine.ashx",
+      "filename": "lineup-cuttingmachine.ashx"
+    },
+    {
+      "id": "jp-22",
+      "name": "製品に関する重要なお知らせ",
+      "country": "Japan",
+      "sourceSite": "Brother Japan",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.co.jp/-/media/cojp/common/img/important_icon/icon_important.ashx",
+      "filename": "icon_important.ashx"
+    },
+    {
+      "id": "jp-23",
+      "name": "[新しいウィンドウ]",
+      "country": "Japan",
+      "sourceSite": "Brother Japan",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.co.jp/-/media/cojp/common/img/link_icon/new_win",
+      "filename": "new_win"
+    },
+    {
+      "id": "jp-24",
+      "name": "[PDF]",
+      "country": "Japan",
+      "sourceSite": "Brother Japan",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.co.jp/-/media/cojp/common/img/link_icon/01_pdf",
+      "filename": "01_pdf"
+    },
+    {
+      "id": "jp-25",
+      "name": "ビジネスNAVI",
+      "country": "Japan",
+      "sourceSite": "Brother Japan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.co.jp/-/media/cojp/home/img/bnr-prt-nv.ashx",
+      "filename": "bnr-prt-nv.ashx"
+    },
+    {
+      "id": "jp-26",
+      "name": "ビジネスはじめるナビ",
+      "country": "Japan",
+      "sourceSite": "Brother Japan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.co.jp/-/media/cojp/home/img/bnr-business-start-navi.ashx",
+      "filename": "bnr-business-start-navi.ashx"
+    },
+    {
+      "id": "jp-27",
+      "name": "NEXIO スペシャルサイト",
+      "country": "Japan",
+      "sourceSite": "Brother Japan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.co.jp/-/media/cojp/home/img/bnr-nexio.ashx",
+      "filename": "bnr-nexio.ashx"
+    },
+    {
+      "id": "jp-28",
+      "name": "SPEEDIO マシナビ",
+      "country": "Japan",
+      "sourceSite": "Brother Japan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.co.jp/-/media/cojp/home/img/bnr-speedio-navi.ashx",
+      "filename": "bnr-speedio-navi.ashx"
+    },
+    {
+      "id": "jp-29",
+      "name": "SDGsスペシャルサイト",
+      "country": "Japan",
+      "sourceSite": "Brother Japan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.co.jp/-/media/cojp/home/img/sdgs.ashx",
+      "filename": "sdgs.ashx"
+    },
+    {
+      "id": "jp-30",
+      "name": "Aichi-Nagoya 2026協賛 特設サイト",
+      "country": "Japan",
+      "sourceSite": "Brother Japan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.co.jp/-/media/cojp/home/img/aichinagoya.ashx",
+      "filename": "aichinagoya.ashx"
+    },
+    {
+      "id": "jp-31",
+      "name": "Facebook",
+      "country": "Japan",
+      "sourceSite": "Brother Japan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.co.jp/-/media/cojp/common/img/sns/button_facebook.ashx",
+      "filename": "button_facebook.ashx"
+    },
+    {
+      "id": "jp-32",
+      "name": "X",
+      "country": "Japan",
+      "sourceSite": "Brother Japan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.co.jp/-/media/cojp/common/img/sns/button-x.ashx",
+      "filename": "button-x.ashx"
+    },
+    {
+      "id": "jp-33",
+      "name": "LINE",
+      "country": "Japan",
+      "sourceSite": "Brother Japan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.co.jp/-/media/cojp/common/img/sns/button_line.ashx",
+      "filename": "button_line.ashx"
+    },
+    {
+      "id": "jp-34",
+      "name": "日本",
+      "country": "Japan",
+      "sourceSite": "Brother Japan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.co.jp/-/media/cojp/common/img/flag/jp.ashx",
+      "filename": "jp.ashx"
+    },
+    {
+      "id": "jp-35",
+      "name": "Go to Global Site",
+      "country": "Japan",
+      "sourceSite": "Brother Japan",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.co.jp/-/media/cojp/common/img/footer/icon_global_site.ashx",
+      "filename": "icon_global_site.ashx"
+    },
+    {
+      "id": "jp-36",
+      "name": "[新しいウィンドウ]",
+      "country": "Japan",
+      "sourceSite": "Brother Japan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.co.jp/-/media/cojp/common/img/footer/new_win.ashx",
+      "filename": "new_win.ashx"
+    },
+    {
+      "id": "jp-37",
+      "name": "Global Network",
+      "country": "Japan",
+      "sourceSite": "Brother Japan",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.co.jp/-/media/cojp/common/img/footer/icon_global_network.ashx",
+      "filename": "icon_global_network.ashx"
+    },
+    {
+      "id": "jp-38",
+      "name": "ブラザー工業株式会社",
+      "country": "Japan",
+      "sourceSite": "Brother Japan",
+      "category": "Logo",
+      "imageUrl": "https://www.brother.co.jp/-/media/cojp/common/img/footer/logo_brother.ashx",
+      "filename": "logo_brother.ashx"
+    },
+    {
+      "id": "sg-1",
+      "name": "Brother at your side",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Logo",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/global/menu/logo.svg?rev=74b6da90ccc34b339b35490b0046e6fc",
+      "filename": "logo.svg"
+    },
+    {
+      "id": "sg-2",
+      "name": "user",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/Global/Menu/user.svg",
+      "filename": "user.svg"
+    },
+    {
+      "id": "sg-3",
+      "name": "Cart",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/HongKong/icons/Cart",
+      "filename": "Cart"
+    },
+    {
+      "id": "sg-4",
+      "name": "search icon",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/Global/Menu/search.svg",
+      "filename": "search.svg"
+    },
+    {
+      "id": "sg-5",
+      "name": "hamburger icon",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/Global/Menu/hamburger.svg",
+      "filename": "hamburger.svg"
+    },
+    {
+      "id": "sg-6",
+      "name": "left-white-arrow",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/Global/Menu/left-white-arrow.sgv",
+      "filename": "left-white-arrow.sgv"
+    },
+    {
+      "id": "sg-7",
+      "name": "white-close",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/Global/Menu/white-close.svg",
+      "filename": "white-close.svg"
+    },
+    {
+      "id": "sg-8",
+      "name": "close",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/Global/Menu/close.svg",
+      "filename": "close.svg"
+    },
+    {
+      "id": "sg-9",
+      "name": "printer",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/singapore/menu/mfc-l2750dw.webp?rev=a55c86f2fdba4ce1a5b2877ad2ad9008",
+      "filename": "mfc-l2750dw.webp"
+    },
+    {
+      "id": "sg-10",
+      "name": "Scanners",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/singapore/menu/ads4900w.webp?rev=3cc8654d6a22428a94ca87fd10f4218e",
+      "filename": "ads4900w.webp"
+    },
+    {
+      "id": "sg-11",
+      "name": "Mobile Printers",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/singapore/menu/pj883.webp?rev=11aed48b11754d4f8ddc9655b779a03c",
+      "filename": "pj883.webp"
+    },
+    {
+      "id": "sg-12",
+      "name": "Label Printers",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/singapore/menu/pt-p710bt.webp?rev=0ffb1fabbbcc45788445c3ab0d763a45",
+      "filename": "pt-p710bt.webp"
+    },
+    {
+      "id": "sg-13",
+      "name": "Sewing Machines",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/singapore/menu/a80.webp?rev=67cbcf61d9904378829e2189867a20fa",
+      "filename": "a80.webp"
+    },
+    {
+      "id": "sg-14",
+      "name": "Professional Embroidery Machines",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/singapore/menu/pr1055x.webp?rev=65df72fe5ffa4b4794ce62293e2340b6",
+      "filename": "pr1055x.webp"
+    },
+    {
+      "id": "sg-15",
+      "name": "Sewing Machines",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/singapore/menu/sdx1200.webp?rev=99d26f135c834803bce51cc6a6e800bb",
+      "filename": "sdx1200.webp"
+    },
+    {
+      "id": "sg-16",
+      "name": "Fax Machines",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/singapore/menu/fax-2840.webp?rev=327b70513fd649298df0a4dc8f8bfd5c",
+      "filename": "fax-2840.webp"
+    },
+    {
+      "id": "sg-17",
+      "name": "latest-promo",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/global/menu/latest-promo.png?rev=092f0626e84a486cb0a35bb1294ddd2b",
+      "filename": "latest-promo.png"
+    },
+    {
+      "id": "sg-18",
+      "name": "download-icon",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/global/menu/download-icon.png?rev=0b7c5f67da12480faf1a36abcfd8de0a",
+      "filename": "download-icon.png"
+    },
+    {
+      "id": "sg-19",
+      "name": "Brother-Spore-5yrs-Campaign-1920x720-R3",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Banner / Campaign",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/singapore/microsite/images/brother-spore-5yrs-campaign-1920x720-r3.jpg?rev=62be10c545024d79962dfce4e2bbbb6c",
+      "filename": "brother-spore-5yrs-campaign-1920x720-r3.jpg"
+    },
+    {
+      "id": "sg-20",
+      "name": "pt-h110-promo-banner_1920-x-720px-website-banner-desktop",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Banner / Campaign",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/singapore/promotion/pt-h110-promo-banner_1920-x-720px-website-banner-desktop.png?rev=969470906a984878b92d6de66df21801",
+      "filename": "pt-h110-promo-banner_1920-x-720px-website-banner-desktop.png"
+    },
+    {
+      "id": "sg-21",
+      "name": "48-dollar-free-delivery_1920-x-720px-website-banner-desktop",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Banner / Campaign",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/singapore/promotion/2026/48-dollar-free-delivery_1920-x-720px-website-banner-desktop.png?rev=cfd0808b786c4831b87ce1a13bacecb4",
+      "filename": "48-dollar-free-delivery_1920-x-720px-website-banner-desktop.png"
+    },
+    {
+      "id": "sg-22",
+      "name": "brother-umbrella-promo-no-5years--no-ntuc1920-x-720px-website-banner-desktop",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Banner / Campaign",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/singapore/promotion/2026/brother-umbrella-promo-no-5years--no-ntuc1920-x-720px-website-banner-desktop.png?rev=4ae28d6a61734aefba85dbe697f53fd5",
+      "filename": "brother-umbrella-promo-no-5years--no-ntuc1920-x-720px-website-banner-desktop.png"
+    },
+    {
+      "id": "sg-23",
+      "name": "bics_aug2026_estore-special-promotion_adaptations_1920x720",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/singapore/promotion/2026/bics_aug2026_estore-special-promotion_adaptations_1920x720.webp?rev=df6fba31f0764cab810a441475405d42",
+      "filename": "bics_aug2026_estore-special-promotion_adaptations_1920x720.webp"
+    },
+    {
+      "id": "sg-24",
+      "name": "idc2025_2026_home-banner_1920x720px_hires",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Banner / Campaign",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/singapore/banner/idc2025_2026_home-banner_1920x720px_hires.webp?rev=9f34303f862740288652dc60980f983a",
+      "filename": "idc2025_2026_home-banner_1920x720px_hires.webp"
+    },
+    {
+      "id": "sg-25",
+      "name": "inktankadapts_webbanners_home__carousel_desktop",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Banner / Campaign",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/singapore/toppage/offer-zone/1-1/inktankadapts_webbanners_home__carousel_desktop.webp?rev=58663ed2283f45b6893a63b32ecd2fe6",
+      "filename": "inktankadapts_webbanners_home__carousel_desktop.webp"
+    },
+    {
+      "id": "sg-26",
+      "name": "Brother Smartcut Printer DCP-J1700DW Artwork_750x250",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/singapore/toppage/offer-zone/1-2/brother-smartcut-printer-dcp-j1700dw-artwork_750x250.webp?rev=e700bf7206a84c95910f6775557b7038",
+      "filename": "brother-smartcut-printer-dcp-j1700dw-artwork_750x250.webp"
+    },
+    {
+      "id": "sg-27",
+      "name": "Brother Sewing and Embroidery Artwork_750x250",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/singapore/toppage/offer-zone/1-3/brother-sewing-and-embroidery-artwork_750x250.webp?rev=4a717f8a62624d7bbe4102bd4479aed8",
+      "filename": "brother-sewing-and-embroidery-artwork_750x250.webp"
+    },
+    {
+      "id": "sg-28",
+      "name": "d6d4e7172bf84197a83a1583158833f8",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.sg/-/media/d6d4e7172bf84197a83a1583158833f8.png?as=0&h=300&w=300&rev=e03dbd7f697a41c39ab1f3d7af051656&hash=BEC0A85706D267932685F8E8807D57DE",
+      "filename": "d6d4e7172bf84197a83a1583158833f8.png"
+    },
+    {
+      "id": "sg-29",
+      "name": "8a39f078898b4faa82da40a194c35201",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.sg/-/media/8a39f078898b4faa82da40a194c35201.png?as=0&h=301&w=301&rev=9f8b9754ed8e48f294fadec7dd480b2d&hash=E413D408DB69D303EF50B1C441F583AD",
+      "filename": "8a39f078898b4faa82da40a194c35201.png"
+    },
+    {
+      "id": "sg-30",
+      "name": "b69b3e1f4b8648cbadba00e71638e1ac",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.sg/-/media/b69b3e1f4b8648cbadba00e71638e1ac.png?as=0&h=300&w=300&rev=25790a3064fc4372a9939fcce9435096&hash=E675191E1E6B5A3C8FE91EC3A736C12E",
+      "filename": "b69b3e1f4b8648cbadba00e71638e1ac.png"
+    },
+    {
+      "id": "sg-31",
+      "name": "72334b007c5c44adb4b437bfa5b4a280",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.sg/-/media/72334b007c5c44adb4b437bfa5b4a280.png?as=0&h=300&w=300&rev=5c35aef082f44a738e9c95fead4ca973&hash=614291739A871E58F59839C4E4F14AE7",
+      "filename": "72334b007c5c44adb4b437bfa5b4a280.png"
+    },
+    {
+      "id": "sg-32",
+      "name": "64c6615fc1bb43318972affe12524289",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.sg/-/media/64c6615fc1bb43318972affe12524289.png?as=0&h=300&w=300&rev=0a370236e571446a8cecdf99870cc763&hash=2D8B0290B0B9DFFF8B4DEB694D0FBAD7",
+      "filename": "64c6615fc1bb43318972affe12524289.png"
+    },
+    {
+      "id": "sg-33",
+      "name": "2f52f0f02a6b4f2f9d0f8a8581b9b057",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.sg/-/media/2f52f0f02a6b4f2f9d0f8a8581b9b057.png?as=0&h=301&w=301&rev=13d3ba2a5de3451d9d3285a3b7250019&hash=7E44BED5D451C22400F7CCDEB425EF39",
+      "filename": "2f52f0f02a6b4f2f9d0f8a8581b9b057.png"
+    },
+    {
+      "id": "sg-34",
+      "name": "41f63ff3214244fdb27b462d68aae074",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.sg/-/media/41f63ff3214244fdb27b462d68aae074.png?as=0&h=300&w=300&rev=5ade7a44a2754afa96016e229914d097&hash=9523CA9374C7D113643879B22E54FEB0",
+      "filename": "41f63ff3214244fdb27b462d68aae074.png"
+    },
+    {
+      "id": "sg-35",
+      "name": "d7458c16b61240f0bf9d9c6f047b8442",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.sg/-/media/d7458c16b61240f0bf9d9c6f047b8442.png?as=0&h=300&w=300&rev=4a74a450e06a475091b70c06cd4d1a84&hash=AB632C3086C795CC8B4424B8F67E76A0",
+      "filename": "d7458c16b61240f0bf9d9c6f047b8442.png"
+    },
+    {
+      "id": "sg-36",
+      "name": "brother-umbrella-promo-no-5years--no-ntuc640-x-480px-website-banner-mobile",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Banner / Campaign",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/singapore/promotion/2026/brother-umbrella-promo-no-5years--no-ntuc640-x-480px-website-banner-mobile.png?rev=0d604bdd6ffe41e7a2fbe005e133e920",
+      "filename": "brother-umbrella-promo-no-5years--no-ntuc640-x-480px-website-banner-mobile.png"
+    },
+    {
+      "id": "sg-37",
+      "name": "pt-h110-promo-banner_640-x-480px-website-banner-mobile",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Banner / Campaign",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/singapore/promotion/pt-h110-promo-banner_640-x-480px-website-banner-mobile.png?rev=c0b5940b663b4ff89ea2fba98c135e6c",
+      "filename": "pt-h110-promo-banner_640-x-480px-website-banner-mobile.png"
+    },
+    {
+      "id": "sg-38",
+      "name": "bics_aug2026_estore-special-promotion_adaptations_640x480",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/singapore/promotion/2026/bics_aug2026_estore-special-promotion_adaptations_640x480.webp?rev=f5158353664441f59c80780d7fe7c02b",
+      "filename": "bics_aug2026_estore-special-promotion_adaptations_640x480.webp"
+    },
+    {
+      "id": "sg-39",
+      "name": "48-dollar-free-delivery_640-x-480px-website-banner-mobile",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Banner / Campaign",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/singapore/promotion/2026/48-dollar-free-delivery_640-x-480px-website-banner-mobile.png?rev=7096f8ae36fd4aeea3e3fd0ae5b8e894",
+      "filename": "48-dollar-free-delivery_640-x-480px-website-banner-mobile.png"
+    },
+    {
+      "id": "sg-40",
+      "name": "DCP-T730DW",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.com.sg/-/media/12e76d28c9e7416b8a2207fccd34fc93.png?as=0&amp;h=526&amp;w=526&amp;rev=00909757b2514c34a5bfbb777041a3fa&amp;hash=BC23C1E5CEB9FAD7A130C607413B1C7A",
+      "filename": "12e76d28c9e7416b8a2207fccd34fc93.png"
+    },
+    {
+      "id": "sg-41",
+      "name": "Brother Innov-is M370 Sewing, Quilting &amp; Embroidery Machine  – front view",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.sg/-/media/fa7af237f6d64e8b95507e43305e9445.jpg?as=0&amp;h=526&amp;w=526&amp;rev=37d6b418657840a4b6f4e8cc240534e8&amp;hash=9467E85A337BC7BDA47D9A12681F59A3",
+      "filename": "fa7af237f6d64e8b95507e43305e9445.jpg"
+    },
+    {
+      "id": "sg-42",
+      "name": "MFC-L2885DW",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/singapore/products/mfc-l2885dw/20240502052501_mfc_l2885dw.webp?rev=563a50392899496a9a1912aa21d074a0&amp;hash=F305BC7A5A055B7B2277B07122B6099D",
+      "filename": "20240502052501_mfc_l2885dw.webp"
+    },
+    {
+      "id": "sg-43",
+      "name": "MFC-J2340DW",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.com.sg/-/media/9dead857edb24c95ae9d44f2a2e901c0.png?as=0&amp;h=526&amp;w=526&amp;rev=e34d0220610d48de8a759c183c9d6de0&amp;hash=C23D6B0B2D3940B6CEBA342B25F626AB",
+      "filename": "9dead857edb24c95ae9d44f2a2e901c0.png"
+    },
+    {
+      "id": "sg-44",
+      "name": "PT-D460BT",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/singapore/products/pt-d460bt/pdp---pt-d460bt---english.webp?rev=7b49fe88ad56402faa2c376f551710ce&amp;hash=985AE170707EB8AB01B09F6650B7AC2C",
+      "filename": "pdp---pt-d460bt---english.webp"
+    },
+    {
+      "id": "sg-45",
+      "name": "DCP-T830DW",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.com.sg/-/media/2cae014d20164dc8b6b30d7d09fd254b.png?as=0&amp;h=526&amp;w=526&amp;rev=c9ee31a7936e4629a893f4bc108350fe&amp;hash=CBCF3ADC19781739384736FC7F705CAE",
+      "filename": "2cae014d20164dc8b6b30d7d09fd254b.png"
+    },
+    {
+      "id": "sg-46",
+      "name": "MFC-T930DW",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/singapore/products/mfc-t930dw/mfc-t930dw.webp?rev=a0b53caae728467b9024e6d17078695e&amp;hash=A4F0F726C09BA3043614FF80B8F10FF8",
+      "filename": "mfc-t930dw.webp"
+    },
+    {
+      "id": "sg-47",
+      "name": "DCP-T530DW",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.com.sg/-/media/a637d74702ef47218e67beebf2c40a14.png?as=0&amp;h=526&amp;w=526&amp;rev=260981b3b0124f5796fdd46fc63d4b76&amp;hash=4622327D5CDCD9391A3FC1035906F170",
+      "filename": "a637d74702ef47218e67beebf2c40a14.png"
+    },
+    {
+      "id": "sg-48",
+      "name": "chev-left",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.com.sg/-/media/Themes/APWEB/Global/Commerce/images/icons/chev-left.svg",
+      "filename": "chev-left.svg"
+    },
+    {
+      "id": "sg-49",
+      "name": "chev-right",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.com.sg/-/media/Themes/APWEB/Global/Commerce/images/icons/chev-right.svg",
+      "filename": "chev-right.svg"
+    },
+    {
+      "id": "sg-50",
+      "name": "Brother fleet management solutions",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/global/home-page/home-promo-business-1.webp?h=202&amp;iar=0&amp;w=306&amp;rev=4a02d4801d3f4e66b44551e2d2a057b3",
+      "filename": "home-promo-business-1.webp"
+    },
+    {
+      "id": "sg-51",
+      "name": "Brother embroidery solutions",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/global/home-page/home-promo-business-2.webp?h=202&amp;iar=0&amp;w=306&amp;rev=c236e310e0bf402a9bd4d3bf8ba0650e",
+      "filename": "home-promo-business-2.webp"
+    },
+    {
+      "id": "sg-52",
+      "name": "Brother Labelling solutions",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/global/home-page/home-promo-business-3.webp?h=202&amp;iar=0&amp;w=306&amp;rev=56efc976918c4f0384e84952c0224aa9",
+      "filename": "home-promo-business-3.webp"
+    },
+    {
+      "id": "sg-53",
+      "name": "Brother portable printing solutions",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/global/home-page/home-promo-business-4.webp?h=202&amp;iar=0&amp;w=306&amp;rev=0644c95a0a8c439b9bc58e1754c4272a",
+      "filename": "home-promo-business-4.webp"
+    },
+    {
+      "id": "sg-54",
+      "name": "brother_facebook_icon",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.com.sg/-/media/themes/apweb/global/global-lite/images/facebook.svg?iar=0&amp;rev=68a9d369e4304f7884e97590bafba35f",
+      "filename": "facebook.svg"
+    },
+    {
+      "id": "sg-55",
+      "name": "instagram",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.com.sg/-/media/themes/apweb/global/global-lite/images/icons/instagram.svg?iar=0&amp;rev=5b2648b2849c4f1a9a0999afad1ec743",
+      "filename": "instagram.svg"
+    },
+    {
+      "id": "sg-56",
+      "name": "linkedin",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.com.sg/-/media/themes/apweb/global/global-lite/images/icons/linkedin.svg?iar=0&amp;rev=b43bc9549e6d44b0b40068415ef297e9",
+      "filename": "linkedin.svg"
+    },
+    {
+      "id": "sg-57",
+      "name": "youtube",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.com.sg/-/media/themes/apweb/global/global-lite/images/icons/youtube.svg?iar=0&amp;rev=87f2f2f637c14b80823f550b138ab231",
+      "filename": "youtube.svg"
+    },
+    {
+      "id": "sg-58",
+      "name": "BCSG",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.sg/-/media/themes/apweb/global/header-footer-theme/images/flags/bcsg.png?h=24&amp;iar=0&amp;w=24&amp;rev=25cdb12159454b598865570cc239b6cc",
+      "filename": "bcsg.png"
+    },
+    {
+      "id": "sg-59",
+      "name": "brother-spore-5yrs-campaign-640x480-r3",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Banner / Campaign",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/singapore/microsite/images/brother-spore-5yrs-campaign-640x480-r3.jpg?rev=010c0f8e16c745fe80fb00d24ef5e1cb",
+      "filename": "brother-spore-5yrs-campaign-640x480-r3.jpg"
+    },
+    {
+      "id": "sg-60",
+      "name": "idc2025_2026_home-banner_mobile_640x480px_hires",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Banner / Campaign",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/singapore/banner/idc2025_2026_home-banner_mobile_640x480px_hires.webp?rev=d88bc60c11f047f8a7de44c05ccea800",
+      "filename": "idc2025_2026_home-banner_mobile_640x480px_hires.webp"
+    },
+    {
+      "id": "sg-61",
+      "name": "inktankadapts_webbanners_home__carousel__mobile",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Banner / Campaign",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/singapore/toppage/offer-zone/1-1/inktankadapts_webbanners_home__carousel__mobile.webp?rev=5cce51ba7db148078ff4de0f2fe8d00b",
+      "filename": "inktankadapts_webbanners_home__carousel__mobile.webp"
+    },
+    {
+      "id": "sg-62",
+      "name": "brother-smartcut-printer-dcp-j1700dw-artwork_600x400",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/singapore/toppage/offer-zone/1-2/brother-smartcut-printer-dcp-j1700dw-artwork_600x400.webp?rev=47c21bbc0e3547f1b35f3be62365a585",
+      "filename": "brother-smartcut-printer-dcp-j1700dw-artwork_600x400.webp"
+    },
+    {
+      "id": "sg-63",
+      "name": "brother-sewing-and-embroidery-artwork_600x400",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/singapore/toppage/offer-zone/1-3/brother-sewing-and-embroidery-artwork_600x400.webp?rev=7e547b734c6049ad9c68b0d6922ece70",
+      "filename": "brother-sewing-and-embroidery-artwork_600x400.webp"
+    },
+    {
+      "id": "sg-64",
+      "name": "home-promo-business-1",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/global/home-page/home-promo-business-1.webp?rev=4a02d4801d3f4e66b44551e2d2a057b3",
+      "filename": "home-promo-business-1.webp"
+    },
+    {
+      "id": "sg-65",
+      "name": "home-promo-business-2",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/global/home-page/home-promo-business-2.webp?rev=c236e310e0bf402a9bd4d3bf8ba0650e",
+      "filename": "home-promo-business-2.webp"
+    },
+    {
+      "id": "sg-66",
+      "name": "home-promo-business-3",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/global/home-page/home-promo-business-3.webp?rev=56efc976918c4f0384e84952c0224aa9",
+      "filename": "home-promo-business-3.webp"
+    },
+    {
+      "id": "sg-67",
+      "name": "home-promo-business-4",
+      "country": "Singapore",
+      "sourceSite": "Brother Singapore",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.sg/-/media/ap2/global/home-page/home-promo-business-4.webp?rev=0644c95a0a8c439b9bc58e1754c4272a",
+      "filename": "home-promo-business-4.webp"
+    },
+    {
+      "id": "my-1",
+      "name": "Brother at your side",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Logo",
+      "imageUrl": "https://www.brother.com.my/-/media/ap2/global/menu/logo.svg?rev=74b6da90ccc34b339b35490b0046e6fc",
+      "filename": "logo.svg"
+    },
+    {
+      "id": "my-2",
+      "name": "search icon",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.com.my/-/media/ap2/Global/Menu/search.svg",
+      "filename": "search.svg"
+    },
+    {
+      "id": "my-3",
+      "name": "hamburger icon",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.com.my/-/media/ap2/Global/Menu/hamburger.svg",
+      "filename": "hamburger.svg"
+    },
+    {
+      "id": "my-4",
+      "name": "left-white-arrow",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.com.my/-/media/ap2/Global/Menu/left-white-arrow.sgv",
+      "filename": "left-white-arrow.sgv"
+    },
+    {
+      "id": "my-5",
+      "name": "white-close",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.my/-/media/ap2/Global/Menu/white-close.svg",
+      "filename": "white-close.svg"
+    },
+    {
+      "id": "my-6",
+      "name": "close",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.my/-/media/ap2/Global/Menu/close.svg",
+      "filename": "close.svg"
+    },
+    {
+      "id": "my-7",
+      "name": "Printers &amp; Multi-Functions",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.com.my/-/media/ap2/malaysia/menu/t920dw.png?rev=97b7f0330dce4b51ac42f8f077ea33e8",
+      "filename": "t920dw.png"
+    },
+    {
+      "id": "my-8",
+      "name": "Mobile Printers",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.com.my/-/media/ap2/malaysia/menu/pj883.png?rev=29c8cc29bbd346f9a5c2a915c1b0f72c",
+      "filename": "pj883.png"
+    },
+    {
+      "id": "my-9",
+      "name": "Labelling Machines",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.com.my/-/media/ap2/malaysia/menu/ql800.png?rev=69880d08a1764aa38c8246b2f24296b2",
+      "filename": "ql800.png"
+    },
+    {
+      "id": "my-10",
+      "name": "Home Sewing Machines",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.my/-/media/ap2/malaysia/menu/a80.png?rev=5f16d612a8304e48a47316166eac1ec5",
+      "filename": "a80.png"
+    },
+    {
+      "id": "my-11",
+      "name": "Professional Embroidery Machines",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.my/-/media/ap2/malaysia/menu/pr1055x.png?rev=dc5fe8852196403091090069103321d4",
+      "filename": "pr1055x.png"
+    },
+    {
+      "id": "my-12",
+      "name": "Cutting Machines",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.my/-/media/ap2/malaysia/menu/sdx1200.png?rev=7b2103065df54ad5be6a8628386ff290",
+      "filename": "sdx1200.png"
+    },
+    {
+      "id": "my-13",
+      "name": "Fax Machines",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.my/-/media/ap2/malaysia/menu/fax-2840.png?rev=dbc9390cf7d84b1486d88d44168d86f3",
+      "filename": "fax-2840.png"
+    },
+    {
+      "id": "my-14",
+      "name": "latest-promo",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.my/-/media/ap2/global/menu/latest-promo.png?rev=092f0626e84a486cb0a35bb1294ddd2b",
+      "filename": "latest-promo.png"
+    },
+    {
+      "id": "my-15",
+      "name": "download-icon",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.com.my/-/media/ap2/global/menu/download-icon.png?rev=0b7c5f67da12480faf1a36abcfd8de0a",
+      "filename": "download-icon.png"
+    },
+    {
+      "id": "my-16",
+      "name": "Brother5YearsWarrantyWebBanner",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Banner / Campaign",
+      "imageUrl": "https://www.brother.com.my/-/media/ap2/malaysia/home-page/5years-warranty_banner_website_oct.jpg?rev=c66d33e501f7422f93f760435c590d3a",
+      "filename": "5years-warranty_banner_website_oct.jpg"
+    },
+    {
+      "id": "my-17",
+      "name": "Ready for every print",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Banner / Campaign",
+      "imageUrl": "https://www.brother.com.my/-/media/ap2/malaysia/home-page/homepage-banner-dekstop_1920x720_last.jpg?rev=55f2d8d153dd41e3866648d56fc88834",
+      "filename": "homepage-banner-dekstop_1920x720_last.jpg"
+    },
+    {
+      "id": "my-18",
+      "name": "Ready-for-Every-Print-Homepage-Banner-Dekstop",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Banner / Campaign",
+      "imageUrl": "https://www.brother.com.my/-/media/ap2/malaysia/home-page/ready-for-every-print-homepage-banner-dekstop.webp?rev=fa0dbdab88ea499cbe048e31e692e766",
+      "filename": "ready-for-every-print-homepage-banner-dekstop.webp"
+    },
+    {
+      "id": "my-19",
+      "name": "BrotherKEEPITGENUINEBannerDekstop1920x720R4",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Banner / Campaign",
+      "imageUrl": "https://www.brother.com.my/-/media/ap2/malaysia/home-page/brotherkeepitgenuinebannerdekstop1920x720r4.jpg?rev=36b27453ffcf4b778f43c44eb0bfb5e9",
+      "filename": "brotherkeepitgenuinebannerdekstop1920x720r4.jpg"
+    },
+    {
+      "id": "my-20",
+      "name": "brother-website-homepage-banner-phase-2-dekstop1920x720jpg",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Banner / Campaign",
+      "imageUrl": "https://www.brother.com.my/-/media/ap2/malaysia/home-page/brother-website-homepage-banner-phase-2-dekstop1920x720jpg.webp?rev=971e8e898cc94b2f8a9d20dce7a2d0c1",
+      "filename": "brother-website-homepage-banner-phase-2-dekstop1920x720jpg.webp"
+    },
+    {
+      "id": "my-21",
+      "name": "Easy Sewing 1600 x 600",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.my/-/media/ap2/malaysia/home-page/easy-sewing-1600-x-600.webp?rev=43993a37b5434b2d89508ac36df12e7f",
+      "filename": "easy-sewing-1600-x-600.webp"
+    },
+    {
+      "id": "my-22",
+      "name": "Brother21HTstaticwebpage",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.my/-/media/ap2/malaysia/home-page/brother21htstaticwebpagedekstop.jpg?rev=58c2add5560c4e9aa4ea2775d5821ee8",
+      "filename": "brother21htstaticwebpagedekstop.jpg"
+    },
+    {
+      "id": "my-23",
+      "name": "c1935d2f9a2a4c09b42cbe749b973870",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.my/-/media/c1935d2f9a2a4c09b42cbe749b973870.png?as=0&h=300&w=300&rev=ee93ecebec354d13bc3f90f91b6399c9&hash=8952CB052887C5088DE8D64C5D8B1977",
+      "filename": "c1935d2f9a2a4c09b42cbe749b973870.png"
+    },
+    {
+      "id": "my-24",
+      "name": "901d19f95521477bbfee205736b95d41",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.my/-/media/901d19f95521477bbfee205736b95d41.png?as=0&h=300&w=300&rev=270285136973487987cf2f010961d0cd&hash=F03EC44A745FB46E774F53ACFEE41159",
+      "filename": "901d19f95521477bbfee205736b95d41.png"
+    },
+    {
+      "id": "my-25",
+      "name": "label-printer-2",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.com.my/-/media/ap2/malaysia/toppage/product-category/label-printer-2.webp?rev=95ffee94b767463a8140787592de920b",
+      "filename": "label-printer-2.webp"
+    },
+    {
+      "id": "my-26",
+      "name": "139b0589886e4ab7a352bb4939efe018",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.my/-/media/139b0589886e4ab7a352bb4939efe018.png?as=0&h=300&w=300&rev=c1f9454f0be1488aba69cc8d2b627726&hash=45AC494D09302961AF2529679BCEA31B",
+      "filename": "139b0589886e4ab7a352bb4939efe018.png"
+    },
+    {
+      "id": "my-27",
+      "name": "professional_embroidery",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.my/-/media/ap2/malaysia/toppage/product-category/professional_embroidery.webp?rev=9370e4c3702e4cc29a6bbe92ed03ea6e",
+      "filename": "professional_embroidery.webp"
+    },
+    {
+      "id": "my-28",
+      "name": "cutting-machines-1",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.my/-/media/ap2/malaysia/toppage/product-category/cutting-machines-1.webp?rev=6790a6e83e59483198f9ebfcf386bdc7",
+      "filename": "cutting-machines-1.webp"
+    },
+    {
+      "id": "my-29",
+      "name": "Brother fleet management solutions",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.my/-/media/ap2/malaysia/toppage/solutions/5-1-1/top-page_solutions_540x292px_1w.webp?iar=0&amp;rev=cf581169054b499b864d63b5486d32f2",
+      "filename": "top-page_solutions_540x292px_1w.webp"
+    },
+    {
+      "id": "my-30",
+      "name": "Brother embroidery solutions",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.my/-/media/ap2/malaysia/toppage/solutions/5-2-1/top-page_solutions_540x292px_2w.webp?iar=0&amp;rev=7968918585e14c4d93ac0d9c6da3f878",
+      "filename": "top-page_solutions_540x292px_2w.webp"
+    },
+    {
+      "id": "my-31",
+      "name": "Brother Labelling solutions",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.my/-/media/ap2/malaysia/toppage/solutions/5-3-1/top-page_solutions_540x292px_3w.webp?iar=0&amp;rev=dc528ee607ee4a61855c45499a51a84b",
+      "filename": "top-page_solutions_540x292px_3w.webp"
+    },
+    {
+      "id": "my-32",
+      "name": "Brother portable printing solutions",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.my/-/media/ap2/malaysia/toppage/solutions/5-4-1/top-page_solutions_540x292px_4w.webp?iar=0&amp;rev=e2f69071eb9e4781b462bb8cf516c8b8",
+      "filename": "top-page_solutions_540x292px_4w.webp"
+    },
+    {
+      "id": "my-33",
+      "name": "brother_facebook_icon",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.com.my/-/media/themes/apweb/global/global-lite/images/facebook.svg?iar=0&amp;rev=68a9d369e4304f7884e97590bafba35f",
+      "filename": "facebook.svg"
+    },
+    {
+      "id": "my-34",
+      "name": "instagram",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.com.my/-/media/themes/apweb/global/global-lite/images/icons/instagram.svg?iar=0&amp;rev=5b2648b2849c4f1a9a0999afad1ec743",
+      "filename": "instagram.svg"
+    },
+    {
+      "id": "my-35",
+      "name": "linkedin",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.com.my/-/media/themes/apweb/global/global-lite/images/icons/linkedin.svg?iar=0&amp;rev=b43bc9549e6d44b0b40068415ef297e9",
+      "filename": "linkedin.svg"
+    },
+    {
+      "id": "my-36",
+      "name": "youtube",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.com.my/-/media/themes/apweb/global/global-lite/images/icons/youtube.svg?iar=0&amp;rev=87f2f2f637c14b80823f550b138ab231",
+      "filename": "youtube.svg"
+    },
+    {
+      "id": "my-37",
+      "name": "BICM",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.my/-/media/themes/apweb/global/header-footer-theme/images/flags/bicm.png?h=24&amp;iar=0&amp;w=24&amp;rev=aefe61c49909475bb188c1e5837ff5e5",
+      "filename": "bicm.png"
+    },
+    {
+      "id": "my-38",
+      "name": "5years-warranty_homepage-banner__640x480",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Banner / Campaign",
+      "imageUrl": "https://www.brother.com.my/-/media/ap2/malaysia/home-page/5years-warranty_homepage-banner__640x480.jpg?rev=a3daea4fd2fa4ee8b59e8a8984e43795",
+      "filename": "5years-warranty_homepage-banner__640x480.jpg"
+    },
+    {
+      "id": "my-39",
+      "name": "homepage-banner-mobile_640x480_last",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Banner / Campaign",
+      "imageUrl": "https://www.brother.com.my/-/media/ap2/malaysia/home-page/homepage-banner-mobile_640x480_last.jpg?rev=d7f395bf74924f43b252a5da776d59de",
+      "filename": "homepage-banner-mobile_640x480_last.jpg"
+    },
+    {
+      "id": "my-40",
+      "name": "ready-for-every-print-homepage-banner-mobile",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Banner / Campaign",
+      "imageUrl": "https://www.brother.com.my/-/media/ap2/malaysia/home-page/ready-for-every-print-homepage-banner-mobile.webp?rev=40d15478ce2b42f681ffc86a8873a8ac",
+      "filename": "ready-for-every-print-homepage-banner-mobile.webp"
+    },
+    {
+      "id": "my-41",
+      "name": "brotherkeepitgenuinebannermobile640x480r4",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Banner / Campaign",
+      "imageUrl": "https://www.brother.com.my/-/media/ap2/malaysia/home-page/brotherkeepitgenuinebannermobile640x480r4.jpg?rev=676c8c9247f442d4ad24756300789b0a",
+      "filename": "brotherkeepitgenuinebannermobile640x480r4.jpg"
+    },
+    {
+      "id": "my-42",
+      "name": "brother-website-homepage-banner-phase-2-mobile640x480jpg",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Banner / Campaign",
+      "imageUrl": "https://www.brother.com.my/-/media/ap2/malaysia/home-page/brother-website-homepage-banner-phase-2-mobile640x480jpg.webp?rev=f536b21902784bb089d58f798efc1cd8",
+      "filename": "brother-website-homepage-banner-phase-2-mobile640x480jpg.webp"
+    },
+    {
+      "id": "my-43",
+      "name": "easy-sewing-1280-x-960",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.my/-/media/ap2/malaysia/home-page/easy-sewing-1280-x-960.webp?rev=cb12029c535944a4badda506ec03a26f",
+      "filename": "easy-sewing-1280-x-960.webp"
+    },
+    {
+      "id": "my-44",
+      "name": "brother21htstaticwebpagemobile",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.my/-/media/ap2/malaysia/home-page/brother21htstaticwebpagemobile.jpg?rev=c2c13ed615404cb082f9011af6b75b9d",
+      "filename": "brother21htstaticwebpagemobile.jpg"
+    },
+    {
+      "id": "my-45",
+      "name": "top-page_solutions_540x292px_1w",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.my/-/media/ap2/malaysia/toppage/solutions/5-1-1/top-page_solutions_540x292px_1w.webp?rev=cf581169054b499b864d63b5486d32f2",
+      "filename": "top-page_solutions_540x292px_1w.webp"
+    },
+    {
+      "id": "my-46",
+      "name": "top-page_solutions_540x292px_2w",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.my/-/media/ap2/malaysia/toppage/solutions/5-2-1/top-page_solutions_540x292px_2w.webp?rev=7968918585e14c4d93ac0d9c6da3f878",
+      "filename": "top-page_solutions_540x292px_2w.webp"
+    },
+    {
+      "id": "my-47",
+      "name": "top-page_solutions_540x292px_3w",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.my/-/media/ap2/malaysia/toppage/solutions/5-3-1/top-page_solutions_540x292px_3w.webp?rev=dc528ee607ee4a61855c45499a51a84b",
+      "filename": "top-page_solutions_540x292px_3w.webp"
+    },
+    {
+      "id": "my-48",
+      "name": "top-page_solutions_540x292px_4w",
+      "country": "Malaysia",
+      "sourceSite": "Brother Malaysia",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.my/-/media/ap2/malaysia/toppage/solutions/5-4-1/top-page_solutions_540x292px_4w.webp?rev=e2f69071eb9e4781b462bb8cf516c8b8",
+      "filename": "top-page_solutions_540x292px_4w.webp"
+    },
+    {
+      "id": "tw-1",
+      "name": "Brother at your side",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Logo",
+      "imageUrl": "https://www.brother.tw/-/media/ap2/global/menu/logo.svg?rev=-1",
+      "filename": "logo.svg"
+    },
+    {
+      "id": "tw-2",
+      "name": "cart icon",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.tw/-/media/ap2/Global/Menu/cart.svg",
+      "filename": "cart.svg"
+    },
+    {
+      "id": "tw-3",
+      "name": "search icon",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.tw/-/media/ap2/Global/Menu/search.svg",
+      "filename": "search.svg"
+    },
+    {
+      "id": "tw-4",
+      "name": "hamburger icon",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.tw/-/media/ap2/Global/Menu/hamburger.svg",
+      "filename": "hamburger.svg"
+    },
+    {
+      "id": "tw-5",
+      "name": "left-white-arrow",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.tw/-/media/ap2/Global/Menu/left-white-arrow.sgv",
+      "filename": "left-white-arrow.sgv"
+    },
+    {
+      "id": "tw-6",
+      "name": "white-close",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.tw/-/media/ap2/Global/Menu/white-close.svg",
+      "filename": "white-close.svg"
+    },
+    {
+      "id": "tw-7",
+      "name": "close",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.tw/-/media/ap2/Global/Menu/close.svg",
+      "filename": "close.svg"
+    },
+    {
+      "id": "tw-8",
+      "name": "所有印表機&amp;複合機",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.tw/-/media/ap2/taiwan/menu/t920dw.webp?rev=15f255af35614b4b93c7aae08ea84059",
+      "filename": "t920dw.webp"
+    },
+    {
+      "id": "tw-9",
+      "name": "掃描器",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.tw/-/media/ap2/taiwan/menu/ads4300n.webp?rev=83747dc830cc4d458e6df7a21858caec",
+      "filename": "ads4300n.webp"
+    },
+    {
+      "id": "tw-10",
+      "name": "行動印表機",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.tw/-/media/ap2/taiwan/menu/pj763mfi.webp?rev=997e3d9e0c5040aea6934998a51cf0cc",
+      "filename": "pj763mfi.webp"
+    },
+    {
+      "id": "tw-11",
+      "name": "標籤機",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.tw/-/media/ap2/taiwan/menu/ql-820nwb.webp?rev=f1b6a4a762da4a95ae2a7f5dbdf3ae53",
+      "filename": "ql-820nwb.webp"
+    },
+    {
+      "id": "tw-12",
+      "name": "縫紉機",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.tw/-/media/ap2/taiwan/menu/m370.webp?rev=1521cc2eec6145fb8bcad103b648fa7c",
+      "filename": "m370.webp"
+    },
+    {
+      "id": "tw-13",
+      "name": "專業用縫紉機",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.tw/-/media/ap2/taiwan/menu/pr1055x.webp?rev=fb2bf4a8742b45f19bd663cec63c5cbb",
+      "filename": "pr1055x.webp"
+    },
+    {
+      "id": "tw-14",
+      "name": "掃圖裁藝機",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.tw/-/media/ap2/taiwan/menu/sdx1200.webp?rev=3c8cb4399d604665a85ddb4ec68e48ed",
+      "filename": "sdx1200.webp"
+    },
+    {
+      "id": "tw-15",
+      "name": "傳真設備",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.tw/-/media/ap2/taiwan/menu/fax-2840.webp?rev=ac751a85d72b46bab552fad17c27146f",
+      "filename": "fax-2840.webp"
+    },
+    {
+      "id": "tw-16",
+      "name": "menu-promo-1",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.tw/-/media/ap2/global/menu/menu-promo-1.png?rev=-1",
+      "filename": "menu-promo-1.png"
+    },
+    {
+      "id": "tw-17",
+      "name": "latest-promo",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.tw/-/media/ap2/global/menu/latest-promo.png?rev=-1",
+      "filename": "latest-promo.png"
+    },
+    {
+      "id": "tw-18",
+      "name": "download-icon",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.tw/-/media/ap2/global/menu/download-icon.png?rev=-1",
+      "filename": "download-icon.png"
+    },
+    {
+      "id": "tw-19",
+      "name": "20260929_Brother_2026_10",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.tw/-/media/ap2/taiwan/home/20260929_brother_2026_10.jpg?rev=e9cbd41b10214c3db590bd19348befcc",
+      "filename": "20260929_brother_2026_10.jpg"
+    },
+    {
+      "id": "tw-20",
+      "name": "20250307_brother_banner_",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Banner / Campaign",
+      "imageUrl": "https://www.brother.tw/-/media/ap2/taiwan/home/20250307_brother_banner_.jpg?rev=458453ffd5df4701972924b415c50cb3",
+      "filename": "20250307_brother_banner_.jpg"
+    },
+    {
+      "id": "tw-21",
+      "name": "20260701_IDC2026_Home Banner_1920x720px",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Banner / Campaign",
+      "imageUrl": "https://www.brother.tw/-/media/ap2/taiwan/home/20260701_idc2026_home-banner_1920x720px.webp?rev=c851104ff4d4464c94e95bcf284d18e9",
+      "filename": "20260701_idc2026_home-banner_1920x720px.webp"
+    },
+    {
+      "id": "tw-22",
+      "name": "20260924_Brother_PC_1920x760",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.tw/-/media/ap2/taiwan/home/20260924_brother_pc_1920x760.jpg?rev=f200673b167b4c43be6d156a4f6ef7bb",
+      "filename": "20260924_brother_pc_1920x760.jpg"
+    },
+    {
+      "id": "tw-23",
+      "name": "Banner",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Banner / Campaign",
+      "imageUrl": "https://www.brother.tw/-/media/ap2/taiwan/home/20260731_brother__-bn-01.webp?rev=7513f0a4507547588e4553cf7c8b054a",
+      "filename": "20260731_brother__-bn-01.webp"
+    },
+    {
+      "id": "tw-24",
+      "name": "ELLe Printer Lifestyle - Desktop",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.tw/-/media/ap2/taiwan/home/elle-printer-lifestyle---desktop.webp?rev=833e4c24f55742ab8be4e604435d776c",
+      "filename": "elle-printer-lifestyle---desktop.webp"
+    },
+    {
+      "id": "tw-25",
+      "name": "mini-inkjet-750",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.tw/-/media/ap2/taiwan/home/mini-inkjet-750.png?rev=77b9cb54d4604c4f90fa1d0af6b1fce0",
+      "filename": "mini-inkjet-750.png"
+    },
+    {
+      "id": "tw-26",
+      "name": "printer_mf 1",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.tw/-/media/ap2/taiwan/home/printer_mf-1.webp?rev=5ceb5bfdeac84e20bb91b9b5d3f28fa1",
+      "filename": "printer_mf-1.webp"
+    },
+    {
+      "id": "tw-27",
+      "name": "taiwan_scanner",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.tw/-/media/3229b4db5541411ebdd0f9f900729cc5.png?as=0&h=300&w=300&rev=6c43075e2ea04bc69c155a59302a8c38&hash=4956640487F4B24189BD05AED99D14EF",
+      "filename": "3229b4db5541411ebdd0f9f900729cc5.png"
+    },
+    {
+      "id": "tw-28",
+      "name": "taiwan_label",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.tw/-/media/ap2/taiwan/home/taiwan_label.webp?rev=7153b8d07e0c4bfd95f138fb7479e477",
+      "filename": "taiwan_label.webp"
+    },
+    {
+      "id": "tw-29",
+      "name": "Label Printer 2",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.tw/-/media/ap2/taiwan/home/label-printer-2.webp?rev=acbda7172af042509e7c10a2a09dac09",
+      "filename": "label-printer-2.webp"
+    },
+    {
+      "id": "tw-30",
+      "name": "taiwan_sewing",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.tw/-/media/ap2/taiwan/home/taiwan_sewing.webp?rev=2082c193e4f54fa19bdd8b61f886a81f",
+      "filename": "taiwan_sewing.webp"
+    },
+    {
+      "id": "tw-31",
+      "name": "indonesia_embroidery",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.tw/-/media/67bcfa4c21b84825a799b4d5923564ca.png?as=0&h=300&w=300&rev=08a9a6ff060b45078940b7f3f704df59&hash=350124B6870012867A7A319B896504E3",
+      "filename": "67bcfa4c21b84825a799b4d5923564ca.png"
+    },
+    {
+      "id": "tw-32",
+      "name": "cutting machines 1",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.tw/-/media/3b2e42e20d414f9ea6751f2da5fba6a7.png?as=0&h=300&w=300&rev=2bec1852846f4375af0640d75a4c510b&hash=EAFCB8757E964E69FEE722F6D583C35F",
+      "filename": "3b2e42e20d414f9ea6751f2da5fba6a7.png"
+    },
+    {
+      "id": "tw-33",
+      "name": "fax machines 1",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.tw/-/media/eb3f8872557d4d32bf46bf59fcf33c0b.png?as=0&h=300&w=300&rev=2bb107add81a490691283ba3bb43c05c&hash=8223E25C408AD017166983B9CDA5BFAD",
+      "filename": "eb3f8872557d4d32bf46bf59fcf33c0b.png"
+    },
+    {
+      "id": "tw-34",
+      "name": "tw-hp-bs-img1",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.tw/-/media/ap2/taiwan/home/tw-hp-bs-img1.webp?h=202&amp;iar=0&amp;w=306&amp;rev=b5d6699c08b14369a4218f459f9f4757",
+      "filename": "tw-hp-bs-img1.webp"
+    },
+    {
+      "id": "tw-35",
+      "name": "tw-hp-bs-img2",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.tw/-/media/ap2/taiwan/home/tw-hp-bs-img2.webp?h=202&amp;iar=0&amp;w=306&amp;rev=63038f31909249f3803ecbca1b7d8b00",
+      "filename": "tw-hp-bs-img2.webp"
+    },
+    {
+      "id": "tw-36",
+      "name": "tw-hp-bs-img3",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.tw/-/media/ap2/taiwan/home/tw-hp-bs-img3.webp?h=202&amp;iar=0&amp;w=306&amp;rev=991ac97ceed2424b81e2c8debf8ffbb1",
+      "filename": "tw-hp-bs-img3.webp"
+    },
+    {
+      "id": "tw-37",
+      "name": "brother_facebook_icon",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.tw/-/media/themes/apweb/global/global-lite/images/facebook.svg?iar=0&amp;rev=-1",
+      "filename": "facebook.svg"
+    },
+    {
+      "id": "tw-38",
+      "name": "instagram",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.tw/-/media/themes/apweb/global/global-lite/images/icons/instagram.svg?iar=0&amp;rev=-1",
+      "filename": "instagram.svg"
+    },
+    {
+      "id": "tw-39",
+      "name": "youtube",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.tw/-/media/themes/apweb/global/global-lite/images/icons/youtube.svg?iar=0&amp;rev=-1",
+      "filename": "youtube.svg"
+    },
+    {
+      "id": "tw-40",
+      "name": "20260929_brother_mobile_2026_10",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.tw/-/media/ap2/taiwan/home/20260929_brother_mobile_2026_10.jpg?rev=85794b7a3e1f4d40bdf92a781282007e",
+      "filename": "20260929_brother_mobile_2026_10.jpg"
+    },
+    {
+      "id": "tw-41",
+      "name": "brotherhire_v1_m",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.tw/-/media/ap2/taiwan/home/brotherhire_v1_m.webp?rev=116ff9ed0645461ea1179a3314b1973c",
+      "filename": "brotherhire_v1_m.webp"
+    },
+    {
+      "id": "tw-42",
+      "name": "20260701_idc2025_2026_home-banner_mobile_640x480px",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Banner / Campaign",
+      "imageUrl": "https://www.brother.tw/-/media/ap2/taiwan/home/20260701_idc2025_2026_home-banner_mobile_640x480px.webp?rev=eae3cd16e50d4e908a385a207295d40d",
+      "filename": "20260701_idc2025_2026_home-banner_mobile_640x480px.webp"
+    },
+    {
+      "id": "tw-43",
+      "name": "20260924_brother_mobi_640x480",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.tw/-/media/ap2/taiwan/home/20260924_brother_mobi_640x480.jpg?rev=fd598a0030934ce7ae4e4884ee5c0f42",
+      "filename": "20260924_brother_mobi_640x480.jpg"
+    },
+    {
+      "id": "tw-44",
+      "name": "20260731_brother__-bn-02",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.tw/-/media/ap2/taiwan/home/20260731_brother__-bn-02.webp?rev=bfeffc2b7a274fabb8cafec81eb28006",
+      "filename": "20260731_brother__-bn-02.webp"
+    },
+    {
+      "id": "tw-45",
+      "name": "elle-printer-lifestyle---mobile",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.tw/-/media/ap2/taiwan/home/elle-printer-lifestyle---mobile.webp?rev=144ee0537ddb4932886b80f2c2eec699",
+      "filename": "elle-printer-lifestyle---mobile.webp"
+    },
+    {
+      "id": "tw-46",
+      "name": "mini-inkjet-600",
+      "country": "Taiwan",
+      "sourceSite": "Brother Taiwan",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.tw/-/media/ap2/taiwan/home/mini-inkjet-600.png?rev=41672108f7d04c0bae92c3ca348da489",
+      "filename": "mini-inkjet-600.png"
+    },
+    {
+      "id": "kr-1",
+      "name": "Brother at your side",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Logo",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/global/menu/logo.svg?rev=44fdc1c0e48f41efb88aa2a5d271b135",
+      "filename": "logo.svg"
+    },
+    {
+      "id": "kr-2",
+      "name": "cart icon",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/Global/Menu/cart.svg",
+      "filename": "cart.svg"
+    },
+    {
+      "id": "kr-3",
+      "name": "search icon",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/Global/Menu/search.svg",
+      "filename": "search.svg"
+    },
+    {
+      "id": "kr-4",
+      "name": "hamburger icon",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/Global/Menu/hamburger.svg",
+      "filename": "hamburger.svg"
+    },
+    {
+      "id": "kr-5",
+      "name": "left-white-arrow",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/Global/Menu/left-white-arrow.sgv",
+      "filename": "left-white-arrow.sgv"
+    },
+    {
+      "id": "kr-6",
+      "name": "white-close",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/Global/Menu/white-close.svg",
+      "filename": "white-close.svg"
+    },
+    {
+      "id": "kr-7",
+      "name": "close",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/Global/Menu/close.svg",
+      "filename": "close.svg"
+    },
+    {
+      "id": "kr-8",
+      "name": "프린터 및 복합기",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/menu/t920dw.png?rev=c6f5bf3a4efe4fd48376da791dd4343b",
+      "filename": "t920dw.png"
+    },
+    {
+      "id": "kr-9",
+      "name": "스캐너",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/menu/ads4300n.png?rev=b5a6afeceea645d1af95b7892ca605a8",
+      "filename": "ads4300n.png"
+    },
+    {
+      "id": "kr-10",
+      "name": "모바일 프린터",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/menu/pj763mfi.png?rev=b59d1092fddf46bfa959660ded8d7439",
+      "filename": "pj763mfi.png"
+    },
+    {
+      "id": "kr-11",
+      "name": "라벨 프린터",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/menu/ql-820nwb.png?rev=2a683c32be4f4c36bc35b6a91dcad5c3",
+      "filename": "ql-820nwb.png"
+    },
+    {
+      "id": "kr-12",
+      "name": "디지털 의류인쇄기",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/menu/gtxpro.png?rev=4de0937916d441babcb9105f2cd4c84e",
+      "filename": "gtxpro.png"
+    },
+    {
+      "id": "kr-13",
+      "name": "팩스",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/menu/fax-2840.png?rev=2ce4cfb09957461a8c594ab172b566fc",
+      "filename": "fax-2840.png"
+    },
+    {
+      "id": "kr-14",
+      "name": "spot-cooler-menu",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/menu/spot-cooler-menu.webp?rev=1d2d6503b9f0445fb2806fa554d70256",
+      "filename": "spot-cooler-menu.webp"
+    },
+    {
+      "id": "kr-15",
+      "name": "인덕션 기어모터",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/menu/gtr-112x83.webp?rev=7ae33a54af4843b5a374a37359b589f5",
+      "filename": "gtr-112x83.webp"
+    },
+    {
+      "id": "kr-16",
+      "name": "menu-promo-1",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/global/menu/menu-promo-1.png?rev=b09a41a2945146cdb00b0ac1363bd942",
+      "filename": "menu-promo-1.png"
+    },
+    {
+      "id": "kr-17",
+      "name": "latest-promo",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/global/menu/latest-promo.png?rev=61707c1fe7ec413bae91e8c7d756feca",
+      "filename": "latest-promo.png"
+    },
+    {
+      "id": "kr-18",
+      "name": "download-icon",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/global/menu/download-icon.png?rev=0f255bc7e8a540b399d3ddf64f2b721c",
+      "filename": "download-icon.png"
+    },
+    {
+      "id": "kr-19",
+      "name": "main",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Banner / Campaign",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/hubpage/1920720business_microsite-kv/tube-printer_pc/1920720_labelsolutiontd-situ-medical_97/desktop.jpg?rev=94c3c04e829b48e1bd15e2f3f2a952aa",
+      "filename": "desktop.jpg"
+    },
+    {
+      "id": "kr-20",
+      "name": "GTX",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Banner / Campaign",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/hubpage/gtx-sample-750250/gtx_hub_banner_pc_750x250.jpg?rev=da349590dbda4dc5bd553a9129f6da19",
+      "filename": "gtx_hub_banner_pc_750x250.jpg"
+    },
+    {
+      "id": "kr-21",
+      "name": "브라더 라벨 허브 페이지 바로 가기",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/hubpage/750x250_pc.jpg?rev=526b345a4bab4eaa81d2cb6d1af24629",
+      "filename": "750x250_pc.jpg"
+    },
+    {
+      "id": "kr-22",
+      "name": "printer_mf_1",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/home/printer_mf_1.webp?rev=d63692ff529f43a782be6f8525a19dbc",
+      "filename": "printer_mf_1.webp"
+    },
+    {
+      "id": "kr-23",
+      "name": "scanner_2",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/home/scanner_2.webp?rev=-1",
+      "filename": "scanner_2.webp"
+    },
+    {
+      "id": "kr-24",
+      "name": "mobile_printer_1",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/home/mobile_printer_1.webp?rev=-1",
+      "filename": "mobile_printer_1.webp"
+    },
+    {
+      "id": "kr-25",
+      "name": "label_printer_2",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/home/label_printer_2.webp?rev=-1",
+      "filename": "label_printer_2.webp"
+    },
+    {
+      "id": "kr-26",
+      "name": "fax_machines_1",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/home/fax_machines_1.webp?rev=-1",
+      "filename": "fax_machines_1.webp"
+    },
+    {
+      "id": "kr-27",
+      "name": "korea_gtr",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/home/korea_gtr.webp?rev=-1",
+      "filename": "korea_gtr.webp"
+    },
+    {
+      "id": "kr-28",
+      "name": "gtr-112x83_1",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/home/gtr-112x83_1.webp?rev=-1",
+      "filename": "gtr-112x83_1.webp"
+    },
+    {
+      "id": "kr-29",
+      "name": "spot_cooler_reflection_v8",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/home/spot_cooler_reflection_v8.webp?rev=9b8109ec90214ca38ede2210846a84b1",
+      "filename": "spot_cooler_reflection_v8.webp"
+    },
+    {
+      "id": "kr-30",
+      "name": "4세대 정품무한 잉크젯",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Banner / Campaign",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/hubpage/750250business_microsite-kv.jpg?rev=920e131263044bb1b84dbcadf4e69292",
+      "filename": "750250business_microsite-kv.jpg"
+    },
+    {
+      "id": "kr-31",
+      "name": "브라더 프로테이프 페이지 바로 가기",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/products/labeller/labellers/01_photobox_800x480_02/network-infra_pc.webp?rev=69c619b8ab81417989d33176255ecc9f",
+      "filename": "network-infra_pc.webp"
+    },
+    {
+      "id": "kr-32",
+      "name": "전기 기사용 튜브 넘버링기",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/hubpage/tube-printer_pc/1500500tube-printer_pc.jpg?rev=d78f2c46ba934b5e9d97548a376b26d2",
+      "filename": "1500500tube-printer_pc.jpg"
+    },
+    {
+      "id": "kr-33",
+      "name": "GTX 자수 옵션 DTE 알아보기",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/hubpage/gtx-dte-pc/gtx-dte-750250highlight.jpg?rev=56091176af1d435a987fad847650d415",
+      "filename": "gtx-dte-750250highlight.jpg"
+    },
+    {
+      "id": "kr-34",
+      "name": "브라더 프린터 관리 솔루션",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/home/top-page_solutions_540x292px.webp?h=292&amp;iar=0&amp;w=540&amp;rev=a7142268182f4a9e8aaab916699cf1d6",
+      "filename": "top-page_solutions_540x292px.webp"
+    },
+    {
+      "id": "kr-35",
+      "name": "모바일 &amp; 클라우드 솔루션",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/home/top-page_-solutions_mobilecloud.webp?h=292&amp;iar=0&amp;w=540&amp;rev=275f4d90fc0f43b6a4e749f484ee1207",
+      "filename": "top-page_-solutions_mobilecloud.webp"
+    },
+    {
+      "id": "kr-36",
+      "name": "브라더 라벨링 솔루션",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/home/top-page_solutions_540x292px-(1).webp?h=292&amp;iar=0&amp;w=540&amp;rev=76a625746dd8404087a4c3aa8e91efd5",
+      "filename": "top-page_solutions_540x292px-(1).webp"
+    },
+    {
+      "id": "kr-37",
+      "name": "브라더 모바일 프린팅 솔루션",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/home/top-page_solutions_540x292px-(2).webp?h=292&amp;iar=0&amp;w=540&amp;rev=4fa939cd8d9f4c97acc371cf90eea7b0",
+      "filename": "top-page_solutions_540x292px-(2).webp"
+    },
+    {
+      "id": "kr-38",
+      "name": "naver",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother-korea.com/-/media/themes/apweb/global/global-lite/images/icons/naver.png?h=12&amp;iar=0&amp;w=12&amp;rev=b6701fa6525847cbb1061c2a0bae3d6a",
+      "filename": "naver.png"
+    },
+    {
+      "id": "kr-39",
+      "name": "youtube",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother-korea.com/-/media/themes/apweb/global/global-lite/images/icons/youtube.svg?iar=0&amp;rev=-1",
+      "filename": "youtube.svg"
+    },
+    {
+      "id": "kr-40",
+      "name": "instagram",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother-korea.com/-/media/themes/apweb/global/global-lite/images/icons/instagram.svg?iar=0&amp;rev=-1",
+      "filename": "instagram.svg"
+    },
+    {
+      "id": "kr-41",
+      "name": "brother_facebook_icon",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother-korea.com/-/media/themes/apweb/global/global-lite/images/facebook.svg?iar=0&amp;rev=-1",
+      "filename": "facebook.svg"
+    },
+    {
+      "id": "kr-42",
+      "name": "linkedin",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother-korea.com/-/media/themes/apweb/global/global-lite/images/icons/linkedin.svg?iar=0&amp;rev=-1",
+      "filename": "linkedin.svg"
+    },
+    {
+      "id": "kr-43",
+      "name": "flag",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother-korea.com/-/media/themes/apweb/global/global-lite/images/flags/bick.png?h=28&amp;iar=0&amp;w=28&amp;rev=0eca6cf0e59b4e6e81381d0620cc5c81",
+      "filename": "bick.png"
+    },
+    {
+      "id": "kr-44",
+      "name": "mfc-t930dw_dbmo",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Banner / Campaign",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/hubpage/1920720business_microsite-kv/tube-printer_mo/640480-labelling-solution1920720_labelsolutiontd-situ-medical_97/mfc-t930dw_dbmo.jpg?rev=9991e5a296c242198fe47992894870fc",
+      "filename": "mfc-t930dw_dbmo.jpg"
+    },
+    {
+      "id": "kr-45",
+      "name": "gtx_hub_banner_mo_600x400",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Banner / Campaign",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/hubpage/gtx-sample-600400/gtx_hub_banner_mo_600x400.jpg?rev=75669d8312bc4982b94469d854acf0dc",
+      "filename": "gtx_hub_banner_mo_600x400.jpg"
+    },
+    {
+      "id": "kr-46",
+      "name": "600x400_mo",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/hubpage/600x400_mo.jpg?rev=15c879dfc6f74aa9855123f0db4375f3",
+      "filename": "600x400_mo.jpg"
+    },
+    {
+      "id": "kr-47",
+      "name": "printeeer",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/home/printeeer.webp?rev=e94bfde964994bc2af6fe01a216796d9",
+      "filename": "printeeer.webp"
+    },
+    {
+      "id": "kr-48",
+      "name": "scanner",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/home/scanner.webp?rev=0c177f0261564792a37b0c08965a72cc",
+      "filename": "scanner.webp"
+    },
+    {
+      "id": "kr-49",
+      "name": "exp-mobile",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/home/exp-mobile.webp?rev=465280f2deb44f4aa2500989a5bc6f4a",
+      "filename": "exp-mobile.webp"
+    },
+    {
+      "id": "kr-50",
+      "name": "exp-labelprinter",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/home/exp-labelprinter.webp?rev=039faf1850ac4a269d3c4285b545cfb5",
+      "filename": "exp-labelprinter.webp"
+    },
+    {
+      "id": "kr-51",
+      "name": "exp-fax",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/home/exp-fax.webp?rev=ec361074b6ea413c85819812a331a540",
+      "filename": "exp-fax.webp"
+    },
+    {
+      "id": "kr-52",
+      "name": "exp-gtx",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/home/exp-gtx.webp?rev=731fcb4165ce4d569d6ea365b3d29081",
+      "filename": "exp-gtx.webp"
+    },
+    {
+      "id": "kr-53",
+      "name": "exp-gtr",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/home/exp-gtr.webp?rev=90b2f23015074feba37fb55834c243d7",
+      "filename": "exp-gtr.webp"
+    },
+    {
+      "id": "kr-54",
+      "name": "spot_cooler_reflection_v8_mobile",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/home/spot_cooler_reflection_v8_mobile.webp?rev=db6121933a6c455bb6ea72a0dbd8d85a",
+      "filename": "spot_cooler_reflection_v8_mobile.webp"
+    },
+    {
+      "id": "kr-55",
+      "name": "mo_mini21htbusiness_microsite-kv-(4)",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Banner / Campaign",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/hubpage/mo_mini21htbusiness_microsite-kv-(4).jpg?rev=ca373e16210e43489704fc8161370dfe",
+      "filename": "mo_mini21htbusiness_microsite-kv-(4).jpg"
+    },
+    {
+      "id": "kr-56",
+      "name": "network-infra_mo",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/hubpage/network-infra_mo.jpg?rev=461d9b267df1414e96370ba07af89f30",
+      "filename": "network-infra_mo.jpg"
+    },
+    {
+      "id": "kr-57",
+      "name": "600400tube-printer_mo",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/hubpage/600400tube-printer_mo.jpg?rev=932598689f1a4ca4b4274109be3af290",
+      "filename": "600400tube-printer_mo.jpg"
+    },
+    {
+      "id": "kr-58",
+      "name": "gtx-sample-600400",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/hubpage/gtx-sample-600400.jpg?rev=278cd81da00d4509a5769a0b4a910953",
+      "filename": "gtx-sample-600400.jpg"
+    },
+    {
+      "id": "kr-59",
+      "name": "top-page_solutions_540x292px",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/home/top-page_solutions_540x292px.webp?rev=a7142268182f4a9e8aaab916699cf1d6",
+      "filename": "top-page_solutions_540x292px.webp"
+    },
+    {
+      "id": "kr-60",
+      "name": "top-page_-solutions_mobilecloud",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/home/top-page_-solutions_mobilecloud.webp?rev=275f4d90fc0f43b6a4e749f484ee1207",
+      "filename": "top-page_-solutions_mobilecloud.webp"
+    },
+    {
+      "id": "kr-61",
+      "name": "top-page_solutions_540x292px-(1)",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/home/top-page_solutions_540x292px-(1).webp?rev=76a625746dd8404087a4c3aa8e91efd5",
+      "filename": "top-page_solutions_540x292px-(1).webp"
+    },
+    {
+      "id": "kr-62",
+      "name": "top-page_solutions_540x292px-(2)",
+      "country": "South Korea",
+      "sourceSite": "Brother Korea",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother-korea.com/-/media/ap2/korea/home/top-page_solutions_540x292px-(2).webp?rev=4fa939cd8d9f4c97acc371cf90eea7b0",
+      "filename": "top-page_solutions_540x292px-(2).webp"
+    },
+    {
+      "id": "id-1",
+      "name": "Brother at your side",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Logo",
+      "imageUrl": "https://www.brother.co.id/-/media/ap2/global/menu/logo.svg?rev=-1",
+      "filename": "logo.svg"
+    },
+    {
+      "id": "id-2",
+      "name": "search icon",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.co.id/-/media/ap2/Global/Menu/search.svg",
+      "filename": "search.svg"
+    },
+    {
+      "id": "id-3",
+      "name": "hamburger icon",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.co.id/-/media/ap2/Global/Menu/hamburger.svg",
+      "filename": "hamburger.svg"
+    },
+    {
+      "id": "id-4",
+      "name": "left-white-arrow",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.co.id/-/media/ap2/Global/Menu/left-white-arrow.sgv",
+      "filename": "left-white-arrow.sgv"
+    },
+    {
+      "id": "id-5",
+      "name": "white-close",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.co.id/-/media/ap2/Global/Menu/white-close.svg",
+      "filename": "white-close.svg"
+    },
+    {
+      "id": "id-6",
+      "name": "close",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.co.id/-/media/ap2/Global/Menu/close.svg",
+      "filename": "close.svg"
+    },
+    {
+      "id": "id-7",
+      "name": "Printer",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.co.id/-/media/ap2/indonesia/menu/t920dw.png?rev=0cfab3e0ba7649ebb2204b5833c51c81",
+      "filename": "t920dw.png"
+    },
+    {
+      "id": "id-8",
+      "name": "Scanners",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.co.id/-/media/ap2/indonesia/menu/ads4300n.png?rev=1c58b0b76959423186cedf7db875f388",
+      "filename": "ads4300n.png"
+    },
+    {
+      "id": "id-9",
+      "name": "Mesin Label",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.co.id/-/media/ap2/indonesia/menu/ql800.png?rev=5165c890f887462298f983f1db81c8b2",
+      "filename": "ql800.png"
+    },
+    {
+      "id": "id-10",
+      "name": "Mesin Jahit",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.co.id/-/media/ap2/indonesia/menu/nv-180d.png?rev=7652fae0c09c44f2a716bb6a889b921d",
+      "filename": "nv-180d.png"
+    },
+    {
+      "id": "id-11",
+      "name": "Mesin Bordir Profesional",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.co.id/-/media/ap2/indonesia/menu/pr1055x.png?rev=99452a356e244f23934f753bb313c0bb",
+      "filename": "pr1055x.png"
+    },
+    {
+      "id": "id-12",
+      "name": "Promo Terbaru",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.co.id/-/media/ap2/global/menu/latest-promo.png?rev=-1",
+      "filename": "latest-promo.png"
+    },
+    {
+      "id": "id-13",
+      "name": "Driver Updates",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.co.id/-/media/ap2/global/menu/download-icon.png?rev=-1",
+      "filename": "download-icon.png"
+    },
+    {
+      "id": "id-14",
+      "name": "Home Banner_1920x720px_Hires",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Banner / Campaign",
+      "imageUrl": "https://www.brother.co.id/-/media/ap2/indonesia/homepage/idc2025_2026_home-banner_1920x720px_hires.webp?rev=d214f524b30d4dad934641d43cbe4520",
+      "filename": "idc2025_2026_home-banner_1920x720px_hires.webp"
+    },
+    {
+      "id": "id-15",
+      "name": "Brother Extra Reward",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Banner / Campaign",
+      "imageUrl": "https://www.brother.co.id/-/media/ap2/indonesia/homepage/big-banner-desktop--1920x720px-1oct.jpg?rev=cca456a7c8464d779883cc0dc37a2ea5",
+      "filename": "big-banner-desktop--1920x720px-1oct.jpg"
+    },
+    {
+      "id": "id-16",
+      "name": "Printer &amp; Multifungsi",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.co.id/-/media/ap2/indonesia/homepage/printer-ink-tank.png?h=300&amp;iar=0&amp;w=300&amp;rev=be46ab08525543838218420dd1554d2c",
+      "filename": "printer-ink-tank.png"
+    },
+    {
+      "id": "id-17",
+      "name": "Printer Laser",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.co.id/-/media/ap2/indonesia/homepage/printer-laser.png?h=300&amp;iar=0&amp;w=300&amp;rev=e47428a069cf4378903d84edd083d071",
+      "filename": "printer-laser.png"
+    },
+    {
+      "id": "id-18",
+      "name": "Document Scanner",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.co.id/-/media/ap2/indonesia/homepage/document-scanner.png?h=300&amp;iar=0&amp;w=300&amp;rev=6d55061438584f6fa5b640127663cfca",
+      "filename": "document-scanner.png"
+    },
+    {
+      "id": "id-19",
+      "name": "Industrial Label Printer",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.co.id/-/media/ap2/indonesia/homepage/industrial-label-printer.png?h=300&amp;iar=0&amp;w=300&amp;rev=6c3be1c956a2423f8a712ae60ad7ea63",
+      "filename": "industrial-label-printer.png"
+    },
+    {
+      "id": "id-20",
+      "name": "Home Label Printer",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.co.id/-/media/ap2/indonesia/homepage/home-label-printer.png?h=300&amp;iar=0&amp;w=300&amp;rev=506f541f5e3b431899fb5501db68137d",
+      "filename": "home-label-printer.png"
+    },
+    {
+      "id": "id-21",
+      "name": "Mesin Bordir Profesional",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.co.id/-/media/ap2/indonesia/homepage/portable-sewing-machine.png?h=300&amp;iar=0&amp;w=300&amp;rev=6d62552d69b14090a79d320eee6cbbeb",
+      "filename": "portable-sewing-machine.png"
+    },
+    {
+      "id": "id-22",
+      "name": "Mesin Bordir Profesional",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.co.id/-/media/ap2/indonesia/homepage/embroidery-machine.png?h=300&amp;iar=0&amp;w=300&amp;rev=f2dbe821b9b142d086ee6c184da6234a",
+      "filename": "embroidery-machine.png"
+    },
+    {
+      "id": "id-23",
+      "name": "Toner  Ink",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.co.id/-/media/ap2/indonesia/homepage/toner--ink.png?h=300&amp;iar=0&amp;w=300&amp;rev=0294fbe66ea74bf3a4a269732ecb355b",
+      "filename": "toner--ink.png"
+    },
+    {
+      "id": "id-24",
+      "name": "brief-home-page-microsite-bicid-12",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.co.id/-/media/ap2/indonesia/homepage/brief-home-page-microsite-bicid-12.jpg?h=1000&amp;iar=0&amp;w=1500&amp;rev=9d82fd26d0754ac0ae84d1b52cd259ea",
+      "filename": "brief-home-page-microsite-bicid-12.jpg"
+    },
+    {
+      "id": "id-25",
+      "name": "brief-home-page-microsite-bicid-13",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.co.id/-/media/ap2/indonesia/homepage/brief-home-page-microsite-bicid-13.jpg?h=1000&amp;iar=0&amp;w=1500&amp;rev=738cc07a60b84be38033d73ceeba898a",
+      "filename": "brief-home-page-microsite-bicid-13.jpg"
+    },
+    {
+      "id": "id-26",
+      "name": "brief-home-page-microsite-bicid-14",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.co.id/-/media/ap2/indonesia/homepage/brief-home-page-microsite-bicid-14.jpg?h=934&amp;iar=0&amp;w=1400&amp;rev=86bd95954f494c159795deb785d6c637",
+      "filename": "brief-home-page-microsite-bicid-14.jpg"
+    },
+    {
+      "id": "id-27",
+      "name": "brief-home-page-microsite-bicid-15",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.co.id/-/media/ap2/indonesia/homepage/brief-home-page-microsite-bicid-15.jpg?h=1000&amp;iar=0&amp;w=1500&amp;rev=4c4de75f84794b2f84e7194a92eb6538",
+      "filename": "brief-home-page-microsite-bicid-15.jpg"
+    },
+    {
+      "id": "id-28",
+      "name": "brief-home-page-microsite-bicid-16",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.co.id/-/media/ap2/indonesia/homepage/brief-home-page-microsite-bicid-16.jpg?h=983&amp;iar=0&amp;w=1472&amp;rev=c285d9e3fa7345bdacbe93970f451b8b",
+      "filename": "brief-home-page-microsite-bicid-16.jpg"
+    },
+    {
+      "id": "id-29",
+      "name": "brother_facebook_icon",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.co.id/-/media/themes/apweb/global/global-lite/images/facebook.svg?iar=0&amp;rev=-1",
+      "filename": "facebook.svg"
+    },
+    {
+      "id": "id-30",
+      "name": "twitter",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.co.id/-/media/themes/apweb/global/global-lite/images/icons/twitter.svg?h=100&amp;iar=0&amp;w=100&amp;rev=-1",
+      "filename": "twitter.svg"
+    },
+    {
+      "id": "id-31",
+      "name": "instagram",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.co.id/-/media/themes/apweb/global/global-lite/images/icons/instagram.svg?iar=0&amp;rev=-1",
+      "filename": "instagram.svg"
+    },
+    {
+      "id": "id-32",
+      "name": "linkedin",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.co.id/-/media/themes/apweb/global/global-lite/images/icons/linkedin.svg?iar=0&amp;rev=-1",
+      "filename": "linkedin.svg"
+    },
+    {
+      "id": "id-33",
+      "name": "youtube",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.co.id/-/media/themes/apweb/global/global-lite/images/icons/youtube.svg?iar=0&amp;rev=-1",
+      "filename": "youtube.svg"
+    },
+    {
+      "id": "id-34",
+      "name": "tiktok",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.co.id/-/media/themes/apweb/global/global-lite/images/icons/tiktok.svg?iar=0&amp;rev=-1",
+      "filename": "tiktok.svg"
+    },
+    {
+      "id": "id-35",
+      "name": "BICID",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.co.id/-/media/themes/apweb/global/header-footer-theme/images/flags/bicid.png?h=24&amp;iar=0&amp;w=24&amp;rev=7e78423036634a918ea238400c0b4749",
+      "filename": "bicid.png"
+    },
+    {
+      "id": "id-36",
+      "name": "idc2025_2026_home-banner_mobile_640x480px_hires",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Banner / Campaign",
+      "imageUrl": "https://www.brother.co.id/-/media/ap2/indonesia/homepage/idc2025_2026_home-banner_mobile_640x480px_hires.webp?rev=7d04339e8dc749dcbf6d08d991637297",
+      "filename": "idc2025_2026_home-banner_mobile_640x480px_hires.webp"
+    },
+    {
+      "id": "id-37",
+      "name": "big-banner-mobile--640x480px-1oct",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Banner / Campaign",
+      "imageUrl": "https://www.brother.co.id/-/media/ap2/indonesia/homepage/big-banner-mobile--640x480px-1oct.jpg?rev=a6084ea22a934f8daa877494bfbb176d",
+      "filename": "big-banner-mobile--640x480px-1oct.jpg"
+    },
+    {
+      "id": "id-38",
+      "name": "printer-ink-tank",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.co.id/-/media/ap2/indonesia/homepage/printer-ink-tank.png?rev=be46ab08525543838218420dd1554d2c",
+      "filename": "printer-ink-tank.png"
+    },
+    {
+      "id": "id-39",
+      "name": "printer-laser",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.co.id/-/media/ap2/indonesia/homepage/printer-laser.png?rev=e47428a069cf4378903d84edd083d071",
+      "filename": "printer-laser.png"
+    },
+    {
+      "id": "id-40",
+      "name": "document-scanner",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.co.id/-/media/ap2/indonesia/homepage/document-scanner.png?rev=6d55061438584f6fa5b640127663cfca",
+      "filename": "document-scanner.png"
+    },
+    {
+      "id": "id-41",
+      "name": "industrial-label-printer",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.co.id/-/media/ap2/indonesia/homepage/industrial-label-printer.png?rev=6c3be1c956a2423f8a712ae60ad7ea63",
+      "filename": "industrial-label-printer.png"
+    },
+    {
+      "id": "id-42",
+      "name": "home-label-printer",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.co.id/-/media/ap2/indonesia/homepage/home-label-printer.png?rev=506f541f5e3b431899fb5501db68137d",
+      "filename": "home-label-printer.png"
+    },
+    {
+      "id": "id-43",
+      "name": "portable-sewing-machine",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.co.id/-/media/ap2/indonesia/homepage/portable-sewing-machine.png?rev=6d62552d69b14090a79d320eee6cbbeb",
+      "filename": "portable-sewing-machine.png"
+    },
+    {
+      "id": "id-44",
+      "name": "embroidery-machine",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.co.id/-/media/ap2/indonesia/homepage/embroidery-machine.png?rev=f2dbe821b9b142d086ee6c184da6234a",
+      "filename": "embroidery-machine.png"
+    },
+    {
+      "id": "id-45",
+      "name": "toner--ink",
+      "country": "Indonesia",
+      "sourceSite": "Brother Indonesia",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.co.id/-/media/ap2/indonesia/homepage/toner--ink.png?rev=0294fbe66ea74bf3a4a269732ecb355b",
+      "filename": "toner--ink.png"
+    },
+    {
+      "id": "ph-1",
+      "name": "Brother at your side",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Logo",
+      "imageUrl": "https://www.brother.com.ph/-/media/ap2/global/menu/logo.svg?rev=74b6da90ccc34b339b35490b0046e6fc",
+      "filename": "logo.svg"
+    },
+    {
+      "id": "ph-2",
+      "name": "search icon",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.com.ph/-/media/ap2/Global/Menu/search.svg",
+      "filename": "search.svg"
+    },
+    {
+      "id": "ph-3",
+      "name": "hamburger icon",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.com.ph/-/media/ap2/Global/Menu/hamburger.svg",
+      "filename": "hamburger.svg"
+    },
+    {
+      "id": "ph-4",
+      "name": "left-white-arrow",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.com.ph/-/media/ap2/Global/Menu/left-white-arrow.sgv",
+      "filename": "left-white-arrow.sgv"
+    },
+    {
+      "id": "ph-5",
+      "name": "white-close",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.ph/-/media/ap2/Global/Menu/white-close.svg",
+      "filename": "white-close.svg"
+    },
+    {
+      "id": "ph-6",
+      "name": "close",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.ph/-/media/ap2/Global/Menu/close.svg",
+      "filename": "close.svg"
+    },
+    {
+      "id": "ph-7",
+      "name": "Printers",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.com.ph/-/media/ap2/philippines/menu/t920dw.webp?rev=949a0ee0785e438e99da9d8473a0678e",
+      "filename": "t920dw.webp"
+    },
+    {
+      "id": "ph-8",
+      "name": "Scanners",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.com.ph/-/media/ap2/philippines/menu/ads3000n.webp?rev=d725f993f5354ee2bef3cbffead2cc34",
+      "filename": "ads3000n.webp"
+    },
+    {
+      "id": "ph-9",
+      "name": "Labelling Machine",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Product Image",
+      "imageUrl": "https://www.brother.com.ph/-/media/ap2/philippines/menu/ql800.webp?rev=9ba5e4cf61ae4647a4a093d8408a3ea3",
+      "filename": "ql800.webp"
+    },
+    {
+      "id": "ph-10",
+      "name": "m380-menu-icon",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.com.ph/-/media/ap2/philippines/menu/m380-menu-icon.jpg?rev=5195b18750b44180ba973ef27a896be4",
+      "filename": "m380-menu-icon.jpg"
+    },
+    {
+      "id": "ph-11",
+      "name": "Professional Embroidery Machines",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.ph/-/media/ap2/philippines/menu/pr1055x.webp?rev=339528b42e554f5ba80bc736b0e9a3a8",
+      "filename": "pr1055x.webp"
+    },
+    {
+      "id": "ph-12",
+      "name": "Cutting Machines",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.ph/-/media/ap2/philippines/menu/sdx1200.webp?rev=1598575e9c8042dab5c7940ea5c24bce",
+      "filename": "sdx1200.webp"
+    },
+    {
+      "id": "ph-13",
+      "name": "Fax Machines",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.ph/-/media/ap2/philippines/menu/fax-2840.webp?rev=936ae663dae64932bdf62d5d345bfacf",
+      "filename": "fax-2840.webp"
+    },
+    {
+      "id": "ph-14",
+      "name": "Spot Cooler",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.ph/-/media/ap2/philippines/menu/spot-cooler-menu.webp?rev=69002a5280ff46d9b8026c15ad27c7e3",
+      "filename": "spot-cooler-menu.webp"
+    },
+    {
+      "id": "ph-15",
+      "name": "menu-promo-1",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.ph/-/media/ap2/global/menu/menu-promo-1.png?rev=aa44d6dcabe34d1a808433f3f492e4af",
+      "filename": "menu-promo-1.png"
+    },
+    {
+      "id": "ph-16",
+      "name": "latest-promo",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.ph/-/media/ap2/global/menu/latest-promo.png?rev=092f0626e84a486cb0a35bb1294ddd2b",
+      "filename": "latest-promo.png"
+    },
+    {
+      "id": "ph-17",
+      "name": "download-icon",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.com.ph/-/media/ap2/global/menu/download-icon.png?rev=0b7c5f67da12480faf1a36abcfd8de0a",
+      "filename": "download-icon.png"
+    },
+    {
+      "id": "ph-18",
+      "name": "BICP Website 0 Percent 920 x 720",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.ph/-/media/ap2/philippines/homepage/bicp-website-0-percent-920-x-720.jpg?rev=cbbd7f084f154119b4bcbef641d5dc93",
+      "filename": "bicp-website-0-percent-920-x-720.jpg"
+    },
+    {
+      "id": "ph-19",
+      "name": "mini21-1920-x-720",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.ph/-/media/ap2/philippines/homepage/mini21-1920-x-720.webp?rev=782002344ddd4d54aa87e37ac9d27f7c",
+      "filename": "mini21-1920-x-720.webp"
+    },
+    {
+      "id": "ph-20",
+      "name": "Green Project Desktop",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.ph/-/media/ap2/philippines/homepage/green-project-desktop.webp?rev=f9a1b883544c49b1bda2cfa9925a4282",
+      "filename": "green-project-desktop.webp"
+    },
+    {
+      "id": "ph-21",
+      "name": "sp1-1920-x-720",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.ph/-/media/ap2/philippines/homepage/sp1-1920-x-720.webp?rev=696ac87df66c4540944430fbf6ffdb97",
+      "filename": "sp1-1920-x-720.webp"
+    },
+    {
+      "id": "ph-22",
+      "name": "labeller-1920-x-720",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.ph/-/media/ap2/philippines/homepage/labeller-1920-x-720.webp?rev=24029869082349738ff0d13f9af35599",
+      "filename": "labeller-1920-x-720.webp"
+    },
+    {
+      "id": "ph-23",
+      "name": "81f7eddc9a0943d190ee2499f13a421b",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.ph/-/media/81f7eddc9a0943d190ee2499f13a421b.png?as=0&h=300&w=300&rev=93392716e732470ca5582ebfb0246c48&hash=5882291A50580FA98B4A8C11B3BEA7D6",
+      "filename": "81f7eddc9a0943d190ee2499f13a421b.png"
+    },
+    {
+      "id": "ph-24",
+      "name": "647ce3acb43e4a68b7c60386ad4d2157",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.ph/-/media/647ce3acb43e4a68b7c60386ad4d2157.png?as=0&h=301&w=301&rev=e62525a5270840c09536cc8d20db2e86&hash=622B4ADBDD3EC4B4EB718F2F3A65EDE9",
+      "filename": "647ce3acb43e4a68b7c60386ad4d2157.png"
+    },
+    {
+      "id": "ph-25",
+      "name": "f0c93773729e4448ba94ac484ed0c3fb",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.ph/-/media/f0c93773729e4448ba94ac484ed0c3fb.png?as=0&h=300&w=300&rev=a9116bb650804b918571b93e423260a0&hash=3D4ADC7A3E5E67CB5A8924748864F903",
+      "filename": "f0c93773729e4448ba94ac484ed0c3fb.png"
+    },
+    {
+      "id": "ph-26",
+      "name": "81455931bf0f40afa695f6f4f05965d9",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.ph/-/media/81455931bf0f40afa695f6f4f05965d9.png?as=0&h=300&w=300&rev=b250ebeeb43840f9b60788628555ed10&hash=4726B39A4B2C7FDCF674849B98C60532",
+      "filename": "81455931bf0f40afa695f6f4f05965d9.png"
+    },
+    {
+      "id": "ph-27",
+      "name": "265d1a2efff146bbb9f0b0e695b2e127",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.ph/-/media/265d1a2efff146bbb9f0b0e695b2e127.png?as=0&h=301&w=301&rev=02ceb23cad934874a0d43ff5315c9d68&hash=6FCC0B03D518DECCE8AF34EF2C81523A",
+      "filename": "265d1a2efff146bbb9f0b0e695b2e127.png"
+    },
+    {
+      "id": "ph-28",
+      "name": "4d59392b73604e6cb257f6543bcd0dfa",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.ph/-/media/4d59392b73604e6cb257f6543bcd0dfa.png?as=0&h=300&w=300&rev=9c8801acb4374af2aa4481ac510dd286&hash=A712819DB713729A56310233DDBCF0AD",
+      "filename": "4d59392b73604e6cb257f6543bcd0dfa.png"
+    },
+    {
+      "id": "ph-29",
+      "name": "Brother fleet management solutions",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.ph/-/media/ap2/philippines/homepage/top-page_solutions_540x292px_1w.webp?iar=0&amp;rev=5baf24ae0af3437aaffc4279862878b9",
+      "filename": "top-page_solutions_540x292px_1w.webp"
+    },
+    {
+      "id": "ph-30",
+      "name": "Brother embroidery solutions",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.ph/-/media/ap2/philippines/homepage/top-page_solutions_540x292px_2w.webp?iar=0&amp;rev=9a28abfedf3a476c981243c03b20d112",
+      "filename": "top-page_solutions_540x292px_2w.webp"
+    },
+    {
+      "id": "ph-31",
+      "name": "Brother Labelling solutions",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.ph/-/media/ap2/philippines/homepage/top-page_solutions_540x292px_3w.webp?iar=0&amp;rev=5c358fdba5014e66a7cd51d0cfb0fa31",
+      "filename": "top-page_solutions_540x292px_3w.webp"
+    },
+    {
+      "id": "ph-32",
+      "name": "Brother portable printing solutions",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.ph/-/media/ap2/philippines/homepage/top-page_solutions_540x292px_4w.webp?iar=0&amp;rev=8719b1b836a247df88501e1a11eb5d4a",
+      "filename": "top-page_solutions_540x292px_4w.webp"
+    },
+    {
+      "id": "ph-33",
+      "name": "brother_facebook_icon",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.com.ph/-/media/themes/apweb/global/global-lite/images/facebook.svg?iar=0&amp;rev=68a9d369e4304f7884e97590bafba35f",
+      "filename": "facebook.svg"
+    },
+    {
+      "id": "ph-34",
+      "name": "twitter",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.com.ph/-/media/themes/apweb/global/global-lite/images/icons/tiktok.svg?iar=0&amp;rev=7fcd41c0d09b48f386f8832bc9ac6afa",
+      "filename": "tiktok.svg"
+    },
+    {
+      "id": "ph-35",
+      "name": "instagram",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.com.ph/-/media/themes/apweb/global/global-lite/images/icons/instagram.svg?iar=0&amp;rev=5b2648b2849c4f1a9a0999afad1ec743",
+      "filename": "instagram.svg"
+    },
+    {
+      "id": "ph-36",
+      "name": "linkedin",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.com.ph/-/media/themes/apweb/global/global-lite/images/icons/linkedin.svg?iar=0&amp;rev=b43bc9549e6d44b0b40068415ef297e9",
+      "filename": "linkedin.svg"
+    },
+    {
+      "id": "ph-37",
+      "name": "youtube",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.com.ph/-/media/themes/apweb/global/global-lite/images/icons/youtube.svg?iar=0&amp;rev=87f2f2f637c14b80823f550b138ab231",
+      "filename": "youtube.svg"
+    },
+    {
+      "id": "ph-38",
+      "name": "viber",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Icon / UI",
+      "imageUrl": "https://www.brother.com.ph/-/media/themes/apweb/global/global-lite/images/icons/viber.svg?iar=0&amp;rev=eee2eb69581047aa89754ebd43980054",
+      "filename": "viber.svg"
+    },
+    {
+      "id": "ph-39",
+      "name": "BICP",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.ph/-/media/themes/apweb/global/header-footer-theme/images/flags/bicp.png?h=28&amp;iar=0&amp;w=28&amp;rev=ae6267c1ee5b4811aeb5e585e6d6b295",
+      "filename": "bicp.png"
+    },
+    {
+      "id": "ph-40",
+      "name": "corseal-v2",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.ph/-/media/ap2/philippines/menu/corseal-v2.webp?h=59&amp;iar=0&amp;w=32&amp;rev=0bc86a00185d467aa6ff1a0d33b5fbdf",
+      "filename": "corseal-v2.webp"
+    },
+    {
+      "id": "ph-41",
+      "name": "bicp-website-0-percent-640-x-480",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.ph/-/media/ap2/philippines/homepage/bicp-website-0-percent-640-x-480.jpg?rev=b01c83feecec49baaa15f19665663c31",
+      "filename": "bicp-website-0-percent-640-x-480.jpg"
+    },
+    {
+      "id": "ph-42",
+      "name": "mini21-640x480",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.ph/-/media/ap2/philippines/homepage/mini21-640x480.webp?rev=62009308613846aab4dcd26621856cda",
+      "filename": "mini21-640x480.webp"
+    },
+    {
+      "id": "ph-43",
+      "name": "green-project-mobile",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.ph/-/media/ap2/philippines/homepage/green-project-mobile.webp?rev=18e45221a43e491dbd6254d25b3c0999",
+      "filename": "green-project-mobile.webp"
+    },
+    {
+      "id": "ph-44",
+      "name": "sp1-640x480",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.ph/-/media/ap2/philippines/homepage/sp1-640x480.webp?rev=372b129c9ec140b2a18ecd99ea6e3760",
+      "filename": "sp1-640x480.webp"
+    },
+    {
+      "id": "ph-45",
+      "name": "labeller-640x480",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.ph/-/media/ap2/philippines/homepage/labeller-640x480.webp?rev=08ccf6d7e8d8418f922a972dadca8ed7",
+      "filename": "labeller-640x480.webp"
+    },
+    {
+      "id": "ph-46",
+      "name": "top-page_solutions_540x292px_1w",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.ph/-/media/ap2/philippines/homepage/top-page_solutions_540x292px_1w.webp?rev=5baf24ae0af3437aaffc4279862878b9",
+      "filename": "top-page_solutions_540x292px_1w.webp"
+    },
+    {
+      "id": "ph-47",
+      "name": "top-page_solutions_540x292px_2w",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.ph/-/media/ap2/philippines/homepage/top-page_solutions_540x292px_2w.webp?rev=9a28abfedf3a476c981243c03b20d112",
+      "filename": "top-page_solutions_540x292px_2w.webp"
+    },
+    {
+      "id": "ph-48",
+      "name": "top-page_solutions_540x292px_3w",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.ph/-/media/ap2/philippines/homepage/top-page_solutions_540x292px_3w.webp?rev=5c358fdba5014e66a7cd51d0cfb0fa31",
+      "filename": "top-page_solutions_540x292px_3w.webp"
+    },
+    {
+      "id": "ph-49",
+      "name": "top-page_solutions_540x292px_4w",
+      "country": "Philippines",
+      "sourceSite": "Brother Philippines",
+      "category": "Marketing Asset",
+      "imageUrl": "https://www.brother.com.ph/-/media/ap2/philippines/homepage/top-page_solutions_540x292px_4w.webp?rev=8719b1b836a247df88501e1a11eb5d4a",
+      "filename": "top-page_solutions_540x292px_4w.webp"
+    }
+  ]
+}

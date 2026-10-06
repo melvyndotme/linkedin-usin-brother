@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "StyleGuideLibrary",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["id", "name", "client", "platform", "audience", "tone", "rules", "createdAt"],
+    "properties": {
+      "id": { "type": "string" },
+      "name": { "type": "string" },
+      "client": { "type": "string" },
+      "platform": { "type": "string" },
+      "audience": { "type": "string" },
+      "locale": { "type": "string" },
+      "tone": { "type": "string" },
+      "rules": {
+        "type": "object",
+        "properties": {
+          "hookStyle": { "type": "string" },
+          "narrativeStructure": { "type": "string" },
+          "pacing": { "type": "string" },
+          "ctaStyle": { "type": "string" },
+          "hofstedeAlignment": { "type": "string" }
+        }
+      },
+      "provenance": { "type": "string" },
+      "createdAt": { "type": "string" }
+    }
+  }
+}

@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "server": "node server/index.js",
+    "scrape:brother": "node server/scrape-brother-images.js",
+    "sync:notion": "node server/sync-scraped-to-notion.js",
     "build": "vite build",
     "preview": "vite preview"
   },

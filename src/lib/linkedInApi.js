@@ -107,13 +107,27 @@ export function formatLinkedInOrgUrn(input) {
   return cleanId ? `urn:li:organization:${cleanId}` : '';
 }
 
-export async function publishToLinkedInApi({ commentary, orgId, token, refreshToken, clientId, clientSecret, bufferApiKey, bufferChannelId, imageUrl }) {
+export async function publishToLinkedInApi({ 
+  commentary, 
+  orgId, 
+  token, 
+  refreshToken, 
+  clientId, 
+  clientSecret, 
+  bufferApiKey, 
+  bufferChannelId, 
+  imageUrl,
+  scheduledDate,
+  override1ClickPublish,
+  existingScheduledDates,
+  mode
+} = {}) {
   const cleanId = cleanLinkedInOrgId(orgId || '808877');
   const activeToken = token || safeGetItem('key_linkedin');
   const activeRefresh = refreshToken || safeGetItem('linkedin_refresh_token');
   const activeClientId = clientId || safeGetItem('linkedin_client_id') || '8660fx8uvz5z8a';
   const activeSecret = clientSecret || safeGetItem('linkedin_client_secret');
-  const activeBufferKey = bufferApiKey || safeGetItem('key_buffer');
+  const activeBufferKey = bufferApiKey || safeGetItem('key_buffer') || safeGetItem('buffer_api_key');
   const activeBufferChannel = bufferChannelId || safeGetItem('buffer_channel_id');
 
   const res = await fetch('/api/linkedin/publish', {
@@ -128,7 +142,11 @@ export async function publishToLinkedInApi({ commentary, orgId, token, refreshTo
       clientSecret: activeSecret,
       bufferApiKey: activeBufferKey,
       bufferChannelId: activeBufferChannel,
-      imageUrl
+      imageUrl,
+      scheduledDate,
+      override1ClickPublish,
+      existingScheduledDates,
+      mode
     })
   });
   const data = await res.json();

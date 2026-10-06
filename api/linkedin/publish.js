@@ -85,17 +85,42 @@ async function handleBufferPublish({ apiKey, channelId, commentary, imageUrl, is
     };
   }
 
-  // Real post publishing
+  // Real post publishing / scheduling
   if (!commentary || !commentary.trim()) {
     throw new Error("Post commentary text cannot be empty.");
   }
 
+  // Check 1-post-per-day collision constraint
+  const targetDay = scheduledDate ? new Date(scheduledDate).toISOString().slice(0, 10) : null;
+  if (targetDay && !override1ClickPublish && Array.isArray(existingScheduledDates)) {
+    const isConflict = existingScheduledDates.some((d) => {
+      if (!d) return false;
+      const dayStr = String(d).slice(0, 10);
+      return dayStr === targetDay;
+    });
+    if (isConflict) {
+      return {
+        success: false,
+        conflict: true,
+        targetDay,
+        scheduledDate,
+        error: `A post is already scheduled for ${targetDay}. To maintain engagement cadence, only 1 post per day can be scheduled. Please select another date or use '1-Click Publish Now' to publish immediately.`
+      };
+    }
+  }
+
+  const isScheduling = Boolean(scheduledDate && !override1ClickPublish);
+
   const input = {
     text: commentary.trim(),
     channelId: targetChannelId,
-    schedulingType: "automatic",
-    mode: "shareNow"
+    schedulingType: isScheduling ? "scheduled" : "automatic",
+    mode: isScheduling ? "addToQueue" : "shareNow"
   };
+
+  if (isScheduling) {
+    input.dueAt = new Date(scheduledDate).toISOString();
+  }
 
   if (imageUrl) {
     input.assets = [{ image: { url: imageUrl } }];
@@ -140,7 +165,9 @@ async function handleBufferPublish({ apiKey, channelId, commentary, imageUrl, is
   return {
     success: true,
     urn: result?.post?.id || `urn:buffer:post:${Date.now()}`,
-    status: "Live on LinkedIn (via Buffer)",
+    status: isScheduling ? `Scheduled for ${targetDay}` : "Live on LinkedIn (via Buffer)",
+    isScheduled: isScheduling,
+    scheduledDate: isScheduling ? scheduledDate : null,
     publishedAt: new Date().toLocaleTimeString(),
     channelId: targetChannelId,
     provider: "buffer"
@@ -173,6 +200,9 @@ export default async function handler(req, res) {
   const commentary = req.body?.commentary || req.body?.content;
   const imageUrl = req.body?.imageUrl || req.body?.mediaUrl || req.body?.image;
   const isTest = req.query?.test === "true" || req.body?.isTest === true;
+  const scheduledDate = req.body?.scheduledDate || req.body?.dueAt;
+  const override1ClickPublish = req.body?.override1ClickPublish === true || req.body?.mode === 'shareNow' || req.body?.action === 'publish_now';
+  const existingScheduledDates = req.body?.existingScheduledDates || [];
 
   // 1. Buffer API Priority Flow (Bypasses LinkedIn Review)
   const bufferApiKey = req.body?.bufferApiKey || process.env.BUFFER_API_KEY;
@@ -185,7 +215,10 @@ export default async function handler(req, res) {
         channelId: bufferChannelId,
         commentary,
         imageUrl,
-        isTest
+        isTest,
+        scheduledDate,
+        override1ClickPublish,
+        existingScheduledDates
       });
       return res.status(200).json(bufferResult);
     } catch (err) {
