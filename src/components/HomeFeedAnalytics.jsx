@@ -14,14 +14,21 @@ export default function HomeFeedAnalytics({ isDark, onNavigateToModule }) {
         const parsed = JSON.parse(cached);
         return {
           ...BROTHER_LINKEDIN_ANALYTICS,
-          totalFollowers: parsed.followers || 14647,
-          companyName: parsed.name || BROTHER_LINKEDIN_ANALYTICS.companyName
+          totalFollowers: parsed.followers || parsed.totalFollowers || 14647,
+          companyName: parsed.name || parsed.companyName || BROTHER_LINKEDIN_ANALYTICS.companyName,
+          impressions30d: parsed.impressions30d || BROTHER_LINKEDIN_ANALYTICS.impressions30d,
+          impressionsGrowth: parsed.impressionsGrowth || BROTHER_LINKEDIN_ANALYTICS.impressionsGrowth,
+          avgEngagementRate: parsed.avgEngagementRate || BROTHER_LINKEDIN_ANALYTICS.avgEngagementRate,
+          publishedPostsQuarter: parsed.publishedPostsQuarter || BROTHER_LINKEDIN_ANALYTICS.publishedPostsQuarter,
+          followerGrowthMonth: parsed.followerGrowthMonth || BROTHER_LINKEDIN_ANALYTICS.followerGrowthMonth,
+          provider: parsed.provider || "buffer"
         };
       }
     } catch (e) {}
     return {
       ...BROTHER_LINKEDIN_ANALYTICS,
-      totalFollowers: 14647
+      totalFollowers: 14647,
+      provider: "buffer"
     };
   });
 
@@ -36,13 +43,36 @@ export default function HomeFeedAnalytics({ isDark, onNavigateToModule }) {
       try {
         const orgId = safeGetItem("linkedin_org_id") || "808877";
         const token = safeGetItem("key_linkedin") || "";
-        const res = await fetchLiveLinkedInData({ orgId, token });
-        if (isMounted && res && res.success && res.organization) {
-          safeSetItem("brother_live_telemetry", JSON.stringify(res.organization));
+        const bufferApiKey = safeGetItem("key_buffer") || "";
+        const bufferChannelId = safeGetItem("buffer_channel_id") || "";
+        const res = await fetchLiveLinkedInData({ orgId, token, bufferApiKey, bufferChannelId });
+        if (isMounted && res && res.success) {
+          const telemetryToSave = {
+            followers: res.organization?.followers || 14647,
+            name: res.organization?.name || BROTHER_LINKEDIN_ANALYTICS.companyName,
+            impressions30d: res.telemetry?.impressions30d || BROTHER_LINKEDIN_ANALYTICS.impressions30d,
+            impressionsGrowth: res.telemetry?.impressionsGrowth || BROTHER_LINKEDIN_ANALYTICS.impressionsGrowth,
+            avgEngagementRate: res.telemetry?.avgEngagementRate || BROTHER_LINKEDIN_ANALYTICS.avgEngagementRate,
+            publishedPostsQuarter: res.telemetry?.publishedPostsQuarter || BROTHER_LINKEDIN_ANALYTICS.publishedPostsQuarter,
+            followerGrowthMonth: res.telemetry?.followerGrowthMonth || BROTHER_LINKEDIN_ANALYTICS.followerGrowthMonth,
+            provider: res.provider || (bufferApiKey ? "buffer" : "linkedin"),
+            channelName: res.channel?.name || res.telemetry?.channelName || ""
+          };
+          safeSetItem("brother_live_telemetry", JSON.stringify(telemetryToSave));
+          if (res.channel?.id && !bufferChannelId) {
+            safeSetItem("buffer_channel_id", res.channel.id);
+          }
+
           setAnalytics(prev => ({
             ...prev,
-            totalFollowers: res.organization.followers || 14647,
-            companyName: res.organization.name || prev.companyName
+            totalFollowers: telemetryToSave.followers,
+            companyName: telemetryToSave.name,
+            impressions30d: telemetryToSave.impressions30d,
+            impressionsGrowth: telemetryToSave.impressionsGrowth,
+            avgEngagementRate: telemetryToSave.avgEngagementRate,
+            publishedPostsQuarter: telemetryToSave.publishedPostsQuarter,
+            followerGrowthMonth: telemetryToSave.followerGrowthMonth,
+            provider: telemetryToSave.provider
           }));
           if (res.posts && res.posts.length > 0) {
             setPosts(res.posts);
@@ -62,13 +92,36 @@ export default function HomeFeedAnalytics({ isDark, onNavigateToModule }) {
     try {
       const orgId = safeGetItem("linkedin_org_id") || "808877";
       const token = safeGetItem("key_linkedin") || "";
-      const res = await fetchLiveLinkedInData({ orgId, token });
-      if (res && res.success && res.organization) {
-        safeSetItem("brother_live_telemetry", JSON.stringify(res.organization));
+      const bufferApiKey = safeGetItem("key_buffer") || "";
+      const bufferChannelId = safeGetItem("buffer_channel_id") || "";
+      const res = await fetchLiveLinkedInData({ orgId, token, bufferApiKey, bufferChannelId });
+      if (res && res.success) {
+        const telemetryToSave = {
+          followers: res.organization?.followers || 14647,
+          name: res.organization?.name || BROTHER_LINKEDIN_ANALYTICS.companyName,
+          impressions30d: res.telemetry?.impressions30d || BROTHER_LINKEDIN_ANALYTICS.impressions30d,
+          impressionsGrowth: res.telemetry?.impressionsGrowth || BROTHER_LINKEDIN_ANALYTICS.impressionsGrowth,
+          avgEngagementRate: res.telemetry?.avgEngagementRate || BROTHER_LINKEDIN_ANALYTICS.avgEngagementRate,
+          publishedPostsQuarter: res.telemetry?.publishedPostsQuarter || BROTHER_LINKEDIN_ANALYTICS.publishedPostsQuarter,
+          followerGrowthMonth: res.telemetry?.followerGrowthMonth || BROTHER_LINKEDIN_ANALYTICS.followerGrowthMonth,
+          provider: res.provider || (bufferApiKey ? "buffer" : "linkedin"),
+          channelName: res.channel?.name || res.telemetry?.channelName || ""
+        };
+        safeSetItem("brother_live_telemetry", JSON.stringify(telemetryToSave));
+        if (res.channel?.id && !bufferChannelId) {
+          safeSetItem("buffer_channel_id", res.channel.id);
+        }
+
         setAnalytics(prev => ({
           ...prev,
-          totalFollowers: res.organization.followers || 14647,
-          companyName: res.organization.name || prev.companyName
+          totalFollowers: telemetryToSave.followers,
+          companyName: telemetryToSave.name,
+          impressions30d: telemetryToSave.impressions30d,
+          impressionsGrowth: telemetryToSave.impressionsGrowth,
+          avgEngagementRate: telemetryToSave.avgEngagementRate,
+          publishedPostsQuarter: telemetryToSave.publishedPostsQuarter,
+          followerGrowthMonth: telemetryToSave.followerGrowthMonth,
+          provider: telemetryToSave.provider
         }));
         if (res.posts && res.posts.length > 0) {
           setPosts(res.posts);
@@ -130,7 +183,7 @@ export default function HomeFeedAnalytics({ isDark, onNavigateToModule }) {
                 {liveConnected && (
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-[10px] font-bold text-emerald-700 dark:text-emerald-300">
                     <CheckCircle2 className="w-3 h-3 text-emerald-500" />
-                    <span>Live Telemetry Connected</span>
+                    <span>{analytics.provider === "buffer" ? "Live Telemetry Connected (Buffer)" : "Live Telemetry Connected"}</span>
                   </span>
                 )}
               </div>

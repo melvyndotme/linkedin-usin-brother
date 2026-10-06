@@ -176,13 +176,23 @@ export async function syncPostsToNotionRepository({ posts, apiKey, databaseId })
   return await res.json();
 }
 
-export async function fetchLiveLinkedInData({ orgId, token }) {
+export async function fetchLiveLinkedInData({ orgId, token, bufferApiKey, bufferChannelId } = {}) {
   const cleanId = cleanLinkedInOrgId(orgId);
+  const activeToken = token || safeGetItem('key_linkedin') || '';
+  const activeBufferKey = bufferApiKey || safeGetItem('key_buffer') || '';
+  const activeBufferChannel = bufferChannelId || safeGetItem('buffer_channel_id') || '';
+
   const res = await fetch('/api/linkedin/data', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ orgId: cleanId, token })
+    body: JSON.stringify({
+      orgId: cleanId,
+      token: activeToken,
+      bufferApiKey: activeBufferKey,
+      bufferChannelId: activeBufferChannel
+    })
   });
   return await res.json();
 }
+
 
