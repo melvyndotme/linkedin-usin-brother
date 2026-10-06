@@ -573,11 +573,11 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
             <button
               onClick={() => fetchHolidays(selectedYear, true)}
               disabled={loadingHolidays}
-              title="Sync Singapore Public Holidays from Data.gov.sg (Collection 691 / MOM)"
+              title="Sync Singapore Public Holidays"
               className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-semibold transition-all cursor-pointer"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loadingHolidays ? 'animate-spin' : ''}`} />
-              <span>Sync Data.gov.sg (MOM)</span>
+              <span>{loadingHolidays ? 'Syncing...' : 'Sync Holidays'}</span>
             </button>
           </div>
         </div>
