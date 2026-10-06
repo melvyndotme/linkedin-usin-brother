@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { Newspaper, Search, RefreshCw, Copy, Check, Download, Layers, ShieldCheck, Clock, ArrowRight, ExternalLink, AlertCircle, Plus, Trash2, Sparkles, Database, X, Radio } from 'lucide-react';
+import { Newspaper, Search, RefreshCw, Copy, Check, Download, Layers, ShieldCheck, Clock, ArrowRight, ExternalLink, AlertCircle, Plus, Trash2, Sparkles, Database, X, Radio, BookOpen, Tag } from 'lucide-react';
 import { EXTENDED_AI_NEWS, searchSerperWithTimeframe, getEffectiveSerperKey, getGoogleNewsSearchUrl, generateDynamicTopicalNews } from '../lib/serperEngine.js';
 import { generateAIDrafts } from '../lib/draftGenerator.js';
-import ImageTemplateStudio from './ImageTemplateStudio.jsx';
 import { safeGetItem, safeSetItem } from '../lib/storage.js';
 import { logActivity } from '../lib/auditLogger.js';
 
@@ -928,114 +927,178 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
           </div>
         </div>
 
-        {/* Right Column: Template-driven Draft + Visual Studio */}
-        <div className="lg:col-span-7 space-y-4 sm:space-y-6">
+        {/* Right Column: Clean News & Trend Intelligence Brief */}
+        <div className="lg:col-span-7 space-y-4">
           {activeNews ? (
-            <>
-              {/* Draft Studio Generator Card */}
-              <div className={`p-4 sm:p-6 rounded-2xl border space-y-4 ${
-                isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
-              }`}>
-                {/* Header: Title + Post Angle Count + Actions */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-3.5 dark:border-slate-800">
-                  <div>
-                    <h3 className={`text-sm sm:text-base font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                      {currentDraft?.templateName || currentDraft?.name}
-                    </h3>
-                  </div>
-
-                  <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
-                    <button
-                      onClick={() => handleCopyPost(currentDraft?.postContent || currentDraft?.post)}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm cursor-pointer"
-                    >
-                      {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                      <span>{copied ? 'Copied' : 'Copy Post'}</span>
-                    </button>
-                    {onNavigateToDraftStudio && (
-                      <button
-                        onClick={() => {
-                          logActivity({
-                            event: 'Opened News Draft in Studio',
-                            category: 'Content Generation',
-                            details: `Topic: "${activeNews?.headline || 'News & Trends'}" - Angle: ${currentDraft?.title || currentDraft?.name || 'Thought Leadership'}`,
-                            status: 'Success'
-                          });
-                          onNavigateToDraftStudio({
-                            content: currentDraft.postContent || currentDraft.post,
-                            title: activeNews?.headline || 'News & Trends',
-                            occasion: newsOccasion,
-                            activeDraft: formattedDraftForStudio,
-                            availableDrafts: baseDrafts
-                          });
-                        }}
-                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
-                      >
-                        <span>Open in Content Studio</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </button>
+            <div className={`p-5 sm:p-7 rounded-2xl border transition-all ${
+              isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+            } space-y-5 sm:space-y-6`}>
+              
+              {/* News Headline & Source Info + Transfer CTA */}
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-5 border-b border-slate-100 dark:border-slate-800">
+                <div className="space-y-2 flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-blue-500/10 text-[#0f2ea2] dark:text-blue-400 border border-blue-500/20">
+                      {activeNews.category || 'Industry Trend'}
+                    </span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400 font-semibold flex items-center gap-1">
+                      <Newspaper className="w-3.5 h-3.5 text-slate-400" />
+                      {activeNews.sourceTitle || 'Verified Publisher'}
+                    </span>
+                    {(activeNews.date || activeNews.timeAgo) && (
+                      <span className="text-[10px] font-mono text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md flex items-center gap-1">
+                        <Clock className="w-3 h-3 text-slate-400" />
+                        {activeNews.date || activeNews.timeAgo}
+                      </span>
                     )}
                   </div>
+
+                  <h2 className={`text-xl sm:text-2xl font-bold tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                    {activeNews.headline}
+                  </h2>
+
+                  {(activeNews.sourceUrl || activeNews.link) && (
+                    <a
+                      href={activeNews.sourceUrl || activeNews.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0f2ea2] dark:text-blue-400 hover:underline pt-1"
+                    >
+                      <span>Read Original Source Article</span>
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  )}
                 </div>
 
-                {/* Template Selector Pills */}
-                <div>
-                  <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1.5 block">
-                    Select Post Template:
-                  </label>
-                  <div className="flex flex-wrap gap-1.5">
-                    {baseDrafts.map((d, idx) => {
-                      const isSelected = selectedDraftIndex === idx;
-                      return (
-                        <button
-                          key={d.id || idx}
-                          onClick={() => setSelectedDraftIndex(idx)}
-                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
-                            isSelected
-                              ? 'bg-[#0f2ea2] text-white border-[#0f2ea2] shadow-sm ring-2 ring-[#0f2ea2]/20'
-                              : isDark
-                              ? 'bg-slate-950 border-slate-800 text-slate-300 hover:bg-slate-800 hover:border-slate-700'
-                              : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100 hover:border-slate-300'
-                          }`}
-                        >
-                          <span className="opacity-70 mr-1">#{idx + 1}</span>
-                          <span>{d.name}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
+                {/* Primary Transfer Action Button */}
+                <div className="shrink-0 sm:self-start">
+                  <button
+                    onClick={() => {
+                      logActivity({
+                        event: 'Opened News Draft in Studio',
+                        category: 'Content Generation',
+                        details: `Transferred "${activeNews?.headline || 'News & Trends'}" facts to Content Studio`,
+                        status: 'Success'
+                      });
+                      onNavigateToDraftStudio({
+                        content: currentDraft?.postContent || currentDraft?.post || activeNews?.summary120 || '',
+                        title: activeNews?.headline || 'News & Trends',
+                        occasion: newsOccasion,
+                        activeDraft: formattedDraftForStudio,
+                        availableDrafts: baseDrafts
+                      });
+                    }}
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer"
+                  >
+                    <span>Open in Content Studio</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              {/* 120-Word Executive Summary Card */}
+              <div className="rounded-xl p-4 sm:p-5 bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200/80 dark:border-blue-900/60 space-y-2">
+                <div className="flex items-center gap-2 text-xs font-bold text-[#0f2ea2] dark:text-blue-400">
+                  <BookOpen className="w-4 h-4" />
+                  <span>120-Word Executive Summary & Intelligence</span>
+                </div>
+                <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-normal">
+                  {activeNews.summary120 || 'Verified intelligence report on market developments, technology advancements, and workplace shifts.'}
+                </p>
+              </div>
+
+              {/* 3 Pillars of Relevance to Brother Singapore */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 uppercase tracking-wider">
+                    <ShieldCheck className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
+                    Brother Singapore Relevance & Impact Pillars
+                  </span>
                 </div>
 
-                {/* Strategic Rationale */}
-                {currentDraft?.whyThisWorks && (
-                  <div className="bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-500/30 rounded-xl p-3 sm:p-3.5">
-                    <div className="flex items-start gap-2">
-                      <Sparkles className="w-4 h-4 text-[#0f2ea2] dark:text-blue-400 mt-0.5 shrink-0" />
-                      <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
-                        <strong className="text-[#0f2ea2] dark:text-blue-300">Strategic Rationale: </strong>
-                        {currentDraft.whyThisWorks}
-                      </p>
-                    </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 space-y-1.5">
+                    <span className="text-[10px] font-bold text-[#0f2ea2] dark:text-blue-400 uppercase font-mono tracking-wider">
+                      01. What It Is
+                    </span>
+                    <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+                      {activeNews.suggestedPillars?.whatItIs || (activeNews.summary120?.slice(0, 140) + '...')}
+                    </p>
                   </div>
-                )}
 
-                {/* Generated Post Content */}
-                <div className="relative">
-                  <div className={`p-3.5 sm:p-4 rounded-xl font-mono text-xs whitespace-pre-wrap leading-relaxed max-h-64 overflow-y-auto border custom-scrollbar ${
-                    isDark ? 'bg-slate-950 border-slate-800 text-slate-200' : 'bg-slate-50 border-slate-200 text-slate-800'
-                  }`}>
-                    {currentDraft?.postContent || currentDraft?.post}
+                  <div className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 space-y-1.5">
+                    <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase font-mono tracking-wider">
+                      02. Why It Matters
+                    </span>
+                    <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+                      {activeNews.suggestedPillars?.whyItMatters || 'Addresses critical workflow inefficiencies and enhances corporate agility.'}
+                    </p>
+                  </div>
+
+                  <div className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 space-y-1.5">
+                    <span className="text-[10px] font-bold text-[#0f2ea2] dark:text-blue-400 uppercase font-mono tracking-wider">
+                      03. Brother SG Impact
+                    </span>
+                    <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+                      {activeNews.suggestedPillars?.brotherImpact || 'Empowers Brother Singapore B2B partners with sustainable, high-productivity solutions.'}
+                    </p>
                   </div>
                 </div>
               </div>
 
-              {/* High-Fidelity LinkedIn Visual & Multi-Slide Carousel Studio */}
-              <ImageTemplateStudio
-                occasion={newsOccasion}
-                activeDraft={formattedDraftForStudio}
-                isDark={isDark}
-              />
-            </>
+              {/* Strategic Messaging Angles Preview */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 uppercase tracking-wider">
+                    <Sparkles className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
+                    Key Messaging Angles (Transferred to Studio)
+                  </span>
+                  <span className="text-[11px] text-slate-400">
+                    3 Strategic Directions
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  {baseDrafts.map((d, idx) => (
+                    <div
+                      key={d.id || idx}
+                      className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 space-y-1.5"
+                    >
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="font-bold text-[#0f2ea2] dark:text-blue-400 font-mono">
+                          Angle 0{idx + 1}
+                        </span>
+                      </div>
+                      <h4 className="text-xs font-bold text-slate-900 dark:text-white line-clamp-1">
+                        {d.name || d.templateName}
+                      </h4>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-3 leading-relaxed">
+                        {d.whyThisWorks || 'Engineered for executive engagement and brand alignment.'}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Recommended Hashtags */}
+              <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                <span className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                  <Tag className="w-3.5 h-3.5 text-slate-400" />
+                  Recommended Hashtags & Brand Tags:
+                </span>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {(activeNews.suggestedHashtags || ['#BrotherSingapore', '#NewsAndTrends', '#WorkplaceInnovation', '#AtYourSide']).map((tag) => (
+                    <span
+                      key={tag}
+                      className="text-xs font-mono px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+            </div>
           ) : (
             /* Empty Drafting State when 0 News found */
             <div className={`p-8 rounded-2xl border text-center ${
@@ -1048,7 +1111,7 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
                 Awaiting Verified Articles for Drafting
               </h3>
               <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto leading-relaxed">
-                0 verified articles were found within the strict timeframe for this keyword. To generate template-based LinkedIn posts and visuals, select another keyword tab or expand the time window above.
+                0 verified articles were found within the strict timeframe for this keyword. To explore topics and generate LinkedIn posts, select another keyword tab or expand the time window above.
               </p>
             </div>
           )}

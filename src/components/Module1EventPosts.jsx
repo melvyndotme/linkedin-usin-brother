@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Calendar, Sparkles, Copy, Check, Download, ArrowRight, Flame, Layers, ExternalLink, RefreshCw, AlertCircle, Database, CheckCircle2, Plus, Trash2, Tag, X } from 'lucide-react';
-import ImageTemplateStudio from './ImageTemplateStudio.jsx';
+import { Calendar, Sparkles, Copy, Check, Download, ArrowRight, Flame, Layers, ExternalLink, RefreshCw, AlertCircle, Database, CheckCircle2, Plus, Trash2, Tag, X, BookOpen } from 'lucide-react';
 import { safeGetItem, safeSetItem } from '../lib/storage.js';
 import { logActivity } from '../lib/auditLogger.js';
 
@@ -211,11 +210,15 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
   // Modal State for Adding Custom Event
   const [showAddModal, setShowAddModal] = useState(false);
   const [newEventName, setNewEventName] = useState('');
-  const [newEventDate, setNewEventDate] = useState('2026-09-25');
-  const [newEventCategory, setNewEventCategory] = useState('Other Events');
-  const [newEventType, setNewEventType] = useState('cultural');
+  const [newEventDate, setNewEventDate] = useState(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 7);
+    return d.toISOString().split('T')[0];
+  });
+  const [newEventCategory, setNewEventCategory] = useState('Promotions & Campaigns');
+  const [newEventType, setNewEventType] = useState('promotion');
   const [newEventDetails, setNewEventDetails] = useState('');
-  const [newEventTheme, setNewEventTheme] = useState('amber');
+  const [newEventTheme, setNewEventTheme] = useState('red');
 
   // SVG Customization
   const [customBadge, setCustomBadge] = useState('Celebrate SG Special');
@@ -256,7 +259,7 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
     fetchHolidays(selectedYear);
   }, [selectedYear]);
 
-  // Combine and sort holidays + custom events, filtering out past events and 2025
+  // Combine and sort holidays + custom events, ensuring custom events are always preserved
   const combinedEvents = useMemo(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -266,17 +269,22 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
 
     let all = [...enrichedHolidays, ...enrichedCustom];
 
-    // Exclude 2025 completely and remove all past events
+    // Filter events
     all = all.filter(evt => {
-      // Exclude 2025
-      if (evt.year === '2025' || (evt.date && evt.date.startsWith('2025'))) {
-        return false;
+      // Exclude 2025 unless explicitly selected
+      if (selectedYear !== '2025' && selectedYear !== 'all') {
+        if (evt.year === '2025' || (evt.date && evt.date.startsWith('2025'))) {
+          return false;
+        }
       }
       // Year filter if not 'all'
       if (selectedYear !== 'all' && evt.year !== selectedYear && !(evt.date && evt.date.startsWith(selectedYear))) {
         return false;
       }
-      // Remove all past events (strictly before today)
+      // Custom events are ALWAYS retained so user creation is never silently discarded
+      if (evt.isCustom) return true;
+
+      // Remove past public holidays
       const evtDate = new Date(evt.date);
       evtDate.setHours(0, 0, 0, 0);
       return evtDate >= today;
@@ -358,10 +366,38 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
     setCustomEvents(updated);
     safeSetItem('brother_custom_events', JSON.stringify(updated));
 
+    // Ensure tab filter does not hide the new custom event
+    if (eventCategoryFilter === 'public_holiday') {
+      setEventCategoryFilter('all');
+    }
+
+    // Sync custom event to Notion Enterprise database
+    const token = safeGetItem('notion_token') || safeGetItem('token_notion');
+    const explicitDb = safeGetItem('notion_database_id') || '3c701136de4881de9d29ca4ea415e856';
+    if (token) {
+      fetch('/api/notion/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          apiKey: token,
+          databaseId: explicitDb,
+          post: {
+            title: newEvent.name,
+            content: newEvent.details || newEvent.subtitle || `${newEvent.name} • Brother Singapore`,
+            category: newEvent.category || 'Campaign Event',
+            status: 'Working Draft',
+            author: 'Allan Cheng',
+            date: newEvent.date,
+            scheduledDate: `${newEvent.date}T09:00:00`
+          }
+        })
+      }).catch(err => console.warn('Notion custom event sync warning:', err));
+    }
+
     logActivity({
       event: 'Created Custom Calendar Event',
       category: 'Content Generation',
-      details: `Created custom event "${newEvent.name}" (${newEvent.date}) under ${newEvent.category}`,
+      details: `Created custom event "${newEvent.name}" (${newEvent.date}) under ${newEvent.category} and synced to Notion`,
       status: 'Success'
     });
 
@@ -595,127 +631,162 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
           </div>
         </div>
 
-        {/* Right Column: Multi-Drafts & Brother SG Website Banner Preview */}
-        <div className="lg:col-span-8 space-y-4 sm:space-y-6">
+        {/* Right Column: Clean Event Facts & Cultural Intelligence Brief */}
+        <div className="lg:col-span-8 space-y-4">
           {selectedOccasion && (
-            <div className={`p-4 sm:p-6 rounded-2xl border space-y-4 sm:space-y-5 ${
+            <div className={`p-5 sm:p-7 rounded-2xl border transition-all ${
               isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
-            }`}>
-              {/* Post Studio Navigation Bar */}
-              <div className="p-3.5 rounded-xl border bg-gradient-to-r from-slate-50 to-blue-50/50 dark:from-slate-900/60 dark:to-blue-950/20 border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-[#0f2ea2] text-white flex items-center justify-center font-bold text-sm shadow-sm shrink-0">
-                    <Sparkles className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                      <span>LinkedUsIn Studio Generator</span>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-100 text-[#0f2ea2] dark:bg-blue-950 dark:text-blue-300 font-bold">
-                        3 AI Angles Ready
-                      </span>
-                    </div>
-                    <div className="text-[11px] text-slate-600 dark:text-slate-400">
-                      Select your preferred post angle below, then open in Studio to attach media and publish.
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
-                  <button
-                    onClick={() => handleCopy(currentDraft?.post, selectedDraftIndex)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm cursor-pointer"
-                  >
-                    {copiedIndex === selectedDraftIndex ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                    <span>{copiedIndex === selectedDraftIndex ? 'Copied' : 'Copy Text'}</span>
-                  </button>
-                  {onNavigateToDraftStudio && currentDraft && (
-                    <button
-                      onClick={() => {
-                        logActivity({
-                          event: 'Opened Event Draft in Studio',
-                          category: 'Content Generation',
-                          details: `Selected "${selectedOccasion.name}" - ${currentDraft.name}`,
-                          status: 'Success'
-                        });
-                        onNavigateToDraftStudio({
-                          content: currentDraft.post,
-                          title: `${selectedOccasion.name} ${selectedOccasion.year || 2026}`,
-                          occasion: selectedOccasion,
-                          activeDraft: currentDraft,
-                          availableDrafts: drafts
-                        });
-                      }}
-                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
-                    >
-                      <span>Open in Content Studio</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Draft Angle Selector */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b pb-3.5 dark:border-slate-800">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] sm:text-[11px] font-mono text-[#0f2ea2] dark:text-blue-400 font-bold uppercase tracking-wider block">
-                      Post Angle {selectedDraftIndex + 1} of 3 • {selectedOccasion.name}
+            } space-y-5 sm:space-y-6`}>
+              
+              {/* Event Header & Quick Action */}
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-5 border-b border-slate-100 dark:border-slate-800">
+                <div className="space-y-2 flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${getEventBadgeStyle(selectedOccasion).class}`}>
+                      {selectedOccasion.category || getEventBadgeStyle(selectedOccasion).label}
                     </span>
-                    {selectedOccasion.isCustom && (
-                      <span className={`text-[10px] px-2 py-0.2 rounded-full font-bold border ${getEventBadgeStyle(selectedOccasion).class}`}>
-                        {selectedOccasion.category || getEventBadgeStyle(selectedOccasion).label}
+                    <span className="text-xs text-slate-500 dark:text-slate-400 font-semibold flex items-center gap-1">
+                      <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                      {new Date(selectedOccasion.date).toLocaleDateString('en-SG', { month: 'long', day: 'numeric', year: 'numeric' })} ({selectedOccasion.day})
+                    </span>
+                    {selectedOccasion.isUrgent ? (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30 flex items-center gap-1">
+                        <Flame className="w-3 h-3" /> T-10 Drafting Window Active
+                      </span>
+                    ) : selectedOccasion.daysRemaining >= 0 ? (
+                      <span className="text-[10px] font-mono text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
+                        {selectedOccasion.daysRemaining} days away
+                      </span>
+                    ) : (
+                      <span className="text-[10px] font-mono text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
+                        Past Event
                       </span>
                     )}
                   </div>
-                  <h3 className={`text-sm sm:text-base font-bold mt-0.5 ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                    {currentDraft?.name}
-                  </h3>
+
+                  <h2 className={`text-xl sm:text-2xl font-bold tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                    {selectedOccasion.name}
+                  </h2>
+
+                  {selectedOccasion.subtitle && (
+                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                      {selectedOccasion.subtitle}
+                    </p>
+                  )}
                 </div>
 
-                {/* Draft Tabs */}
-                <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-950 p-1 rounded-xl border dark:border-slate-800 self-start sm:self-auto">
+                {/* Primary Transfer Action Button */}
+                <div className="shrink-0 sm:self-start">
+                  <button
+                    onClick={() => {
+                      logActivity({
+                        event: 'Opened Event in Content Studio',
+                        category: 'Content Generation',
+                        details: `Transferred "${selectedOccasion.name}" facts to Content Studio`,
+                        status: 'Success'
+                      });
+                      onNavigateToDraftStudio({
+                        content: currentDraft?.post || selectedOccasion.details || '',
+                        title: `${selectedOccasion.name} ${selectedOccasion.year || 2026}`,
+                        occasion: selectedOccasion,
+                        activeDraft: currentDraft,
+                        availableDrafts: drafts
+                      });
+                    }}
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer"
+                  >
+                    <span>Open in Content Studio</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Cultural Context & Significance Card */}
+              <div className="rounded-xl p-4 sm:p-5 bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200/80 dark:border-blue-900/60 space-y-2">
+                <div className="flex items-center gap-2 text-xs font-bold text-[#0f2ea2] dark:text-blue-400">
+                  <BookOpen className="w-4 h-4" />
+                  <span>Cultural Context & Significance</span>
+                </div>
+                <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-normal">
+                  {selectedOccasion.culturalContext || selectedOccasion.details || 'Official Singapore occasion celebrating community resilience, togetherness, and corporate partnership.'}
+                </p>
+              </div>
+
+              {/* 3 Strategic Messaging Angles (Transferred to Studio) */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 uppercase tracking-wider">
+                    <Sparkles className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
+                    Key Messaging Angles (Transferred to Studio)
+                  </span>
+                  <span className="text-[11px] text-slate-400">
+                    3 Strategic Directions
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   {drafts.map((d, idx) => (
-                    <button
-                      key={d.id}
-                      onClick={() => setSelectedDraftIndex(idx)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                        selectedDraftIndex === idx
-                          ? 'bg-[#0f2ea2] text-white shadow-sm'
-                          : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
-                      }`}
+                    <div
+                      key={d.id || idx}
+                      className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 space-y-1.5"
                     >
-                      Angle {idx + 1}
-                    </button>
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="font-bold text-[#0f2ea2] dark:text-blue-400 font-mono">
+                          Angle 0{idx + 1}
+                        </span>
+                      </div>
+                      <h4 className="text-xs font-bold text-slate-900 dark:text-white line-clamp-1">
+                        {d.name}
+                      </h4>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-3 leading-relaxed">
+                        {d.whyThisWorks}
+                      </p>
+                    </div>
                   ))}
                 </div>
               </div>
 
-              {/* Why This Works */}
-              <div className="bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-500/30 rounded-xl p-3 sm:p-3.5">
-                <div className="flex items-start gap-2">
-                  <Sparkles className="w-4 h-4 text-[#0f2ea2] dark:text-blue-400 mt-0.5 shrink-0" />
-                  <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
-                    <strong className="text-[#0f2ea2] dark:text-blue-300">Strategic Rationale: </strong>
-                    {currentDraft?.whyThisWorks}
-                  </p>
+              {/* Recommended Hashtags */}
+              <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                <span className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                  <Tag className="w-3.5 h-3.5 text-slate-400" />
+                  Recommended Hashtags & Brand Tags:
+                </span>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {(selectedOccasion.suggestedHashtags || ['#BrotherSingapore', '#AtYourSide']).map((tag) => (
+                    <span
+                      key={tag}
+                      className="text-xs font-mono px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
+                    >
+                      {tag}
+                    </span>
+                  ))}
                 </div>
               </div>
 
-              {/* Generated Post Content */}
-              <div className="relative">
-                <div className={`p-3.5 sm:p-4 rounded-xl font-mono text-xs whitespace-pre-wrap leading-relaxed max-h-60 overflow-y-auto border custom-scrollbar ${
-                  isDark ? 'bg-slate-950 border-slate-800 text-slate-200' : 'bg-slate-50 border-slate-200 text-slate-800'
-                }`}>
-                  {currentDraft?.post}
+              {/* Transfer Explanation Banner */}
+              <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                  <strong className="text-slate-800 dark:text-slate-200 block">Ready to draft & design?</strong>
+                  Clicking "Open in Content Studio" transfers all cultural context, facts, and messaging angles into the Studio where you can apply custom style guides, generate visuals, and schedule via Buffer.
                 </div>
+                <button
+                  onClick={() => {
+                    onNavigateToDraftStudio({
+                      content: currentDraft?.post || selectedOccasion.details || '',
+                      title: `${selectedOccasion.name} ${selectedOccasion.year || 2026}`,
+                      occasion: selectedOccasion,
+                      activeDraft: currentDraft,
+                      availableDrafts: drafts
+                    });
+                  }}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold transition-all shrink-0 cursor-pointer shadow-xs"
+                >
+                  <span>Open in Content Studio</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
               </div>
 
-              {/* High-Fidelity LinkedIn Visual & Multi-Slide Carousel Studio */}
-              <ImageTemplateStudio 
-                occasion={selectedOccasion} 
-                activeDraft={currentDraft} 
-                isDark={isDark} 
-              />
             </div>
           )}
         </div>
