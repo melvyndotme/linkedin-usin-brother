@@ -881,10 +881,10 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
                 <div
                   key={item.id}
                   onClick={handleDraftInStudio}
-                  className={`group rounded-2xl border transition-all duration-200 flex flex-col justify-between overflow-hidden cursor-pointer ${
+                  className={`rounded-2xl border transition-all duration-200 ease-out flex flex-col justify-between overflow-hidden group cursor-pointer ${
                     isDark
-                      ? 'bg-slate-900 border-slate-800 hover:bg-slate-800/80 hover:border-slate-700 hover:shadow-lg hover:-translate-y-0.5'
-                      : 'bg-white border-slate-200 hover:bg-slate-50 hover:border-slate-300 hover:shadow-md hover:-translate-y-0.5'
+                      ? 'bg-slate-900 border-slate-800 hover:bg-slate-800 hover:border-slate-600 hover:shadow-lg hover:-translate-y-1'
+                      : 'bg-white border-slate-200/90 shadow-xs hover:bg-slate-100 hover:border-slate-300 hover:shadow-lg hover:-translate-y-1'
                   }`}
                 >
                   {/* High-Resolution Featured Image Top Banner */}

@@ -676,13 +676,32 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
           {displayedEvents.map((evt) => {
             const badgeInfo = getEventBadgeStyle(evt);
             const evtDateFormatted = new Date(evt.date).toLocaleDateString('en-SG', { month: 'short', day: 'numeric', year: 'numeric' });
+
+            const handleDraftEvent = () => {
+              logActivity({
+                event: 'Drafted Event in Content Studio',
+                category: 'Content Generation',
+                details: `Selected "${evt.name}" to draft in Content Studio`,
+                status: 'Success'
+              });
+              const evtDrafts = generateEventDrafts(evt);
+              onNavigateToDraftStudio({
+                content: evt.details || evt.culturalContext || evt.subtitle || '',
+                title: `${evt.name} ${evt.year || 2026}`,
+                occasion: evt,
+                activeDraft: evtDrafts[0],
+                availableDrafts: evtDrafts
+              });
+            };
+
             return (
               <div
                 key={evt.id}
-                className={`p-4 sm:p-5 rounded-2xl border transition-all flex flex-col justify-between group hover:shadow-md ${
+                onClick={handleDraftEvent}
+                className={`p-4 sm:p-5 rounded-2xl border transition-all duration-200 ease-out flex flex-col justify-between group cursor-pointer ${
                   isDark
-                    ? 'bg-slate-900 border-slate-800 hover:border-slate-700'
-                    : 'bg-white border-slate-200 hover:border-blue-200 shadow-xs'
+                    ? 'bg-slate-900 border-slate-800 hover:bg-slate-800 hover:border-slate-600 hover:shadow-lg hover:-translate-y-1'
+                    : 'bg-white border-slate-200/90 shadow-xs hover:bg-slate-100 hover:border-slate-300 hover:shadow-lg hover:-translate-y-1'
                 }`}
               >
                 <div className="space-y-2.5">
@@ -707,7 +726,11 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
                       )}
                       {evt.isCustom && (
                         <button
-                          onClick={(e) => handleDeleteCustomEvent(evt.id, e)}
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteCustomEvent(evt.id, e);
+                          }}
                           className="opacity-0 group-hover:opacity-100 hover:text-rose-500 p-1 text-slate-400 transition-opacity cursor-pointer"
                           title="Delete custom event"
                         >
@@ -729,7 +752,9 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
                   </div>
 
                   {/* Title */}
-                  <h3 className={`text-base font-bold tracking-tight line-clamp-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                  <h3 className={`text-base font-bold tracking-tight line-clamp-1 transition-colors duration-150 group-hover:text-[#0f2ea2] dark:group-hover:text-blue-400 ${
+                    isDark ? 'text-white' : 'text-slate-900'
+                  }`}>
                     {evt.name}
                   </h3>
 
@@ -759,26 +784,15 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
                 {/* Card Action Button */}
                 <div className="pt-4 mt-4 border-t border-slate-100 dark:border-slate-800/80">
                   <button
-                    onClick={() => {
-                      logActivity({
-                        event: 'Drafted Event in Content Studio',
-                        category: 'Content Generation',
-                        details: `Selected "${evt.name}" to draft in Content Studio`,
-                        status: 'Success'
-                      });
-                      const evtDrafts = generateEventDrafts(evt);
-                      onNavigateToDraftStudio({
-                        content: evt.details || evt.culturalContext || evt.subtitle || '',
-                        title: `${evt.name} ${evt.year || 2026}`,
-                        occasion: evt,
-                        activeDraft: evtDrafts[0],
-                        availableDrafts: evtDrafts
-                      });
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDraftEvent();
                     }}
-                    className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
+                    className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold transition-all duration-150 shadow-xs hover:shadow-sm cursor-pointer"
                   >
                     <span>Draft in Content Studio</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
+                    <ArrowRight className="w-3.5 h-3.5 transition-transform duration-150 group-hover:translate-x-0.5" />
                   </button>
                 </div>
               </div>
