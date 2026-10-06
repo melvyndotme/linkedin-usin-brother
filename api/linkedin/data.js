@@ -400,11 +400,11 @@ async function fetchBufferTelemetry({ apiKey, channelId, cleanId = "808877" }) {
   // Map bufferPosts to UI format
   const mappedPosts = bufferPosts.map((p, idx) => {
     const pMetrics = p.metrics || [];
-    const pImpr = pMetrics.find(m => m.type === 'impressions')?.value || 14200;
-    const pLikes = pMetrics.find(m => m.type === 'reactions' || m.type === 'likes')?.value || 88;
-    const pComments = pMetrics.find(m => m.type === 'comments')?.value || 12;
-    const pShares = pMetrics.find(m => m.type === 'shares' || m.type === 'reposts')?.value || 7;
-    const pEngagement = pImpr > 0 ? (((pLikes + pComments + pShares) / pImpr) * 100).toFixed(2) + "%" : "5.14%";
+    const pImpr = pMetrics.find(m => m.type === 'impressions')?.value || 0;
+    const pLikes = pMetrics.find(m => m.type === 'reactions' || m.type === 'likes')?.value || 0;
+    const pComments = pMetrics.find(m => m.type === 'comments')?.value || 0;
+    const pShares = pMetrics.find(m => m.type === 'shares' || m.type === 'reposts')?.value || 0;
+    const pEngagement = pImpr > 0 ? (((pLikes + pComments + pShares) / pImpr) * 100).toFixed(2) + "%" : "0.00%";
     const dateStr = p.sentAt ? p.sentAt.split("T")[0] : new Date().toISOString().split("T")[0];
     const textSnippet = (p.text || "").split("\n")[0].slice(0, 60).replace(/[#*]/g, "").trim() || "Brother Singapore Live Update";
 
@@ -429,7 +429,11 @@ async function fetchBufferTelemetry({ apiKey, channelId, cleanId = "808877" }) {
     };
   });
 
-  const finalPosts = mappedPosts.length > 0 ? mappedPosts : (publicData?.posts || []);
+  // Prioritize latest rich visual posts from live LinkedIn stream, followed by Buffer posts
+  const publicPosts = publicData?.posts || [];
+  const finalPosts = publicPosts.length > 0 
+    ? [...publicPosts, ...mappedPosts.filter(bp => !publicPosts.some(lp => lp.content && bp.content && (lp.content.includes(bp.content.slice(0, 30)) || bp.content.includes(lp.content.slice(0, 30)))))]
+    : mappedPosts;
 
   return {
     success: true,
