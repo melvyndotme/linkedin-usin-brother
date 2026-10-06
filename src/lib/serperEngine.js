@@ -553,7 +553,15 @@ export function generateDynamicTopicalNews(query = "workplace productivity", max
  * high-resolution professional photography matching the article's topic and headline.
  */
 export function getFeaturedImageForArticle(item, topic = '') {
-  if (item?.imageUrl && typeof item.imageUrl === 'string' && item.imageUrl.startsWith('http')) {
+  // If imageUrl is a low-res Google thumbnail (encrypted-tbn0.gstatic.com or tbn), discard it so we never render blurry images
+  const isLowResGoogleThumbnail = item?.imageUrl && (
+    item.imageUrl.includes('encrypted-tbn0.gstatic.com') ||
+    item.imageUrl.includes('tbn:') ||
+    item.imageUrl.includes('googleusercontent.com')
+  );
+
+  // If there is an authentic external high-res publication image, use it
+  if (item?.imageUrl && typeof item.imageUrl === 'string' && item.imageUrl.startsWith('http') && !isLowResGoogleThumbnail) {
     return item.imageUrl;
   }
 
@@ -568,49 +576,50 @@ export function getFeaturedImageForArticle(item, topic = '') {
 
   if (text.includes('work-life') || text.includes('flexibility') || text.includes('schedule') || text.includes('parent') || text.includes('remote') || text.includes('9–5') || text.includes('9-5')) {
     return pick([
-      'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=700&q=80',
-      'https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=700&q=80',
-      'https://images.unsplash.com/photo-1593642632823-8f785ba67e45?auto=format&fit=crop&w=700&q=80',
-      'https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=700&q=80'
+      'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=90',
+      'https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=1200&q=90',
+      'https://images.unsplash.com/photo-1593642632823-8f785ba67e45?auto=format&fit=crop&w=1200&q=90',
+      'https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=1200&q=90'
     ]);
   }
 
   if (text.includes('productivity') || text.includes('engaged') || text.includes('manager') || text.includes('leaders') || text.includes('workforce') || text.includes('team') || text.includes('happiness')) {
     return pick([
-      'https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=700&q=80',
-      'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=700&q=80',
-      'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=700&q=80',
-      'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=700&q=80'
+      'https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1200&q=90',
+      'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=90',
+      'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1200&q=90',
+      'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=90'
     ]);
   }
 
   if (text.includes('brother') || text.includes('printer') || text.includes('scanner') || text.includes('hardware') || text.includes('print') || text.includes('at your side') || text.includes('document')) {
     return pick([
-      'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=700&q=80',
-      'https://images.unsplash.com/photo-1588681664899-f142ff2dc9b1?auto=format&fit=crop&w=700&q=80',
-      'https://images.unsplash.com/photo-1616469829941-c7200edec809?auto=format&fit=crop&w=700&q=80'
+      'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=1200&q=90',
+      'https://images.unsplash.com/photo-1588681664899-f142ff2dc9b1?auto=format&fit=crop&w=1200&q=90',
+      'https://images.unsplash.com/photo-1616469829941-c7200edec809?auto=format&fit=crop&w=1200&q=90',
+      'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1200&q=90'
     ]);
   }
 
   if (text.includes('ai') || text.includes('agentic') || text.includes('automation') || text.includes('digital') || text.includes('technology') || text.includes('smart')) {
     return pick([
-      'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=700&q=80',
-      'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=700&q=80',
-      'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=700&q=80'
+      'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=90',
+      'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=90',
+      'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=90'
     ]);
   }
 
   if (text.includes('sustainable') || text.includes('eco') || text.includes('green') || text.includes('esg') || text.includes('earth')) {
     return pick([
-      'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=700&q=80',
-      'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=700&q=80'
+      'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=90',
+      'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=1200&q=90'
     ]);
   }
 
   return pick([
-    'https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=700&q=80',
-    'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=700&q=80',
-    'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=700&q=80'
+    'https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=1200&q=90',
+    'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=90',
+    'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=90'
   ]);
 }
 
