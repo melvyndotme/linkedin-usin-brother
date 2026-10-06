@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { 
-  Users, TrendingUp, Eye, BarChart3, Sparkles, ExternalLink, RefreshCw, CheckCircle2
+  Users, TrendingUp, Eye, BarChart3, Sparkles, ExternalLink, RefreshCw, CheckCircle2, Play
 } from "lucide-react";
 import { BROTHER_LINKEDIN_ANALYTICS, RECENT_LINKEDIN_POSTS, fetchLiveLinkedInData } from "../lib/linkedInApi.js";
 import { generateBrotherWebsiteBannerSVG, generateBrotherWaveCorporateSVG, OFFICIAL_BROTHER_LOGO_URL } from "../lib/svgBrotherWebsiteTemplates.js";
@@ -35,6 +35,7 @@ export default function HomeFeedAnalytics({ isDark, onNavigateToModule }) {
   const [posts, setPosts] = useState(RECENT_LINKEDIN_POSTS);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [liveConnected, setLiveConnected] = useState(true);
+  const [playingVideoId, setPlayingVideoId] = useState(null);
 
   // Auto-fetch live telemetry on mount
   useEffect(() => {
@@ -359,8 +360,28 @@ export default function HomeFeedAnalytics({ isDark, onNavigateToModule }) {
               <div>
                 {/* Visual Media from LinkedIn or Fallback Theme Banner */}
                 <div className="w-full bg-slate-950 flex items-center justify-center border-t border-b overflow-hidden relative group">
-                  {post.imageUrl ? (
-                    <div className="w-full aspect-[16/9] relative overflow-hidden bg-slate-900 flex items-center justify-center">
+                  {playingVideoId === post.id && post.videoUrl ? (
+                    <div className="w-full aspect-[16/9] bg-black flex items-center justify-center relative">
+                      <video
+                        src={post.videoUrl}
+                        controls
+                        autoPlay
+                        playsInline
+                        className="w-full h-full object-contain"
+                        onEnded={() => setPlayingVideoId(null)}
+                      />
+                    </div>
+                  ) : post.imageUrl ? (
+                    <div 
+                      className={`w-full aspect-[16/9] relative overflow-hidden bg-slate-900 flex items-center justify-center ${
+                        post.videoUrl ? "cursor-pointer group/vid" : ""
+                      }`}
+                      onClick={() => {
+                        if (post.videoUrl) {
+                          setPlayingVideoId(post.id);
+                        }
+                      }}
+                    >
                       <img 
                         src={post.imageUrl} 
                         alt={post.title || "Brother LinkedIn Post"} 
@@ -371,6 +392,17 @@ export default function HomeFeedAnalytics({ isDark, onNavigateToModule }) {
                           if (e.target.nextSibling) e.target.nextSibling.style.display = "flex";
                         }}
                       />
+                      {post.videoUrl && (
+                        <div className="absolute inset-0 bg-black/25 group-hover/vid:bg-black/45 transition-colors flex items-center justify-center">
+                          <div className="w-13 h-13 rounded-full bg-[#0f2ea2]/95 hover:bg-[#0f2ea2] text-white flex items-center justify-center shadow-2xl backdrop-blur-sm border-2 border-white/90 transform group-hover/vid:scale-110 active:scale-95 transition-all">
+                            <Play className="w-6 h-6 fill-white ml-0.5" />
+                          </div>
+                          <span className="absolute bottom-2.5 right-3 px-2 py-0.5 rounded-md bg-black/75 backdrop-blur-sm text-white text-[10px] font-bold tracking-wide flex items-center gap-1 border border-white/10">
+                            <Play className="w-2.5 h-2.5 fill-white" />
+                            <span>Click to Play</span>
+                          </span>
+                        </div>
+                      )}
                       <div 
                         style={{ display: "none" }}
                         className="w-full aspect-[12/5] items-center justify-center"

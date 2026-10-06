@@ -62,6 +62,7 @@ async function scrapePublicLinkedIn(cleanId) {
   const posts = await Promise.all(
     rawPostings.map(async (item, index) => {
       let imageUrl = null;
+      let videoUrl = null;
       if (item.url) {
         try {
           const postRes = await fetch(item.url, {
@@ -76,6 +77,19 @@ async function scrapePublicLinkedIn(cleanId) {
               || postHtml.match(/<meta\s+content=["\x27]([^"\x27]+)["\x27]\s+property=["\x27]og:image["\x27]/i);
             if (ogMatch && ogMatch[1]) {
               imageUrl = ogMatch[1].replace(/&amp;/g, "&");
+            }
+
+            // Extract direct progressive mp4 video stream if post is a video
+            const dsMatch = postHtml.match(/data-sources=["\x27]([^"\x27]+)["\x27]/i);
+            if (dsMatch && dsMatch[1]) {
+              try {
+                const decoded = dsMatch[1].replace(/&quot;/g, '"').replace(/&amp;/g, '&');
+                const sources = JSON.parse(decoded);
+                const bestSource = sources.find(s => s.src && s.src.includes('720p')) || sources[0];
+                if (bestSource && bestSource.src) {
+                  videoUrl = bestSource.src;
+                }
+              } catch (e) {}
             }
           }
         } catch (e) {}
@@ -109,6 +123,8 @@ async function scrapePublicLinkedIn(cleanId) {
         category: "Official Company Feed",
         content: item.text,
         imageUrl,
+        videoUrl,
+        isVideo: !!videoUrl,
         impressions,
         likes,
         comments,
