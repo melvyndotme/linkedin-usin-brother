@@ -1046,40 +1046,6 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
                 </div>
               </div>
 
-              {/* Strategic Messaging Angles Preview */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 uppercase tracking-wider">
-                    <Sparkles className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
-                    Key Messaging Angles (Transferred to Studio)
-                  </span>
-                  <span className="text-[11px] text-slate-400">
-                    3 Strategic Directions
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  {baseDrafts.map((d, idx) => (
-                    <div
-                      key={d.id || idx}
-                      className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 space-y-1.5"
-                    >
-                      <div className="flex items-center justify-between text-[11px]">
-                        <span className="font-bold text-[#0f2ea2] dark:text-blue-400 font-mono">
-                          Angle 0{idx + 1}
-                        </span>
-                      </div>
-                      <h4 className="text-xs font-bold text-slate-900 dark:text-white line-clamp-1">
-                        {d.name || d.templateName}
-                      </h4>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-3 leading-relaxed">
-                        {d.whyThisWorks || 'Engineered for executive engagement and brand alignment.'}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
               {/* Recommended Hashtags */}
               <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
                 <span className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">

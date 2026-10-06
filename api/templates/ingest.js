@@ -17,6 +17,149 @@ export default async function handler(req, res) {
 
   let postContent = content;
   let detectedTitle = title;
+  const targetPromoUrl = req.body?.url || (type === 'scrape_promo' ? content : null);
+
+  // Dedicated Webpage Promotion Scraper
+  if (type === 'scrape_promo' && targetPromoUrl) {
+    if (!/^https?:\/\//i.test(targetPromoUrl)) {
+      return res.status(400).json({ success: false, error: 'A valid HTTP/HTTPS URL is required.' });
+    }
+
+    try {
+      const pageRes = await fetch(targetPromoUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+        },
+        redirect: 'follow'
+      });
+
+      if (!pageRes.ok) {
+        return res.status(400).json({ success: false, error: `Webpage returned status code ${pageRes.status}` });
+      }
+
+      const rawHtml = await pageRes.text();
+
+      // Extract metadata tags
+      const ogTitleMatch = rawHtml.match(/<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)["']/i)
+        || rawHtml.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:title["']/i);
+      const titleTagMatch = rawHtml.match(/<title>([^<]+)<\/title>/i);
+      const ogDescMatch = rawHtml.match(/<meta[^>]+property=["']og:description["'][^>]+content=["']([^"']+)["']/i)
+        || rawHtml.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:description["']/i)
+        || rawHtml.match(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)["']/i);
+
+      let cleanTitle = (ogTitleMatch?.[1] || titleTagMatch?.[1] || '').trim();
+      cleanTitle = cleanTitle.replace(/\s*[|\-–—]\s*(Brother|Brother Singapore|Official Site|Singapore).*$/i, '').trim();
+
+      const rawDesc = (ogDescMatch?.[1] || '').trim();
+
+      // Clean HTML body to extract meaningful readable promotion text
+      const cleanBody = rawHtml
+        .replace(/<script[\s\S]*?<\/script>/gi, '')
+        .replace(/<style[\s\S]*?<\/style>/gi, '')
+        .replace(/<svg[\s\S]*?<\/svg>/gi, '')
+        .replace(/<nav[\s\S]*?<\/nav>/gi, '')
+        .replace(/<header[\s\S]*?<\/header>/gi, '')
+        .replace(/<footer[\s\S]*?<\/footer>/gi, '')
+        .replace(/<noscript[\s\S]*?<\/noscript>/gi, '');
+
+      const textMatches = cleanBody.match(/<(?:h[1-6]|p|li)[^>]*>([\s\S]*?)<\/(?:h[1-6]|p|li)>/gi) || [];
+      const extractedSnippets = textMatches
+        .map(t => t.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim())
+        .filter(t => t.length > 20)
+        .slice(0, 30)
+        .join('\n\n');
+
+      const fullPageText = (rawDesc ? `Overview: ${rawDesc}\n\n` : '') + extractedSnippets;
+
+      // Extract possible dates (e.g. "31 December 2026", "28 Feb 2026", "2026-12-31")
+      let detectedDate = null;
+      const dateMatch = fullPageText.match(/\b(\d{1,2})[\s\/\-\.](Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)[\s\/\-\.](\d{4})\b/i);
+      if (dateMatch) {
+        try {
+          const parsedD = new Date(`${dateMatch[1]} ${dateMatch[2]} ${dateMatch[3]}`);
+          if (!isNaN(parsedD.getTime())) {
+            detectedDate = parsedD.toISOString().split('T')[0];
+          }
+        } catch (_) {}
+      }
+
+      // If Gemini Key is configured, use Gemini 2.5 Flash to synthesize campaign details
+      if (apiKey) {
+        try {
+          const prompt = `You are an expert social media copywriter for Brother Singapore.
+Analyze the following scraped promotional webpage content and extract the campaign details.
+Return ONLY valid JSON matching this schema:
+{
+  "title": "Clean, attractive campaign/event title (max 8-10 words)",
+  "details": "Clear, comprehensive summary of the promotion, key offers, warranty details, discounts, eligible models, and customer value proposition (2-3 paragraphs)",
+  "date": "YYYY-MM-DD format of campaign end/validity date if clearly mentioned, otherwise null",
+  "categoryType": "promotion",
+  "theme": "red",
+  "suggestedHashtags": ["#BrotherSingapore", "#Promotion", "#AtYourSide"]
+}
+
+URL: ${targetPromoUrl}
+Title Found: ${cleanTitle}
+Page Content:
+${fullPageText.slice(0, 4500)}`;
+
+          const gResp = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }],
+                generationConfig: {
+                  responseMimeType: 'application/json'
+                }
+              })
+            }
+          );
+
+          if (gResp.ok) {
+            const gData = await gResp.json();
+            const jsonText = gData.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (jsonText) {
+              const parsed = JSON.parse(jsonText);
+              return res.status(200).json({
+                success: true,
+                source: 'gemini-ai',
+                data: {
+                  title: parsed.title || cleanTitle || 'Brother Singapore Promotion',
+                  details: parsed.details || fullPageText.slice(0, 600),
+                  date: parsed.date || detectedDate,
+                  categoryType: parsed.categoryType || 'promotion',
+                  theme: parsed.theme || 'red',
+                  suggestedHashtags: parsed.suggestedHashtags || ['#BrotherSingapore', '#Promotion', '#AtYourSide']
+                }
+              });
+            }
+          }
+        } catch (geminiErr) {
+          console.warn('Gemini promo extraction error:', geminiErr.message);
+        }
+      }
+
+      // Offline / Heuristic Fallback
+      return res.status(200).json({
+        success: true,
+        source: 'heuristic',
+        data: {
+          title: cleanTitle || 'Brother Singapore Promotional Campaign',
+          details: fullPageText.slice(0, 600) || rawDesc || 'Special promotional campaign and offerings from Brother Singapore.',
+          date: detectedDate,
+          categoryType: 'promotion',
+          theme: 'red',
+          suggestedHashtags: ['#BrotherSingapore', '#Promotion', '#WorkplaceTech', '#AtYourSide']
+        }
+      });
+    } catch (fetchErr) {
+      console.error('Scrape webpage error:', fetchErr);
+      return res.status(500).json({ success: false, error: fetchErr.message });
+    }
+  }
 
   // If input is a URL, attempt to scrape OpenGraph metadata for the actual post text
   if (type === 'url' && /^https?:\/\//i.test(content)) {

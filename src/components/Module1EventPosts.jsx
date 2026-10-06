@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Calendar, Sparkles, Copy, Check, Download, ArrowRight, Flame, Layers, ExternalLink, RefreshCw, AlertCircle, Database, CheckCircle2, Plus, Trash2, Tag, X, BookOpen } from 'lucide-react';
+import { Calendar, Sparkles, Copy, Check, Download, ArrowRight, Flame, Layers, ExternalLink, RefreshCw, AlertCircle, Database, CheckCircle2, Plus, Trash2, Tag, X, BookOpen, Link2, Globe } from 'lucide-react';
 import { safeGetItem, safeSetItem } from '../lib/storage.js';
 import { logActivity } from '../lib/auditLogger.js';
 
@@ -209,6 +209,9 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
 
   // Modal State for Adding Custom Event
   const [showAddModal, setShowAddModal] = useState(false);
+  const [newEventUrl, setNewEventUrl] = useState('');
+  const [isScraping, setIsScraping] = useState(false);
+  const [scrapeStatus, setScrapeStatus] = useState(null); // { type: 'success' | 'error', message: string }
   const [newEventName, setNewEventName] = useState('');
   const [newEventDate, setNewEventDate] = useState(() => {
     const d = new Date();
@@ -320,6 +323,65 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
     setCustomSubtitle(h.subtitle || h.details || 'Brother Singapore • At your side');
   };
 
+  const handleScrapePromoUrl = async () => {
+    let urlToScrape = newEventUrl?.trim();
+    if (!urlToScrape) {
+      setScrapeStatus({ type: 'error', message: 'Please enter a webpage URL first.' });
+      return;
+    }
+    if (!/^https?:\/\//i.test(urlToScrape)) {
+      urlToScrape = `https://${urlToScrape}`;
+      setNewEventUrl(urlToScrape);
+    }
+
+    setIsScraping(true);
+    setScrapeStatus(null);
+
+    try {
+      const res = await fetch('/api/templates/ingest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'scrape_promo',
+          url: urlToScrape
+        })
+      });
+
+      const resData = await res.json();
+      if (!res.ok || !resData.success) {
+        throw new Error(resData.error || 'Failed to extract promotion info.');
+      }
+
+      const { data } = resData;
+      if (data) {
+        if (data.title) setNewEventName(data.title);
+        if (data.details) setNewEventDetails(data.details);
+        if (data.date) setNewEventDate(data.date);
+        if (data.categoryType) {
+          setNewEventType(data.categoryType);
+          if (data.categoryType === 'corporate') setNewEventCategory('Official Brother Event');
+          else if (data.categoryType === 'sustainability') setNewEventCategory('Sustainability & ESG');
+          else if (data.categoryType === 'promotion') setNewEventCategory('Promotional & Campaign');
+          else setNewEventCategory('Festivals & Celebrations');
+        }
+        if (data.theme) setNewEventTheme(data.theme);
+
+        setScrapeStatus({
+          type: 'success',
+          message: '✓ Webpage scraped! Campaign title, context & details populated.'
+        });
+      }
+    } catch (err) {
+      console.warn('Scraping error:', err);
+      setScrapeStatus({
+        type: 'error',
+        message: `Extraction failed: ${err.message}`
+      });
+    } finally {
+      setIsScraping(false);
+    }
+  };
+
   const handleSaveNewEvent = (e) => {
     e.preventDefault();
     if (!newEventName.trim() || !newEventDate) {
@@ -359,6 +421,8 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
       theme: newEventTheme,
       details: newEventDetails.trim(),
       suggestedHashtags: hashtags,
+      url: newEventUrl.trim(),
+      promoUrl: newEventUrl.trim(),
       isCustom: true
     });
 
@@ -408,6 +472,8 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
     // Reset form fields
     setNewEventName('');
     setNewEventDetails('');
+    setNewEventUrl('');
+    setScrapeStatus(null);
   };
 
   const handleDeleteCustomEvent = (id, e) => {
@@ -673,6 +739,21 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
                       {selectedOccasion.subtitle}
                     </p>
                   )}
+
+                  {(selectedOccasion.promoUrl || selectedOccasion.url) && (
+                    <div className="pt-0.5">
+                      <a
+                        href={selectedOccasion.promoUrl || selectedOccasion.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0f2ea2] dark:text-blue-400 hover:underline"
+                      >
+                        <Globe className="w-3.5 h-3.5" />
+                        <span>View Promotion Webpage</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </div>
+                  )}
                 </div>
 
                 {/* Primary Transfer Action Button */}
@@ -710,40 +791,6 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
                 <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-normal">
                   {selectedOccasion.culturalContext || selectedOccasion.details || 'Official Singapore occasion celebrating community resilience, togetherness, and corporate partnership.'}
                 </p>
-              </div>
-
-              {/* 3 Strategic Messaging Angles (Transferred to Studio) */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 uppercase tracking-wider">
-                    <Sparkles className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
-                    Key Messaging Angles (Transferred to Studio)
-                  </span>
-                  <span className="text-[11px] text-slate-400">
-                    3 Strategic Directions
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  {drafts.map((d, idx) => (
-                    <div
-                      key={d.id || idx}
-                      className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 space-y-1.5"
-                    >
-                      <div className="flex items-center justify-between text-[11px]">
-                        <span className="font-bold text-[#0f2ea2] dark:text-blue-400 font-mono">
-                          Angle 0{idx + 1}
-                        </span>
-                      </div>
-                      <h4 className="text-xs font-bold text-slate-900 dark:text-white line-clamp-1">
-                        {d.name}
-                      </h4>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-3 leading-relaxed">
-                        {d.whyThisWorks}
-                      </p>
-                    </div>
-                  ))}
-                </div>
               </div>
 
               {/* Recommended Hashtags */}
@@ -815,6 +862,64 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
             </div>
 
             <form onSubmit={handleSaveNewEvent} className="p-4 sm:p-5 space-y-4">
+              {/* Promotion / Webpage URL Input & Auto-Extract Action */}
+              <div className="p-3.5 rounded-xl border border-blue-200/90 dark:border-blue-900/60 bg-blue-50/60 dark:bg-blue-950/30 space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-[#0f2ea2] dark:text-blue-400 flex items-center gap-1.5">
+                    <Globe className="w-3.5 h-3.5" />
+                    <span>Promotion / Webpage URL (Auto-Extract)</span>
+                  </label>
+                  <span className="text-[10px] text-slate-400 font-medium">Optional</span>
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                  <div className="relative flex-1">
+                    <Link2 className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    <input
+                      type="url"
+                      placeholder="https://www.brother.com.sg/en/promotions/..."
+                      value={newEventUrl}
+                      onChange={(e) => {
+                        setNewEventUrl(e.target.value);
+                        if (scrapeStatus) setScrapeStatus(null);
+                      }}
+                      className="w-full pl-8 pr-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0f2ea2]"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleScrapePromoUrl}
+                    disabled={isScraping || !newEventUrl?.trim()}
+                    className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2482] disabled:opacity-50 text-white text-xs font-bold transition-all shrink-0 cursor-pointer shadow-xs active:scale-95"
+                  >
+                    {isScraping ? (
+                      <>
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                        <span>Scraping...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                        <span>Scrape & Auto-Fill</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {scrapeStatus && (
+                  <div className={`text-[11px] font-medium flex items-center gap-1.5 pt-0.5 ${
+                    scrapeStatus.type === 'error' ? 'text-rose-500' : 'text-emerald-600 dark:text-emerald-400'
+                  }`}>
+                    {scrapeStatus.type === 'error' ? <AlertCircle className="w-3.5 h-3.5 shrink-0" /> : <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />}
+                    <span>{scrapeStatus.message}</span>
+                  </div>
+                )}
+
+                <p className="text-[10px] text-slate-500 dark:text-slate-400">
+                  Paste any Brother Singapore promotion page URL to automatically scrape the campaign title, warranty terms, and promotion details.
+                </p>
+              </div>
+
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                   Event Title / Campaign Name <span className="text-rose-500">*</span>
