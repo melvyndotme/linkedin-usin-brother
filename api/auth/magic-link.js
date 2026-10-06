@@ -147,13 +147,31 @@ export default async function handler(req, res) {
     });
   }
 
+  const crypto = await import('crypto');
+  const AUTH_SECRET = process.env.AUTH_SECRET || 'brother-singapore-linkedus-secret-2026';
+
+  const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
   const token = `tok_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
   const baseUrl = appUrl || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://linked-us-in.vercel.app');
   const magicLinkUrl = `${baseUrl}/?token=${token}&email=${encodeURIComponent(matchedUser.email)}&name=${encodeURIComponent(matchedUser.name)}&role=${encodeURIComponent(matchedUser.role)}`;
 
+  // Secure HMAC signature of OTP code
+  const otpPayload = `${normalizedEmail}:${otpCode}:${matchedUser.name}:${matchedUser.role}`;
+  const otpHash = crypto.createHmac('sha256', AUTH_SECRET).update(otpPayload).digest('hex');
+
+  // Register session for PWA background polling
+  global.__sessions = global.__sessions || new Map();
+  global.__sessions.set(token, {
+    user: matchedUser,
+    otpCode,
+    verified: false,
+    createdAt: Date.now(),
+    expiresAt: Date.now() + 15 * 60 * 1000
+  });
+
   const activeResendKey = resendKey || process.env.RESEND_API_KEY;
 
-  // 2. If Resend Key is available, send real email!
+  // 2. If Resend Key is available, send real email with both 1-click link AND 6-digit PWA code
   if (activeResendKey && activeResendKey.startsWith('re_')) {
     try {
       const emailHtml = `
@@ -166,26 +184,43 @@ export default async function handler(req, res) {
             .card { max-width: 540px; margin: 0 auto; background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden; }
             .header { background: #0f2ea2; padding: 28px 24px; text-align: center; color: #ffffff; }
             .body { padding: 32px 24px; color: #1e293b; }
-            .btn { display: inline-block; background-color: #0f2ea2; color: #ffffff !important; font-weight: bold; text-decoration: none; padding: 14px 28px; border-radius: 12px; font-size: 14px; margin: 20px 0; }
+            .otp-box { background: #eff6ff; border: 2px dashed #bfdbfe; border-radius: 14px; padding: 18px; text-align: center; margin: 24px 0; }
+            .otp-code { font-size: 32px; font-weight: 800; letter-spacing: 8px; color: #0f2ea2; font-family: monospace; }
+            .btn { display: inline-block; background-color: #0f2ea2; color: #ffffff !important; font-weight: bold; text-decoration: none; padding: 14px 28px; border-radius: 12px; font-size: 14px; margin: 16px 0; }
             .footer { background: #f8fafc; padding: 16px; text-align: center; font-size: 12px; color: #64748b; border-top: 1px solid #e2e8f0; }
           </style>
         </head>
         <body>
           <div class="card">
             <div class="header">
-              <h1 style="margin: 0; font-size: 22px; font-weight: bold;">LinkedUsIn Studio</h1>
+              <h1 style="margin: 0; font-size: 22px; font-weight: bold;">LinkedUs Studio</h1>
               <p style="margin: 4px 0 0 0; font-size: 13px; opacity: 0.9;">Brother Singapore AI Content Intelligence</p>
             </div>
             <div class="body">
               <p style="font-size: 15px; margin-top: 0;">Hello <strong>${matchedUser.name}</strong>,</p>
               <p style="font-size: 14px; line-height: 1.6; color: #475569;">
-                You requested a secure magic link to sign in to <strong>LinkedUsIn Studio</strong> as <strong>${matchedUser.role}</strong>.
+                You requested sign-in access to <strong>LinkedUs Studio</strong> as <strong>${matchedUser.role}</strong>.
               </p>
-              <div style="text-align: center; margin: 28px 0;">
-                <a href="${magicLinkUrl}" class="btn" style="color: #ffffff;">Sign in to LinkedUsIn Studio →</a>
+
+              <!-- Option A: 6-Digit Code for PWA Home Screen App -->
+              <div class="otp-box">
+                <p style="margin: 0 0 6px 0; font-size: 11px; font-weight: 700; color: #1e40af; text-transform: uppercase; letter-spacing: 1px;">
+                  Mobile App 6-Digit Code (Enter in PWA)
+                </p>
+                <div class="otp-code">${otpCode}</div>
+                <p style="margin: 6px 0 0 0; font-size: 11px; color: #3b82f6;">
+                  If using the installed LinkedUs Home Screen app, enter this code directly in the app.
+                </p>
               </div>
-              <p style="font-size: 12px; color: #94a3b8; line-height: 1.5;">
-                This link is valid for 15 minutes and can only be used once. If you did not request this email, you can safely ignore it.
+
+              <!-- Option B: 1-Click Magic Link -->
+              <div style="text-align: center; margin: 20px 0;">
+                <p style="font-size: 13px; color: #64748b; margin-bottom: 8px;">Or sign in with 1-click:</p>
+                <a href="${magicLinkUrl}" class="btn" style="color: #ffffff;">Sign in to LinkedUs Studio →</a>
+              </div>
+
+              <p style="font-size: 12px; color: #94a3b8; line-height: 1.5; margin-top: 24px;">
+                This link and verification code are valid for 15 minutes. If you did not request this email, you can safely ignore it.
               </p>
             </div>
             <div class="footer">
@@ -207,7 +242,7 @@ export default async function handler(req, res) {
         body: JSON.stringify({
           from: fromAddress,
           to: [matchedUser.email],
-          subject: 'Sign in to LinkedUsIn Studio (Brother Singapore)',
+          subject: `${otpCode} is your LinkedUs Studio sign-in code`,
           html: emailHtml
         })
       });
@@ -218,21 +253,27 @@ export default async function handler(req, res) {
         logAuthAudit(activeNotionKey, 'Magic Link Created (Delivery Warning)', matchedUser.name, matchedUser.email, matchedUser.role, `Resend Notice: ${resendData.message || 'Free tier limit'}`, 'Warning');
         return res.status(200).json({
           success: true,
-          message: `Magic link created! (Resend Notice: ${resendData.message || 'Free tier test domain restriction'})`,
+          message: `Sign-in credentials generated! (Code: ${otpCode})`,
           user: matchedUser,
           magicLinkUrl,
+          otpCode,
+          otpHash,
+          token,
           resendError: resendData.message,
           simulated: false
         });
       }
 
-      logAuthAudit(activeNotionKey, 'Magic Link Sent via Email', matchedUser.name, matchedUser.email, matchedUser.role, `Email delivered via Resend ID ${resendData.id}`, 'Success');
+      logAuthAudit(activeNotionKey, 'Magic Link & OTP Sent via Email', matchedUser.name, matchedUser.email, matchedUser.role, `Email delivered via Resend ID ${resendData.id}`, 'Success');
 
       return res.status(200).json({
         success: true,
-        message: `Magic link successfully delivered to ${matchedUser.email} via Resend!`,
+        message: `Sign-in credentials successfully delivered to ${matchedUser.email}!`,
         user: matchedUser,
         magicLinkUrl,
+        otpCode,
+        otpHash,
+        token,
         resendId: resendData.id,
         simulated: false
       });
@@ -241,13 +282,16 @@ export default async function handler(req, res) {
     }
   }
 
-  logAuthAudit(activeNotionKey, 'Magic Link Generated (Direct Mode)', matchedUser.name, matchedUser.email, matchedUser.role, 'Generated token for direct authentication', 'Success');
+  logAuthAudit(activeNotionKey, 'Magic Link & OTP Generated (Direct Mode)', matchedUser.name, matchedUser.email, matchedUser.role, 'Generated token & code for direct authentication', 'Success');
 
   return res.status(200).json({
     success: true,
-    message: `Magic link dispatched to ${matchedUser.email}!`,
+    message: `Sign-in code dispatched to ${matchedUser.email}!`,
     user: matchedUser,
     magicLinkUrl,
+    otpCode,
+    otpHash,
+    token,
     simulated: !activeResendKey
   });
 }

@@ -14,6 +14,32 @@ export default function LoginPage({ onLoginSuccess, isDark }) {
   const [magicSentData, setMagicSentData] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [otpInput, setOtpInput] = useState('');
+  const [verifyingOtp, setVerifyingOtp] = useState(false);
+  const [otpError, setOtpError] = useState(null);
+
+  // Background polling for session verification if user taps magic link in email app
+  useEffect(() => {
+    if (!magicSentData?.token) return;
+    let isMounted = true;
+    const pollInterval = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/auth/session?token=${encodeURIComponent(magicSentData.token)}`);
+        const data = await res.json();
+        if (isMounted && data.success && data.verified && data.user) {
+          clearInterval(pollInterval);
+          onLoginSuccess(data.user);
+        }
+      } catch (err) {
+        // silent polling
+      }
+    }, 2500);
+
+    return () => {
+      isMounted = false;
+      clearInterval(pollInterval);
+    };
+  }, [magicSentData?.token, onLoginSuccess]);
 
   // Cooldown countdown timer
   useEffect(() => {
@@ -23,6 +49,42 @@ export default function LoginPage({ onLoginSuccess, isDark }) {
     }
     return () => clearTimeout(timer);
   }, [resendCooldown]);
+
+  const handleVerifyOtp = async (codeToVerify = otpInput) => {
+    const cleanCode = String(codeToVerify).trim().replace(/\s+/g, '');
+    if (cleanCode.length !== 6) {
+      setOtpError('Please enter a 6-digit verification code.');
+      return;
+    }
+
+    setVerifyingOtp(true);
+    setOtpError(null);
+
+    try {
+      const res = await fetch('/api/auth/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: magicSentData?.user?.email || email,
+          otpCode: cleanCode,
+          otpHash: magicSentData?.otpHash,
+          name: magicSentData?.user?.name,
+          role: magicSentData?.user?.role
+        })
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success && data.user) {
+        onLoginSuccess(data.user);
+      } else {
+        setOtpError(data.error || 'Invalid 6-digit code. Please try again.');
+      }
+    } catch (err) {
+      setOtpError('Verification connection error. Please try again.');
+    } finally {
+      setVerifyingOtp(false);
+    }
+  };
 
   const handleSendMagicLink = async (targetEmail = email, isResend = false) => {
     if (!targetEmail || !targetEmail.includes('@')) {
@@ -165,13 +227,61 @@ export default function LoginPage({ onLoginSuccess, isDark }) {
                   )}
                 </div>
 
+                {/* 6-Digit Verification Code Entry for PWA (Keeps user inside PWA!) */}
+                <div className="p-4 bg-white dark:bg-slate-900 rounded-2xl border-2 border-blue-200 dark:border-blue-900 shadow-sm space-y-3 text-left">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-800 dark:text-slate-100 flex items-center gap-1.5">
+                      <ShieldCheck className="w-4 h-4 text-[#0f2ea2] dark:text-blue-400" />
+                      <span>Enter 6-Digit Code from Email</span>
+                    </span>
+                    <span className="text-[10px] text-blue-600 dark:text-blue-400 font-semibold bg-blue-50 dark:bg-blue-950 px-2 py-0.5 rounded-full">
+                      PWA In-App
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-normal">
+                    Enter the 6-digit verification code sent to your email to log in directly inside this app without leaving:
+                  </p>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      maxLength={6}
+                      value={otpInput}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/[^0-9]/g, '');
+                        setOtpInput(val);
+                        if (val.length === 6) {
+                          handleVerifyOtp(val);
+                        }
+                      }}
+                      placeholder="• • • • • •"
+                      className="flex-1 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2.5 text-center text-lg font-mono font-bold tracking-[6px] text-slate-900 dark:text-white focus:outline-none focus:border-[#0f2ea2]"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleVerifyOtp(otpInput)}
+                      disabled={verifyingOtp || otpInput.length < 6}
+                      className="px-4 py-2.5 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold shadow-md transition-all disabled:opacity-50 active:scale-95 cursor-pointer flex items-center gap-1 shrink-0"
+                    >
+                      {verifyingOtp ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
+                      <span>Verify</span>
+                    </button>
+                  </div>
+                  {otpError && (
+                    <p className="text-xs text-rose-600 dark:text-rose-400 font-medium">
+                      {otpError}
+                    </p>
+                  )}
+                </div>
+
                 {/* Instant 1-Click Direct Access */}
                 <div className="space-y-2 pt-1">
                   <button
                     onClick={() => onLoginSuccess(magicSentData.user)}
                     className="w-full flex items-center justify-center gap-2 bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold py-3 rounded-xl shadow-lg transition-all active:scale-95 cursor-pointer"
                   >
-                    <span>Enter LinkedUsIn Studio as {magicSentData.user?.name?.split(' ')[0] || 'User'}</span>
+                    <span>Enter LinkedUs Studio as {magicSentData.user?.name?.split(' ')[0] || 'User'}</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400">

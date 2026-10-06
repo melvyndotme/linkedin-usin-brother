@@ -199,6 +199,12 @@ export default function App() {
     return { content: '', title: '', occasion: null, activeDraft: null };
   });
 
+  // Detect whether running as installed standalone PWA on mobile/desktop
+  const isStandaloneApp = typeof window !== 'undefined' && (
+    window.matchMedia('(display-mode: standalone)').matches || 
+    window.navigator.standalone === true
+  );
+
   // Authentication State
   const [currentUser, setCurrentUser] = useState(() => {
     const params = new URLSearchParams(window.location.search);
@@ -209,6 +215,10 @@ export default function App() {
         email: decodeURIComponent(email),
         role: params.get('role') || 'User'
       };
+    }
+    // When installed as standalone PWA, ensure login screen is required until explicitly authenticated in PWA
+    if (isStandaloneApp && safeGetItem('pwa_authenticated') !== 'true') {
+      return null;
     }
     const saved = safeGetItem('linkedusin_user');
     if (saved) {
@@ -224,6 +234,9 @@ export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('token') && params.get('email')) return true;
+    if (isStandaloneApp && safeGetItem('pwa_authenticated') !== 'true') {
+      return false;
+    }
     return !!safeGetItem('linkedusin_user');
   });
 
@@ -244,13 +257,22 @@ export default function App() {
       setCurrentUser(user);
       setIsAuthenticated(true);
       safeSetItem('linkedusin_user', JSON.stringify(user));
+      safeSetItem('pwa_authenticated', 'true');
+
+      // Notify server session pool that token is verified (auto-authenticates waiting PWA in background!)
+      fetch('/api/auth/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, user })
+      }).catch(() => {});
+
       logActivity({
         event: 'User Session Authenticated',
         category: 'Auth',
         details: `Signed in as ${user.name} (${user.role}) via magic link`,
         user
       });
-      // Clean URL
+      // Clean URL while keeping path
       window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, []);
@@ -283,6 +305,7 @@ export default function App() {
     setCurrentUser(user);
     setIsAuthenticated(true);
     safeSetItem('linkedusin_user', JSON.stringify(user));
+    safeSetItem('pwa_authenticated', 'true');
     logActivity({
       event: 'User Logged In',
       category: 'Auth',
@@ -301,6 +324,7 @@ export default function App() {
       });
     }
     safeRemoveItem('linkedusin_user');
+    safeRemoveItem('pwa_authenticated');
     setIsAuthenticated(false);
     setCurrentUser(null);
   };
