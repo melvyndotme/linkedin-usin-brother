@@ -349,7 +349,7 @@ export default function HomeFeedAnalytics({ isDark, onNavigateToModule }) {
                     </div>
                   </div>
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-[#0f2ea2] dark:bg-blue-950 dark:text-blue-300">
-                    {post.impressions?.toLocaleString()} Impr
+                    {post.likes} Reactions • {post.comments} {post.comments === 1 ? 'Comment' : 'Comments'}
                   </span>
                 </div>
                 <div className="p-3.5 text-xs whitespace-pre-wrap leading-relaxed text-slate-700 dark:text-slate-300 max-h-48 overflow-y-auto">
@@ -418,7 +418,9 @@ export default function HomeFeedAnalytics({ isDark, onNavigateToModule }) {
                 </div>
 
                 <div className="p-3 flex items-center justify-between text-xs text-slate-500">
-                  <span className="font-semibold">👍 {post.likes || 16} • {post.comments || 4} comments • {post.reposts || 2} reposts</span>
+                  <span className="font-semibold">
+                    👍 {post.likes} • {post.comments} {post.comments === 1 ? 'comment' : 'comments'} • {post.reposts || 1} {post.reposts === 1 ? 'repost' : 'reposts'}
+                  </span>
                   <a
                     href={post.postUrl || "https://www.linkedin.com/company/brother-international-singapore-pte-ltd/posts/"}
                     target="_blank"
