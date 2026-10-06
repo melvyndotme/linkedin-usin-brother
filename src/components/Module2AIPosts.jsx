@@ -26,28 +26,43 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
 
   // Cache results per keyword tab: { 'all': { isLive, results }, 0: { isLive, results }, ... }
   const [tabResults, setTabResults] = useState(() => {
-    const initial = {
-      'all': {
-        isLive: false,
-        results: generateDynamicTopicalNews('Work-Life Balance & Flexibility', 5)
-      }
-    };
-    [
+    const defaultKeywords = [
       { text: 'Work-Life Balance & Flexibility', timeNumber: 7, timeUnit: 'days' },
       { text: 'workplace productivity', timeNumber: 7, timeUnit: 'days' },
       { text: 'smart document automation', timeNumber: 7, timeUnit: 'days' },
       { text: 'Brother Singapore', timeNumber: 14, timeUnit: 'days' },
       { text: 'enterprise agentic AI', timeNumber: 7, timeUnit: 'days' }
-    ].forEach((kwObj, i) => {
+    ];
+
+    const initial = {};
+    const allCombined = [];
+    const seenTitles = new Set();
+
+    defaultKeywords.forEach((kwObj, i) => {
+      const items = generateDynamicTopicalNews(kwObj.text, 5).map((item, idx) => ({
+        ...item,
+        id: `init-${i}-${idx}`,
+        topic: kwObj.text
+      }));
       initial[i] = {
         isLive: false,
-        results: generateDynamicTopicalNews(kwObj.text, 5).map((item, idx) => ({
-          ...item,
-          id: `init-${i}-${idx}`,
-          topic: kwObj.text
-        }))
+        results: items,
+        totalFound: items.length
       };
+      items.forEach(it => {
+        if (!seenTitles.has(it.headline)) {
+          seenTitles.add(it.headline);
+          allCombined.push(it);
+        }
+      });
     });
+
+    initial['all'] = {
+      isLive: false,
+      results: allCombined,
+      totalFound: allCombined.length
+    };
+
     return initial;
   });
 
@@ -248,19 +263,20 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
 
       const indivRes = await Promise.all(indivPromises);
 
-      // Aggregate top live articles from active tabs so "All Combined" showcases live articles from every tab
+      // Aggregate all live articles from active tabs so "All Topics" showcases all articles from every tab (up to 25 articles)
       const aggregatedFromTabs = [];
       const seenTitles = new Set();
       indivRes.forEach(item => {
         (item.results || []).forEach(r => {
-          if (r.headline && !seenTitles.has(r.headline)) {
-            seenTitles.add(r.headline);
+          const key = r.link || r.headline;
+          if (key && !seenTitles.has(key)) {
+            seenTitles.add(key);
             aggregatedFromTabs.push(r);
           }
         });
       });
 
-      const finalAllResults = aggregatedFromTabs.slice(0, 5);
+      const finalAllResults = aggregatedFromTabs;
 
       const newTabResults = {
         'all': {
@@ -385,58 +401,11 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
             <h2 className={`text-lg sm:text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
               News & Trend Search Engine
             </h2>
-          </div>
-
-          <div className="flex items-center gap-2 w-full sm:w-auto">
-            <button
-              onClick={() => {
-                logActivity({
-                  event: 'Opened News Draft in Studio',
-                  category: 'Content Generation',
-                  details: `Topic: "${activeNews?.headline || 'News & Trends'}" - Angle: ${currentDraft?.title || currentDraft?.name || 'Thought Leadership'}`,
-                  status: 'Success'
-                });
-                onNavigateToDraftStudio({
-                  content: currentDraft.postContent || currentDraft.post,
-                  title: activeNews?.headline || 'News & Trends',
-                  occasion: newsOccasion,
-                  activeDraft: formattedDraftForStudio,
-                  availableDrafts: baseDrafts
-                });
-              }}
-              className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md transition-all active:scale-95"
-            >
-              <span>Open in Content Studio</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              Real-time Google News intelligence for Brother Singapore. Click &ldquo;Draft in Content Studio&rdquo; on any article below to generate targeted posts.
+            </p>
           </div>
         </div>
-      </div>
-
-      {/* Live Google News Engine indicator */}
-      <div className={`p-3.5 sm:p-4 rounded-2xl border text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
-        isDark ? 'bg-slate-900/80 border-slate-800 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-700'
-      }`}>
-        <div className="flex items-center gap-2.5">
-          <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-          <span>
-            {hasKey ? (
-              <><strong>Real-Time Search Active</strong> — Powered by Serper.dev Google News indexing.</>
-            ) : (
-              <><strong>Real-Time News Engine Active</strong> — Powered by Google News Singapore feed (Zero-Key Real-Time Search). Fresh articles update dynamically for any search query.</>
-            )}
-          </span>
-        </div>
-        {onNavigateToSettings && (
-          <button
-            type="button"
-            onClick={onNavigateToSettings}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold text-[11px] shrink-0 transition-all cursor-pointer self-start sm:self-auto"
-          >
-            <span>{hasKey ? 'Manage API Key' : 'Add Serper Key (Optional)'}</span>
-            <ArrowRight className="w-3 h-3" />
-          </button>
-        )}
       </div>
 
       {/* Sleek Search & Intelligence Console */}

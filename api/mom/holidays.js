@@ -151,15 +151,73 @@ function enrichHoliday(h, refDate = new Date()) {
     status,
     isUrgent,
     t10Active: isUrgent,
-    source: 'Ministry of Manpower Singapore (mom.gov.sg)'
+    source: 'Data.gov.sg Collection 691 (Ministry of Manpower)'
   };
 }
 
 // In-memory cache
 let cachedHolidays = null;
 let lastFetchTime = 0;
+let lastSourceType = 'data_gov_sg_collection_691';
 const CACHE_TTL_MS = 60 * 60 * 1000; // 1 Hour
 
+// Primary: Official Data.gov.sg API (Collection 691 - Singapore Public Holidays)
+async function fetchFromDataGovSg() {
+  const url = 'https://data.gov.sg/api/action/datastore_search?resource_id=d_8ef23381f9417e4d4254ee8b4dcdb176&limit=300';
+  const res = await fetch(url, {
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',
+      'Accept': 'application/json'
+    }
+  });
+
+  if (!res.ok) {
+    throw new Error(`Data.gov.sg API returned HTTP ${res.status}`);
+  }
+
+  const data = await res.json();
+  if (!data?.success || !Array.isArray(data?.result?.records)) {
+    throw new Error('Data.gov.sg response format invalid');
+  }
+
+  const recs = data.result.records;
+  // Sort chronologically by ISO date
+  recs.sort((a, b) => (a.date > b.date ? 1 : -1));
+
+  const list = [];
+  for (let i = 0; i < recs.length; i++) {
+    const cur = recs[i];
+    const cleanName = (cur.holiday || '').replace(/’/g, "'").trim();
+    const yr = parseInt(cur.date.split('-')[0], 10);
+
+    // Group multi-day holidays like Chinese New Year Day 1 & Day 2
+    if (i + 1 < recs.length && (recs[i + 1].holiday || '').replace(/’/g, "'").trim() === cleanName) {
+      const next = recs[i + 1];
+      list.push({
+        name: cleanName,
+        isoDate: cur.date,
+        endDate: next.date,
+        day: `${cur.day} ${next.day}`,
+        year: yr,
+        sourceId: cur._id
+      });
+      i++; // Skip paired day
+    } else {
+      list.push({
+        name: cleanName,
+        isoDate: cur.date,
+        endDate: null,
+        day: cur.day,
+        year: yr,
+        sourceId: cur._id
+      });
+    }
+  }
+
+  return list;
+}
+
+// Fallback: Direct MOM Scraper if Data.gov.sg API is ever unavailable
 async function fetchFromMOM() {
   const url = 'https://www.mom.gov.sg/employment-practices/public-holidays';
   const res = await fetch(url, {
@@ -266,17 +324,33 @@ export default async function handler(req, res) {
     isLive = true;
   } else {
     try {
-      rawHolidays = await fetchFromMOM();
+      rawHolidays = await fetchFromDataGovSg();
       if (rawHolidays && rawHolidays.length > 0) {
         cachedHolidays = rawHolidays;
         lastFetchTime = now;
+        lastSourceType = 'data_gov_sg_collection_691';
         isLive = true;
       } else {
-        rawHolidays = FALLBACK_HOLIDAYS_RAW;
+        throw new Error('No records returned from Data.gov.sg');
       }
-    } catch (err) {
-      console.warn('[MOM API Scraper] Live fetch failed, using official fallback:', err.message);
-      rawHolidays = cachedHolidays || FALLBACK_HOLIDAYS_RAW;
+    } catch (dataGovErr) {
+      console.warn('[Data.gov.sg Collection 691 API] Fetch failed, falling back to MOM website:', dataGovErr.message);
+      try {
+        rawHolidays = await fetchFromMOM();
+        if (rawHolidays && rawHolidays.length > 0) {
+          cachedHolidays = rawHolidays;
+          lastFetchTime = now;
+          lastSourceType = 'mom_gov_sg_scraper';
+          isLive = true;
+        } else {
+          rawHolidays = FALLBACK_HOLIDAYS_RAW;
+          lastSourceType = 'fallback_dataset';
+        }
+      } catch (momErr) {
+        console.warn('[MOM API Scraper] Live fetch failed, using official fallback:', momErr.message);
+        rawHolidays = cachedHolidays || FALLBACK_HOLIDAYS_RAW;
+        lastSourceType = 'fallback_dataset';
+      }
     }
   }
 
@@ -298,8 +372,10 @@ export default async function handler(req, res) {
 
   return res.status(200).json({
     success: true,
-    source: isLive ? 'live_mom_gov_sg' : 'cached_mom_official',
-    sourceUrl: 'https://www.mom.gov.sg/employment-practices/public-holidays',
+    source: isLive ? (lastSourceType || 'data_gov_sg_collection_691') : 'cached_official_mom',
+    sourceUrl: 'https://data.gov.sg/collections/691/view',
+    collectionId: '691',
+    agency: 'Ministry of Manpower (MOM)',
     year: requestedYear,
     totalCount: enriched.length,
     holidays: enriched,

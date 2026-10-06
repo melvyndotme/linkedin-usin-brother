@@ -553,18 +553,11 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
             <button
               onClick={() => fetchHolidays(selectedYear, true)}
               disabled={loadingHolidays}
-              title="Refresh Singapore Public Holidays from MOM"
+              title="Sync Singapore Public Holidays from Data.gov.sg (Collection 691 / MOM)"
               className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-semibold transition-all cursor-pointer"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loadingHolidays ? 'animate-spin' : ''}`} />
-              <span>Refresh MOM</span>
-            </button>
-            <button
-              onClick={() => setShowAddModal(true)}
-              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Add Custom Event / Promo</span>
+              <span>Sync Data.gov.sg (MOM)</span>
             </button>
           </div>
         </div>
@@ -574,7 +567,7 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
       <div className={`p-3 sm:p-4 rounded-2xl border flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 ${
         isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
       }`}>
-        <div className="flex items-center gap-1.5 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={() => setEventCategoryFilter('all')}
             className={`px-3.5 py-1.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${
@@ -610,6 +603,15 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
             }`}
           >
             Custom & Promotions ({combinedEvents.filter(e => e.isCustom).length})
+          </button>
+
+          {/* Add Custom Event button placed in same row with distinct emerald accent */}
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer sm:ml-1"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>+ Add Custom Event / Promo</span>
           </button>
         </div>
 

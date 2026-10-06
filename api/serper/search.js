@@ -2,13 +2,18 @@
 // Primary: Serper.dev Google News API (when key is available)
 // Resilient Fallback: Real-time Google News RSS Feed (Zero-key live search for Singapore & regional news)
 
+function refineQueryForSearch(query) {
+  const clean = (query || 'Singapore AI enterprise').trim();
+  const lower = clean.toLowerCase();
+  if (lower === 'brother singapore' || lower.includes('brother singapore') || lower === 'brother') {
+    return '("Brother International" OR "Brother Singapore" OR "Brother Industries") AND (printer OR scanner OR technology OR corporate OR "at your side" OR ESG OR printing OR office OR hybrid) -"big brother" -brothers -"younger brother" -"elder brother" -"Koh Brothers"';
+  }
+  return clean;
+}
+
 async function fetchGoogleNewsRSS(query, maxResults = 10, tbs = 'qdr:d') {
   const cleanQuery = (query || 'Brother Singapore workplace').trim();
-  
-  let refinedQuery = cleanQuery;
-  if (cleanQuery.toLowerCase() === 'brother singapore') {
-    refinedQuery = '"Brother Singapore" OR (Brother printer Singapore) OR (Brother International Singapore)';
-  }
+  const refinedQuery = refineQueryForSearch(cleanQuery);
   
   // Map tbs parameter to Google News RSS timeframe syntax when applicable
   let timeframeParam = '';
@@ -157,7 +162,7 @@ export default async function handler(req, res) {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          q: (query || 'Singapore AI enterprise').trim(),
+          q: refineQueryForSearch(query),
           num: num || 10,
           tbs: tbs || 'qdr:d'
         })

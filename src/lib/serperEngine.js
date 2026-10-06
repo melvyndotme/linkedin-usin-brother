@@ -175,6 +175,15 @@ function isDateWithinWindow(dateStr, unit, number) {
   return true;
 }
 
+export function refineQueryForSearch(query) {
+  const clean = (query || 'enterprise agentic AI productivity').trim();
+  const lower = clean.toLowerCase();
+  if (lower === 'brother singapore' || lower.includes('brother singapore') || lower === 'brother') {
+    return '("Brother International" OR "Brother Singapore" OR "Brother Industries") AND (printer OR scanner OR technology OR corporate OR "at your side" OR ESG OR printing OR office OR hybrid) -"big brother" -brothers -"younger brother" -"elder brother" -"Koh Brothers"';
+  }
+  return clean;
+}
+
 /**
  * Execute real-time news search via Serper.dev with date-filtering (tbs parameter)
  */
@@ -199,8 +208,10 @@ export async function searchSerperWithTimeframe({
     tbs = "qdr:m";
   }
 
+  const refinedTargetQuery = refineQueryForSearch(query);
+
   const searchPayload = {
-    q: query.trim(),
+    q: refinedTargetQuery,
     num: Math.max(maxResults * 2, 10), // Fetch candidates to filter strictly
     tbs
   };

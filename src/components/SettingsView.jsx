@@ -646,16 +646,16 @@ export default function SettingsView({ isDark }) {
             <div className="flex items-center gap-2">
               <Globe className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
               <h3 className="text-xs font-bold text-emerald-900 dark:text-emerald-300 uppercase tracking-wider">
-                Singapore MOM Public Holidays Integration (/api/mom/holidays)
+                Singapore Data.gov.sg Public Holidays (Collection 691 / MOM)
               </h3>
             </div>
             <span className="text-[10px] font-mono bg-emerald-700 text-white px-2 py-0.5 rounded-full font-bold self-start sm:self-auto">
-              Live Scraper Active
+              Data.gov.sg Live API Active
             </span>
           </div>
 
           <p className="text-xs text-emerald-900/80 dark:text-emerald-300/80">
-            Internal micro-API that parses official Singapore public holiday tables from <code>https://www.mom.gov.sg/employment-practices/public-holidays</code> for 2025, 2026, and 2027. Automatically powers T-10 festive drafting countdowns.
+            Official Ministry of Manpower public holidays API synced directly from <code>https://data.gov.sg/collections/691/view</code> for 2025, 2026, and 2027. Automatically powers T-10 festive drafting countdowns and brand templates.
           </p>
 
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-1">
@@ -665,7 +665,7 @@ export default function SettingsView({ isDark }) {
               className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition-all disabled:opacity-50 cursor-pointer"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${momTesting ? 'animate-spin' : ''}`} />
-              <span>{momTesting ? 'Scraping mom.gov.sg...' : 'Test Live MOM Integration (/api/mom/holidays)'}</span>
+              <span>{momTesting ? 'Syncing data.gov.sg...' : 'Test Data.gov.sg Live Sync (/api/mom/holidays)'}</span>
             </button>
 
             {momTestStatus && (
