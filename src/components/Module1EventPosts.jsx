@@ -474,6 +474,18 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
     setNewEventDetails('');
     setNewEventUrl('');
     setScrapeStatus(null);
+
+    // Auto-launch into Content Studio
+    const evtDrafts = generateEventDrafts(newEvent);
+    if (onNavigateToDraftStudio) {
+      onNavigateToDraftStudio({
+        content: newEvent.details || newEvent.subtitle || '',
+        title: `${newEvent.name} ${newEvent.year || 2026}`,
+        occasion: newEvent,
+        activeDraft: evtDrafts[0],
+        availableDrafts: evtDrafts
+      });
+    }
   };
 
   const handleDeleteCustomEvent = (id, e) => {
@@ -526,318 +538,227 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
             <div className="flex flex-wrap items-center gap-2 mb-1.5 sm:mb-2">
               <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#0f2ea2]/10 text-[#0f2ea2] dark:text-blue-400 text-[11px] font-bold uppercase tracking-wider">
                 <Calendar className="w-3.5 h-3.5" />
-                Event Content Generator
+                Singapore Event & Campaign Hub
               </div>
             </div>
             <h2 className={`text-lg sm:text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
-              Singapore Public Holidays & Events
+              Events, Public Holidays & Promotions
             </h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              Select any upcoming Singapore occasion or promotional campaign to immediately draft 3 LinkedIn posts in Content Studio.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto">
+            <button
+              onClick={() => fetchHolidays(selectedYear, true)}
+              disabled={loadingHolidays}
+              title="Refresh Singapore Public Holidays from MOM"
+              className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-semibold transition-all cursor-pointer"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${loadingHolidays ? 'animate-spin' : ''}`} />
+              <span>Refresh MOM</span>
+            </button>
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add Custom Event / Promo</span>
+            </button>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
-        {/* Left Column: Events & Singapore Public Holidays List */}
-        <div className="lg:col-span-4 space-y-4">
-          <div className={`p-3.5 sm:p-4 rounded-2xl border ${
-            isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
-          }`}>
-            <div className="flex items-center justify-between mb-2.5">
-              <h3 className={`text-xs font-bold uppercase tracking-wider ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                {eventCategoryFilter === 'public_holiday'
-                  ? `Singapore Public Holidays (${displayedEvents.length})`
-                  : eventCategoryFilter === 'custom'
-                    ? `Custom & Promos (${displayedEvents.length})`
-                    : `Events & Holidays (${displayedEvents.length})`}
-              </h3>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => fetchHolidays(selectedYear, true)}
-                  disabled={loadingHolidays}
-                  title="Refresh Singapore Public Holidays from MOM"
-                  className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-500 dark:text-slate-400 hover:text-[#0f2ea2] dark:hover:text-blue-400 transition-colors cursor-pointer"
-                >
-                  <RefreshCw className={`w-3.5 h-3.5 ${loadingHolidays ? 'animate-spin' : ''}`} />
-                  <span>Refresh</span>
-                </button>
-                <span className="text-slate-300 dark:text-slate-700">·</span>
-                <button
-                  onClick={() => setShowAddModal(true)}
-                  className="inline-flex items-center gap-1 text-[11px] font-bold text-[#0f2ea2] dark:text-blue-400 hover:underline cursor-pointer"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Add Event</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Filter Pills & Year Selector */}
-            <div className="flex items-center gap-1.5 mb-3">
-              <div className="grid grid-cols-3 gap-1 bg-slate-100 dark:bg-slate-950 p-1 rounded-xl flex-1">
-                <button
-                  onClick={() => setEventCategoryFilter('all')}
-                  className={`py-1.5 text-[11px] font-bold rounded-lg transition-all text-center ${
-                    eventCategoryFilter === 'all'
-                      ? 'bg-white dark:bg-slate-800 text-[#0f2ea2] dark:text-blue-400 shadow-sm'
-                      : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
-                  }`}
-                >
-                  All ({combinedEvents.length})
-                </button>
-                <button
-                  onClick={() => setEventCategoryFilter('public_holiday')}
-                  className={`py-1.5 text-[11px] font-bold rounded-lg transition-all text-center ${
-                    eventCategoryFilter === 'public_holiday'
-                      ? 'bg-white dark:bg-slate-800 text-[#0f2ea2] dark:text-blue-400 shadow-sm'
-                      : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
-                  }`}
-                >
-                  Public ({combinedEvents.filter(e => e.eventType === 'public_holiday').length})
-                </button>
-                <button
-                  onClick={() => setEventCategoryFilter('custom')}
-                  className={`py-1.5 text-[11px] font-bold rounded-lg transition-all text-center ${
-                    eventCategoryFilter === 'custom'
-                      ? 'bg-white dark:bg-slate-800 text-[#0f2ea2] dark:text-blue-400 shadow-sm'
-                      : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
-                  }`}
-                >
-                  Custom ({combinedEvents.filter(e => e.isCustom).length})
-                </button>
-              </div>
-
-              <select
-                value={selectedYear}
-                onChange={(e) => setSelectedYear(e.target.value)}
-                title="Select Calendar Year"
-                className="bg-slate-100 dark:bg-slate-950 text-slate-700 dark:text-slate-300 text-[11px] font-bold py-1.5 px-2.5 rounded-xl border border-transparent hover:border-slate-300 dark:hover:border-slate-700 focus:outline-none cursor-pointer shrink-0"
-              >
-                <option value="2026">2026</option>
-                <option value="2027">2027</option>
-                <option value="all">All</option>
-              </select>
-            </div>
-
-            {loadingHolidays ? (
-              <div className="p-8 text-center space-y-2 text-slate-400">
-                <RefreshCw className="w-6 h-6 animate-spin mx-auto text-[#0f2ea2]" />
-                <p className="text-xs">Loading Singapore Public Holidays...</p>
-              </div>
-            ) : displayedEvents.length === 0 ? (
-              <div className="p-8 text-center space-y-3">
-                <Calendar className="w-8 h-8 mx-auto text-slate-400" />
-                <p className="text-xs text-slate-500">No events found for this filter.</p>
-                <button
-                  onClick={() => setShowAddModal(true)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0f2ea2] text-white text-xs font-bold shadow-sm"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Add First Event</span>
-                </button>
-              </div>
-            ) : (
-              <div className="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-y-auto max-h-none lg:max-h-[520px] pb-2 lg:pb-0 pr-1 custom-scrollbar">
-                {displayedEvents.map((h) => {
-                  const isSelected = selectedOccasion?.id === h.id;
-                  const badgeInfo = getEventBadgeStyle(h);
-                  return (
-                    <div
-                      key={h.id}
-                      onClick={() => handleSelectOccasion(h)}
-                      className={`group p-3 rounded-xl border cursor-pointer transition-all shrink-0 lg:shrink w-64 lg:w-full relative ${
-                        isSelected
-                          ? 'bg-blue-50/80 border-[#0f2ea2] dark:bg-blue-950/50 dark:border-blue-500 shadow-sm'
-                          : isDark
-                            ? 'bg-slate-950/60 border-slate-800 hover:border-slate-700'
-                            : 'bg-slate-50 border-slate-200 hover:border-slate-300'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between mb-1 gap-1">
-                        <span className={`text-xs font-bold line-clamp-1 flex-1 ${isSelected ? 'text-[#0f2ea2] dark:text-blue-300' : isDark ? 'text-white' : 'text-slate-900'}`}>
-                          {h.name}
-                        </span>
-
-                        <div className="flex items-center gap-1 shrink-0">
-                          {h.isUrgent ? (
-                            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-500 border border-amber-500/30 flex items-center gap-0.5">
-                              <Flame className="w-2.5 h-2.5" /> T-10
-                            </span>
-                          ) : h.daysRemaining >= 0 ? (
-                            <span className="text-[10px] text-slate-400 font-mono">{h.daysRemaining}d</span>
-                          ) : (
-                            <span className="text-[10px] text-slate-400 font-mono">Passed</span>
-                          )}
-
-                          {h.isCustom && (
-                            <button
-                              onClick={(e) => handleDeleteCustomEvent(h.id, e)}
-                              className="opacity-0 group-hover:opacity-100 hover:text-rose-500 p-0.5 text-slate-400 transition-opacity"
-                              title="Delete custom event"
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </button>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between text-[11px] text-slate-500">
-                        <div className="flex items-center gap-1.5">
-                          <span className={`text-[9px] px-1.5 py-0.2 rounded font-semibold border ${badgeInfo.class}`}>
-                            {badgeInfo.label}
-                          </span>
-                          <span>{new Date(h.date).toLocaleDateString('en-SG', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                        </div>
-                        <span className="text-[10px] text-slate-400 truncate max-w-[90px]">{h.day}</span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
+      {/* Filter Tabs & Year Selector Bar */}
+      <div className={`p-3 sm:p-4 rounded-2xl border flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 ${
+        isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+      }`}>
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <button
+            onClick={() => setEventCategoryFilter('all')}
+            className={`px-3.5 py-1.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+              eventCategoryFilter === 'all'
+                ? 'bg-[#0f2ea2] text-white shadow-sm ring-2 ring-[#0f2ea2]/20'
+                : isDark
+                ? 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+            }`}
+          >
+            All Occasions ({combinedEvents.length})
+          </button>
+          <button
+            onClick={() => setEventCategoryFilter('public_holiday')}
+            className={`px-3.5 py-1.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+              eventCategoryFilter === 'public_holiday'
+                ? 'bg-[#0f2ea2] text-white shadow-sm ring-2 ring-[#0f2ea2]/20'
+                : isDark
+                ? 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+            }`}
+          >
+            Public Holidays ({combinedEvents.filter(e => e.eventType === 'public_holiday').length})
+          </button>
+          <button
+            onClick={() => setEventCategoryFilter('custom')}
+            className={`px-3.5 py-1.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+              eventCategoryFilter === 'custom'
+                ? 'bg-[#0f2ea2] text-white shadow-sm ring-2 ring-[#0f2ea2]/20'
+                : isDark
+                ? 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+            }`}
+          >
+            Custom & Promotions ({combinedEvents.filter(e => e.isCustom).length})
+          </button>
         </div>
 
-        {/* Right Column: Clean Event Facts & Cultural Intelligence Brief */}
-        <div className="lg:col-span-8 space-y-4">
-          {selectedOccasion && (
-            <div className={`p-5 sm:p-7 rounded-2xl border transition-all ${
-              isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
-            } space-y-5 sm:space-y-6`}>
-              
-              {/* Event Header & Quick Action */}
-              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pb-5 border-b border-slate-100 dark:border-slate-800">
-                <div className="space-y-2 flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${getEventBadgeStyle(selectedOccasion).class}`}>
-                      {selectedOccasion.category || getEventBadgeStyle(selectedOccasion).label}
+        <div className="flex items-center gap-2 self-end sm:self-auto">
+          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Year:</span>
+          <select
+            value={selectedYear}
+            onChange={(e) => setSelectedYear(e.target.value)}
+            title="Select Calendar Year"
+            className={`text-xs font-bold px-3 py-1.5 rounded-xl border focus:outline-none cursor-pointer ${
+              isDark ? 'bg-slate-950 border-slate-800 text-white' : 'bg-slate-50 border-slate-200 text-slate-800'
+            }`}
+          >
+            <option value="2026">2026</option>
+            <option value="2027">2027</option>
+            <option value="all">All Years</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Events Card Grid */}
+      {loadingHolidays ? (
+        <div className="p-12 text-center space-y-3 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">
+          <RefreshCw className="w-8 h-8 animate-spin mx-auto text-[#0f2ea2]" />
+          <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">Loading Singapore Public Holidays...</p>
+        </div>
+      ) : displayedEvents.length === 0 ? (
+        <div className="p-12 text-center space-y-3 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40">
+          <Calendar className="w-10 h-10 mx-auto text-slate-400" />
+          <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">No events found for this filter</h4>
+          <p className="text-xs text-slate-500 max-w-sm mx-auto">Create a custom promotion or switch your filter above to view available occasions.</p>
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0f2ea2] text-white text-xs font-bold shadow-md cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add Event or Promotion</span>
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {displayedEvents.map((evt) => {
+            const badgeInfo = getEventBadgeStyle(evt);
+            const evtDateFormatted = new Date(evt.date).toLocaleDateString('en-SG', { month: 'short', day: 'numeric', year: 'numeric' });
+            return (
+              <div
+                key={evt.id}
+                className={`p-4 sm:p-5 rounded-2xl border transition-all flex flex-col justify-between group hover:shadow-md ${
+                  isDark
+                    ? 'bg-slate-900 border-slate-800 hover:border-slate-700'
+                    : 'bg-white border-slate-200 hover:border-blue-200 shadow-xs'
+                }`}
+              >
+                <div className="space-y-2.5">
+                  {/* Top Badges & Countdown */}
+                  <div className="flex items-center justify-between gap-2">
+                    <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${badgeInfo.class}`}>
+                      {evt.category || badgeInfo.label}
                     </span>
-                    <span className="text-xs text-slate-500 dark:text-slate-400 font-semibold flex items-center gap-1">
-                      <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                      {new Date(selectedOccasion.date).toLocaleDateString('en-SG', { month: 'long', day: 'numeric', year: 'numeric' })} ({selectedOccasion.day})
-                    </span>
-                    {selectedOccasion.isUrgent ? (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30 flex items-center gap-1">
-                        <Flame className="w-3 h-3" /> T-10 Drafting Window Active
-                      </span>
-                    ) : selectedOccasion.daysRemaining >= 0 ? (
-                      <span className="text-[10px] font-mono text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
-                        {selectedOccasion.daysRemaining} days away
-                      </span>
-                    ) : (
-                      <span className="text-[10px] font-mono text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
-                        Past Event
-                      </span>
-                    )}
+                    <div className="flex items-center gap-1.5">
+                      {evt.isUrgent ? (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30 flex items-center gap-1">
+                          <Flame className="w-3 h-3" /> T-10
+                        </span>
+                      ) : evt.daysRemaining >= 0 ? (
+                        <span className="text-[10px] font-mono text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
+                          {evt.daysRemaining}d away
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-mono text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
+                          Past
+                        </span>
+                      )}
+                      {evt.isCustom && (
+                        <button
+                          onClick={(e) => handleDeleteCustomEvent(evt.id, e)}
+                          className="opacity-0 group-hover:opacity-100 hover:text-rose-500 p-1 text-slate-400 transition-opacity cursor-pointer"
+                          title="Delete custom event"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
                   </div>
 
-                  <h2 className={`text-xl sm:text-2xl font-bold tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                    {selectedOccasion.name}
-                  </h2>
+                  {/* Date & Day */}
+                  <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-semibold">
+                    <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <span>{evtDateFormatted} ({evt.day})</span>
+                  </div>
 
-                  {selectedOccasion.subtitle && (
-                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-                      {selectedOccasion.subtitle}
-                    </p>
-                  )}
+                  {/* Title */}
+                  <h3 className={`text-base font-bold tracking-tight line-clamp-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                    {evt.name}
+                  </h3>
 
-                  {(selectedOccasion.promoUrl || selectedOccasion.url) && (
+                  {/* Snippet / Subtitle */}
+                  <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                    {evt.details || evt.culturalContext || evt.subtitle}
+                  </p>
+
+                  {/* Webpage Link (if promo URL exists) */}
+                  {(evt.promoUrl || evt.url) && (
                     <div className="pt-0.5">
                       <a
-                        href={selectedOccasion.promoUrl || selectedOccasion.url}
+                        href={evt.promoUrl || evt.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0f2ea2] dark:text-blue-400 hover:underline"
+                        onClick={(e) => e.stopPropagation()}
+                        className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#0f2ea2] dark:text-blue-400 hover:underline"
                       >
-                        <Globe className="w-3.5 h-3.5" />
+                        <Globe className="w-3 h-3" />
                         <span>View Promotion Webpage</span>
-                        <ExternalLink className="w-3 h-3" />
+                        <ExternalLink className="w-2.5 h-2.5" />
                       </a>
                     </div>
                   )}
                 </div>
 
-                {/* Primary Transfer Action Button */}
-                <div className="shrink-0 sm:self-start">
+                {/* Card Action Button */}
+                <div className="pt-4 mt-4 border-t border-slate-100 dark:border-slate-800/80">
                   <button
                     onClick={() => {
                       logActivity({
-                        event: 'Opened Event in Content Studio',
+                        event: 'Drafted Event in Content Studio',
                         category: 'Content Generation',
-                        details: `Transferred "${selectedOccasion.name}" facts to Content Studio`,
+                        details: `Selected "${evt.name}" to draft in Content Studio`,
                         status: 'Success'
                       });
+                      const evtDrafts = generateEventDrafts(evt);
                       onNavigateToDraftStudio({
-                        content: currentDraft?.post || selectedOccasion.details || '',
-                        title: `${selectedOccasion.name} ${selectedOccasion.year || 2026}`,
-                        occasion: selectedOccasion,
-                        activeDraft: currentDraft,
-                        availableDrafts: drafts
+                        content: evt.details || evt.culturalContext || evt.subtitle || '',
+                        title: `${evt.name} ${evt.year || 2026}`,
+                        occasion: evt,
+                        activeDraft: evtDrafts[0],
+                        availableDrafts: evtDrafts
                       });
                     }}
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer"
+                    className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
                   >
-                    <span>Open in Content Studio</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <span>Draft in Content Studio</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
-
-              {/* Cultural Context & Significance Card */}
-              <div className="rounded-xl p-4 sm:p-5 bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200/80 dark:border-blue-900/60 space-y-2">
-                <div className="flex items-center gap-2 text-xs font-bold text-[#0f2ea2] dark:text-blue-400">
-                  <BookOpen className="w-4 h-4" />
-                  <span>Cultural Context & Significance</span>
-                </div>
-                <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-normal">
-                  {selectedOccasion.culturalContext || selectedOccasion.details || 'Official Singapore occasion celebrating community resilience, togetherness, and corporate partnership.'}
-                </p>
-              </div>
-
-              {/* Recommended Hashtags */}
-              <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
-                <span className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-                  <Tag className="w-3.5 h-3.5 text-slate-400" />
-                  Recommended Hashtags & Brand Tags:
-                </span>
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  {(selectedOccasion.suggestedHashtags || ['#BrotherSingapore', '#AtYourSide']).map((tag) => (
-                    <span
-                      key={tag}
-                      className="text-xs font-mono px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              {/* Transfer Explanation Banner */}
-              <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <div className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                  <strong className="text-slate-800 dark:text-slate-200 block">Ready to draft & design?</strong>
-                  Clicking "Open in Content Studio" transfers all cultural context, facts, and messaging angles into the Studio where you can apply custom style guides, generate visuals, and schedule via Buffer.
-                </div>
-                <button
-                  onClick={() => {
-                    onNavigateToDraftStudio({
-                      content: currentDraft?.post || selectedOccasion.details || '',
-                      title: `${selectedOccasion.name} ${selectedOccasion.year || 2026}`,
-                      occasion: selectedOccasion,
-                      activeDraft: currentDraft,
-                      availableDrafts: drafts
-                    });
-                  }}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold transition-all shrink-0 cursor-pointer shadow-xs"
-                >
-                  <span>Open in Content Studio</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
-
-            </div>
-          )}
+            );
+          })}
         </div>
-      </div>
+      )}
 
       {/* Add Custom Event Modal */}
       {showAddModal && (
