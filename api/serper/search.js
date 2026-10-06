@@ -6,7 +6,7 @@ function refineQueryForSearch(query) {
   const clean = (query || 'Singapore AI enterprise').trim();
   const lower = clean.toLowerCase();
   if (lower === 'brother singapore' || lower.includes('brother singapore') || lower === 'brother' || lower.includes('brother international')) {
-    return '("Brother International" OR "Brother Singapore" OR "Brother Industries") -brothers -"younger brother" -"elder brother" -"Koh Brothers" -"big brother"';
+    return '("Brother International" OR "Brother Singapore" OR "Brother Industries" OR "Brother printer")';
   }
   return clean;
 }
@@ -72,11 +72,15 @@ async function fetchGoogleNewsRSS(query, maxResults = 10, tbs = 'qdr:d') {
 
 function parseGoogleNewsXml(xml, query, maxResults = 10) {
   const items = [];
-  const itemRegex = /<item>[\s\S]*?<title>(.*?)<\/title>[\s\S]*?<link>(.*?)<\/link>[\s\S]*?<pubDate>(.*?)<\/pubDate>(?:[\s\S]*?<source[^>]*>(.*?)<\/source>)?[\s\S]*?<\/item>/g;
+  const itemBlockRegex = /<item>([\s\S]*?)<\/item>/g;
   let match;
+  const isBrotherQuery = (query || '').toLowerCase().includes('brother');
 
-  while ((match = itemRegex.exec(xml)) && items.length < maxResults) {
-    let rawTitle = match[1] || '';
+  while ((match = itemBlockRegex.exec(xml)) && items.length < maxResults) {
+    const itemXml = match[1] || '';
+    const titleMatch = /<title>(.*?)<\/title>/.exec(itemXml);
+    let rawTitle = titleMatch ? titleMatch[1] : '';
+
     // Decode XML entities
     rawTitle = rawTitle
       .replace(/&amp;/g, '&')
@@ -85,9 +89,20 @@ function parseGoogleNewsXml(xml, query, maxResults = 10) {
       .replace(/&quot;/g, '"')
       .replace(/&#39;/g, "'");
 
-    const link = match[2] || '';
-    const pubDate = match[3] || '';
-    let source = (match[4] || '')
+    // Strictly filter out non-Brother articles when querying Brother
+    if (isBrotherQuery && !rawTitle.toLowerCase().includes('brother')) {
+      continue;
+    }
+
+    const linkMatch = /<link>(.*?)<\/link>/.exec(itemXml);
+    const link = linkMatch ? linkMatch[1] : '';
+
+    const pubDateMatch = /<pubDate>(.*?)<\/pubDate>/.exec(itemXml);
+    const pubDate = pubDateMatch ? pubDateMatch[1] : '';
+
+    const sourceMatch = /<source[^>]*>(.*?)<\/source>/.exec(itemXml);
+    let source = sourceMatch ? sourceMatch[1] : '';
+    source = source
       .replace(/&amp;/g, '&')
       .replace(/&#39;/g, "'")
       .trim();
@@ -117,11 +132,23 @@ function parseGoogleNewsXml(xml, query, maxResults = 10) {
       }
     } catch (e) {}
 
-    const cleanSource = source || 'Google News Verified';
+    // Extract genuine description snippet
+    const descMatch = /<description>([\s\S]*?)<\/description>/.exec(itemXml);
+    let cleanDesc = '';
+    if (descMatch) {
+      cleanDesc = descMatch[1]
+        .replace(/<[^>]+>/g, '')
+        .replace(/&amp;/g, '&')
+        .replace(/&#39;/g, "'")
+        .replace(/&quot;/g, '"')
+        .trim();
+    }
+
+    const cleanSource = source || 'Industry Source';
     items.push({
       title: rawTitle,
       link,
-      snippet: `Latest report from ${cleanSource}: "${rawTitle}". Relevant for Singapore enterprise workplace discussions, employee initiatives, and industry updates.`,
+      snippet: cleanDesc || rawTitle,
       date: dateStr,
       source: cleanSource,
       imageUrl: null

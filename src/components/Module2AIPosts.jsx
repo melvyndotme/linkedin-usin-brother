@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Newspaper, Search, RefreshCw, Copy, Check, Download, Layers, ShieldCheck, Clock, ArrowRight, ExternalLink, AlertCircle, Plus, Trash2, Sparkles, Database, X, Radio, BookOpen, Tag } from 'lucide-react';
-import { EXTENDED_AI_NEWS, searchSerperWithTimeframe, getEffectiveSerperKey, getGoogleNewsSearchUrl, generateDynamicTopicalNews, getFeaturedImageForArticle, getSourceFaviconUrl } from '../lib/serperEngine.js';
+import { searchSerperWithTimeframe, getEffectiveSerperKey, getFeaturedImageForArticle, getSourceFaviconUrl } from '../lib/serperEngine.js';
 import { generateAIDrafts } from '../lib/draftGenerator.js';
 import { safeGetItem, safeSetItem } from '../lib/storage.js';
 import { logActivity } from '../lib/auditLogger.js';
@@ -25,50 +25,12 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
   const [maxResults, setMaxResults] = useState(5);
 
   // Cache results per keyword tab: { 'all': { isLive, results }, 0: { isLive, results }, ... }
-  const [tabResults, setTabResults] = useState(() => {
-    const defaultKeywords = [
-      { text: 'Work-Life Balance & Flexibility', timeNumber: 7, timeUnit: 'days' },
-      { text: 'workplace productivity', timeNumber: 7, timeUnit: 'days' },
-      { text: 'smart document automation', timeNumber: 7, timeUnit: 'days' },
-      { text: 'Brother Singapore', timeNumber: 14, timeUnit: 'days' },
-      { text: 'enterprise agentic AI', timeNumber: 7, timeUnit: 'days' }
-    ];
-
-    const initial = {};
-    const allCombined = [];
-    const seenTitles = new Set();
-
-    defaultKeywords.forEach((kwObj, i) => {
-      const items = generateDynamicTopicalNews(kwObj.text, 5).map((item, idx) => ({
-        ...item,
-        id: `init-${i}-${idx}`,
-        topic: kwObj.text
-      }));
-      initial[i] = {
-        isLive: false,
-        results: items,
-        totalFound: items.length
-      };
-      items.forEach(it => {
-        if (!seenTitles.has(it.headline)) {
-          seenTitles.add(it.headline);
-          allCombined.push(it);
-        }
-      });
-    });
-
-    initial['all'] = {
-      isLive: false,
-      results: allCombined,
-      totalFound: allCombined.length
-    };
-
-    return initial;
-  });
+  // Initialized completely empty so no fake mock articles are ever displayed!
+  const [tabResults, setTabResults] = useState({});
 
   const [selectedNews, setSelectedNews] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [loadingTab, setLoadingTab] = useState(null); // 'all', 0..4, or 'batch'
+  const [loading, setLoading] = useState(true);
+  const [loadingTab, setLoadingTab] = useState('batch'); // 'all', 0..4, or 'batch'
   const [copied, setCopied] = useState(false);
   const [selectedDraftIndex, setSelectedDraftIndex] = useState(0);
   const [searchError, setSearchError] = useState(null);
@@ -326,9 +288,10 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
     }
   };
 
-  const currentTabResults = tabResults[activeTab] || tabResults['all'] || {
-    isLive: false,
-    results: EXTENDED_AI_NEWS.slice(0, 5)
+  const currentTabResults = tabResults[activeTab] || {
+    isLive: true,
+    results: [],
+    totalFound: 0
   };
   const newsList = currentTabResults.results || [];
   const isLiveNews = currentTabResults.isLive || false;
@@ -830,11 +793,7 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {newsList.map((item) => {
-              const articleUrl = item.link || item.sourceUrl || (
-                (item.headline || '').toLowerCase().includes('brother')
-                  ? 'https://www.brother.com.sg/en/news'
-                  : `https://news.google.com/search?q=${encodeURIComponent(item.headline || 'Singapore business')}&hl=en-SG&gl=SG&ceid=SG:en`
-              );
+              const articleUrl = item.link || item.sourceUrl || '';
               const featuredImg = getFeaturedImageForArticle(item, activeTab === 'all' ? 'Workplace Innovation' : keywords[activeTab]?.text);
               const faviconUrl = getSourceFaviconUrl(item.sourceTitle, articleUrl);
 
@@ -945,18 +904,20 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
                       </p>
 
                       {/* Source Article Link */}
-                      <div className="pt-0.5">
-                        <a
-                          href={articleUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => e.stopPropagation()}
-                          className="inline-flex items-center gap-1 text-xs font-semibold text-[#0f2ea2] dark:text-blue-400 hover:underline transition-colors"
-                        >
-                          <span>Read Full Article</span>
-                          <ExternalLink className="w-3.5 h-3.5" />
-                        </a>
-                      </div>
+                      {articleUrl ? (
+                        <div className="pt-0.5">
+                          <a
+                            href={articleUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="inline-flex items-center gap-1 text-xs font-semibold text-[#0f2ea2] dark:text-blue-400 hover:underline transition-colors"
+                          >
+                            <span>Read Full Article</span>
+                            <ExternalLink className="w-3.5 h-3.5" />
+                          </a>
+                        </div>
+                      ) : null}
                     </div>
 
                     {/* Card Action Button */}
