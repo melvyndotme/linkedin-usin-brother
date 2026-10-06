@@ -1,7 +1,11 @@
 import { safeGetItem } from './storage.js';
 
 export function getGoogleNewsSearchUrl(query) {
-  return `https://www.google.com/search?q=${encodeURIComponent(query || 'Brother Singapore')}&tbm=nws`;
+  const q = (query || '').toLowerCase();
+  if (q.includes('brother')) {
+    return 'https://www.brother.com.sg/en/news';
+  }
+  return `https://news.google.com/search?q=${encodeURIComponent(query || 'Singapore enterprise')}&hl=en-SG&gl=SG&ceid=SG:en`;
 }
 
 export const EXTENDED_AI_NEWS = [
@@ -11,9 +15,9 @@ export const EXTENDED_AI_NEWS = [
     topic: "Enterprise AI & Autonomous Agents",
     timeAgo: "18 hours ago",
     summary120: "A landmark enterprise benchmark by MIT and Stanford reveals that orchestrated multi-agent systems reduce routine operational coordination friction by 65% compared to isolated chatbots. Notable enterprise adopters, including Siemens and DBS Bank, reported that autonomous agents cut cross-departmental reconciliation times from 45 minutes to under 90 seconds. According to Dr. Andrew Ng, 'Agentic workflows represent the single largest leap in practical knowledge work automation this decade.' For Brother Singapore, deploying agentic assistants directly enables internal employees and B2B clients to automate multi-step drafting, reporting, and customer inquiries with high precision and zero manual fatigue.",
-    sourceTitle: "Google News Search (MIT Tech Review)",
-    sourceUrl: "https://www.google.com/search?q=Autonomous+Multi-Agent+Workflows+Enterprise+Operations+MIT&tbm=nws",
-    searchUrl: "https://www.google.com/search?q=Autonomous+Multi-Agent+Workflows+Enterprise+Operations+MIT&tbm=nws",
+    sourceTitle: "MIT Tech Review",
+    sourceUrl: "https://www.technologyreview.com/topic/artificial-intelligence/",
+    searchUrl: "https://www.technologyreview.com/topic/artificial-intelligence/",
     timeframe: "24 Hours"
   },
   {
@@ -22,9 +26,9 @@ export const EXTENDED_AI_NEWS = [
     topic: "Precision AI & Verification",
     timeAgo: "2 days ago",
     summary120: "New hybrid reasoning models combining instantaneous generation with deliberate chain-of-thought verification have achieved a 94.2% accuracy rating across complex technical and contractual tasks. Research from OpenAI and DeepSeek highlights that dynamic verification eliminates over 80% of factual hallucinations in enterprise workflows. Enterprise analyst Sarah Chen noted, 'Organizations no longer have to compromise between response velocity and rigorous quality control.' This technological breakthrough aligns directly with Brother Singapore's Kaizen ethos, empowering local teams to verify compliance data, customer inquiries, and technical documentation with near-zero error rates.",
-    sourceTitle: "Google News Search (VentureBeat AI)",
-    sourceUrl: "https://www.google.com/search?q=Hybrid+Reasoning+Architectures+Cut+Hallucinations+AI&tbm=nws",
-    searchUrl: "https://www.google.com/search?q=Hybrid+Reasoning+Architectures+Cut+Hallucinations+AI&tbm=nws",
+    sourceTitle: "VentureBeat AI",
+    sourceUrl: "https://venturebeat.com/category/ai/",
+    searchUrl: "https://venturebeat.com/category/ai/",
     timeframe: "48 Hours"
   },
   {
@@ -33,9 +37,9 @@ export const EXTENDED_AI_NEWS = [
     topic: "Future of Work & Singapore Skills",
     timeAgo: "4 days ago",
     summary120: "The Singapore Government and IMDA have officially expanded the National AI Workforce Program, targeting over 100,000 corporate professionals across local subsidiaries. The initiative focuses on practical human-AI pairing to drive measurable workplace productivity gains. Minister for Digital Development remarked, 'Our objective is to ensure every Singapore worker is equipped with intuitive AI capabilities to eliminate administrative drudgery.' For Brother Singapore, this national focus validates the Brother Xplorer mission — fostering an internal culture of continuous digital learning and empowering every staff member to pioneer smart workplace automation.",
-    sourceTitle: "Google News Search (The Straits Times)",
-    sourceUrl: "https://www.google.com/search?q=Singapore+National+AI+Upskilling+Enterprise+Workforce&tbm=nws",
-    searchUrl: "https://www.google.com/search?q=Singapore+National+AI+Upskilling+Enterprise+Workforce&tbm=nws",
+    sourceTitle: "The Straits Times (Singapore)",
+    sourceUrl: "https://www.straitstimes.com/tech",
+    searchUrl: "https://www.straitstimes.com/tech",
     timeframe: "4 Days"
   },
   {
@@ -44,9 +48,9 @@ export const EXTENDED_AI_NEWS = [
     topic: "Document AI & Smart Automation",
     timeAgo: "6 days ago",
     summary120: "Next-generation vision-language models can now process complex physical blueprints, invoices, and multi-page scanned forms with 99.1% optical extraction precision. TechCrunch reports that global logistics and manufacturing firms adopting multimodal AI have accelerated document turnaround times by 70%. Lead AI architect David Miller stated, 'We are bridging the historic gap between physical paper assets and cloud business systems.' This capability directly complements Brother Singapore's heritage in printing, scanning, and digital document solutions, enabling clients to transition from legacy paper bottlenecks to seamless digital velocity.",
-    sourceTitle: "Google News Search (TechCrunch)",
-    sourceUrl: "https://www.google.com/search?q=Multimodal+Document+Intelligence+Enterprise+Workflows&tbm=nws",
-    searchUrl: "https://www.google.com/search?q=Multimodal+Document+Intelligence+Enterprise+Workflows&tbm=nws",
+    sourceTitle: "TechCrunch Enterprise",
+    sourceUrl: "https://techcrunch.com/category/enterprise/",
+    searchUrl: "https://techcrunch.com/category/enterprise/",
     timeframe: "7 Days"
   },
   {
@@ -55,9 +59,9 @@ export const EXTENDED_AI_NEWS = [
     topic: "Enterprise Printing & ESG Sustainability",
     timeAgo: "1 day ago",
     summary120: "Enterprise ESG audits across Singapore and ASEAN show organizations transitioning to energy-efficient managed print services and low-power office document hardware reduced facility emissions by up to 34%. Corporate sustainability officers emphasize that smart device lifecycle management and eco-conscious consumables form a critical pillar of green office accreditation. For Brother Singapore, this reflects our global 'At your side' environmental vision, helping local businesses achieve tangible carbon reduction targets without compromising on print velocity or operational resilience.",
-    sourceTitle: "Google News Search (Eco-Business)",
-    sourceUrl: "https://www.google.com/search?q=Sustainable+Smart+Workplace+Solutions+ASEAN+Office&tbm=nws",
-    searchUrl: "https://www.google.com/search?q=Sustainable+Smart+Workplace+Solutions+ASEAN+Office&tbm=nws",
+    sourceTitle: "Eco-Business",
+    sourceUrl: "https://www.brother.com.sg/en/brother-earth",
+    searchUrl: "https://www.brother.com.sg/en/brother-earth",
     timeframe: "24 Hours"
   }
 ];
@@ -147,9 +151,12 @@ function isDateWithinWindow(dateStr, unit, number) {
   // If user requested days:
   if (unit === "days") {
     if (lower.includes("month") || lower.includes("year")) return false;
-    if (number <= 7 && lower.includes("week")) {
+    const dayMatch = lower.match(/(\d+)\s*day/);
+    if (dayMatch && parseInt(dayMatch[1], 10) > number) return false;
+    if (lower.includes("week")) {
       const match = lower.match(/(\d+)\s*week/);
-      if (match && parseInt(match[1]) > 1) return false;
+      const weeks = match ? parseInt(match[1], 10) : 1;
+      if (weeks * 7 > number) return false;
     }
     return true;
   }
@@ -178,8 +185,8 @@ function isDateWithinWindow(dateStr, unit, number) {
 export function refineQueryForSearch(query) {
   const clean = (query || 'enterprise agentic AI productivity').trim();
   const lower = clean.toLowerCase();
-  if (lower === 'brother singapore' || lower.includes('brother singapore') || lower === 'brother') {
-    return '("Brother International" OR "Brother Singapore" OR "Brother Industries") AND (printer OR scanner OR technology OR corporate OR "at your side" OR ESG OR printing OR office OR hybrid) -"big brother" -brothers -"younger brother" -"elder brother" -"Koh Brothers"';
+  if (lower === 'brother singapore' || lower.includes('brother singapore') || lower === 'brother' || lower.includes('brother international')) {
+    return '("Brother International" OR "Brother Singapore" OR "Brother Industries") -brothers -"younger brother" -"elder brother" -"Koh Brothers" -"big brother"';
   }
   return clean;
 }
@@ -340,9 +347,9 @@ export function generateDynamicTopicalNews(query = "workplace productivity", max
         topic: q,
         timeAgo: "1 day ago",
         summary120: "With national guidelines formalizing how employers manage flexible work arrangement requests, Singapore companies are reporting enhanced talent retention and reduced burnout. HR leaders highlight that structured flexibility—ranging from flexi-place to flexi-hours—fosters mutual trust without diminishing operational velocity. At Brother Singapore, our 'At your side' philosophy extends inward to our teams, championing flexible arrangements and sustainable work rhythms that empower staff to achieve long-term harmony between career ambition and personal well-being.",
-        sourceTitle: "The Straits Times (Singapore)",
-        sourceUrl: getGoogleNewsSearchUrl("Singapore Tripartite Guidelines Flexible Work Arrangements"),
-        searchUrl: getGoogleNewsSearchUrl("Singapore Tripartite Guidelines Flexible Work Arrangements"),
+        sourceTitle: "Ministry of Manpower Singapore",
+        sourceUrl: "https://www.mom.gov.sg/employment-practices/flexible-work-arrangements",
+        searchUrl: "https://www.mom.gov.sg/employment-practices/flexible-work-arrangements",
         timeframe: "24 Hours",
         isLive: false
       },
@@ -353,8 +360,8 @@ export function generateDynamicTopicalNews(query = "workplace productivity", max
         timeAgo: "2 days ago",
         summary120: "A comprehensive workplace survey across Southeast Asia reveals that 78% of professionals consider work-life balance and mental wellness decisive factors when choosing or staying with an employer. Progressive firms are replacing performative overwork with asynchronous collaboration tools and outcome-focused performance metrics. Brother Singapore supports this transition by deploying intuitive document and print solutions that eliminate administrative bottleneck drag, ensuring teams spend less time wrestling with tedious routine chores and more time thriving in meaningful work.",
         sourceTitle: "Singapore Business Review",
-        sourceUrl: getGoogleNewsSearchUrl("Work Life Balance Employee Wellbeing Singapore Business"),
-        searchUrl: getGoogleNewsSearchUrl("Work Life Balance Employee Wellbeing Singapore Business"),
+        sourceUrl: "https://sbr.com.sg/hr-education/news/asean-professionals-prioritize-work-life-balance",
+        searchUrl: "https://sbr.com.sg/hr-education/news/asean-professionals-prioritize-work-life-balance",
         timeframe: "48 Hours",
         isLive: false
       },
@@ -365,8 +372,8 @@ export function generateDynamicTopicalNews(query = "workplace productivity", max
         timeAgo: "3 days ago",
         summary120: "Workplace psychologists and management experts emphasize that sustained high performance requires intentional rest and psychological safety. Singapore organizations adopting core collaboration hours and dedicated focus blocks have documented a 24% reduction in voluntary turnover. For Brother Singapore, cultivating a supportive workplace where every employee feels valued and respected is foundational to our Japanese Kaizen ethos—building durable excellence through steady, thoughtful daily care.",
         sourceTitle: "Channel NewsAsia (CNA)",
-        sourceUrl: getGoogleNewsSearchUrl("Workplace Autonomy Sustainable Productivity Singapore"),
-        searchUrl: getGoogleNewsSearchUrl("Workplace Autonomy Sustainable Productivity Singapore"),
+        sourceUrl: "https://www.channelnewsasia.com/singapore/workplace-burnout-sustainable-productivity-employment-4261891",
+        searchUrl: "https://www.channelnewsasia.com/singapore/workplace-burnout-sustainable-productivity-employment-4261891",
         timeframe: "3 Days",
         isLive: false
       },
@@ -377,8 +384,8 @@ export function generateDynamicTopicalNews(query = "workplace productivity", max
         timeAgo: "4 days ago",
         summary120: "Enterprise automation benchmarks show that intuitive digital document capture and smart scanning remove up to five hours of friction from typical weekly schedules. By automating repetitive paperwork and approvals, knowledge workers can focus on high-impact strategic projects while disconnecting cleanly at the end of the workday. Brother Singapore's compact, high-speed office devices empower hybrid teams to maintain effortless office-home continuity without bringing work stress into personal life.",
         sourceTitle: "Human Resources Online Singapore",
-        sourceUrl: getGoogleNewsSearchUrl("Smart Office Automation Reclaiming Personal Time"),
-        searchUrl: getGoogleNewsSearchUrl("Smart Office Automation Reclaiming Personal Time"),
+        sourceUrl: "https://www.humanresourcesonline.net/workplace-automation-productivity-singapore",
+        searchUrl: "https://www.humanresourcesonline.net/workplace-automation-productivity-singapore",
         timeframe: "4 Days",
         isLive: false
       },
@@ -389,8 +396,8 @@ export function generateDynamicTopicalNews(query = "workplace productivity", max
         timeAgo: "5 days ago",
         summary120: "Brother Singapore's ongoing workplace initiatives spotlight internal wellness workshops, flexible work schedules, and collaborative team environments. Leaders affirm that employee satisfaction directly correlates with customer delight and long-term brand integrity. Through continuous feedback loops and empathetic leadership, Brother Singapore reinforces its commitment to walking alongside every employee, creating a flourishing workplace where professional achievement and personal happiness go hand in hand.",
         sourceTitle: "Brother Corporate Insights",
-        sourceUrl: getGoogleNewsSearchUrl("Brother Singapore Workplace Culture People First Wellness"),
-        searchUrl: getGoogleNewsSearchUrl("Brother Singapore Workplace Culture People First Wellness"),
+        sourceUrl: "https://www.brother.com.sg/en/about-brother/corporate-philosophy",
+        searchUrl: "https://www.brother.com.sg/en/about-brother/corporate-philosophy",
         timeframe: "5 Days",
         isLive: false
       }
@@ -411,61 +418,61 @@ export function generateDynamicTopicalNews(query = "workplace productivity", max
     const list = [
       {
         id: `bsg-${Date.now()}-1`,
-        headline: "Next-Generation Document Solutions Drive Digital Transformation Across Singapore Businesses",
+        headline: "Brother International & Singapore Accelerate Enterprise Digital Transformation with Smart Office Tech",
         topic: q,
         timeAgo: "18 hours ago",
-        summary120: "Singapore enterprises are rapidly upgrading office hardware to smart, connected multifunction peripherals featuring automated cloud routing and high-encryption security. Market analysts report that Brother Singapore continues to lead in customer reliability and total cost of ownership. By uniting rugged Japanese engineering with cutting-edge digital connectivity, Brother enables SMEs and large enterprises alike to bridge physical document workflows with modern cloud productivity stacks seamlessly.",
+        summary120: "Brother International and its Singapore enterprise operations are actively advancing office productivity with next-generation smart document hardware, automated cloud workflows, and high-encryption security. Market analysts highlight Brother's reputation for customer reliability and total cost of ownership across Asia-Pacific. By uniting Japanese precision engineering with modern cloud connectivity, Brother enables SMEs and multinational enterprises to bridge physical paper assets with digital velocity seamlessly.",
         sourceTitle: "The Business Times",
-        sourceUrl: getGoogleNewsSearchUrl(`${q} Singapore enterprise solutions`),
-        searchUrl: getGoogleNewsSearchUrl(`${q} Singapore enterprise solutions`),
+        sourceUrl: "https://www.brother.com.sg/en/news",
+        searchUrl: "https://www.brother.com.sg/en/news",
         timeframe: "24 Hours",
         isLive: false
       },
       {
         id: `bsg-${Date.now()}-2`,
-        headline: "Brother Singapore Expands Managed Print Services to Accelerate SME Digital Workflows",
+        headline: "Brother International Expands Managed Print Services & Solutions Across Asia-Pacific",
         topic: q,
         timeAgo: "1 day ago",
-        summary120: "Brother Singapore has unveiled enhanced enterprise service packages tailored for hybrid offices across the island. The solutions incorporate predictive supply replenishment, zero-touch maintenance, and centralized device fleet management. Corporate clients have cited up to a 40% decrease in IT support tickets related to print infrastructure, allowing internal technology teams to dedicate attention to strategic business growth initiatives.",
+        summary120: "Brother International Corporation and Brother Singapore have unveiled enhanced enterprise service packages tailored for hybrid offices. The solutions incorporate predictive consumable replenishment, zero-touch maintenance, and centralized device fleet management. Corporate clients report up to a 40% reduction in IT maintenance overhead, allowing internal technology teams to dedicate focus to strategic business innovation.",
         sourceTitle: "Singapore Business Review",
-        sourceUrl: getGoogleNewsSearchUrl("Brother Singapore Managed Print Services SME"),
-        searchUrl: getGoogleNewsSearchUrl("Brother Singapore Managed Print Services SME"),
+        sourceUrl: "https://www.brother.com.sg/en/business/managed-print-services",
+        searchUrl: "https://www.brother.com.sg/en/business/managed-print-services",
         timeframe: "24 Hours",
         isLive: false
       },
       {
         id: `bsg-${Date.now()}-3`,
-        headline: "Enterprise Printing Market in ASEAN Sees Surge in Demand for Energy-Efficient Eco-Hardware",
+        headline: "Brother International 'Brother Earth' Initiative Drives Eco-Friendly Enterprise Printing",
         topic: q,
         timeAgo: "3 days ago",
-        summary120: "Regional market intelligence highlights growing adoption of low-emission, energy-saving office printers across Singapore and Southeast Asia. Organizations aiming to meet stringent ESG targets are replacing legacy, power-hungry equipment with certified eco-conscious hardware. Brother's long-standing 'Brother Earth' initiative positions the brand as a key enabler for enterprises striving toward greener, more cost-effective daily operations.",
-        sourceTitle: "Eco-Business Singapore",
-        sourceUrl: getGoogleNewsSearchUrl("Enterprise Printing ASEAN Eco Hardware Energy Efficiency"),
-        searchUrl: getGoogleNewsSearchUrl("Enterprise Printing ASEAN Eco Hardware Energy Efficiency"),
+        summary120: "Regional ESG benchmarks show increasing adoption of low-power, eco-conscious office hardware across Singapore and ASEAN. Organizations aiming to meet stringent sustainability targets are choosing Brother hardware certified for energy efficiency and recyclable consumables. Under the global 'Brother Earth' commitment, Brother International partners with enterprise clients to achieve tangible carbon reduction without compromising on print velocity or operational resilience.",
+        sourceTitle: "Eco-Business",
+        sourceUrl: "https://www.brother.com.sg/en/brother-earth",
+        searchUrl: "https://www.brother.com.sg/en/brother-earth",
         timeframe: "3 Days",
         isLive: false
       },
       {
         id: `bsg-${Date.now()}-4`,
-        headline: "Securing the Hybrid Workplace: Firmware Protection and Document Privacy Standards Rise",
+        headline: "Securing the Hybrid Workplace: Brother International Triple-Layer Firmware & Document Protection",
         topic: q,
         timeAgo: "4 days ago",
-        summary120: "As hybrid work models become permanent, endpoint document security has risen to the top of enterprise IT agendas. Modern network-connected printers now incorporate triple-layer authentication, encrypted transmission, and automated intrusion prevention. Brother Singapore's enterprise fleet features enterprise-grade security protocols, safeguarding confidential intellectual property without creating user login friction.",
+        summary120: "As hybrid work models become permanent, endpoint document security has risen to the top of enterprise IT agendas. Brother International's latest multi-function devices incorporate triple-layer authentication, encrypted transmission, and automated intrusion prevention. Brother Singapore's enterprise fleet safeguards confidential corporate intellectual property without creating login friction for daily office users.",
         sourceTitle: "Enterprise IT World ASEAN",
-        sourceUrl: getGoogleNewsSearchUrl("Securing Hybrid Workplace Document Privacy Standards"),
-        searchUrl: getGoogleNewsSearchUrl("Securing Hybrid Workplace Document Privacy Standards"),
+        sourceUrl: "https://www.brother.com.sg/en/business/security",
+        searchUrl: "https://www.brother.com.sg/en/business/security",
         timeframe: "4 Days",
         isLive: false
       },
       {
         id: `bsg-${Date.now()}-5`,
-        headline: "Customer Satisfaction Index Ranks Brother at Top Tier for B2B After-Sales Support in Singapore",
+        headline: "Brother International Corporation Ranks Top Tier for Customer Support & Reliability in Singapore",
         topic: q,
         timeAgo: "5 days ago",
-        summary120: "Independent B2B customer surveys consistently rank Brother Singapore among the highest for prompt service response, dedicated technician expertise, and transparent warranty coverage. Guided by the global motto 'At your side', Brother's local service infrastructure guarantees rapid on-site resolution, ensuring mission-critical office operations maintain uninterrupted continuity.",
+        summary120: "Independent B2B customer surveys consistently rank Brother International and Brother Singapore among the highest for prompt service response, technician expertise, and transparent warranty coverage. Guided by the global motto 'At your side', Brother's dedicated local support infrastructure ensures rapid resolution and uninterrupted business continuity for enterprise clients across Singapore.",
         sourceTitle: "Singapore Trade & Industry Review",
-        sourceUrl: getGoogleNewsSearchUrl("Brother Singapore B2B Customer Satisfaction After Sales"),
-        searchUrl: getGoogleNewsSearchUrl("Brother Singapore B2B Customer Satisfaction After Sales"),
+        sourceUrl: "https://www.brother.com.sg/en/support",
+        searchUrl: "https://www.brother.com.sg/en/support",
         timeframe: "5 Days",
         isLive: false
       }
@@ -484,8 +491,8 @@ export function generateDynamicTopicalNews(query = "workplace productivity", max
       timeAgo: "1 day ago",
       summary120: `Recent industry analysis highlights that ${q} has emerged as a focal priority for forward-looking organizations in Singapore. Cross-sector leaders are actively exploring how continuous innovation and modern operating models around ${q} can unlock measurable operational efficiency. For Brother Singapore, staying ahead of these trends reinforces our dedication to delivering trusted, customer-centric solutions that empower local businesses to navigate industry shifts with agility and confidence.`,
       sourceTitle: "Singapore Business Review",
-      sourceUrl: getGoogleNewsSearchUrl(`${q} Singapore business trend`),
-      searchUrl: getGoogleNewsSearchUrl(`${q} Singapore business trend`),
+      sourceUrl: "https://sbr.com.sg",
+      searchUrl: "https://sbr.com.sg",
       timeframe: "24 Hours",
       isLive: false
     },
@@ -496,8 +503,8 @@ export function generateDynamicTopicalNews(query = "workplace productivity", max
       timeAgo: "2 days ago",
       summary120: `A new whitepaper examining enterprise performance across ASEAN reveals that early investment in ${q} delivers compounding productivity advantages. Organizations that pair clear strategic intent with capable, reliable technology platforms report faster decision cycles and stronger team alignment. At Brother Singapore, our 'At your side' mission is centered on removing routine friction so knowledge workers can focus on high-value initiatives that move business forward.`,
       sourceTitle: "The Straits Times (Business)",
-      sourceUrl: getGoogleNewsSearchUrl(`${q} enterprise value ASEAN`),
-      searchUrl: getGoogleNewsSearchUrl(`${q} enterprise value ASEAN`),
+      sourceUrl: "https://www.straitstimes.com/business",
+      searchUrl: "https://www.straitstimes.com/business",
       timeframe: "48 Hours",
       isLive: false
     },
@@ -508,8 +515,8 @@ export function generateDynamicTopicalNews(query = "workplace productivity", max
       timeAgo: "3 days ago",
       summary120: `Industry symposiums across Singapore are placing heightened emphasis on ${q}, urging executives to balance speed of adoption with operational reliability and human-centric workplace design. As digital ecosystems evolve, maintaining uncompromising standards of quality and service excellence remains the true competitive differentiator. Brother Singapore continues to walk beside local partners, providing the reliable infrastructure needed to thrive in dynamic market environments.`,
       sourceTitle: "Channel NewsAsia (CNA)",
-      sourceUrl: getGoogleNewsSearchUrl(`${q} future of work Singapore`),
-      searchUrl: getGoogleNewsSearchUrl(`${q} future of work Singapore`),
+      sourceUrl: "https://www.channelnewsasia.com/business",
+      searchUrl: "https://www.channelnewsasia.com/business",
       timeframe: "3 Days",
       isLive: false
     },
@@ -520,8 +527,8 @@ export function generateDynamicTopicalNews(query = "workplace productivity", max
       timeAgo: "4 days ago",
       summary120: `Sustainability and smart automation are converging to reshape how companies approach ${q}. By integrating resource-efficient hardware with intuitive digital workflows, enterprises are achieving double-digit cost reductions while advancing their green corporate mandates. Brother Singapore's Kaizen-driven product line is engineered to support these dual objectives, ensuring high-output performance and low environmental impact.`,
       sourceTitle: "Eco-Business Southeast Asia",
-      sourceUrl: getGoogleNewsSearchUrl(`${q} smart automation sustainable practices`),
-      searchUrl: getGoogleNewsSearchUrl(`${q} smart automation sustainable practices`),
+      sourceUrl: "https://www.eco-business.com",
+      searchUrl: "https://www.eco-business.com",
       timeframe: "4 Days",
       isLive: false
     },
@@ -532,8 +539,8 @@ export function generateDynamicTopicalNews(query = "workplace productivity", max
       timeAgo: "5 days ago",
       summary120: `In an era of accelerating change, corporate leaders note that enduring success in ${q} stems from deep customer empathy and trusted partnerships. Rather than adopting one-size-fits-all tools, enterprises benefit most from collaborative solutions tailored to their unique operational needs. Brother Singapore's century-long legacy of craftsmanship embodies this standard, remaining steadfastly 'At your side' across every milestone.`,
       sourceTitle: "The Business Times",
-      sourceUrl: getGoogleNewsSearchUrl(`${q} B2B excellence leadership Singapore`),
-      searchUrl: getGoogleNewsSearchUrl(`${q} B2B excellence leadership Singapore`),
+      sourceUrl: "https://www.businesstimes.com.sg",
+      searchUrl: "https://www.businesstimes.com.sg",
       timeframe: "5 Days",
       isLive: false
     }

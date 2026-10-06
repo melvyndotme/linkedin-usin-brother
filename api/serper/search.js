@@ -5,8 +5,8 @@
 function refineQueryForSearch(query) {
   const clean = (query || 'Singapore AI enterprise').trim();
   const lower = clean.toLowerCase();
-  if (lower === 'brother singapore' || lower.includes('brother singapore') || lower === 'brother') {
-    return '("Brother International" OR "Brother Singapore" OR "Brother Industries") AND (printer OR scanner OR technology OR corporate OR "at your side" OR ESG OR printing OR office OR hybrid) -"big brother" -brothers -"younger brother" -"elder brother" -"Koh Brothers"';
+  if (lower === 'brother singapore' || lower.includes('brother singapore') || lower === 'brother' || lower.includes('brother international')) {
+    return '("Brother International" OR "Brother Singapore" OR "Brother Industries") -brothers -"younger brother" -"elder brother" -"Koh Brothers" -"big brother"';
   }
   return clean;
 }
