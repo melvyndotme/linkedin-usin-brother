@@ -12,6 +12,7 @@ import ContentCalendar from './components/ContentCalendar.jsx';
 import TeamView from './components/TeamView.jsx';
 import SettingsView from './components/SettingsView.jsx';
 import ProfileView from './components/ProfileView.jsx';
+import PWAInstallPrompt from './components/PWAInstallPrompt.jsx';
 import { safeGetItem, safeSetItem, safeRemoveItem } from './lib/storage.js';
 import { logActivity } from './lib/auditLogger.js';
 
@@ -58,8 +59,117 @@ class ErrorBoundary extends Component {
   }
 }
 
+const TAB_TO_PATH = {
+  'home': '/',
+  'module-1': '/events',
+  'module-2': '/news',
+  'draft-studio': '/studio',
+  'calendar': '/calendar',
+  'template-studio': '/templates',
+  'notion-hub': '/notion',
+  'team': '/team',
+  'profile': '/profile',
+  'settings': '/settings',
+};
+
+const PATH_TO_TAB = {
+  '/': 'home',
+  '/dashboard': 'home',
+  '/events': 'module-1',
+  '/module-1': 'module-1',
+  '/news': 'module-2',
+  '/trends': 'module-2',
+  '/news-trends': 'module-2',
+  '/module-2': 'module-2',
+  '/studio': 'draft-studio',
+  '/draft-studio': 'draft-studio',
+  '/content-studio': 'draft-studio',
+  '/calendar': 'calendar',
+  '/templates': 'template-studio',
+  '/template-studio': 'template-studio',
+  '/notion': 'notion-hub',
+  '/notion-hub': 'notion-hub',
+  '/team': 'team',
+  '/profile': 'profile',
+  '/settings': 'settings',
+  '/integrations': 'settings',
+};
+
+const TAB_TITLES = {
+  'home': 'Executive Dashboard | Brother Singapore',
+  'module-1': 'Events & Occasions | Brother Singapore',
+  'module-2': 'News & Trends | Brother Singapore',
+  'draft-studio': 'Content Studio | Brother Singapore',
+  'calendar': 'Content Calendar | Brother Singapore',
+  'template-studio': 'Templates Studio | Brother Singapore',
+  'notion-hub': 'Notion Hub | Brother Singapore',
+  'team': 'Team Directory | Brother Singapore',
+  'profile': 'My Profile | Brother Singapore',
+  'settings': 'Integrations & Settings | Brother Singapore',
+};
+
+function getTabFromLocation() {
+  if (typeof window === 'undefined') return 'home';
+  const pathname = window.location.pathname.replace(/\/+$/, '') || '/';
+  if (PATH_TO_TAB[pathname]) {
+    return PATH_TO_TAB[pathname];
+  }
+  const searchParams = new URLSearchParams(window.location.search);
+  const tabParam = searchParams.get('tab') || searchParams.get('page');
+  if (tabParam) {
+    if (PATH_TO_TAB['/' + tabParam]) return PATH_TO_TAB['/' + tabParam];
+    if (TAB_TO_PATH[tabParam]) return tabParam;
+  }
+  const hash = window.location.hash.replace(/^#\/?/, '').replace(/\/+$/, '');
+  if (hash) {
+    if (PATH_TO_TAB['/' + hash]) return PATH_TO_TAB['/' + hash];
+    if (TAB_TO_PATH[hash]) return hash;
+  }
+  return 'home';
+}
+
 export default function App() {
-  const [activeTab, setActiveTab] = useState('home'); 
+  const [activeTab, setActiveTabState] = useState(() => getTabFromLocation());
+
+  const setActiveTab = (tab, options = {}) => {
+    const targetPath = TAB_TO_PATH[tab] || '/';
+    const currentPath = window.location.pathname.replace(/\/+$/, '') || '/';
+    
+    if (options.replace) {
+      window.history.replaceState({ tab }, '', targetPath);
+    } else if (currentPath !== targetPath) {
+      window.history.pushState({ tab }, '', targetPath);
+    }
+    
+    if (TAB_TITLES[tab]) {
+      document.title = TAB_TITLES[tab];
+    }
+    setActiveTabState(tab);
+  };
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const tab = getTabFromLocation();
+      setActiveTabState(tab);
+      if (TAB_TITLES[tab]) {
+        document.title = TAB_TITLES[tab];
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    
+    // Set initial document title and sync URL path if needed
+    const initialTab = getTabFromLocation();
+    if (TAB_TITLES[initialTab]) {
+      document.title = TAB_TITLES[initialTab];
+    }
+    const targetPath = TAB_TO_PATH[initialTab];
+    const currentPath = window.location.pathname.replace(/\/+$/, '') || '/';
+    if (targetPath && targetPath !== '/' && currentPath === '/') {
+      window.history.replaceState({ tab: initialTab }, '', targetPath);
+    }
+
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []); 
   const [isDark, setIsDark] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
@@ -386,6 +496,9 @@ export default function App() {
           </ErrorBoundary>
         </main>
       </div>
+
+      {/* PWA Home Screen Installation Prompt & Guide */}
+      <PWAInstallPrompt isDark={isDark} />
     </div>
   );
 }

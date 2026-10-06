@@ -539,34 +539,48 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
           ))}
         </div>
 
-        {/* Active Topics Chips Bar */}
-        <div className="flex items-center gap-2 flex-wrap pt-1">
-          <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 mr-1 flex items-center gap-1">
+        {/* Topics Section Header */}
+        <div className="flex items-center justify-between gap-2 pt-1 border-t border-slate-100 dark:border-slate-800/60">
+          <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-600 dark:text-slate-400">
             <Layers className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
-            Topics ({keywords.filter(k => k.text?.trim()).length}/5):
-          </span>
+            <span>Active Topics ({keywords.filter(k => k.text?.trim()).length}/5)</span>
+          </div>
 
+          <button
+            type="button"
+            onClick={handleFetchAllTabs}
+            disabled={loading}
+            className="inline-flex items-center gap-1 text-[11px] font-bold text-[#0f2ea2] dark:text-blue-400 hover:underline cursor-pointer disabled:opacity-50 py-0.5"
+            title="Search all topics at once"
+          >
+            <Sparkles className="w-3 h-3 text-amber-500" />
+            <span>Fetch All Topics</span>
+          </button>
+        </div>
+
+        {/* Topics Pills Bar: Natural Variable-Length Pills */}
+        <div className="flex items-center gap-1.5 flex-wrap pt-0.5">
           {/* All Topics Pill */}
           <button
             type="button"
             onClick={() => handleSelectTab('all')}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer shrink-0 ${
               activeTab === 'all'
-                ? 'bg-[#0f2ea2] text-white shadow-sm ring-2 ring-[#0f2ea2]/30'
+                ? 'bg-[#0f2ea2] text-white shadow-xs'
                 : isDark
-                ? 'bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700'
+                ? 'bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800'
                 : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200'
             }`}
           >
             <span>All Topics</span>
             <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono font-bold ${
-              activeTab === 'all' ? 'bg-white/20 text-white' : isDark ? 'bg-slate-700 text-slate-300' : 'bg-slate-200 text-slate-600'
+              activeTab === 'all' ? 'bg-white/20 text-white' : isDark ? 'bg-slate-800 text-slate-300' : 'bg-slate-200 text-slate-600'
             }`}>
               {tabResults['all']?.results?.length || 0}
             </span>
           </button>
 
-          {/* Individual Topic Chips */}
+          {/* Individual Topic Pills (Dynamic Variable Length based on keyword) */}
           {keywords.map((kw, idx) => {
             const isThisTabActive = activeTab === idx;
             const tabRes = tabResults[idx];
@@ -582,28 +596,23 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
                     searchInputRef.current.focus();
                   }
                 }}
-                className={`group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                className={`group inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all cursor-pointer shrink-0 ${
                   isThisTabActive
-                    ? 'bg-blue-50 dark:bg-blue-950/60 text-[#0f2ea2] dark:text-blue-300 border-2 border-[#0f2ea2] shadow-sm'
+                    ? 'bg-blue-50 dark:bg-blue-950/60 text-[#0f2ea2] dark:text-blue-300 border-2 border-[#0f2ea2] shadow-xs font-semibold'
                     : isDark
-                    ? 'bg-slate-950 hover:bg-slate-800 text-slate-300 border border-slate-800'
+                    ? 'bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800'
                     : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200'
                 }`}
               >
                 <span className={`text-[10px] font-bold ${isThisTabActive ? 'text-[#0f2ea2] dark:text-blue-400' : 'text-slate-400'}`}>
                   #{idx + 1}
                 </span>
-                <span className="truncate max-w-[150px] sm:max-w-[200px]">{textLabel}</span>
+                <span className="whitespace-nowrap">{textLabel}</span>
                 <span className={`text-[9px] font-mono px-1 py-0.2 rounded ${
                   isDark ? 'bg-slate-800 text-slate-400' : 'bg-slate-100 text-slate-500'
                 }`}>
-                  {kw.timeNumber}{unitAbbr}
+                  {kw.timeNumber}{unitAbbr}{tabRes?.results?.length > 0 ? ` (${tabRes.results.length})` : ''}
                 </span>
-                {tabRes?.results?.length > 0 && (
-                  <span className="text-[9px] font-mono font-bold text-slate-400">
-                    ({tabRes.results.length})
-                  </span>
-                )}
                 {keywords.length > 1 && (
                   <button
                     type="button"
@@ -611,10 +620,10 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
                       e.stopPropagation();
                       handleRemoveKeyword(idx);
                     }}
-                    className="text-slate-400 hover:text-rose-500 ml-0.5 p-0.5 transition-colors rounded hover:bg-rose-50 dark:hover:bg-rose-950/50"
+                    className="text-slate-400 hover:text-rose-500 p-0.5 -mr-1 transition-colors rounded hover:bg-rose-50 dark:hover:bg-rose-950/50"
                     title="Remove topic"
                   >
-                    <Trash2 className="w-3 h-3" />
+                    <Trash2 className="w-2.5 h-2.5" />
                   </button>
                 )}
               </div>
@@ -634,24 +643,12 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
                   }
                 }, 50);
               }}
-              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-500 hover:text-[#0f2ea2] dark:hover:text-blue-300 border border-dashed border-slate-300 dark:border-slate-700 hover:border-[#0f2ea2] transition-all cursor-pointer"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold text-slate-500 hover:text-[#0f2ea2] dark:hover:text-blue-300 border border-dashed border-slate-300 dark:border-slate-700 hover:border-[#0f2ea2] transition-all cursor-pointer shrink-0"
             >
-              <Plus className="w-3.5 h-3.5" />
+              <Plus className="w-3 h-3" />
               <span>Add Topic</span>
             </button>
           )}
-
-          {/* Batch fetch all topics shortcut */}
-          <button
-            type="button"
-            onClick={handleFetchAllTabs}
-            disabled={loading}
-            className="ml-auto inline-flex items-center gap-1 text-[11px] font-bold text-[#0f2ea2] dark:text-blue-400 hover:underline cursor-pointer disabled:opacity-50 py-1"
-            title="Search all topics at once"
-          >
-            <Sparkles className="w-3 h-3 text-amber-500" />
-            <span>Fetch All Topics</span>
-          </button>
         </div>
       </div>
 
@@ -882,7 +879,15 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
 
                     {/* Summary Snippet */}
                     <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-3 leading-relaxed">
-                      {item.summary120}
+                      {(item.summary120 || '')
+                        .replace(/&lt;/g, '<')
+                        .replace(/&gt;/g, '>')
+                        .replace(/<[^>]+>/g, '')
+                        .replace(/&amp;/g, '&')
+                        .replace(/&#39;/g, "'")
+                        .replace(/&quot;/g, '"')
+                        .replace(/&nbsp;/g, ' ')
+                        .trim() || item.headline}
                     </p>
 
                     {/* Direct Publisher Article Link */}

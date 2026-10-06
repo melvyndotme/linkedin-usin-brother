@@ -137,11 +137,17 @@ function parseGoogleNewsXml(xml, query, maxResults = 10) {
     let cleanDesc = '';
     if (descMatch) {
       cleanDesc = descMatch[1]
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
         .replace(/<[^>]+>/g, '')
         .replace(/&amp;/g, '&')
         .replace(/&#39;/g, "'")
         .replace(/&quot;/g, '"')
+        .replace(/&nbsp;/g, ' ')
         .trim();
+      if (cleanDesc.startsWith('http') || cleanDesc.startsWith('href=') || cleanDesc === rawTitle) {
+        cleanDesc = '';
+      }
     }
 
     const cleanSource = source || 'Industry Source';
