@@ -234,12 +234,32 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
       const res = await fetch(`/api/mom/holidays?year=${year}${refresh ? '&refresh=true' : ''}`);
       const data = await res.json();
       if (data.success && data.holidays?.length > 0) {
-        const tagged = data.holidays.map(h => ({
-          ...h,
-          eventType: 'public_holiday',
-          theme: 'blue',
-          category: 'Singapore Public Holiday'
-        }));
+        // Defensive deduplication & merging of any (Observed) entries
+        const mergedMap = new Map();
+        for (const h of data.holidays) {
+          const cleanName = (h.name || '').replace(/’/g, "'").replace(/\s*\((?:observed|in lieu)\)/i, '').trim();
+          const isObserved = /\((?:observed|in lieu)\)/i.test(h.name || '');
+          const key = `${h.year || 2026}::${cleanName.toLowerCase()}`;
+
+          if (!mergedMap.has(key)) {
+            mergedMap.set(key, {
+              ...h,
+              name: cleanName,
+              eventType: 'public_holiday',
+              theme: 'blue',
+              category: 'Singapore Public Holiday'
+            });
+          } else {
+            const existing = mergedMap.get(key);
+            if (isObserved || h.observedDate) {
+              existing.observedDate = h.observedDate || h.date;
+              existing.observedDay = h.observedDay || h.day;
+              existing.hasObserved = true;
+            }
+          }
+        }
+
+        const tagged = Array.from(mergedMap.values());
         setHolidays(tagged);
         
         // If nothing selected yet, select first
@@ -698,9 +718,14 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
                   </div>
 
                   {/* Date & Day */}
-                  <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-semibold">
+                  <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-semibold flex-wrap">
                     <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                     <span>{evtDateFormatted} ({evt.day})</span>
+                    {evt.observedDay && (
+                      <span className="text-[11px] font-normal text-slate-400 dark:text-slate-500">
+                        • Observed {evt.observedDay}
+                      </span>
+                    )}
                   </div>
 
                   {/* Title */}

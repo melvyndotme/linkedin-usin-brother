@@ -107,6 +107,13 @@ function parseMOMDate(rawDateStr, fallbackYear) {
   };
 }
 
+function normalizeHolidayName(name) {
+  return (name || '')
+    .replace(/’/g, "'")
+    .replace(/\s*\((?:observed|in lieu)\)/i, '')
+    .trim();
+}
+
 function enrichHoliday(h, refDate = new Date()) {
   const nameLower = h.name.toLowerCase();
   let matchedPreset = Object.entries(THEME_PRESETS).find(([key]) => nameLower.includes(key));
@@ -140,6 +147,9 @@ function enrichHoliday(h, refDate = new Date()) {
     date: h.isoDate,
     endDate: h.endDate,
     day: h.day,
+    observedDate: h.observedDate || null,
+    observedDay: h.observedDay || null,
+    hasObserved: Boolean(h.observedDate),
     year: h.year,
     category: 'MOM Public Holiday',
     badgeText: preset.badgeText,
@@ -184,35 +194,52 @@ async function fetchFromDataGovSg() {
   // Sort chronologically by ISO date
   recs.sort((a, b) => (a.date > b.date ? 1 : -1));
 
-  const list = [];
-  for (let i = 0; i < recs.length; i++) {
-    const cur = recs[i];
-    const cleanName = (cur.holiday || '').replace(/’/g, "'").trim();
-    const yr = parseInt(cur.date.split('-')[0], 10);
+  // Group by (year, baseHolidayName) to unify "Observed" holidays into a single card
+  const grouped = new Map();
+  for (const r of recs) {
+    const yr = parseInt(r.date.split('-')[0], 10);
+    const cleanHoliday = (r.holiday || '').replace(/’/g, "'").trim();
+    const isObserved = /\((?:observed|in lieu)\)/i.test(cleanHoliday);
+    const baseName = normalizeHolidayName(cleanHoliday);
+    const key = `${yr}::${baseName.toLowerCase()}`;
 
-    // Group multi-day holidays like Chinese New Year Day 1 & Day 2
-    if (i + 1 < recs.length && (recs[i + 1].holiday || '').replace(/’/g, "'").trim() === cleanName) {
-      const next = recs[i + 1];
-      list.push({
-        name: cleanName,
-        isoDate: cur.date,
-        endDate: next.date,
-        day: `${cur.day} ${next.day}`,
+    if (!grouped.has(key)) {
+      grouped.set(key, {
+        name: baseName,
         year: yr,
-        sourceId: cur._id
-      });
-      i++; // Skip paired day
-    } else {
-      list.push({
-        name: cleanName,
-        isoDate: cur.date,
-        endDate: null,
-        day: cur.day,
-        year: yr,
-        sourceId: cur._id
+        records: []
       });
     }
+    grouped.get(key).records.push({ ...r, isObserved, cleanHoliday });
   }
+
+  const list = [];
+  for (const [, item] of grouped) {
+    const primaryRecords = item.records.filter(r => !r.isObserved);
+    const observedRecords = item.records.filter(r => r.isObserved);
+
+    // If only observed records exist, treat the first observed as primary
+    const mainRecords = primaryRecords.length > 0 ? primaryRecords : observedRecords;
+    const firstMain = mainRecords[0];
+    const lastMain = mainRecords[mainRecords.length - 1];
+
+    const observedRecord = observedRecords[0] || null;
+
+    list.push({
+      name: item.name,
+      year: item.year,
+      isoDate: firstMain.date,
+      endDate: lastMain !== firstMain ? lastMain.date : null,
+      day: mainRecords.map(r => r.day).join(' '),
+      observedDate: observedRecord ? observedRecord.date : null,
+      observedDay: observedRecord ? observedRecord.day : null,
+      hasObserved: Boolean(observedRecord),
+      sourceId: firstMain._id
+    });
+  }
+
+  // Sort chronologically by ISO date
+  list.sort((a, b) => (a.isoDate > b.isoDate ? 1 : -1));
 
   return list;
 }
@@ -258,7 +285,38 @@ async function fetchFromMOM() {
     }
   }
 
-  return allHolidays;
+  // Deduplicate and group any (Observed) entries from MOM HTML
+  const groupedMOM = new Map();
+  for (const h of allHolidays) {
+    const isObserved = /\((?:observed|in lieu)\)/i.test(h.name || '');
+    const baseName = normalizeHolidayName(h.name);
+    const key = `${h.year}::${baseName.toLowerCase()}`;
+
+    if (!groupedMOM.has(key)) {
+      groupedMOM.set(key, {
+        name: baseName,
+        year: h.year,
+        isoDate: h.isoDate,
+        endDate: h.endDate,
+        day: h.day,
+        observedDate: isObserved ? h.isoDate : null,
+        observedDay: isObserved ? h.day : null,
+        hasObserved: isObserved
+      });
+    } else {
+      const existing = groupedMOM.get(key);
+      if (isObserved) {
+        existing.observedDate = h.isoDate;
+        existing.observedDay = h.day;
+        existing.hasObserved = true;
+      } else {
+        existing.endDate = h.isoDate;
+        existing.day = `${existing.day} ${h.day}`;
+      }
+    }
+  }
+
+  return Array.from(groupedMOM.values());
 }
 
 // Fallback dataset if MOM is offline
