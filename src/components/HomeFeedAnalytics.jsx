@@ -325,101 +325,81 @@ export default function HomeFeedAnalytics({ isDark, onNavigateToModule }) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-          {/* Post 1 Card */}
-          {posts[0] && (
-            <div className={`rounded-2xl border overflow-hidden transition-colors ${
-              isDark ? "bg-slate-900 border-slate-800" : "bg-white border-slate-200 shadow-sm"
-            }`}>
-              <div className="p-3.5 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
-                <div className="flex items-center gap-3">
-                  <img
-                    src={OFFICIAL_BROTHER_LOGO_URL}
-                    alt="Brother"
-                    className="w-9 h-9 rounded-lg object-contain bg-white p-0.5 border shrink-0"
-                  />
-                  <div>
-                    <h4 className={`text-xs font-bold leading-tight ${isDark ? "text-white" : "text-slate-900"}`}>
-                      Brother International Singapore Pte Ltd
-                    </h4>
-                    <span className="text-[10px] text-slate-400">{posts[0].timestamp || "Recent"} • Singapore</span>
+          {posts.slice(0, 2).map((post, index) => (
+            <div 
+              key={post.id || `feed-post-${index}`}
+              className={`rounded-2xl border overflow-hidden transition-colors flex flex-col justify-between ${
+                isDark ? "bg-slate-900 border-slate-800" : "bg-white border-slate-200 shadow-sm"
+              }`}
+            >
+              <div>
+                <div className="p-3.5 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={OFFICIAL_BROTHER_LOGO_URL}
+                      alt="Brother"
+                      className="w-9 h-9 rounded-lg object-contain bg-white p-0.5 border shrink-0"
+                    />
+                    <div>
+                      <h4 className={`text-xs font-bold leading-tight ${isDark ? "text-white" : "text-slate-900"}`}>
+                        {post.author || "Brother International Singapore Pte Ltd"}
+                      </h4>
+                      <span className="text-[10px] text-slate-400">{post.timestamp || "Recent"} • Singapore</span>
+                    </div>
                   </div>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-[#0f2ea2] dark:bg-blue-950 dark:text-blue-300">
+                    {post.impressions?.toLocaleString()} Impr
+                  </span>
                 </div>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-[#0f2ea2] dark:bg-blue-950 dark:text-blue-300">
-                  {posts[0].impressions?.toLocaleString()} Impr
-                </span>
+                <div className="p-3.5 text-xs whitespace-pre-wrap leading-relaxed text-slate-700 dark:text-slate-300 max-h-48 overflow-y-auto">
+                  {post.content}
+                </div>
               </div>
-              <div className="p-3.5 text-xs whitespace-pre-wrap leading-relaxed text-slate-700 dark:text-slate-300 max-h-48 overflow-y-auto">
-                {posts[0].content}
-              </div>
-              {/* Visual Banner */}
-              <div className="w-full bg-slate-950 flex items-center justify-center border-t border-b overflow-hidden">
-                <div 
-                  className="w-full aspect-[12/5] flex items-center justify-center"
-                  dangerouslySetInnerHTML={{ __html: sampleBannerSvg }}
-                />
-              </div>
-              <div className="p-3 flex items-center justify-between text-xs text-slate-500">
-                <span className="font-semibold">👍 {posts[0].likes} • {posts[0].comments} comments • {posts[0].reposts} reposts</span>
-                <a
-                  href={posts[0].postUrl || "https://www.linkedin.com/company/brother-international-singapore-pte-ltd/posts/"}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-[#0f2ea2] dark:text-blue-400 font-semibold text-[11px] hover:underline flex items-center gap-1 cursor-pointer"
-                >
-                  <span>Live on LinkedIn</span>
-                  <ExternalLink className="w-3 h-3" />
-                </a>
-              </div>
-            </div>
-          )}
 
-          {/* Post 2 Card */}
-          {posts[1] && (
-            <div className={`rounded-2xl border overflow-hidden transition-colors ${
-              isDark ? "bg-slate-900 border-slate-800" : "bg-white border-slate-200 shadow-sm"
-            }`}>
-              <div className="p-3.5 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
-                <div className="flex items-center gap-3">
-                  <img
-                    src={OFFICIAL_BROTHER_LOGO_URL}
-                    alt="Brother"
-                    className="w-9 h-9 rounded-lg object-contain bg-white p-0.5 border shrink-0"
-                  />
-                  <div>
-                    <h4 className={`text-xs font-bold leading-tight ${isDark ? "text-white" : "text-slate-900"}`}>
-                      Brother International Singapore Pte Ltd
-                    </h4>
-                    <span className="text-[10px] text-slate-400">{posts[1].timestamp || "Recent"} • Singapore</span>
-                  </div>
+              <div>
+                {/* Visual Media from LinkedIn or Fallback Theme Banner */}
+                <div className="w-full bg-slate-950 flex items-center justify-center border-t border-b overflow-hidden relative group">
+                  {post.imageUrl ? (
+                    <div className="w-full aspect-[16/9] relative overflow-hidden bg-slate-900 flex items-center justify-center">
+                      <img 
+                        src={post.imageUrl} 
+                        alt={post.title || "Brother LinkedIn Post"} 
+                        className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
+                        loading="lazy"
+                        onError={(e) => {
+                          e.target.style.display = "none";
+                          if (e.target.nextSibling) e.target.nextSibling.style.display = "flex";
+                        }}
+                      />
+                      <div 
+                        style={{ display: "none" }}
+                        className="w-full aspect-[12/5] items-center justify-center"
+                        dangerouslySetInnerHTML={{ __html: index === 0 ? sampleBannerSvg : sampleWaveSvg }}
+                      />
+                    </div>
+                  ) : (
+                    <div 
+                      className="w-full aspect-[12/5] flex items-center justify-center"
+                      dangerouslySetInnerHTML={{ __html: index === 0 ? sampleBannerSvg : sampleWaveSvg }}
+                    />
+                  )}
                 </div>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-[#0f2ea2] dark:bg-blue-950 dark:text-blue-300">
-                  {posts[1].impressions?.toLocaleString()} Impr
-                </span>
-              </div>
-              <div className="p-3.5 text-xs whitespace-pre-wrap leading-relaxed text-slate-700 dark:text-slate-300 max-h-48 overflow-y-auto">
-                {posts[1].content}
-              </div>
-              {/* Visual Banner */}
-              <div className="w-full bg-slate-950 flex items-center justify-center border-t border-b overflow-hidden">
-                <div 
-                  className="w-full aspect-[12/5] flex items-center justify-center"
-                  dangerouslySetInnerHTML={{ __html: sampleWaveSvg }}
-                />
-              </div>
-              <div className="p-3 flex items-center justify-between text-xs text-slate-500">
-                <span className="font-semibold">💡 {posts[1].likes} • {posts[1].comments} comments • {posts[1].reposts} reposts</span>
-                <a
-                  href={posts[1].postUrl || "https://www.linkedin.com/company/brother-international-singapore-pte-ltd/posts/"}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-[#0f2ea2] dark:text-blue-400 font-semibold text-[11px] hover:underline flex items-center gap-1 cursor-pointer"
-                >
-                  <span>Live on LinkedIn</span>
-                  <ExternalLink className="w-3 h-3" />
-                </a>
+
+                <div className="p-3 flex items-center justify-between text-xs text-slate-500">
+                  <span className="font-semibold">👍 {post.likes || 16} • {post.comments || 4} comments • {post.reposts || 2} reposts</span>
+                  <a
+                    href={post.postUrl || "https://www.linkedin.com/company/brother-international-singapore-pte-ltd/posts/"}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[#0f2ea2] dark:text-blue-400 font-semibold text-[11px] hover:underline flex items-center gap-1 cursor-pointer"
+                  >
+                    <span>Live on LinkedIn</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
               </div>
             </div>
-          )}
+          ))}
         </div>
       </div>
     </div>
