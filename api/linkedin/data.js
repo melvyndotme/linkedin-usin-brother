@@ -330,13 +330,16 @@ async function fetchBufferTelemetry({ apiKey, channelId, cleanId = "808877" }) {
             organizationId: org.id,
             filter: {
               channelIds: [targetChannelId],
-              status: ["SENT"]
+              status: ["sent"]
             }
           }
         }
       })
     });
     const postsJson = await postsRes.json();
+    if (postsJson?.errors?.length) {
+      console.warn("Buffer posts GraphQL error:", postsJson.errors.map(e => e.message).join(", "));
+    }
     if (postsJson?.data?.posts?.edges) {
       bufferPosts = postsJson.data.posts.edges.map(e => e.node);
     }
