@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { 
   Users, TrendingUp, Eye, BarChart3, Sparkles, ExternalLink, RefreshCw, CheckCircle2, Play
 } from "lucide-react";
-import { BROTHER_LINKEDIN_ANALYTICS, RECENT_LINKEDIN_POSTS, fetchLiveLinkedInData } from "../lib/linkedInApi.js";
-import { generateBrotherWebsiteBannerSVG, generateBrotherWaveCorporateSVG, OFFICIAL_BROTHER_LOGO_URL } from "../lib/svgBrotherWebsiteTemplates.js";
+import { BROTHER_LINKEDIN_ANALYTICS, fetchLiveLinkedInData } from "../lib/linkedInApi.js";
+import { OFFICIAL_BROTHER_LOGO_URL } from "../lib/svgBrotherWebsiteTemplates.js";
 import { safeGetItem, safeSetItem } from "../lib/storage.js";
 
 export default function HomeFeedAnalytics({ isDark, onNavigateToModule }) {
@@ -32,9 +32,18 @@ export default function HomeFeedAnalytics({ isDark, onNavigateToModule }) {
     };
   });
 
-  const [posts, setPosts] = useState(RECENT_LINKEDIN_POSTS);
+  const [posts, setPosts] = useState(() => {
+    try {
+      const cached = safeGetItem("brother_live_posts");
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    return [];
+  });
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [liveConnected, setLiveConnected] = useState(true);
+  const [liveConnected, setLiveConnected] = useState(false);
   const [playingVideoId, setPlayingVideoId] = useState(null);
 
   // Auto-fetch live telemetry on mount
@@ -77,6 +86,7 @@ export default function HomeFeedAnalytics({ isDark, onNavigateToModule }) {
           }));
           if (res.posts && res.posts.length > 0) {
             setPosts(res.posts);
+            safeSetItem("brother_live_posts", JSON.stringify(res.posts));
           }
           setLiveConnected(true);
         }
@@ -126,6 +136,7 @@ export default function HomeFeedAnalytics({ isDark, onNavigateToModule }) {
         }));
         if (res.posts && res.posts.length > 0) {
           setPosts(res.posts);
+          safeSetItem("brother_live_posts", JSON.stringify(res.posts));
         }
         setLiveConnected(true);
       }
@@ -135,20 +146,6 @@ export default function HomeFeedAnalytics({ isDark, onNavigateToModule }) {
       setIsRefreshing(false);
     }
   };
-
-  const sampleBannerSvg = generateBrotherWebsiteBannerSVG({
-    badgeText: "Community & CSR*",
-    headline: "Race Against Cancer 2025",
-    subtitle: "Singtel-Singapore Cancer Society • Golden Ring Project",
-    theme: "corporate"
-  });
-
-  const sampleWaveSvg = generateBrotherWaveCorporateSVG({
-    badgeText: "Brother Official E-store Special",
-    headline: "5% Off Toner Bundle Promotion",
-    subtitle: "Purchase TN269C/M/Y/BK toners as a set & receive 5% off the bundle set*",
-    promoTag: "Free Delivery"
-  });
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
@@ -325,116 +322,133 @@ export default function HomeFeedAnalytics({ isDark, onNavigateToModule }) {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-          {posts.slice(0, 2).map((post, index) => (
-            <div 
-              key={post.id || `feed-post-${index}`}
-              className={`rounded-2xl border overflow-hidden transition-colors flex flex-col justify-between ${
-                isDark ? "bg-slate-900 border-slate-800" : "bg-white border-slate-200 shadow-sm"
-              }`}
-            >
-              <div>
-                <div className="p-3.5 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
+        {posts.length === 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+            {[1, 2].map((idx) => (
+              <div 
+                key={`post-skeleton-${idx}`}
+                className={`rounded-2xl border p-4 animate-pulse flex flex-col justify-between ${
+                  isDark ? "bg-slate-900/60 border-slate-800" : "bg-white border-slate-200"
+                }`}
+              >
+                <div className="space-y-3">
                   <div className="flex items-center gap-3">
-                    <img
-                      src={OFFICIAL_BROTHER_LOGO_URL}
-                      alt="Brother"
-                      className="w-9 h-9 rounded-lg object-contain bg-white p-0.5 border shrink-0"
-                    />
-                    <div>
-                      <h4 className={`text-xs font-bold leading-tight ${isDark ? "text-white" : "text-slate-900"}`}>
-                        {post.author || "Brother International Singapore Pte Ltd"}
-                      </h4>
-                      <span className="text-[10px] text-slate-400">{post.timestamp || "Recent"} • Singapore</span>
+                    <div className="w-9 h-9 rounded-lg bg-slate-200 dark:bg-slate-800" />
+                    <div className="space-y-1.5 flex-1">
+                      <div className="h-3 w-32 bg-slate-200 dark:bg-slate-800 rounded" />
+                      <div className="h-2 w-20 bg-slate-200 dark:bg-slate-800 rounded" />
                     </div>
                   </div>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-[#0f2ea2] dark:bg-blue-950 dark:text-blue-300">
-                    {post.likes} Reactions • {post.comments} {post.comments === 1 ? 'Comment' : 'Comments'}
-                  </span>
+                  <div className="space-y-2 pt-2">
+                    <div className="h-2.5 bg-slate-200 dark:bg-slate-800 rounded w-full" />
+                    <div className="h-2.5 bg-slate-200 dark:bg-slate-800 rounded w-5/6" />
+                    <div className="h-2.5 bg-slate-200 dark:bg-slate-800 rounded w-4/6" />
+                  </div>
                 </div>
-                <div className="p-3.5 text-xs whitespace-pre-wrap leading-relaxed text-slate-700 dark:text-slate-300 max-h-48 overflow-y-auto">
-                  {post.content}
-                </div>
+                <div className="w-full aspect-[16/9] bg-slate-200 dark:bg-slate-800 rounded-xl mt-4" />
               </div>
-
-              <div>
-                {/* Visual Media from LinkedIn or Fallback Theme Banner */}
-                <div className="w-full bg-slate-950 flex items-center justify-center border-t border-b overflow-hidden relative group">
-                  {playingVideoId === post.id && post.videoUrl ? (
-                    <div className="w-full aspect-[16/9] bg-black flex items-center justify-center relative">
-                      <video
-                        src={post.videoUrl}
-                        controls
-                        autoPlay
-                        playsInline
-                        className="w-full h-full object-contain"
-                        onEnded={() => setPlayingVideoId(null)}
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+            {posts.slice(0, 2).map((post, index) => (
+              <div 
+                key={post.id || `feed-post-${index}`}
+                className={`rounded-2xl border overflow-hidden transition-colors flex flex-col justify-between ${
+                  isDark ? "bg-slate-900 border-slate-800" : "bg-white border-slate-200 shadow-sm"
+                }`}
+              >
+                <div>
+                  <div className="p-3.5 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={OFFICIAL_BROTHER_LOGO_URL}
+                        alt="Brother"
+                        className="w-9 h-9 rounded-lg object-contain bg-white p-0.5 border shrink-0"
                       />
+                      <div>
+                        <h4 className={`text-xs font-bold leading-tight ${isDark ? "text-white" : "text-slate-900"}`}>
+                          {post.author || "Brother International Singapore Pte Ltd"}
+                        </h4>
+                        <span className="text-[10px] text-slate-400">{post.timestamp || "Recent"} • Singapore</span>
+                      </div>
                     </div>
-                  ) : post.imageUrl ? (
-                    <div 
-                      className={`w-full aspect-[16/9] relative overflow-hidden bg-slate-900 flex items-center justify-center ${
-                        post.videoUrl ? "cursor-pointer group/vid" : ""
-                      }`}
-                      onClick={() => {
-                        if (post.videoUrl) {
-                          setPlayingVideoId(post.id);
-                        }
-                      }}
-                    >
-                      <img 
-                        src={post.imageUrl} 
-                        alt={post.title || "Brother LinkedIn Post"} 
-                        className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
-                        loading="lazy"
-                        onError={(e) => {
-                          e.target.style.display = "none";
-                          if (e.target.nextSibling) e.target.nextSibling.style.display = "flex";
-                        }}
-                      />
-                      {post.videoUrl && (
-                        <div className="absolute inset-0 bg-black/25 group-hover/vid:bg-black/45 transition-colors flex items-center justify-center">
-                          <div className="w-13 h-13 rounded-full bg-[#0f2ea2]/95 hover:bg-[#0f2ea2] text-white flex items-center justify-center shadow-2xl backdrop-blur-sm border-2 border-white/90 transform group-hover/vid:scale-110 active:scale-95 transition-all">
-                            <Play className="w-6 h-6 fill-white ml-0.5" />
-                          </div>
-                          <span className="absolute bottom-2.5 right-3 px-2 py-0.5 rounded-md bg-black/75 backdrop-blur-sm text-white text-[10px] font-bold tracking-wide flex items-center gap-1 border border-white/10">
-                            <Play className="w-2.5 h-2.5 fill-white" />
-                            <span>Click to Play</span>
-                          </span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-[#0f2ea2] dark:bg-blue-950 dark:text-blue-300">
+                      {post.likes} Reactions • {post.comments} {post.comments === 1 ? 'Comment' : 'Comments'}
+                    </span>
+                  </div>
+                  <div className="p-3.5 text-xs whitespace-pre-wrap leading-relaxed text-slate-700 dark:text-slate-300 max-h-48 overflow-y-auto">
+                    {post.content}
+                  </div>
+                </div>
+
+                <div>
+                  {/* Visual Media from LinkedIn Live Stream */}
+                  {post.videoUrl || post.imageUrl ? (
+                    <div className="w-full bg-slate-950 flex items-center justify-center border-t border-b overflow-hidden relative group">
+                      {playingVideoId === post.id && post.videoUrl ? (
+                        <div className="w-full aspect-[16/9] bg-black flex items-center justify-center relative">
+                          <video
+                            src={post.videoUrl}
+                            controls
+                            autoPlay
+                            playsInline
+                            className="w-full h-full object-contain"
+                            onEnded={() => setPlayingVideoId(null)}
+                          />
                         </div>
-                      )}
-                      <div 
-                        style={{ display: "none" }}
-                        className="w-full aspect-[12/5] items-center justify-center"
-                        dangerouslySetInnerHTML={{ __html: index === 0 ? sampleBannerSvg : sampleWaveSvg }}
-                      />
+                      ) : post.imageUrl ? (
+                        <div 
+                          className={`w-full aspect-[16/9] relative overflow-hidden bg-slate-900 flex items-center justify-center ${
+                            post.videoUrl ? "cursor-pointer group/vid" : ""
+                          }`}
+                          onClick={() => {
+                            if (post.videoUrl) {
+                              setPlayingVideoId(post.id);
+                            }
+                          }}
+                        >
+                          <img 
+                            src={post.imageUrl} 
+                            alt={post.title || "Brother LinkedIn Post"} 
+                            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
+                            loading="lazy"
+                          />
+                          {post.videoUrl && (
+                            <div className="absolute inset-0 bg-black/25 group-hover/vid:bg-black/45 transition-colors flex items-center justify-center">
+                              <div className="w-13 h-13 rounded-full bg-[#0f2ea2]/95 hover:bg-[#0f2ea2] text-white flex items-center justify-center shadow-2xl backdrop-blur-sm border-2 border-white/90 transform group-hover/vid:scale-110 active:scale-95 transition-all">
+                                <Play className="w-6 h-6 fill-white ml-0.5" />
+                              </div>
+                              <span className="absolute bottom-2.5 right-3 px-2 py-0.5 rounded-md bg-black/75 backdrop-blur-sm text-white text-[10px] font-bold tracking-wide flex items-center gap-1 border border-white/10">
+                                <Play className="w-2.5 h-2.5 fill-white" />
+                                <span>Click to Play</span>
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      ) : null}
                     </div>
-                  ) : (
-                    <div 
-                      className="w-full aspect-[12/5] flex items-center justify-center"
-                      dangerouslySetInnerHTML={{ __html: index === 0 ? sampleBannerSvg : sampleWaveSvg }}
-                    />
-                  )}
-                </div>
+                  ) : null}
 
-                <div className="p-3 flex items-center justify-between text-xs text-slate-500">
-                  <span className="font-semibold">
-                    👍 {post.likes} • {post.comments} {post.comments === 1 ? 'comment' : 'comments'} • {post.reposts || 1} {post.reposts === 1 ? 'repost' : 'reposts'}
-                  </span>
-                  <a
-                    href={post.postUrl || "https://www.linkedin.com/company/brother-international-singapore-pte-ltd/posts/"}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-[#0f2ea2] dark:text-blue-400 font-semibold text-[11px] hover:underline flex items-center gap-1 cursor-pointer"
-                  >
-                    <span>Live on LinkedIn</span>
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
+                  <div className="p-3 flex items-center justify-between text-xs text-slate-500">
+                    <span className="font-semibold">
+                      👍 {post.likes} • {post.comments} {post.comments === 1 ? 'comment' : 'comments'} • {post.reposts || 1} {post.reposts === 1 ? 'repost' : 'reposts'}
+                    </span>
+                    <a
+                      href={post.postUrl || "https://www.linkedin.com/company/brother-international-singapore-pte-ltd/posts/"}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-[#0f2ea2] dark:text-blue-400 font-semibold text-[11px] hover:underline flex items-center gap-1 cursor-pointer"
+                    >
+                      <span>Live on LinkedIn</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
