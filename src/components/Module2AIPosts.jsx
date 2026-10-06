@@ -4,6 +4,7 @@ import { EXTENDED_AI_NEWS, searchSerperWithTimeframe, getEffectiveSerperKey, get
 import { generateAIDrafts } from '../lib/draftGenerator.js';
 import ImageTemplateStudio from './ImageTemplateStudio.jsx';
 import { safeGetItem, safeSetItem } from '../lib/storage.js';
+import { logActivity } from '../lib/auditLogger.js';
 
 export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavigateToSettings }) {
   const searchInputRef = useRef(null);
@@ -389,13 +390,21 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
 
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <button
-              onClick={() => onNavigateToDraftStudio({
-                content: currentDraft.postContent || currentDraft.post,
-                title: activeNews?.headline || 'News & Trends',
-                occasion: newsOccasion,
-                activeDraft: formattedDraftForStudio,
-                availableDrafts: baseDrafts
-              })}
+              onClick={() => {
+                logActivity({
+                  event: 'Opened News Draft in Studio',
+                  category: 'Content Generation',
+                  details: `Topic: "${activeNews?.headline || 'News & Trends'}" - Angle: ${currentDraft?.title || currentDraft?.name || 'Thought Leadership'}`,
+                  status: 'Success'
+                });
+                onNavigateToDraftStudio({
+                  content: currentDraft.postContent || currentDraft.post,
+                  title: activeNews?.headline || 'News & Trends',
+                  occasion: newsOccasion,
+                  activeDraft: formattedDraftForStudio,
+                  availableDrafts: baseDrafts
+                });
+              }}
               className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md transition-all active:scale-95"
             >
               <span>Open in Content Studio</span>
@@ -945,13 +954,21 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
                     </button>
                     {onNavigateToDraftStudio && (
                       <button
-                        onClick={() => onNavigateToDraftStudio({
-                          content: currentDraft.postContent || currentDraft.post,
-                          title: activeNews?.headline || 'News & Trends',
-                          occasion: newsOccasion,
-                          activeDraft: formattedDraftForStudio,
-                          availableDrafts: baseDrafts
-                        })}
+                        onClick={() => {
+                          logActivity({
+                            event: 'Opened News Draft in Studio',
+                            category: 'Content Generation',
+                            details: `Topic: "${activeNews?.headline || 'News & Trends'}" - Angle: ${currentDraft?.title || currentDraft?.name || 'Thought Leadership'}`,
+                            status: 'Success'
+                          });
+                          onNavigateToDraftStudio({
+                            content: currentDraft.postContent || currentDraft.post,
+                            title: activeNews?.headline || 'News & Trends',
+                            occasion: newsOccasion,
+                            activeDraft: formattedDraftForStudio,
+                            availableDrafts: baseDrafts
+                          });
+                        }}
                         className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
                       >
                         <span>Open in Content Studio</span>

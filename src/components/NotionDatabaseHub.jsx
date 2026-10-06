@@ -1,16 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Database, ShieldCheck, Mail, Send, CheckCircle2, Key, RefreshCw, 
   Table, Sparkles, ExternalLink, Code, Check, AlertCircle, Users, XCircle,
-  Eye, ThumbsUp, MessageSquare, Repeat2, BarChart3
+  Eye, ThumbsUp, MessageSquare, Repeat2, BarChart3, Activity, Clock, UserCheck
 } from 'lucide-react';
 import { safeGetItem, safeSetItem } from '../lib/storage.js';
 import { RECENT_LINKEDIN_POSTS } from '../lib/linkedInApi.js';
 import { BENCHMARK_TEMPLATES } from '../lib/templateExtractor.js';
+import { fetchNotionAuditLogs, logActivity, getLocalAuditLogs } from '../lib/auditLogger.js';
 import NotionIcon from './icons/NotionIcon.jsx';
 
 export default function NotionDatabaseHub({ isDark }) {
-  const [activeDb, setActiveDb] = useState('posts');
+  const [activeDb, setActiveDb] = useState('audit'); // Default to audit log tab
   const [magicEmail, setMagicEmail] = useState('');
   const [magicLinkSent, setMagicLinkSent] = useState(false);
   const [magicLoading, setMagicLoading] = useState(false);
@@ -30,6 +31,12 @@ export default function NotionDatabaseHub({ isDark }) {
   // Template Seeding State
   const [seedingTemplates, setSeedingTemplates] = useState(false);
   const [templateSeedResult, setTemplateSeedResult] = useState(null);
+
+  // Audit Logs State
+  const [auditLogs, setAuditLogs] = useState(() => getLocalAuditLogs());
+  const [loadingAuditLogs, setLoadingAuditLogs] = useState(false);
+  const [auditFilter, setAuditFilter] = useState('all');
+  const [auditResult, setAuditResult] = useState(null);
 
   const [teamData, setTeamData] = useState(() => {
     try {
@@ -66,13 +73,40 @@ export default function NotionDatabaseHub({ isDark }) {
     { headline: "Multimodal Document Intelligence", topic: "Document AI", source: "TechCrunch", freshness: "7 Days", wordCount: "120 words" }
   ];
 
-  const handleSendMagicLink = () => {
-    if (!magicEmail) return;
-    setMagicLoading(true);
-    setTimeout(() => {
-      setMagicLoading(false);
-      setMagicLinkSent(true);
-    }, 1000);
+  // Fetch Audit logs on mount
+  useEffect(() => {
+    handleFetchAuditLogs();
+  }, []);
+
+  const handleFetchAuditLogs = async () => {
+    setLoadingAuditLogs(true);
+    try {
+      const token = inputToken || safeGetItem('notion_token');
+      const data = await fetchNotionAuditLogs(token);
+      if (data && Array.isArray(data.logs)) {
+        setAuditLogs(data.logs);
+      }
+    } catch (err) {
+      console.warn('Error fetching audit logs:', err);
+    } finally {
+      setLoadingAuditLogs(false);
+    }
+  };
+
+  const handleLogTestActivity = async () => {
+    const testLog = await logActivity({
+      event: 'Manual Audit Health Check',
+      category: 'System',
+      details: 'Admin triggered manual audit log ping from Notion Hub',
+      status: 'Success'
+    });
+    if (testLog) {
+      setAuditLogs(prev => [testLog, ...prev]);
+      setAuditResult({
+        status: 'success',
+        message: 'Test audit log recorded and dispatched to Notion!'
+      });
+    }
   };
 
   const handleSeedAllNotionDatabases = async () => {
@@ -212,6 +246,28 @@ export default function NotionDatabaseHub({ isDark }) {
     }
   };
 
+  const filteredAuditLogs = auditLogs.filter(log => {
+    if (auditFilter === 'all') return true;
+    return (log.category || '').toLowerCase() === auditFilter.toLowerCase();
+  });
+
+  const getCategoryBadge = (cat) => {
+    switch ((cat || '').toLowerCase()) {
+      case 'auth':
+        return 'bg-blue-100 text-[#0f2ea2] dark:bg-blue-950/70 dark:text-blue-300 border-blue-200';
+      case 'content generation':
+        return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/70 dark:text-emerald-300 border-emerald-200';
+      case 'visual studio':
+        return 'bg-purple-100 text-purple-700 dark:bg-purple-950/70 dark:text-purple-300 border-purple-200';
+      case 'review gate':
+        return 'bg-amber-100 text-amber-700 dark:bg-amber-950/70 dark:text-amber-300 border-amber-200';
+      case 'publishing':
+        return 'bg-rose-100 text-rose-700 dark:bg-rose-950/70 dark:text-rose-300 border-rose-200';
+      default:
+        return 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-200';
+    }
+  };
+
   return (
     <div className="space-y-4 sm:space-y-6 max-w-6xl mx-auto">
       {/* Header Banner */}
@@ -222,13 +278,13 @@ export default function NotionDatabaseHub({ isDark }) {
           <div>
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#0f2ea2]/10 text-[#0f2ea2] dark:text-blue-400 text-[11px] font-bold uppercase tracking-wider mb-1.5 sm:mb-2">
               <NotionIcon className="w-3.5 h-3.5" />
-              Enterprise Notion Repository
+              Enterprise Notion Repository & Audit
             </div>
             <h2 className={`text-lg sm:text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
-              Enterprise Post & Telemetry Repository
+              Enterprise Notion Hub & Activity Audit Log
             </h2>
             <p className="text-xs text-slate-500 mt-1 max-w-2xl">
-              Notion serves as the <strong className="text-[#0f2ea2] dark:text-blue-400">enterprise repository & archive</strong> for final published posts, verified analytics telemetry, and team whitelist records. Drafting and multi-agent generation happen natively inside LinkedUsIn Studio.
+              Notion serves as the <strong className="text-[#0f2ea2] dark:text-blue-400">enterprise telemetry & audit repository</strong> for all user logins, content generation events, visual customizations, and publishing actions.
             </p>
           </div>
 
@@ -301,6 +357,19 @@ export default function NotionDatabaseHub({ isDark }) {
           </div>
         )}
 
+        {/* Audit Result Alert */}
+        {auditResult && (
+          <div className="mt-4 p-3.5 rounded-xl text-xs flex items-center justify-between border bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+              <span>{auditResult.message}</span>
+            </div>
+            <button onClick={() => setAuditResult(null)} className="opacity-60 hover:opacity-100">
+              ✕
+            </button>
+          </div>
+        )}
+
         {/* Analytics Sync Result Alert */}
         {analyticsSyncResult && (
           <div className={`mt-4 p-3.5 rounded-xl text-xs flex items-center justify-between border ${
@@ -343,43 +412,157 @@ export default function NotionDatabaseHub({ isDark }) {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-4 dark:border-slate-800">
           <div>
             <h3 className={`text-base font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
-              Enterprise Database Schemas
+              Enterprise Database Schemas & Logs
             </h3>
             <p className="text-xs text-slate-500">
-              Select a repository view to inspect database records and verified telemetry.
+              Select a view to inspect live audit activity, post telemetry, whitelist records, or templates.
             </p>
           </div>
 
           <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-950 p-1 rounded-xl border dark:border-slate-800 text-xs font-bold overflow-x-auto max-w-full">
             <button
+              onClick={() => setActiveDb('audit')}
+              className={`px-3 py-1.5 rounded-lg whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${activeDb === 'audit' ? 'bg-[#0f2ea2] text-white shadow-sm' : 'text-slate-500'}`}
+            >
+              <Activity className="w-3.5 h-3.5" />
+              <span>1. Live Activity & Audit Log ({auditLogs.length})</span>
+            </button>
+            <button
               onClick={() => setActiveDb('posts')}
               className={`px-3 py-1.5 rounded-lg whitespace-nowrap cursor-pointer ${activeDb === 'posts' ? 'bg-[#0f2ea2] text-white shadow-sm' : 'text-slate-500'}`}
             >
-              1. Posts & Telemetry Repo ({postsData.length})
+              2. Posts & Telemetry ({postsData.length})
             </button>
             <button
               onClick={() => setActiveDb('team')}
               className={`px-3 py-1.5 rounded-lg whitespace-nowrap cursor-pointer ${activeDb === 'team' ? 'bg-[#0f2ea2] text-white shadow-sm' : 'text-slate-500'}`}
             >
-              2. Team Whitelist DB ({teamData.length})
+              3. Team Whitelist ({teamData.length})
             </button>
             <button
               onClick={() => setActiveDb('templates')}
               className={`px-3 py-1.5 rounded-lg whitespace-nowrap cursor-pointer ${activeDb === 'templates' ? 'bg-[#0f2ea2] text-white shadow-sm' : 'text-slate-500'}`}
             >
-              3. Templates DB
+              4. Templates DB
             </button>
             <button
               onClick={() => setActiveDb('research')}
               className={`px-3 py-1.5 rounded-lg whitespace-nowrap cursor-pointer ${activeDb === 'research' ? 'bg-[#0f2ea2] text-white shadow-sm' : 'text-slate-500'}`}
             >
-              4. Research DB
+              5. Research DB
             </button>
           </div>
         </div>
 
         {/* Database Table View */}
         <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 custom-scrollbar">
+          {activeDb === 'audit' && (
+            <div>
+              {/* Audit Toolbar */}
+              <div className="p-3 bg-slate-50 dark:bg-slate-950 border-b dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                    Live Telemetry & Audit Stream
+                  </span>
+                  <div className="flex items-center gap-1 text-[11px]">
+                    {['all', 'auth', 'content generation', 'visual studio', 'publishing', 'settings'].map(cat => (
+                      <button
+                        key={cat}
+                        onClick={() => setAuditFilter(cat)}
+                        className={`px-2 py-0.5 rounded-md capitalize font-semibold cursor-pointer ${
+                          auditFilter === cat 
+                            ? 'bg-[#0f2ea2] text-white' 
+                            : 'bg-slate-200/60 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                        }`}
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 self-end sm:self-auto">
+                  <button
+                    onClick={handleLogTestActivity}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold cursor-pointer"
+                  >
+                    <span>+ Log Test Ping</span>
+                  </button>
+                  <button
+                    onClick={handleFetchAuditLogs}
+                    disabled={loadingAuditLogs}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold transition-all disabled:opacity-50 cursor-pointer shadow-sm"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${loadingAuditLogs ? 'animate-spin' : ''}`} />
+                    <span>{loadingAuditLogs ? 'Pulling Logs...' : '⚡ Refresh from Notion'}</span>
+                  </button>
+                </div>
+              </div>
+
+              {filteredAuditLogs.length === 0 ? (
+                <div className="p-8 text-center text-slate-500 text-xs">
+                  No activity logs found for this filter. Actions taken in the portal (Logins, Search, Carousel generation, Publishing) will appear here automatically.
+                </div>
+              ) : (
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-50/80 dark:bg-slate-950 text-slate-500 font-bold border-b dark:border-slate-800 text-[11px] uppercase tracking-wider">
+                    <tr>
+                      <th className="p-3">Event / Action</th>
+                      <th className="p-3">Category</th>
+                      <th className="p-3">User & Role</th>
+                      <th className="p-3">Details & Context</th>
+                      <th className="p-3">Status</th>
+                      <th className="p-3">Timestamp</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+                    {filteredAuditLogs.map((row, i) => (
+                      <tr key={row.id || i} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30">
+                        <td className="p-3 font-bold text-slate-900 dark:text-white">
+                          <div className="flex items-center gap-1.5">
+                            <span>{row.event}</span>
+                            {row.url && (
+                              <a href={row.url} target="_blank" rel="noreferrer" title="Open row in Notion">
+                                <ExternalLink className="w-3 h-3 text-slate-400 hover:text-[#0f2ea2]" />
+                              </a>
+                            )}
+                          </div>
+                        </td>
+                        <td className="p-3">
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${getCategoryBadge(row.category)}`}>
+                            {row.category || 'System'}
+                          </span>
+                        </td>
+                        <td className="p-3">
+                          <div className="font-semibold text-slate-800 dark:text-slate-200">{row.user || 'Anonymous'}</div>
+                          {row.email && <div className="text-[11px] text-slate-400 font-mono">{row.email}</div>}
+                          <div className="text-[10px] text-slate-500">{row.role || 'Member'}</div>
+                        </td>
+                        <td className="p-3 text-slate-600 dark:text-slate-300 max-w-xs break-words text-[11px] font-mono leading-relaxed">
+                          {row.details || '—'}
+                        </td>
+                        <td className="p-3">
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                            row.status === 'Success' 
+                              ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300' 
+                              : row.status === 'Warning'
+                                ? 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300'
+                                : 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300'
+                          }`}>
+                            {row.status || 'Success'}
+                          </span>
+                        </td>
+                        <td className="p-3 font-mono text-[11px] text-slate-500 whitespace-nowrap">
+                          {new Date(row.timestamp).toLocaleString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          )}
+
           {activeDb === 'posts' && (
             <div>
               {/* Repository Toolbar */}

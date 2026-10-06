@@ -35,6 +35,7 @@ import {
   getEffectiveFooterText
 } from '../lib/imageTemplateEngine.js';
 import { safeGetItem, safeSetItem } from '../lib/storage.js';
+import { logActivity } from '../lib/auditLogger.js';
 
 export default function ImageTemplateStudio({ 
   occasion, 
@@ -230,6 +231,12 @@ export default function ImageTemplateStudio({
         const eventSlug = (occasion?.name || 'brother-sg').toLowerCase().replace(/[^a-z0-9]+/g, '-');
         a.download = `${eventSlug}-slide-${currentSlide.slideIndex}-${slideName}.png`;
         a.click();
+        logActivity({
+          event: 'Exported Single Carousel Slide',
+          category: 'Visual Studio',
+          details: `Downloaded Slide ${currentSlide.slideIndex} (${currentSlide.roleTitle}) for "${occasion?.name || 'Brother Post'}"`,
+          status: 'Success'
+        });
       }
     } catch (err) {
       console.error('Error generating image export:', err);
@@ -264,6 +271,12 @@ export default function ImageTemplateStudio({
           await new Promise((r) => setTimeout(r, 400));
         }
       }
+      logActivity({
+        event: 'Exported Full 5-Slide Carousel Pack',
+        category: 'Visual Studio',
+        details: `Downloaded all 5 slides (1080x1080) for "${occasion?.name || 'Brother Post'}" - ${activeDraft?.name || 'Curated Angle'}`,
+        status: 'Success'
+      });
     } catch (err) {
       console.error('Error batch exporting slides:', err);
     } finally {

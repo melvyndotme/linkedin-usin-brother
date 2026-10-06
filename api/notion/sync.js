@@ -1,4 +1,120 @@
-// Vercel Serverless Function: Sync Final Posts & Telemetry to Notion Repository Database
+// Vercel Serverless Function: Sync Final Posts, Telemetry, and Audit Logs to Notion Database
+
+function formatAuditLogs(results) {
+  return results.map(page => {
+    const props = page.properties || {};
+    const event = props['Event']?.title?.[0]?.plain_text || props['Event']?.title?.[0]?.text?.content || 'Activity';
+    const user = props['User']?.rich_text?.[0]?.plain_text || props['User']?.title?.[0]?.plain_text || 'Anonymous';
+    const email = props['Email']?.email || props['Email']?.rich_text?.[0]?.plain_text || '';
+    const role = props['Role']?.select?.name || props['Role']?.rich_text?.[0]?.plain_text || 'Team Member';
+    const category = props['Category']?.select?.name || props['Category']?.rich_text?.[0]?.plain_text || 'System';
+    const details = props['Details']?.rich_text?.[0]?.plain_text || '';
+    const status = props['Status']?.select?.name || props['Status']?.rich_text?.[0]?.plain_text || 'Success';
+    const timestamp = props['Timestamp']?.date?.start || page.created_time || new Date().toISOString();
+
+    return {
+      id: page.id,
+      event,
+      user,
+      email,
+      role,
+      category,
+      details,
+      status,
+      timestamp,
+      url: page.url
+    };
+  });
+}
+
+async function getOrCreateAuditDatabase(headers, parentPageId) {
+  // 1. Search for existing Audit Log database
+  try {
+    const searchRes = await fetch('https://api.notion.com/v1/search', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        filter: { value: 'database', property: 'object' },
+        page_size: 50
+      })
+    });
+    if (searchRes.ok) {
+      const searchData = await searchRes.json();
+      const databases = searchData.results || [];
+      const auditDb = databases.find(d => {
+        const title = (d.title || []).map(t => t.plain_text).join('').toLowerCase();
+        return title.includes('audit') || title.includes('activity') || title.includes('telemetry log');
+      });
+      if (auditDb) return auditDb.id.replace(/-/g, '');
+    }
+  } catch (e) {
+    console.warn('Error searching for audit db:', e.message);
+  }
+
+  // 2. Auto-create Audit Database if parent page is available
+  const cleanParentId = (parentPageId || '3c701136de488101b258000b3c706126').replace(/-/g, '');
+  try {
+    const createDbRes = await fetch('https://api.notion.com/v1/databases', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        parent: { type: 'page_id', page_id: cleanParentId },
+        icon: { type: 'emoji', emoji: '📋' },
+        title: [{ type: 'text', text: { content: 'LinkedUsIn Activity & Audit Log' } }],
+        properties: {
+          'Event': { title: {} },
+          'User': { rich_text: {} },
+          'Email': { email: {} },
+          'Role': {
+            select: {
+              options: [
+                { name: 'Admin', color: 'blue' },
+                { name: 'Reviewer', color: 'purple' },
+                { name: 'Team Member', color: 'green' },
+                { name: 'External Advisor', color: 'yellow' },
+                { name: 'System', color: 'gray' }
+              ]
+            }
+          },
+          'Category': {
+            select: {
+              options: [
+                { name: 'Auth', color: 'blue' },
+                { name: 'Content Generation', color: 'green' },
+                { name: 'Visual Studio', color: 'purple' },
+                { name: 'Review Gate', color: 'orange' },
+                { name: 'Publishing', color: 'red' },
+                { name: 'Settings', color: 'pink' },
+                { name: 'System', color: 'gray' }
+              ]
+            }
+          },
+          'Details': { rich_text: {} },
+          'Status': {
+            select: {
+              options: [
+                { name: 'Success', color: 'green' },
+                { name: 'Warning', color: 'yellow' },
+                { name: 'Error', color: 'red' },
+                { name: 'Pending', color: 'gray' }
+              ]
+            }
+          },
+          'Timestamp': { date: {} }
+        }
+      })
+    });
+
+    if (createDbRes.ok) {
+      const createdDb = await createDbRes.json();
+      return createdDb.id.replace(/-/g, '');
+    }
+  } catch (err) {
+    console.warn('Error auto-creating audit db:', err.message);
+  }
+
+  return null;
+}
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', true);
@@ -13,8 +129,8 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
-  const apiKey = req.body?.apiKey || process.env.NOTION_API_KEY;
-  const databaseId = req.body?.databaseId;
+  const apiKey = req.body?.apiKey || req.query?.apiKey || process.env.NOTION_API_KEY;
+  const databaseId = req.body?.databaseId || req.query?.databaseId;
   const action = req.body?.action || req.query?.action;
 
   if (!apiKey) {
@@ -126,7 +242,137 @@ export default async function handler(req, res) {
     }
   }
 
-  // 2. Post Sync Routine
+  // 2. Audit Log - Write Event Routine
+  if (action === 'log_audit' || action === 'audit_log') {
+    const { event, user, email, role, category, details, status, timestamp } = req.body || {};
+    if (!event) {
+      return res.status(400).json({ success: false, error: 'Event name is required for audit logging.' });
+    }
+
+    try {
+      const auditDbId = await getOrCreateAuditDatabase(headers, databaseId);
+      if (!auditDbId) {
+        return res.status(200).json({
+          success: true,
+          logged: false,
+          message: 'Notion Audit Log database not found or could not be auto-created.'
+        });
+      }
+
+      const isoTimestamp = timestamp || new Date().toISOString();
+      const userStr = user || email?.split('@')[0] || 'Anonymous';
+      const emailStr = email || '';
+      const roleStr = role || 'Team Member';
+      const categoryStr = category || 'System';
+      const detailsStr = typeof details === 'object' ? JSON.stringify(details, null, 2) : String(details || '');
+      const statusStr = status || 'Success';
+
+      const pageRes = await fetch('https://api.notion.com/v1/pages', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          parent: { database_id: auditDbId },
+          properties: {
+            'Event': {
+              title: [{ type: 'text', text: { content: String(event).slice(0, 200) } }]
+            },
+            'User': {
+              rich_text: [{ type: 'text', text: { content: String(userStr).slice(0, 200) } }]
+            },
+            ...(emailStr ? { 'Email': { email: emailStr } } : {}),
+            'Role': {
+              select: { name: roleStr }
+            },
+            'Category': {
+              select: { name: categoryStr }
+            },
+            'Details': {
+              rich_text: [{ type: 'text', text: { content: detailsStr.slice(0, 2000) } }]
+            },
+            'Status': {
+              select: { name: statusStr }
+            },
+            'Timestamp': {
+              date: { start: isoTimestamp }
+            }
+          }
+        })
+      });
+
+      if (!pageRes.ok) {
+        const errJson = await pageRes.json();
+        return res.status(pageRes.status).json({
+          success: false,
+          error: errJson.message || 'Failed to insert audit log entry to Notion.'
+        });
+      }
+
+      const pageData = await pageRes.json();
+      return res.status(200).json({
+        success: true,
+        logged: true,
+        pageId: pageData.id,
+        url: pageData.url,
+        message: `Audit event '${event}' recorded in Notion!`
+      });
+    } catch (e) {
+      console.error('Audit log write error:', e);
+      return res.status(500).json({ success: false, error: e.message });
+    }
+  }
+
+  // 3. Audit Log - Read Events Routine
+  if (action === 'get_audit_logs' || action === 'audit_list') {
+    try {
+      const auditDbId = await getOrCreateAuditDatabase(headers, databaseId);
+      if (!auditDbId) {
+        return res.status(200).json({ success: true, logs: [], total: 0 });
+      }
+
+      let queryRes = await fetch(`https://api.notion.com/v1/databases/${auditDbId}/query`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          page_size: 50,
+          sorts: [
+            {
+              property: 'Timestamp',
+              direction: 'descending'
+            }
+          ]
+        })
+      });
+
+      if (!queryRes.ok) {
+        // Fallback without sorts
+        queryRes = await fetch(`https://api.notion.com/v1/databases/${auditDbId}/query`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ page_size: 50 })
+        });
+      }
+
+      if (!queryRes.ok) {
+        const err = await queryRes.json();
+        return res.status(queryRes.status).json({ success: false, error: err.message });
+      }
+
+      const data = await queryRes.json();
+      const logs = formatAuditLogs(data.results || []);
+      return res.status(200).json({
+        success: true,
+        logs,
+        total: logs.length,
+        databaseId: auditDbId,
+        databaseUrl: `https://notion.so/${auditDbId}`
+      });
+    } catch (e) {
+      console.error('Audit log read error:', e);
+      return res.status(500).json({ success: false, error: e.message });
+    }
+  }
+
+  // 4. Post Sync Routine
   const singlePost = req.body?.post;
   const postsList = req.body?.posts || (singlePost ? [singlePost] : null);
 
@@ -244,7 +490,6 @@ export default async function handler(req, res) {
         props['Scheduled Date'] = { date: { start: post.date } };
       }
 
-      // Check schema before assigning analytics to avoid 400s
       const lowerMap = {};
       for (const key of Object.keys(dbProps)) {
         lowerMap[key.toLowerCase()] = key;
@@ -259,7 +504,6 @@ export default async function handler(req, res) {
             props[matchKey] = { rich_text: [{ type: 'text', text: { content: String(val || '') } }] };
           }
         } else {
-          // Default fallbacks if schema wasn't pre-fetched
           if (type === 'number') {
             props[canonical] = { number: parseNum(val) };
           } else {
@@ -355,7 +599,6 @@ export default async function handler(req, res) {
     const results = [];
 
     for (const post of postsList) {
-      // 1. Check if page already exists by Title in database
       let existingPageId = null;
       try {
         const queryRes = await fetch(`https://api.notion.com/v1/databases/${targetDbId}/query`, {
@@ -380,7 +623,6 @@ export default async function handler(req, res) {
       }
 
       if (existingPageId) {
-        // Update existing page properties (telemetry update)
         const updateRes = await fetch(`https://api.notion.com/v1/pages/${existingPageId}`, {
           method: 'PATCH',
           headers,
@@ -400,7 +642,6 @@ export default async function handler(req, res) {
         }
       }
 
-      // Create new page
       const createRes = await fetch('https://api.notion.com/v1/pages', {
         method: 'POST',
         headers,

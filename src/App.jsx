@@ -12,6 +12,7 @@ import TeamView from './components/TeamView.jsx';
 import SettingsView from './components/SettingsView.jsx';
 import ProfileView from './components/ProfileView.jsx';
 import { safeGetItem, safeSetItem, safeRemoveItem } from './lib/storage.js';
+import { logActivity } from './lib/auditLogger.js';
 
 class ErrorBoundary extends Component {
   constructor(props) {
@@ -132,6 +133,12 @@ export default function App() {
       setCurrentUser(user);
       setIsAuthenticated(true);
       safeSetItem('linkedusin_user', JSON.stringify(user));
+      logActivity({
+        event: 'User Session Authenticated',
+        category: 'Auth',
+        details: `Signed in as ${user.name} (${user.role}) via magic link`,
+        user
+      });
       // Clean URL
       window.history.replaceState({}, document.title, window.location.pathname);
     }
@@ -165,9 +172,23 @@ export default function App() {
     setCurrentUser(user);
     setIsAuthenticated(true);
     safeSetItem('linkedusin_user', JSON.stringify(user));
+    logActivity({
+      event: 'User Logged In',
+      category: 'Auth',
+      details: `Active session started for ${user.name} (${user.email})`,
+      user
+    });
   };
 
   const handleLogout = () => {
+    if (currentUser) {
+      logActivity({
+        event: 'User Logged Out',
+        category: 'Auth',
+        details: `Session ended for ${currentUser.name} (${currentUser.email})`,
+        user: currentUser
+      });
+    }
     safeRemoveItem('linkedusin_user');
     setIsAuthenticated(false);
     setCurrentUser(null);

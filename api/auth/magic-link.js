@@ -1,5 +1,57 @@
 // Vercel Serverless Function: Notion-Verified Magic Link Email Dispatcher (Resend API)
 
+async function logAuthAudit(apiKey, event, user, email, role, details, status) {
+  if (!apiKey) return;
+  try {
+    // 1. Search for Audit Database
+    const searchRes = await fetch('https://api.notion.com/v1/search', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Notion-Version': '2022-06-28',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        filter: { value: 'database', property: 'object' },
+        page_size: 50
+      })
+    });
+    if (!searchRes.ok) return;
+    const searchData = await searchRes.json();
+    const databases = searchData.results || [];
+    const auditDb = databases.find(d => {
+      const title = (d.title || []).map(t => t.plain_text).join('').toLowerCase();
+      return title.includes('audit') || title.includes('activity') || title.includes('telemetry log');
+    });
+
+    if (!auditDb) return;
+
+    await fetch('https://api.notion.com/v1/pages', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Notion-Version': '2022-06-28',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        parent: { database_id: auditDb.id },
+        properties: {
+          'Event': { title: [{ text: { content: event } }] },
+          'User': { rich_text: [{ text: { content: user || 'Anonymous' } }] },
+          ...(email ? { 'Email': { email: email } } : {}),
+          'Role': { select: { name: role || 'Team Member' } },
+          'Category': { select: { name: 'Auth' } },
+          'Details': { rich_text: [{ text: { content: String(details || '').slice(0, 2000) } }] },
+          'Status': { select: { name: status || 'Success' } },
+          'Timestamp': { date: { start: new Date().toISOString() } }
+        }
+      })
+    });
+  } catch (err) {
+    console.warn('Auth audit log error (silent):', err.message);
+  }
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -20,7 +72,6 @@ export default async function handler(req, res) {
   }
 
   const normalizedEmail = email.trim().toLowerCase();
-
   const activeNotionKey = notionKey || process.env.NOTION_API_KEY;
   let matchedUser = null;
 
@@ -89,6 +140,7 @@ export default async function handler(req, res) {
 
   // STRICT REJECTION: If not on Notion Team Whitelist or designated team list, block login!
   if (!matchedUser) {
+    logAuthAudit(activeNotionKey, 'Login Rejected', 'Unknown', normalizedEmail, 'Unauthorized', 'Email not in whitelist', 'Warning');
     return res.status(403).json({
       success: false,
       error: `Access Restricted: ${email} is not listed on the Team List. Please contact Admin to be added.`
@@ -163,6 +215,7 @@ export default async function handler(req, res) {
       const resendData = await resendResponse.json();
       if (!resendResponse.ok) {
         console.warn('Resend API dispatch failed:', resendData);
+        logAuthAudit(activeNotionKey, 'Magic Link Created (Delivery Warning)', matchedUser.name, matchedUser.email, matchedUser.role, `Resend Notice: ${resendData.message || 'Free tier limit'}`, 'Warning');
         return res.status(200).json({
           success: true,
           message: `Magic link created! (Resend Notice: ${resendData.message || 'Free tier test domain restriction'})`,
@@ -172,6 +225,8 @@ export default async function handler(req, res) {
           simulated: false
         });
       }
+
+      logAuthAudit(activeNotionKey, 'Magic Link Sent via Email', matchedUser.name, matchedUser.email, matchedUser.role, `Email delivered via Resend ID ${resendData.id}`, 'Success');
 
       return res.status(200).json({
         success: true,
@@ -185,6 +240,8 @@ export default async function handler(req, res) {
       console.error('Error dispatching Resend email:', err);
     }
   }
+
+  logAuthAudit(activeNotionKey, 'Magic Link Generated (Direct Mode)', matchedUser.name, matchedUser.email, matchedUser.role, 'Generated token for direct authentication', 'Success');
 
   return res.status(200).json({
     success: true,

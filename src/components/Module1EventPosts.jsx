@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Calendar, Sparkles, Copy, Check, Download, ArrowRight, Flame, Layers, ExternalLink, RefreshCw, AlertCircle, Database, CheckCircle2, Plus, Trash2, Tag, X } from 'lucide-react';
 import ImageTemplateStudio from './ImageTemplateStudio.jsx';
 import { safeGetItem, safeSetItem } from '../lib/storage.js';
+import { logActivity } from '../lib/auditLogger.js';
 
 // Color Scheme:
 // Blue: Official Brother Events
@@ -357,6 +358,13 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
     setCustomEvents(updated);
     safeSetItem('brother_custom_events', JSON.stringify(updated));
 
+    logActivity({
+      event: 'Created Custom Calendar Event',
+      category: 'Content Generation',
+      details: `Created custom event "${newEvent.name}" (${newEvent.date}) under ${newEvent.category}`,
+      status: 'Success'
+    });
+
     // Select the new event and close modal
     handleSelectOccasion(newEvent);
     setShowAddModal(false);
@@ -622,13 +630,21 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
                   </button>
                   {onNavigateToDraftStudio && currentDraft && (
                     <button
-                      onClick={() => onNavigateToDraftStudio({
-                        content: currentDraft.post,
-                        title: `${selectedOccasion.name} ${selectedOccasion.year || 2026}`,
-                        occasion: selectedOccasion,
-                        activeDraft: currentDraft,
-                        availableDrafts: drafts
-                      })}
+                      onClick={() => {
+                        logActivity({
+                          event: 'Opened Event Draft in Studio',
+                          category: 'Content Generation',
+                          details: `Selected "${selectedOccasion.name}" - ${currentDraft.name}`,
+                          status: 'Success'
+                        });
+                        onNavigateToDraftStudio({
+                          content: currentDraft.post,
+                          title: `${selectedOccasion.name} ${selectedOccasion.year || 2026}`,
+                          occasion: selectedOccasion,
+                          activeDraft: currentDraft,
+                          availableDrafts: drafts
+                        });
+                      }}
                       className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold transition-all shadow-sm cursor-pointer"
                     >
                       <span>Open in Content Studio</span>

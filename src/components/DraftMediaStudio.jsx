@@ -9,6 +9,7 @@ import { publishToLinkedInApi } from '../lib/linkedInApi.js';
 import { safeGetItem, safeSetItem } from '../lib/storage.js';
 import { generateAIDrafts, generateFestiveDrafts } from '../lib/draftGenerator.js';
 import { BENCHMARK_TEMPLATES } from '../lib/templateExtractor.js';
+import { logActivity } from '../lib/auditLogger.js';
 
 export default function DraftMediaStudio({ 
   isDark, 
@@ -364,13 +365,26 @@ To everyone celebrating, how is your team marking this special day? Share your f
           notionStatus: 'Synced to Notion Repository',
           postUrl: 'https://www.linkedin.com/company/brother-international-singapore-pte-ltd/posts/'
         });
+        logActivity({
+          event: 'Published Post to LinkedIn',
+          category: 'Publishing',
+          details: `Published "${title}" via ${result.provider || 'LinkedIn REST API'} (URN: ${result.urn})`,
+          status: 'Success'
+        });
         handleSaveToNotionRepository(result.urn);
         return;
       } else {
         setPublishing(false);
+        const errMsg = result?.error || (bufferKey ? 'Buffer API error occurred.' : 'LinkedIn API returned an error. Ensure Buffer API Key or OAuth 2.0 token is configured.');
         setPublishError({
-          message: result?.error || (bufferKey ? 'Buffer API error occurred.' : 'LinkedIn API returned an error. Ensure Buffer API Key or OAuth 2.0 token is configured.'),
+          message: errMsg,
           needsToken: !token && !bufferKey
+        });
+        logActivity({
+          event: 'LinkedIn Publish Attempt Failed',
+          category: 'Publishing',
+          details: `Failed publishing "${title}": ${errMsg}`,
+          status: 'Error'
         });
       }
     } catch (err) {
@@ -379,6 +393,12 @@ To everyone celebrating, how is your team marking this special day? Share your f
       setPublishError({
         message: err.message || 'Network error connecting to publishing API.',
         needsToken: !token && !bufferKey
+      });
+      logActivity({
+        event: 'LinkedIn Publish Error',
+        category: 'Publishing',
+        details: `Exception publishing "${title}": ${err.message}`,
+        status: 'Error'
       });
     }
   };
@@ -395,6 +415,12 @@ To everyone celebrating, how is your team marking this special day? Share your f
         isLive: false,
         publishedAt: new Date().toLocaleTimeString(),
         notionStatus: 'Synced to Notion Repository'
+      });
+      logActivity({
+        event: 'Simulated LinkedIn Broadcast',
+        category: 'Publishing',
+        details: `Simulated post broadcast for "${title}" in Sandbox mode`,
+        status: 'Success'
       });
       handleSaveToNotionRepository(mockUrn);
     }, 800);
