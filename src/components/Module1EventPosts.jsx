@@ -193,19 +193,68 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
   // Category Filter: 'all', 'public_holiday', 'custom'
   const [eventCategoryFilter, setEventCategoryFilter] = useState('all');
 
-  // Custom Events State (loaded from localStorage)
+  // Custom Events State (hydrated instantly from localStorage, synced with /api/events & Notion)
   const [customEvents, setCustomEvents] = useState(() => {
     try {
       const stored = safeGetItem('brother_custom_events');
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed)) {
+          // If user previously initialized custom events (even if empty), preserve it
+          if (parsed.length > 0 || safeGetItem('brother_custom_events_initialized') === 'true') {
+            return parsed;
+          }
+        }
       }
     } catch (e) {
       console.warn('Could not read custom events from storage:', e);
     }
     return INITIAL_CUSTOM_EVENTS;
   });
+  const [loadingCustomEvents, setLoadingCustomEvents] = useState(false);
+
+  // Sync custom events from server / Notion database
+  const fetchCustomEvents = async () => {
+    try {
+      setLoadingCustomEvents(true);
+      const res = await fetch('/api/events');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && Array.isArray(data.events)) {
+          setCustomEvents(prev => {
+            const serverEvents = data.events;
+            if (serverEvents.length === 0 && safeGetItem('brother_custom_events_initialized') !== 'true') {
+              return prev.length > 0 ? prev : INITIAL_CUSTOM_EVENTS;
+            }
+
+            const map = new Map();
+            // Pre-seed server events
+            for (const ev of serverEvents) {
+              map.set(ev.id, ev);
+            }
+            // Preserve local events not yet synced or created offline
+            for (const ev of prev) {
+              if (!map.has(ev.id) && !serverEvents.some(s => s.name?.toLowerCase().trim() === ev.name?.toLowerCase().trim())) {
+                map.set(ev.id, ev);
+              }
+            }
+            const merged = Array.from(map.values());
+            safeSetItem('brother_custom_events', JSON.stringify(merged));
+            safeSetItem('brother_custom_events_initialized', 'true');
+            return merged;
+          });
+        }
+      }
+    } catch (err) {
+      console.warn('Failed to sync custom events from server:', err);
+    } finally {
+      setLoadingCustomEvents(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCustomEvents();
+  }, []);
 
   // Modal State for Adding Custom Event
   const [showAddModal, setShowAddModal] = useState(false);
@@ -222,6 +271,16 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
   const [newEventType, setNewEventType] = useState('promotion');
   const [newEventDetails, setNewEventDetails] = useState('');
   const [newEventTheme, setNewEventTheme] = useState('red');
+
+  const handleOpenAddModal = () => {
+    const d = new Date();
+    d.setDate(d.getDate() + 7);
+    if (selectedYear !== 'all' && String(d.getFullYear()) !== selectedYear) {
+      d.setFullYear(parseInt(selectedYear, 10));
+    }
+    setNewEventDate(d.toISOString().split('T')[0]);
+    setShowAddModal(true);
+  };
 
   // SVG Customization
   const [customBadge, setCustomBadge] = useState('Celebrate SG Special');
@@ -294,7 +353,18 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
 
     // Filter events
     all = all.filter(evt => {
-      // Exclude 2025 unless explicitly selected
+      // Custom events created by the user or pre-seeded:
+      if (evt.isCustom) {
+        // If user is on "Custom & Promotions" tab, ALWAYS show ALL custom events so they never vanish!
+        if (eventCategoryFilter === 'custom') return true;
+
+        // In "All Occasions", show all custom events if year is 'all' or matches
+        if (selectedYear === 'all') return true;
+        const evtYear = evt.year || (evt.date ? evt.date.split('-')[0] : '2026');
+        return evtYear === selectedYear;
+      }
+
+      // Public holidays filtering:
       if (selectedYear !== '2025' && selectedYear !== 'all') {
         if (evt.year === '2025' || (evt.date && evt.date.startsWith('2025'))) {
           return false;
@@ -304,8 +374,6 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
       if (selectedYear !== 'all' && evt.year !== selectedYear && !(evt.date && evt.date.startsWith(selectedYear))) {
         return false;
       }
-      // Custom events are ALWAYS retained so user creation is never silently discarded
-      if (evt.isCustom) return true;
 
       // Remove past public holidays
       const evtDate = new Date(evt.date);
@@ -316,7 +384,7 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
     all.sort((a, b) => new Date(a.date) - new Date(b.date));
 
     return all;
-  }, [holidays, customEvents, selectedYear]);
+  }, [holidays, customEvents, selectedYear, eventCategoryFilter]);
 
   const displayedEvents = useMemo(() => {
     if (eventCategoryFilter === 'public_holiday') {
@@ -402,8 +470,8 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
     }
   };
 
-  const handleSaveNewEvent = (e) => {
-    e.preventDefault();
+  const handleSaveNewEvent = (e, shouldLaunchStudio = false) => {
+    if (e && e.preventDefault) e.preventDefault();
     if (!newEventName.trim() || !newEventDate) {
       alert('Please enter an event name and date.');
       return;
@@ -446,37 +514,35 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
       isCustom: true
     });
 
-    const updated = [newEvent, ...customEvents];
+    // 1. Instantly update local state and localStorage
+    const updated = [newEvent, ...customEvents.filter(c => c.id !== newEvent.id)];
     setCustomEvents(updated);
     safeSetItem('brother_custom_events', JSON.stringify(updated));
+    safeSetItem('brother_custom_events_initialized', 'true');
 
-    // Ensure tab filter does not hide the new custom event
-    if (eventCategoryFilter === 'public_holiday') {
-      setEventCategoryFilter('all');
+    // 2. Automatically ensure filters display the new custom event
+    setEventCategoryFilter('custom');
+    if (selectedYear !== 'all' && selectedYear !== yr) {
+      setSelectedYear('all'); // Show all years so the newly created event is immediately visible
     }
 
-    // Sync custom event to Notion Enterprise database
-    const token = safeGetItem('notion_token') || safeGetItem('token_notion');
-    const explicitDb = safeGetItem('notion_database_id') || '3c701136de4881de9d29ca4ea415e856';
-    if (token) {
-      fetch('/api/notion/sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          apiKey: token,
-          databaseId: explicitDb,
-          post: {
-            title: newEvent.name,
-            content: newEvent.details || newEvent.subtitle || `${newEvent.name} • Brother Singapore`,
-            category: newEvent.category || 'Campaign Event',
-            status: 'Working Draft',
-            author: 'Allan Cheng',
-            date: newEvent.date,
-            scheduledDate: `${newEvent.date}T09:00:00`
-          }
-        })
-      }).catch(err => console.warn('Notion custom event sync warning:', err));
-    }
+    // 3. Select the new event and close modal
+    handleSelectOccasion(newEvent);
+    setShowAddModal(false);
+
+    // 4. Persist to Server & Notion Database in the background
+    fetch('/api/events', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ event: newEvent })
+    }).then(async res => {
+      if (res.ok) {
+        const resData = await res.json();
+        if (resData.event?.pageId) {
+          setCustomEvents(curr => curr.map(item => item.id === newEvent.id ? { ...item, pageId: resData.event.pageId } : item));
+        }
+      }
+    }).catch(err => console.warn('Notion custom event sync warning:', err));
 
     logActivity({
       event: 'Created Custom Calendar Event',
@@ -485,19 +551,15 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
       status: 'Success'
     });
 
-    // Select the new event and close modal
-    handleSelectOccasion(newEvent);
-    setShowAddModal(false);
-
     // Reset form fields
     setNewEventName('');
     setNewEventDetails('');
     setNewEventUrl('');
     setScrapeStatus(null);
 
-    // Auto-launch into Content Studio
-    const evtDrafts = generateEventDrafts(newEvent);
-    if (onNavigateToDraftStudio) {
+    // 5. If user chose to launch into Content Studio, navigate immediately
+    if (shouldLaunchStudio && onNavigateToDraftStudio) {
+      const evtDrafts = generateEventDrafts(newEvent);
       onNavigateToDraftStudio({
         content: newEvent.details || newEvent.subtitle || '',
         title: `${newEvent.name} ${newEvent.year || 2026}`,
@@ -514,6 +576,12 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
       const updated = customEvents.filter(evt => evt.id !== id);
       setCustomEvents(updated);
       safeSetItem('brother_custom_events', JSON.stringify(updated));
+      safeSetItem('brother_custom_events_initialized', 'true');
+
+      // Delete from server & Notion in background
+      fetch(`/api/events?id=${encodeURIComponent(id)}`, {
+        method: 'DELETE'
+      }).catch(err => console.warn('Failed to delete custom event from server:', err));
     }
   };
 
@@ -627,7 +695,7 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
 
           {/* Add Custom Event button placed in same row with distinct emerald accent */}
           <button
-            onClick={() => setShowAddModal(true)}
+            onClick={handleOpenAddModal}
             className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer sm:ml-1"
           >
             <Plus className="w-3.5 h-3.5" />
@@ -647,6 +715,7 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
           >
             <option value="2026">2026</option>
             <option value="2027">2027</option>
+            <option value="2025">2025</option>
             <option value="all">All Years</option>
           </select>
         </div>
@@ -664,7 +733,7 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
           <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">No events found for this filter</h4>
           <p className="text-xs text-slate-500 max-w-sm mx-auto">Create a custom promotion or switch your filter above to view available occasions.</p>
           <button
-            onClick={() => setShowAddModal(true)}
+            onClick={handleOpenAddModal}
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0f2ea2] text-white text-xs font-bold shadow-md cursor-pointer"
           >
             <Plus className="w-4 h-4" />
@@ -731,7 +800,7 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
                             e.stopPropagation();
                             handleDeleteCustomEvent(evt.id, e);
                           }}
-                          className="opacity-0 group-hover:opacity-100 hover:text-rose-500 p-1 text-slate-400 transition-opacity cursor-pointer"
+                          className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 hover:text-rose-500 p-1 text-slate-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-md transition-all cursor-pointer"
                           title="Delete custom event"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -992,19 +1061,29 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer order-3 sm:order-1"
                 >
                   Cancel
                 </button>
                 <button
-                  type="submit"
-                  className="px-4 py-2 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold shadow-md transition-all active:scale-95 cursor-pointer"
+                  type="button"
+                  onClick={(e) => handleSaveNewEvent(e, false)}
+                  className="px-4 py-2 rounded-xl border border-emerald-600 dark:border-emerald-500 bg-emerald-50/60 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 text-xs font-bold transition-all active:scale-95 cursor-pointer order-2 flex items-center justify-center gap-1.5 shadow-xs"
                 >
-                  Save & Generate Content
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>Save Event</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => handleSaveNewEvent(e, true)}
+                  className="px-4 py-2 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold shadow-md transition-all active:scale-95 cursor-pointer order-1 sm:order-3 flex items-center justify-center gap-1.5"
+                >
+                  <span>Save & Open Studio</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>
             </form>
