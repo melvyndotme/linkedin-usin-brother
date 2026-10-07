@@ -176,6 +176,7 @@ export default async function handler(req, res) {
     try {
       const bannerBaseUrl = (baseUrl && !baseUrl.includes('localhost')) ? baseUrl : 'https://linkedin.bro-x.org';
       const bannerUrl = `${bannerBaseUrl}/brother-email-banner.png`;
+      const btnImgUrl = `${bannerBaseUrl}/brother-signin-btn.png`;
 
       const emailHtml = `
         <!DOCTYPE html>
@@ -206,11 +207,24 @@ export default async function handler(req, res) {
               overflow: hidden;
               box-shadow: 0 4px 12px rgba(14, 46, 159, 0.05);
             }
-            .header {
+            .banner-container {
+              margin: 0;
+              padding: 0;
+              line-height: 0;
+              font-size: 0;
               background-color: #0e2e9f;
-              background: #0e2e9f;
-              padding: 28px 20px;
-              text-align: center;
+              border-top-left-radius: 16px;
+              border-top-right-radius: 16px;
+              overflow: hidden;
+            }
+            .banner-img {
+              display: block;
+              width: 100%;
+              max-width: 520px;
+              height: auto;
+              margin: 0;
+              padding: 0;
+              border: 0;
               border-top-left-radius: 16px;
               border-top-right-radius: 16px;
             }
@@ -220,42 +234,41 @@ export default async function handler(req, res) {
             }
             .otp-box {
               background-color: #f0f4ff;
-              border: 1.5px solid #c7d7fe;
+              border: 1.5px solid #0e2e9f;
               border-radius: 14px;
               padding: 22px 16px;
               text-align: center;
               margin: 20px 0 24px 0;
             }
             .otp-code {
-              font-size: 34px;
+              font-size: 36px;
               font-weight: 800;
-              letter-spacing: 8px;
-              color: #0e2e9f;
+              letter-spacing: 10px;
+              color: #050505;
               font-family: -apple-system, BlinkMacSystemFont, Consolas, Monaco, monospace;
               line-height: 1;
-              margin-bottom: 10px;
+              margin-bottom: 12px;
             }
-            .btn {
-              display: inline-block;
-              background-color: #0e2e9f !important;
-              background-image: linear-gradient(#0e2e9f, #0e2e9f) !important;
-              color: #ffffff !important;
-              font-size: 14px;
-              font-weight: 700;
-              text-decoration: none;
-              padding: 14px 32px;
-              border-radius: 10px;
-              letter-spacing: 0.2px;
+            .otp-subtext {
+              margin: 0;
+              font-size: 13px;
+              color: #334155;
+              font-weight: 500;
             }
             @media (prefers-color-scheme: dark) {
-              .btn {
-                background-color: #0e2e9f !important;
-                background-image: linear-gradient(#0e2e9f, #0e2e9f) !important;
+              .otp-code {
                 color: #ffffff !important;
               }
-              .otp-code {
-                color: #0e2e9f !important;
+              .otp-box {
+                background-color: #1e2430 !important;
+                border-color: #3b82f6 !important;
               }
+              .otp-subtext {
+                color: #cbd5e1 !important;
+              }
+            }
+            [data-ogsc] .otp-code {
+              color: #ffffff !important;
             }
             .footer {
               background: #f8fafc;
@@ -269,8 +282,8 @@ export default async function handler(req, res) {
         </head>
         <body>
           <div class="card">
-            <div class="header">
-              <img src="${bannerUrl}" alt="Brother - at your side" width="220" style="display: block; margin: 0 auto; max-width: 220px; width: 100%; height: auto; border: 0;" />
+            <div class="banner-container">
+              <img src="${bannerUrl}" alt="Brother - at your side" class="banner-img" width="520" border="0" />
             </div>
             <div class="body">
               <p style="font-size: 15px; margin: 0 0 12px 0; font-weight: 600; color: #1e293b;">Hello ${matchedUser.name},</p>
@@ -280,16 +293,27 @@ export default async function handler(req, res) {
 
               <div class="otp-box">
                 <div class="otp-code">${otpCode}</div>
-                <p style="margin: 0; font-size: 13px; color: #475569; font-weight: 500;">
+                <p class="otp-subtext">
                   Enter this code if using the LinkedUsIn App on mobile.
                 </p>
               </div>
 
-              <div style="text-align: center; margin: 26px 0 20px 0;">
-                <a href="${magicLinkUrl}" class="btn">Sign in to LinkedUsIn Studio &rarr;</a>
+              <div style="text-align: center; margin: 28px 0 16px 0;">
+                <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="margin: 0 auto;">
+                  <tr>
+                    <td align="center" style="border-radius: 10px; background-color: #0e2e9f;">
+                      <a href="${magicLinkUrl}" target="_blank" style="display: inline-block; text-decoration: none; border-radius: 10px;">
+                        <img src="${btnImgUrl}" alt="Sign in to LinkedUsIn Studio &rarr;" width="280" height="48" style="display: block; margin: 0 auto; max-width: 100%; height: auto; border: 0; border-radius: 10px; color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; font-weight: 700; line-height: 48px; text-align: center;" border="0" />
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+                <div style="text-align: center; margin-top: 8px;">
+                  <a href="${magicLinkUrl}" style="font-size: 11px; color: #64748b; text-decoration: underline;">Direct sign-in link</a>
+                </div>
               </div>
 
-              <p style="font-size: 12px; color: #94a3b8; text-align: center; margin: 22px 0 0 0; line-height: 1.5;">
+              <p style="font-size: 12px; color: #94a3b8; text-align: center; margin: 20px 0 0 0; line-height: 1.5;">
                 This link and code will expire in 15 minutes.
               </p>
             </div>
