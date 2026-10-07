@@ -174,57 +174,127 @@ export default async function handler(req, res) {
   // 2. If Resend Key is available, send real email with both 1-click link AND 6-digit PWA code
   if (activeResendKey && activeResendKey.startsWith('re_')) {
     try {
+      const bannerBaseUrl = (baseUrl && !baseUrl.includes('localhost')) ? baseUrl : 'https://linkedin.bro-x.org';
+      const bannerUrl = `${bannerBaseUrl}/brother-email-banner.png`;
+
       const emailHtml = `
         <!DOCTYPE html>
         <html>
         <head>
           <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <meta name="color-scheme" content="light dark">
+          <meta name="supported-color-schemes" content="light dark">
           <style>
-            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f4f6f9; margin: 0; padding: 20px; }
-            .card { max-width: 540px; margin: 0 auto; background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden; }
-            .header { background: #0f2ea2; padding: 28px 24px; text-align: center; color: #ffffff; }
-            .body { padding: 32px 24px; color: #1e293b; }
-            .otp-box { background: #eff6ff; border: 2px dashed #bfdbfe; border-radius: 14px; padding: 18px; text-align: center; margin: 24px 0; }
-            .otp-code { font-size: 32px; font-weight: 800; letter-spacing: 8px; color: #0f2ea2; font-family: monospace; }
-            .btn { display: inline-block; background-color: #0f2ea2; color: #ffffff !important; font-weight: bold; text-decoration: none; padding: 14px 28px; border-radius: 12px; font-size: 14px; margin: 16px 0; }
-            .footer { background: #f8fafc; padding: 16px; text-align: center; font-size: 12px; color: #64748b; border-top: 1px solid #e2e8f0; }
+            :root {
+              color-scheme: light dark;
+              supported-color-schemes: light dark;
+            }
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+              background-color: #f4f6f9;
+              margin: 0;
+              padding: 24px 12px;
+              -webkit-font-smoothing: antialiased;
+            }
+            .card {
+              max-width: 520px;
+              margin: 0 auto;
+              background: #ffffff;
+              border-radius: 16px;
+              border: 1px solid #e2e8f0;
+              overflow: hidden;
+              box-shadow: 0 4px 12px rgba(14, 46, 159, 0.05);
+            }
+            .header {
+              background-color: #0e2e9f;
+              background: #0e2e9f;
+              padding: 28px 20px;
+              text-align: center;
+              border-top-left-radius: 16px;
+              border-top-right-radius: 16px;
+            }
+            .body {
+              padding: 32px 28px 24px 28px;
+              color: #1e293b;
+            }
+            .otp-box {
+              background-color: #f0f4ff;
+              border: 1.5px solid #c7d7fe;
+              border-radius: 14px;
+              padding: 22px 16px;
+              text-align: center;
+              margin: 20px 0 24px 0;
+            }
+            .otp-code {
+              font-size: 34px;
+              font-weight: 800;
+              letter-spacing: 8px;
+              color: #0e2e9f;
+              font-family: -apple-system, BlinkMacSystemFont, Consolas, Monaco, monospace;
+              line-height: 1;
+              margin-bottom: 10px;
+            }
+            .btn {
+              display: inline-block;
+              background-color: #0e2e9f !important;
+              background-image: linear-gradient(#0e2e9f, #0e2e9f) !important;
+              color: #ffffff !important;
+              font-size: 14px;
+              font-weight: 700;
+              text-decoration: none;
+              padding: 14px 32px;
+              border-radius: 10px;
+              letter-spacing: 0.2px;
+            }
+            @media (prefers-color-scheme: dark) {
+              .btn {
+                background-color: #0e2e9f !important;
+                background-image: linear-gradient(#0e2e9f, #0e2e9f) !important;
+                color: #ffffff !important;
+              }
+              .otp-code {
+                color: #0e2e9f !important;
+              }
+            }
+            .footer {
+              background: #f8fafc;
+              padding: 16px 20px;
+              text-align: center;
+              font-size: 11px;
+              color: #64748b;
+              border-top: 1px solid #e2e8f0;
+            }
           </style>
         </head>
         <body>
           <div class="card">
             <div class="header">
-              <h1 style="margin: 0; font-size: 22px; font-weight: bold;">LinkedUs Studio</h1>
-              <p style="margin: 4px 0 0 0; font-size: 13px; opacity: 0.9;">Brother Singapore AI Content Intelligence</p>
+              <img src="${bannerUrl}" alt="Brother - at your side" width="220" style="display: block; margin: 0 auto; max-width: 220px; width: 100%; height: auto; border: 0;" />
             </div>
             <div class="body">
-              <p style="font-size: 15px; margin-top: 0;">Hello <strong>${matchedUser.name}</strong>,</p>
-              <p style="font-size: 14px; line-height: 1.6; color: #475569;">
-                You requested sign-in access to <strong>LinkedUs Studio</strong> as <strong>${matchedUser.role}</strong>.
+              <p style="font-size: 15px; margin: 0 0 12px 0; font-weight: 600; color: #1e293b;">Hello ${matchedUser.name},</p>
+              <p style="font-size: 13px; line-height: 1.5; color: #475569; margin: 0 0 20px 0;">
+                Here is your sign-in verification code and secure access link for <strong>LinkedUsIn Studio</strong>:
               </p>
 
-              <!-- Option A: 6-Digit Code for PWA Home Screen App -->
               <div class="otp-box">
-                <p style="margin: 0 0 6px 0; font-size: 11px; font-weight: 700; color: #1e40af; text-transform: uppercase; letter-spacing: 1px;">
-                  Mobile App 6-Digit Code (Enter in PWA)
-                </p>
                 <div class="otp-code">${otpCode}</div>
-                <p style="margin: 6px 0 0 0; font-size: 11px; color: #3b82f6;">
-                  If using the installed LinkedUs Home Screen app, enter this code directly in the app.
+                <p style="margin: 0; font-size: 13px; color: #475569; font-weight: 500;">
+                  Enter this code if using the LinkedUsIn App on mobile.
                 </p>
               </div>
 
-              <!-- Option B: 1-Click Magic Link -->
-              <div style="text-align: center; margin: 20px 0;">
-                <p style="font-size: 13px; color: #64748b; margin-bottom: 8px;">Or sign in with 1-click:</p>
-                <a href="${magicLinkUrl}" class="btn" style="color: #ffffff;">Sign in to LinkedUs Studio →</a>
+              <div style="text-align: center; margin: 26px 0 20px 0;">
+                <a href="${magicLinkUrl}" class="btn">Sign in to LinkedUsIn Studio &rarr;</a>
               </div>
 
-              <p style="font-size: 12px; color: #94a3b8; line-height: 1.5; margin-top: 24px;">
-                This link and verification code are valid for 15 minutes. If you did not request this email, you can safely ignore it.
+              <p style="font-size: 12px; color: #94a3b8; text-align: center; margin: 22px 0 0 0; line-height: 1.5;">
+                This link and code will expire in 15 minutes.
               </p>
             </div>
             <div class="footer">
-              Brother International Singapore Pte Ltd • At your side
+              Brother International Singapore Pte Ltd &bull; At your side
             </div>
           </div>
         </body>
@@ -242,7 +312,7 @@ export default async function handler(req, res) {
         body: JSON.stringify({
           from: fromAddress,
           to: [matchedUser.email],
-          subject: `${otpCode} is your LinkedUs Studio sign-in code`,
+          subject: `${otpCode} is your LinkedUsIn Studio sign-in code`,
           html: emailHtml
         })
       });

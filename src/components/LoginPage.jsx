@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, Sparkles, Send, CheckCircle2, ShieldCheck, RefreshCw, XCircle, ArrowRight, Clock, Edit3, Copy, Check, ExternalLink } from 'lucide-react';
+import { Mail, Sparkles, Send, CheckCircle2, ShieldCheck, RefreshCw, XCircle, Clock, Edit3 } from 'lucide-react';
 import { safeGetItem } from '../lib/storage.js';
 import brotherLogo from '../assets/brother-logo.png';
 
@@ -13,7 +13,6 @@ export default function LoginPage({ onLoginSuccess, isDark }) {
   const [resendCount, setResendCount] = useState(0);
   const [magicSentData, setMagicSentData] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
-  const [copied, setCopied] = useState(false);
   const [otpInput, setOtpInput] = useState('');
   const [verifyingOtp, setVerifyingOtp] = useState(false);
   const [otpError, setOtpError] = useState(null);
@@ -140,12 +139,12 @@ export default function LoginPage({ onLoginSuccess, isDark }) {
   };
 
   return (
-    <div className={`h-full w-full flex items-center justify-center p-4 sm:p-6 overflow-y-auto custom-scrollbar transition-colors ${
+    <div className={`min-h-full w-full flex flex-col justify-center items-center py-8 px-4 sm:py-12 sm:px-6 overflow-y-auto custom-scrollbar transition-colors ${
       isDark ? 'bg-[#090D16] text-white' : 'bg-[#F4F6F9] text-slate-900'
     }`}>
-      <div className="w-full max-w-md space-y-6">
+      <div className="w-full max-w-md my-auto space-y-6">
         {/* Brand Card */}
-        <div className={`p-6 sm:p-8 rounded-3xl border shadow-xl transition-all ${
+        <div className={`p-5 sm:p-8 rounded-3xl border shadow-xl transition-all ${
           isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
         }`}>
           {/* Official Brother Logo Header */}
@@ -203,7 +202,7 @@ export default function LoginPage({ onLoginSuccess, isDark }) {
                 </button>
               </>
             ) : (
-              /* Secure Magic Link Sent - User Must Click Link in Email */
+              /* Secure Magic Link Sent - User Must Click Link in Email or Enter Code */
               <div className="p-5 rounded-2xl bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-500/30 text-xs text-slate-800 dark:text-slate-200 space-y-4 text-center">
                 <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto shadow-sm">
                   <Mail className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
@@ -227,7 +226,7 @@ export default function LoginPage({ onLoginSuccess, isDark }) {
                   )}
                 </div>
 
-                {/* 6-Digit Verification Code Entry for PWA (Keeps user inside PWA!) */}
+                {/* 6-Digit Verification Code Entry for PWA */}
                 <div className="p-4 bg-white dark:bg-slate-900 rounded-2xl border-2 border-blue-200 dark:border-blue-900 shadow-sm space-y-3 text-left">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-slate-800 dark:text-slate-100 flex items-center gap-1.5">
@@ -239,9 +238,9 @@ export default function LoginPage({ onLoginSuccess, isDark }) {
                     </span>
                   </div>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-normal">
-                    Enter the 6-digit verification code sent to your email to log in directly inside this app without leaving:
+                    Enter the 6-digit verification code sent to your email to log in directly:
                   </p>
-                  <div className="flex gap-2">
+                  <div className="space-y-2.5">
                     <input
                       type="text"
                       inputMode="numeric"
@@ -256,16 +255,16 @@ export default function LoginPage({ onLoginSuccess, isDark }) {
                         }
                       }}
                       placeholder="• • • • • •"
-                      className="flex-1 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2.5 text-center text-lg font-mono font-bold tracking-[6px] text-slate-900 dark:text-white focus:outline-none focus:border-[#0f2ea2]"
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-3 text-center text-xl sm:text-2xl font-mono font-bold tracking-[8px] text-slate-900 dark:text-white focus:outline-none focus:border-[#0f2ea2] focus:ring-2 focus:ring-[#0f2ea2]/20 transition-all"
                     />
                     <button
                       type="button"
                       onClick={() => handleVerifyOtp(otpInput)}
                       disabled={verifyingOtp || otpInput.length < 6}
-                      className="px-4 py-2.5 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold shadow-md transition-all disabled:opacity-50 active:scale-95 cursor-pointer flex items-center gap-1 shrink-0"
+                      className="w-full py-3 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold shadow-md transition-all disabled:opacity-50 active:scale-95 cursor-pointer flex items-center justify-center gap-1.5"
                     >
                       {verifyingOtp ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
-                      <span>Verify</span>
+                      <span>{verifyingOtp ? 'Verifying Code...' : 'Verify Code'}</span>
                     </button>
                   </div>
                   {otpError && (
@@ -274,48 +273,6 @@ export default function LoginPage({ onLoginSuccess, isDark }) {
                     </p>
                   )}
                 </div>
-
-                {/* Instant 1-Click Direct Access */}
-                <div className="space-y-2 pt-1">
-                  <button
-                    onClick={() => onLoginSuccess(magicSentData.user)}
-                    className="w-full flex items-center justify-center gap-2 bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold py-3 rounded-xl shadow-lg transition-all active:scale-95 cursor-pointer"
-                  >
-                    <span>Enter LinkedUs Studio as {magicSentData.user?.name?.split(' ')[0] || 'User'}</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                    Click above to sign in directly without waiting for email delivery.
-                  </p>
-                </div>
-
-                {/* Direct Magic Link Section */}
-                {magicSentData.magicLinkUrl && (
-                  <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-blue-100 dark:border-slate-800 text-left space-y-2 shadow-sm">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300">Direct Sign-in Link:</span>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          navigator.clipboard.writeText(magicSentData.magicLinkUrl);
-                          setCopied(true);
-                          setTimeout(() => setCopied(false), 2000);
-                        }}
-                        className="text-[10px] font-semibold text-[#0f2ea2] dark:text-blue-400 hover:underline cursor-pointer flex items-center gap-1"
-                      >
-                        {copied ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
-                        <span>{copied ? 'Copied!' : 'Copy Link'}</span>
-                      </button>
-                    </div>
-                    <a
-                      href={magicSentData.magicLinkUrl}
-                      className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#0f2ea2] dark:text-blue-400 hover:underline break-all"
-                    >
-                      <span>Open Magic Link directly</span>
-                      <ExternalLink className="w-3 h-3 shrink-0" />
-                    </a>
-                  </div>
-                )}
 
                 {/* Resend Confirmation Banner */}
                 {resendNotice && (
@@ -346,7 +303,7 @@ export default function LoginPage({ onLoginSuccess, isDark }) {
                     <span>Email delivery status:</span>
                   </div>
                   <p className="text-[11px] text-slate-600 dark:text-slate-400">
-                    A magic link was dispatched via email. If Brother's corporate email filter (Microsoft 365 Defender) delays or quarantines the message, you can proceed immediately via the direct button above.
+                    A secure magic link and 6-digit code were dispatched to your inbox. If Brother's corporate email filter (Microsoft 365 Defender) delays delivery, check your junk folder or request a new link below.
                   </p>
                 </div>
 
