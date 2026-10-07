@@ -193,7 +193,7 @@ export default async function handler(req, res) {
             }
             body {
               font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-              background-color: #f4f6f9;
+              background-color: #f5f5f5;
               margin: 0;
               padding: 24px 12px;
               -webkit-font-smoothing: antialiased;
@@ -203,7 +203,7 @@ export default async function handler(req, res) {
               margin: 0 auto;
               background: #ffffff;
               border-radius: 16px;
-              border: 1px solid #e2e8f0;
+              border: 1px solid #e5e5e5;
               overflow: hidden;
               box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
             }
@@ -215,6 +215,7 @@ export default async function handler(req, res) {
               border-top-left-radius: 16px;
               border-top-right-radius: 16px;
               overflow: hidden;
+              background: transparent;
             }
             .banner-img {
               display: block;
@@ -229,11 +230,11 @@ export default async function handler(req, res) {
             }
             .body {
               padding: 32px 28px 24px 28px;
-              color: #1e293b;
+              color: #171717;
             }
             .otp-box {
-              background-color: #f0f4ff;
-              border: 1px solid #bfdbfe;
+              background-color: #fafafa;
+              border: 1.5px solid #e5e5e5;
               border-radius: 14px;
               padding: 22px 16px;
               text-align: center;
@@ -243,7 +244,7 @@ export default async function handler(req, res) {
               font-size: 36px;
               font-weight: 800;
               letter-spacing: 10px;
-              color: #050505;
+              color: #000000;
               font-family: -apple-system, BlinkMacSystemFont, Consolas, Monaco, monospace;
               line-height: 1;
               margin-bottom: 12px;
@@ -251,66 +252,85 @@ export default async function handler(req, res) {
             .otp-subtext {
               margin: 0;
               font-size: 13px;
-              color: #334155;
+              color: #525252;
               font-weight: 500;
             }
             @media (prefers-color-scheme: dark) {
+              body {
+                background-color: #121212 !important;
+              }
+              .card {
+                background-color: #1e1e1e !important;
+                border-color: #2e2e2e !important;
+              }
+              .body {
+                color: #f5f5f5 !important;
+              }
+              .otp-box {
+                background-color: #262626 !important;
+                border-color: #3e3e3e !important;
+              }
               .otp-code {
                 color: #ffffff !important;
               }
-              .otp-box {
-                background-color: #1e2430 !important;
-                border-color: #334155 !important;
-              }
               .otp-subtext {
-                color: #cbd5e1 !important;
+                color: #a3a3a3 !important;
+              }
+              .footer {
+                background-color: #1a1a1a !important;
+                color: #737373 !important;
+                border-color: #2e2e2e !important;
               }
             }
             [data-ogsc] .otp-code {
               color: #ffffff !important;
             }
+            [data-ogsc] .otp-box {
+              background-color: #262626 !important;
+              border-color: #3e3e3e !important;
+            }
             .footer {
-              background: #f8fafc;
+              background: #fafafa;
               padding: 16px 20px;
               text-align: center;
               font-size: 11px;
-              color: #64748b;
-              border-top: 1px solid #e2e8f0;
+              color: #737373;
+              border-top: 1px solid #e5e5e5;
             }
           </style>
         </head>
-        <body>
-          <div class="card">
-            <div class="banner-container">
-              <img src="${bannerUrl}" alt="Brother - at your side" class="banner-img" width="520" border="0" />
+        <body style="background-color: #f5f5f5; margin: 0; padding: 24px 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+          <div class="card" style="max-width: 520px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; border: 1px solid #e5e5e5; overflow: hidden;">
+            <div class="banner-container" style="margin: 0; padding: 0; line-height: 0; font-size: 0; border-top-left-radius: 16px; border-top-right-radius: 16px; overflow: hidden; background: transparent;">
+              <img src="${bannerUrl}" alt="Brother - at your side" class="banner-img" width="520" border="0" style="display: block; width: 100%; max-width: 520px; height: auto; margin: 0; padding: 0; border: 0;" />
             </div>
-            <div class="body">
-              <p style="font-size: 15px; margin: 0 0 12px 0; font-weight: 600; color: #1e293b;">Hello ${matchedUser.name},</p>
-              <p style="font-size: 13px; line-height: 1.5; color: #475569; margin: 0 0 20px 0;">
+            <div class="body" style="padding: 32px 28px 24px 28px; color: #171717;">
+              <p style="font-size: 15px; margin: 0 0 12px 0; font-weight: 600; color: #171717;">Hello ${matchedUser.name},</p>
+              <p style="font-size: 13px; line-height: 1.5; color: #525252; margin: 0 0 20px 0;">
                 Here is your sign-in verification code and secure access link for <strong>LinkedUsIn Studio</strong>:
               </p>
 
-              <div class="otp-box">
-                <div class="otp-code">${otpCode}</div>
-                <p class="otp-subtext">
+              <div class="otp-box" style="background-color: #fafafa; border: 1.5px solid #e5e5e5; border-radius: 14px; padding: 22px 16px; text-align: center; margin: 20px 0 24px 0;">
+                <div class="otp-code" style="font-size: 36px; font-weight: 800; letter-spacing: 10px; color: #000000; font-family: -apple-system, BlinkMacSystemFont, Consolas, Monaco, monospace; line-height: 1; margin-bottom: 12px;">${otpCode}</div>
+                <p class="otp-subtext" style="margin: 0; font-size: 13px; color: #525252; font-weight: 500;">
                   Enter this code if using the LinkedUsIn App on mobile.
                 </p>
               </div>
 
-              <div style="text-align: center; margin: 28px 0 16px 0; line-height: 0; font-size: 0;">
-                <a href="${magicLinkUrl}" target="_blank" style="display: inline-block; text-decoration: none; border: 0; outline: none; margin: 0; padding: 0; line-height: 0; font-size: 0; border-radius: 10px;">
+              <div style="text-align: center; margin: 28px 0 16px 0; line-height: 0; font-size: 0; background: transparent;">
+                <a href="${magicLinkUrl}" target="_blank" style="display: inline-block; text-decoration: none; border: 0; outline: none; margin: 0; padding: 0; line-height: 0; font-size: 0; border-radius: 10px; background: transparent;">
                   <img src="${btnImgUrl}" alt="Sign in to LinkedUsIn Studio &rarr;" width="280" height="48" style="display: block; margin: 0 auto; max-width: 100%; height: auto; border: 0; outline: none; border-radius: 10px;" border="0" />
                 </a>
               </div>
               <div style="text-align: center; margin: 8px 0 20px 0;">
-                <a href="${magicLinkUrl}" style="font-size: 11px; color: #64748b; text-decoration: underline;">Direct sign-in link</a>
+                <a href="${magicLinkUrl}" style="font-size: 11px; color: #737373; text-decoration: underline;">Direct sign-in link</a>
               </div>
 
-              <p style="font-size: 12px; color: #94a3b8; text-align: center; margin: 20px 0 0 0; line-height: 1.5;">
+              <p style="font-size: 12px; color: #737373; text-align: center; margin: 20px 0 0 0; line-height: 1.5;">
                 This link and code will expire in 15 minutes.
               </p>
             </div>
-            <div class="footer">
+            <div class="footer" style="background-color: #fafafa; padding: 16px 20px; text-align: center; font-size: 11px; color: #737373; border-top: 1px solid #e5e5e5;">
               Brother International Singapore Pte Ltd &bull; At your side
             </div>
           </div>
