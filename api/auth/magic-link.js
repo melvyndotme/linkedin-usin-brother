@@ -205,14 +205,13 @@ export default async function handler(req, res) {
               border-radius: 16px;
               border: 1px solid #e2e8f0;
               overflow: hidden;
-              box-shadow: 0 4px 12px rgba(14, 46, 159, 0.05);
+              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
             }
             .banner-container {
               margin: 0;
               padding: 0;
               line-height: 0;
               font-size: 0;
-              background-color: #0e2e9f;
               border-top-left-radius: 16px;
               border-top-right-radius: 16px;
               overflow: hidden;
@@ -234,7 +233,7 @@ export default async function handler(req, res) {
             }
             .otp-box {
               background-color: #f0f4ff;
-              border: 1.5px solid #0e2e9f;
+              border: 1px solid #bfdbfe;
               border-radius: 14px;
               padding: 22px 16px;
               text-align: center;
@@ -261,7 +260,7 @@ export default async function handler(req, res) {
               }
               .otp-box {
                 background-color: #1e2430 !important;
-                border-color: #3b82f6 !important;
+                border-color: #334155 !important;
               }
               .otp-subtext {
                 color: #cbd5e1 !important;
@@ -298,19 +297,13 @@ export default async function handler(req, res) {
                 </p>
               </div>
 
-              <div style="text-align: center; margin: 28px 0 16px 0;">
-                <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="margin: 0 auto;">
-                  <tr>
-                    <td align="center" style="border-radius: 10px; background-color: #0e2e9f;">
-                      <a href="${magicLinkUrl}" target="_blank" style="display: inline-block; text-decoration: none; border-radius: 10px;">
-                        <img src="${btnImgUrl}" alt="Sign in to LinkedUsIn Studio &rarr;" width="280" height="48" style="display: block; margin: 0 auto; max-width: 100%; height: auto; border: 0; border-radius: 10px; color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; font-weight: 700; line-height: 48px; text-align: center;" border="0" />
-                      </a>
-                    </td>
-                  </tr>
-                </table>
-                <div style="text-align: center; margin-top: 8px;">
-                  <a href="${magicLinkUrl}" style="font-size: 11px; color: #64748b; text-decoration: underline;">Direct sign-in link</a>
-                </div>
+              <div style="text-align: center; margin: 28px 0 16px 0; line-height: 0; font-size: 0;">
+                <a href="${magicLinkUrl}" target="_blank" style="display: inline-block; text-decoration: none; border: 0; outline: none; margin: 0; padding: 0; line-height: 0; font-size: 0; border-radius: 10px;">
+                  <img src="${btnImgUrl}" alt="Sign in to LinkedUsIn Studio &rarr;" width="280" height="48" style="display: block; margin: 0 auto; max-width: 100%; height: auto; border: 0; outline: none; border-radius: 10px;" border="0" />
+                </a>
+              </div>
+              <div style="text-align: center; margin: 8px 0 20px 0;">
+                <a href="${magicLinkUrl}" style="font-size: 11px; color: #64748b; text-decoration: underline;">Direct sign-in link</a>
               </div>
 
               <p style="font-size: 12px; color: #94a3b8; text-align: center; margin: 20px 0 0 0; line-height: 1.5;">
