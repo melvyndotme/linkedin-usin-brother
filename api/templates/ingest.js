@@ -219,15 +219,23 @@ Key Reflections & Takeaways:
   }
 
   // Active Gemini 3.1 Model Selection
-  // gemini-3.1-flash-lite: high-speed, cost-effective multimodal inference
-  // gemini-3.1-pro-preview: deep contextual reasoning and complex document deconstruction
   const targetModel = modelName === 'gemini-3.1-pro-preview' 
     ? 'gemini-3.1-pro-preview' 
     : 'gemini-3.1-flash-lite';
 
   const systemInstruction = `
-You are an expert social media copywriter and cultural linguist for Brother Singapore.
-Your task is to analyze a LinkedIn post (provided as text, screenshot, or PDF) and reverse-engineer it into an "Instructional Placeholder Template".
+You are an expert social media strategist, brand consultant, and copywriting director for Brother Singapore.
+Analyze the provided benchmark LinkedIn post (or image screenshot / PDF) through a deep strategic deconstruction and convert it into a reusable "Content Framework" for Brother Singapore.
+
+EXECUTE A COMPREHENSIVE STRATEGIC DECONSTRUCTION:
+1. Deconstruct the post: Structure, Hook, Product/Message Reveal, Audience Definition, Benefit Statement, and What it avoids (spec dumps, corporate jargon).
+2. Analyze Tone: Tonal characteristics (e.g. conversational vs corporate, approachability, confidence).
+3. Analyze Visual/Creative Alignment: How image creative and copy reinforce one core idea.
+4. Infer Communication Philosophy: The underlying formula (e.g., Sell possibility before specification; Human outcome over machine specs).
+5. Critique: What is working well vs. Opportunities for Improvement (e.g., generic hook, implicit friction, vague benefit, weak CTA).
+6. Evolve into a Structured Content Framework: Generate a step-by-step formula (e.g. H-C-V-P-P-A, F-C-A-R, O-C-D-I-P) with step names, purposes, and prompts.
+7. Style Guide & Writing Rules: Target word count, 'see more' fold rule, paragraph breaks, emoji guidance, hashtags.
+8. Applied Brother Singapore Post Example: Write a concrete, high-converting post demonstrating the framework applied to Brother Singapore (connecting back to 'At your side' or Monozukuri / Kaizen).
 
 CRITICAL CONTENT POLICY & CULTURAL GUARDRAILS:
 1. STRICT BAN ON LGBTQ+ TOPICS:
@@ -236,13 +244,9 @@ CRITICAL CONTENT POLICY & CULTURAL GUARDRAILS:
    - Note: Legitimate uses of pride such as "national unity / national pride in Singapore's milestones" or "dedication and pride in craftsmanship (Monozukuri)" are acceptable when strictly referring to work excellence or national occasions.
 2. HOFSTEDE ASIAN CULTURAL CALIBRATION:
    - Power Distance (PDI: 74): Deferential, consultative, honoring leadership custodianship and the Senpai-Kohai mentorship dynamic.
-   - Collectivism (IDV: 20): Highlight team solidarity, collective harmony (Wa), family care, and Singapore's multicultural tapestry (Chinese, Malay, Indian, Eurasian).
-   - Long-Term Orientation (LTO: 72): Emphasize Kaizen, multi-year skills adaptation (SkillsFuture), and generational stewardship.
+   - Collectivism (IDV: 20): Highlight team solidarity, collective harmony (Wa), family care, and Singapore's multicultural tapestry.
+   - Long-Term Orientation (LTO: 72): Emphasize Kaizen, multi-year skills adaptation, and generational stewardship.
    - Monozukuri: Celebrate quiet engineering precision, mission-critical dependability, and zero-defect excellence over boastful marketing swagger.
-3. OUTPUT FORMAT:
-   - Strip all specific model numbers, personal names, and temporal dates.
-   - Produce only clean, bracketed instructional guidance: [Insert Hook: ...], [State Context: ...], [Brother Connection: ...], [Call to Action: ...].
-   - Output valid JSON conforming strictly to the requested schema.
 `;
 
   try {
@@ -260,10 +264,10 @@ CRITICAL CONTENT POLICY & CULTURAL GUARDRAILS:
           data: cleanBase64
         }
       });
-      parts.push({ text: 'Deconstruct this LinkedIn post screenshot into an instructional template blueprint.' });
+      parts.push({ text: 'Perform a full 10-step strategic deconstruction of this LinkedIn post screenshot and evolve it into a reusable Content Framework for Brother Singapore.' });
     } else {
       parts.push({
-        text: `Analyze this post content and extract its instructional template blueprint conforming to the cultural rules:\n\n${postContent}`
+        text: `Perform a full 10-step strategic deconstruction of this post and evolve it into a reusable Content Framework for Brother Singapore:\n\n${postContent}`
       });
     }
 
@@ -276,11 +280,37 @@ CRITICAL CONTENT POLICY & CULTURAL GUARDRAILS:
           properties: {
             name: { type: 'STRING' },
             category: { type: 'STRING' },
+            formula: { type: 'STRING' },
             tone: { type: 'STRING' },
             description: { type: 'STRING' },
+            philosophy: { type: 'STRING' },
+            whyItDiffers: { type: 'STRING' },
+            whenToUse: { type: 'STRING' },
+            structureSteps: {
+              type: 'ARRAY',
+              items: {
+                type: 'OBJECT',
+                properties: {
+                  step: { type: 'STRING' },
+                  label: { type: 'STRING' },
+                  purpose: { type: 'STRING' },
+                  prompt: { type: 'STRING' }
+                },
+                required: ['step', 'label', 'purpose', 'prompt']
+              }
+            },
+            critique: {
+              type: 'OBJECT',
+              properties: {
+                strengths: { type: 'ARRAY', items: { type: 'STRING' } },
+                weaknesses: { type: 'ARRAY', items: { type: 'STRING' } }
+              }
+            },
+            rules: { type: 'ARRAY', items: { type: 'STRING' } },
+            examplePost: { type: 'STRING' },
             placeholderTemplate: { type: 'STRING' }
           },
-          required: ['name', 'category', 'tone', 'description', 'placeholderTemplate']
+          required: ['name', 'category', 'formula', 'tone', 'description', 'philosophy', 'whyItDiffers', 'whenToUse', 'structureSteps', 'rules', 'examplePost', 'placeholderTemplate']
         },
         temperature: 0.2
       }
@@ -305,12 +335,20 @@ CRITICAL CONTENT POLICY & CULTURAL GUARDRAILS:
       success: true,
       model: targetModel,
       template: {
-        id: `tmpl-gemini-${Date.now()}`,
+        id: `framework-gemini-${Date.now()}`,
         source: type === 'url' ? `Live Post: ${content}` : type === 'screenshot' ? `Visual Ingestion (${targetModel})` : `PDF Archive (${targetModel})`,
         name: parsed.name,
         category: parsed.category || 'Extracted Benchmark',
+        formula: parsed.formula || 'H-C-V-A',
         tone: parsed.tone,
         description: parsed.description,
+        philosophy: parsed.philosophy,
+        whyItDiffers: parsed.whyItDiffers,
+        whenToUse: parsed.whenToUse,
+        structureSteps: parsed.structureSteps || [],
+        critique: parsed.critique || null,
+        rules: parsed.rules || [],
+        examplePost: parsed.examplePost,
         placeholderTemplate: parsed.placeholderTemplate
       }
     });

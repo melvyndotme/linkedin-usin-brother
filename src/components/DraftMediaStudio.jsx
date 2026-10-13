@@ -1020,10 +1020,10 @@ To everyone celebrating, how is your team marking this special day? Share your f
                   type="button"
                   onClick={() => setShowTemplateModal(true)}
                   className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-[#0f2ea2] dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900 text-xs font-bold transition-all cursor-pointer border border-blue-200 dark:border-blue-800/60"
-                  title="Browse All Templates"
+                  title="Browse All Content Frameworks"
                 >
                   <BookOpen className="w-3.5 h-3.5" />
-                  <span>Templates ({allLibraryTemplates.length})</span>
+                  <span>Frameworks ({allLibraryTemplates.length})</span>
                 </button>
                 <button
                   type="button"
@@ -1055,7 +1055,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
               <div className="flex items-center justify-between text-xs">
                 <label className="font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
-                  <span>Choose Post Template / Angle:</span>
+                  <span>Choose Content Framework / Angle:</span>
                 </label>
                 <button
                   type="button"
@@ -1204,10 +1204,10 @@ To everyone celebrating, how is your team marking this special day? Share your f
                 </div>
                 <div>
                   <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
-                    Choose Post Template
+                    Choose Content Framework
                   </h3>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                    Select from Brother Singapore proven editorial structures and strategic frameworks ({filteredTemplates.length} available)
+                    Select from Brother Singapore proven narrative frameworks & strategic cognitive sequences ({filteredTemplates.length} available)
                   </p>
                 </div>
               </div>

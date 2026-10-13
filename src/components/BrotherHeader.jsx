@@ -28,7 +28,7 @@ const TAB_CONFIG = {
   'module-2': { label: 'News & Trends', icon: Newspaper },
   'calendar': { label: 'Content Calendar', icon: CalendarDays },
   'draft-studio': { label: 'Content Studio', icon: Edit3 },
-  'template-studio': { label: 'Templates', icon: Layers },
+  'template-studio': { label: 'Content Frameworks', icon: Layers },
   'notion-hub': { label: 'Notion', icon: NotionIcon },
   'team': { label: 'Team', icon: Users },
   'profile': { label: 'My Profile', icon: User },
