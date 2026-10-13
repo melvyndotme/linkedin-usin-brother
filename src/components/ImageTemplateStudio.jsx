@@ -999,30 +999,30 @@ export default function ImageTemplateStudio({
       <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
         {/* Sleek Segmented Header Bar */}
         <div className="p-3.5 sm:p-4 bg-slate-50/80 dark:bg-slate-800/40 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-1.5 p-1 bg-slate-200/70 dark:bg-slate-900 rounded-xl border border-slate-300/50 dark:border-slate-700/50">
+          <div className="flex items-center gap-1 p-1 bg-slate-200/70 dark:bg-slate-900 rounded-xl border border-slate-300/50 dark:border-slate-700/50 w-full sm:w-auto">
             <button
               type="button"
               onClick={() => setVisualSourceMode('library')}
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 rounded-lg text-[11px] sm:text-xs font-bold transition-all cursor-pointer truncate ${
                 visualSourceMode === 'library'
                   ? 'bg-white dark:bg-slate-800 text-[#0f2ea2] dark:text-blue-400 shadow-xs'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
-              <Building2 className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
-              <span>Regional Digital Asset Library</span>
+              <Building2 className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400 shrink-0" />
+              <span className="truncate">Regional Asset Library</span>
             </button>
             <button
               type="button"
               onClick={() => setVisualSourceMode('ai')}
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 rounded-lg text-[11px] sm:text-xs font-bold transition-all cursor-pointer truncate ${
                 visualSourceMode === 'ai'
                   ? 'bg-white dark:bg-slate-800 text-[#0f2ea2] dark:text-blue-400 shadow-xs'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
-              <Sparkles className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
-              <span>Generate with Gemini Models</span>
+              <Sparkles className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400 shrink-0" />
+              <span className="truncate">Generate with Gemini</span>
             </button>
           </div>
 

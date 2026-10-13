@@ -1,14 +1,19 @@
 // Progressive Web App Service Worker for Brother LinkedUs
-const CACHE_NAME = 'brother-linkedus-v1';
+const CACHE_NAME = 'brother-linkedus-v2';
 
 // Static assets to pre-cache on install
 const PRECACHE_ASSETS = [
   '/',
+  '/index.html',
   '/manifest.json',
+  '/brother-logo.svg',
+  '/brother-logo.png',
+  '/brother-wordmark-white.svg',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
   '/icons/apple-touch-icon.png',
-  '/favicon.png'
+  '/favicon.png',
+  '/favicon.ico'
 ];
 
 self.addEventListener('install', (event) => {
