@@ -1,6 +1,4 @@
-// Vercel Serverless Function: Persistent Custom Events & Campaigns Hub
-// Connects to Notion Database "LinkedUsIn: Calendar Events & Campaigns" (ID: 3f101136de4881aeb226f12f0a1283cd)
-// Provides bidirectional sync across desktop, mobile PWA, and multiple team members
+import { logServerAudit } from './audit-helper.js';
 
 const KNOWN_EVENTS_DB_ID = '3f101136de4881aeb226f12f0a1283cd';
 const PARENT_PAGE_ID = '3c701136de48802bba88ede64e4c0cc0'; // LinkedUsIn Hub
@@ -318,6 +316,20 @@ export default async function handler(req, res) {
       inMemoryCache = null;
       lastCacheTime = 0;
 
+      // Log audit events to Notion
+      for (const resItem of savedResults) {
+        logServerAudit({
+          apiKey,
+          event: resItem.action === 'updated' ? 'Updated Custom Calendar Event' : 'Created Custom Calendar Event',
+          user: req.body?.user?.name || resItem.author || 'Team Member',
+          email: req.body?.user?.email || '',
+          role: req.body?.user?.role || 'Team Member',
+          category: 'Content Generation',
+          details: `Event "${resItem.name}" (${resItem.date}) under ${resItem.category || 'Promotions & Campaigns'}`,
+          status: 'Success'
+        });
+      }
+
       return res.status(200).json({
         success: true,
         savedInNotion: true,
@@ -381,6 +393,17 @@ export default async function handler(req, res) {
       if (inMemoryCache) {
         inMemoryCache = inMemoryCache.filter(e => e.id !== id && e.pageId !== id);
       }
+
+      logServerAudit({
+        apiKey,
+        event: 'Deleted Custom Calendar Event',
+        user: req.body?.user?.name || 'Team Member',
+        email: req.body?.user?.email || '',
+        role: req.body?.user?.role || 'Team Member',
+        category: 'Content Generation',
+        details: `Archived/deleted custom event (ID: ${id})`,
+        status: 'Warning'
+      });
 
       return res.status(200).json({
         success: true,

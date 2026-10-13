@@ -260,6 +260,13 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
 
       setTabResults(newTabResults);
 
+      logActivity({
+        event: 'Searched Industry Trends',
+        category: 'Content Generation',
+        details: `Aggregated ${finalAllResults.length} news items across ${activeEntries.length} keyword tracks`,
+        status: 'Success'
+      });
+
       const activeRes = newTabResults[activeTab]?.results || finalAllResults;
       if (activeRes && activeRes.length > 0) {
         setSelectedNews(activeRes[0]);

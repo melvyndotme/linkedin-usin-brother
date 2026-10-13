@@ -1,55 +1,16 @@
-// Vercel Serverless Function: Notion-Verified Magic Link Email Dispatcher (Resend API)
+import { logServerAudit } from '../audit-helper.js';
 
 async function logAuthAudit(apiKey, event, user, email, role, details, status) {
-  if (!apiKey) return;
-  try {
-    // 1. Search for Audit Database
-    const searchRes = await fetch('https://api.notion.com/v1/search', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Notion-Version': '2022-06-28',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        filter: { value: 'database', property: 'object' },
-        page_size: 50
-      })
-    });
-    if (!searchRes.ok) return;
-    const searchData = await searchRes.json();
-    const databases = searchData.results || [];
-    const auditDb = databases.find(d => {
-      const title = (d.title || []).map(t => t.plain_text).join('').toLowerCase();
-      return title.includes('audit') || title.includes('activity') || title.includes('telemetry log');
-    });
-
-    if (!auditDb) return;
-
-    await fetch('https://api.notion.com/v1/pages', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Notion-Version': '2022-06-28',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        parent: { database_id: auditDb.id },
-        properties: {
-          'Event': { title: [{ text: { content: event } }] },
-          'User': { rich_text: [{ text: { content: user || 'Anonymous' } }] },
-          ...(email ? { 'Email': { email: email } } : {}),
-          'Role': { select: { name: role || 'Team Member' } },
-          'Category': { select: { name: 'Auth' } },
-          'Details': { rich_text: [{ text: { content: String(details || '').slice(0, 2000) } }] },
-          'Status': { select: { name: status || 'Success' } },
-          'Timestamp': { date: { start: new Date().toISOString() } }
-        }
-      })
-    });
-  } catch (err) {
-    console.warn('Auth audit log error (silent):', err.message);
-  }
+  return logServerAudit({
+    apiKey,
+    event,
+    user,
+    email,
+    role,
+    category: 'Auth',
+    details,
+    status
+  });
 }
 
 export default async function handler(req, res) {

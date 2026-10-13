@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Mail, Sparkles, Send, CheckCircle2, ShieldCheck, RefreshCw, XCircle, Clock, Edit3 } from 'lucide-react';
 import { safeGetItem } from '../lib/storage.js';
+import { logActivity } from '../lib/auditLogger.js';
 import brotherLogo from '../assets/brother-logo.png';
 
 export default function LoginPage({ onLoginSuccess, isDark }) {
@@ -76,7 +77,15 @@ export default function LoginPage({ onLoginSuccess, isDark }) {
       if (res.ok && data.success && data.user) {
         onLoginSuccess(data.user);
       } else {
-        setOtpError(data.error || 'Invalid 6-digit code. Please try again.');
+        const errStr = data.error || 'Invalid 6-digit code. Please try again.';
+        setOtpError(errStr);
+        logActivity({
+          event: 'OTP Verification Failed',
+          category: 'Auth',
+          details: `Incorrect 6-digit code entered for ${magicSentData?.user?.email || email}`,
+          status: 'Warning',
+          user: magicSentData?.user || { email }
+        });
       }
     } catch (err) {
       setOtpError('Verification connection error. Please try again.');
@@ -127,8 +136,23 @@ export default function LoginPage({ onLoginSuccess, isDark }) {
           setResendCount((c) => c + 1);
           setResendNotice(`A fresh email with a new magic link was dispatched to ${targetEmail} at ${timeStr}.`);
         }
+        logActivity({
+          event: isResend ? 'Resent Magic Link & OTP' : 'Requested Magic Link & OTP',
+          category: 'Auth',
+          details: `Verification credentials requested for ${targetEmail}`,
+          status: 'Success',
+          user: data.user || { email: targetEmail }
+        });
       } else {
-        setErrorMsg(data.error || 'Failed to dispatch magic link. Please check your email.');
+        const errDetails = data.error || 'Failed to dispatch magic link. Please check your email.';
+        setErrorMsg(errDetails);
+        logActivity({
+          event: 'Login Request Rejected',
+          category: 'Auth',
+          details: `Access restricted for ${targetEmail}: ${errDetails}`,
+          status: 'Warning',
+          user: { email: targetEmail }
+        });
       }
     } catch (err) {
       setErrorMsg('Connection error: unable to verify account against Notion database. Please try again.');

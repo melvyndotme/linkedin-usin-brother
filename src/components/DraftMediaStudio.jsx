@@ -352,6 +352,12 @@ To everyone celebrating, how is your team marking this special day? Share your f
           url: data.url,
           message: customStatus === 'Working Draft' ? 'Saved as Working Draft in Notion!' : 'Saved to Notion Enterprise Repository'
         });
+        logActivity({
+          event: 'Saved Post to Notion Repository',
+          category: 'Review Gate',
+          details: `Saved "${title || 'Post'}" as ${customStatus} to Notion database`,
+          status: 'Success'
+        });
       } else {
         setNotionError(data.error || 'Failed to archive in Notion');
       }
@@ -543,6 +549,12 @@ To everyone celebrating, how is your team marking this special day? Share your f
         safeSetItem('brother_calendar_posts', JSON.stringify([...currentCal, newPost]));
 
         setScheduleSuccessMsg(`🎉 Successfully scheduled for ${targetDay} via Buffer API!`);
+        logActivity({
+          event: 'Scheduled Post to Calendar',
+          category: 'Publishing',
+          details: `Scheduled "${title}" for ${targetDay} (${scheduledDateTime}) via Buffer API`,
+          status: 'Success'
+        });
         setTimeout(() => {
           setShowScheduleModal(false);
           setScheduleSuccessMsg(null);

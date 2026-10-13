@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { BENCHMARK_TEMPLATES, extractTemplateFromInput } from '../lib/templateExtractor.js';
 import { safeGetItem } from '../lib/storage.js';
+import { logActivity } from '../lib/auditLogger.js';
 
 export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDrafting }) {
   const getInitialTemplates = () => {
@@ -195,6 +196,12 @@ Key Reflections & Takeaways:
       const data = await res.json();
       if (res.ok && data.template) {
         setJustExtractedTemplate(data.template);
+        logActivity({
+          event: 'Extracted Template Blueprint',
+          category: 'Content Generation',
+          details: `Extracted blueprint "${data.template.name}" via ${selectedModel}`,
+          status: 'Success'
+        });
       } else {
         throw new Error(data.error || 'Failed to extract template');
       }
@@ -202,6 +209,12 @@ Key Reflections & Takeaways:
       console.warn('Extraction fallback to local engine:', err.message);
       const fallbackTmpl = extractTemplateFromInput(payload);
       setJustExtractedTemplate(fallbackTmpl);
+      logActivity({
+        event: 'Extracted Template Blueprint (Local Engine)',
+        category: 'Content Generation',
+        details: `Extracted blueprint "${fallbackTmpl.name}" using local heuristic engine`,
+        status: 'Success'
+      });
     } finally {
       setAnalyzing(false);
     }
@@ -232,6 +245,12 @@ Key Reflections & Takeaways:
           status: 'success',
           message: `Saved "${tmplToSave.name}" to Notion Template Library!`,
           url: data.notionUrl
+        });
+        logActivity({
+          event: 'Saved Template to Notion',
+          category: 'Content Generation',
+          details: `Saved template "${tmplToSave.name}" to Notion repository`,
+          status: 'Success'
         });
 
         // Update notionTemplates state immediately

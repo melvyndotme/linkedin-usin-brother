@@ -10,6 +10,10 @@ import linkedInDataHandler from '../api/linkedin/data.js';
 import templateIngestHandler from '../api/templates/ingest.js';
 import notionSaveTemplateHandler from '../api/notion/save-template.js';
 import mediaHandler from '../api/ai/media.js';
+import eventsHandler from '../api/events.js';
+import verifyOtpHandler from '../api/auth/verify-otp.js';
+import sessionHandler from '../api/auth/session.js';
+import teamHandler from '../api/notion/team.js';
 
 try {
   process.loadEnvFile();
@@ -123,6 +127,26 @@ const server = http.createServer(async (req, res) => {
 
   if (pathname === '/api/ai/media' || pathname === '/api/ai/generate-image' || pathname === '/api/image-proxy') {
     adaptVercel(mediaHandler)(req, res, parsedUrl);
+    return;
+  }
+
+  if (pathname === '/api/events') {
+    adaptVercel(eventsHandler)(req, res, parsedUrl);
+    return;
+  }
+
+  if (pathname === '/api/auth/verify-otp') {
+    adaptVercel(verifyOtpHandler)(req, res, parsedUrl);
+    return;
+  }
+
+  if (pathname === '/api/auth/session') {
+    adaptVercel(sessionHandler)(req, res, parsedUrl);
+    return;
+  }
+
+  if (pathname === '/api/notion/team') {
+    adaptVercel(teamHandler)(req, res, parsedUrl);
     return;
   }
 

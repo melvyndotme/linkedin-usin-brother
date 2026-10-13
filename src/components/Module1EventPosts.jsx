@@ -572,6 +572,7 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
 
   const handleDeleteCustomEvent = (id, e) => {
     e.stopPropagation();
+    const eventToDelete = customEvents.find(evt => evt.id === id);
     if (window.confirm('Remove this custom event?')) {
       const updated = customEvents.filter(evt => evt.id !== id);
       setCustomEvents(updated);
@@ -582,6 +583,13 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
       fetch(`/api/events?id=${encodeURIComponent(id)}`, {
         method: 'DELETE'
       }).catch(err => console.warn('Failed to delete custom event from server:', err));
+
+      logActivity({
+        event: 'Deleted Custom Calendar Event',
+        category: 'Content Generation',
+        details: `Deleted custom event "${eventToDelete?.name || id}" (${eventToDelete?.date || 'N/A'})`,
+        status: 'Warning'
+      });
     }
   };
 

@@ -395,12 +395,26 @@ export default function ImageTemplateStudio({
         } catch (syncErr) {
           console.warn('Could not auto-archive clean image to Notion:', syncErr);
         }
+
+        logActivity({
+          event: 'Generated AI Visual',
+          category: 'Visual Studio',
+          details: `Generated AI visual using ${data.modelUsed || selectedAiModel} for "${occasion?.name || 'Brother Post'}" (${aspectRatio})`,
+          status: 'Success'
+        });
       } else {
+        const errorDetails = data.error || 'Gemini image generation is currently unavailable.';
         setAiError({
-          message: data.error || 'Gemini image generation is currently unavailable.',
+          message: errorDetails,
           troubleshooting: data.troubleshooting || null,
           errorType: data.errorType || 'ERROR',
           modelUsed: data.modelUsed || selectedAiModel
+        });
+        logActivity({
+          event: 'AI Visual Generation Failed',
+          category: 'Visual Studio',
+          details: `Generation failed (${selectedAiModel}): ${errorDetails}`,
+          status: 'Error'
         });
       }
     } catch (err) {
@@ -409,6 +423,12 @@ export default function ImageTemplateStudio({
         troubleshooting: 'Check your internet connection and API key configuration in Settings.',
         errorType: 'NETWORK_ERROR',
         modelUsed: selectedAiModel
+      });
+      logActivity({
+        event: 'AI Visual Generation Error',
+        category: 'Visual Studio',
+        details: `Connection error with ${selectedAiModel}: ${err.message}`,
+        status: 'Error'
       });
     } finally {
       setIsAiGenerating(false);
@@ -492,6 +512,13 @@ export default function ImageTemplateStudio({
         imageUrl: visualUrl,
         notionUrl,
         message: 'Saved to Notion!'
+      });
+
+      logActivity({
+        event: 'Saved Visual Asset to Cloud & Notion',
+        category: 'Visual Studio',
+        details: `Saved Slide ${currentSlide.slideIndex} (${currentSlide.roleTitle}) visual asset to cloud and Notion repository`,
+        status: 'Success'
       });
     } catch (err) {
       setCloudError(err.message || 'Error saving to Notion.');

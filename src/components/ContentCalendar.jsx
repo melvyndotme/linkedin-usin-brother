@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { safeGetItem, safeSetItem } from '../lib/storage.js';
 import { publishToLinkedInApi } from '../lib/linkedInApi.js';
+import { logActivity } from '../lib/auditLogger.js';
 
 const DEMO_CALENDAR_POSTS = [
   {
@@ -312,6 +313,13 @@ export default function ContentCalendar({ isDark = false, onNavigateToStudio }) 
       }
     }
 
+    logActivity({
+      event: 'Updated Scheduled Calendar Post',
+      category: 'Publishing',
+      details: `Updated "${editTitle || selectedPost.title}" scheduled for ${editScheduledDate || 'TBD'} (Status: ${editStatus})`,
+      status: 'Success'
+    });
+
     setSavingEdit(false);
     setSelectedPost(null);
   };
@@ -341,6 +349,12 @@ export default function ContentCalendar({ isDark = false, onNavigateToStudio }) 
         };
         setPosts(prev => prev.map(p => (p.id === selectedPost.id || p.pageId === selectedPost.pageId ? publishedPost : p)));
         setPublishSuccessMsg(`🎉 Successfully published live via Buffer! (URN: ${result.urn})`);
+        logActivity({
+          event: 'Published Post from Calendar',
+          category: 'Publishing',
+          details: `Published "${editTitle || selectedPost.title}" via Buffer API (URN: ${result.urn})`,
+          status: 'Success'
+        });
         setTimeout(() => {
           setSelectedPost(null);
           setPublishSuccessMsg(null);

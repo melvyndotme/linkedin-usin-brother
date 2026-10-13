@@ -1,5 +1,5 @@
-// Vercel Serverless Function: Verify 6-digit OTP code for in-PWA authentication
 import crypto from 'crypto';
+import { logServerAudit } from '../audit-helper.js';
 
 const AUTH_SECRET = process.env.AUTH_SECRET || 'brother-singapore-linkedus-secret-2026';
 
@@ -40,6 +40,15 @@ export default async function handler(req, res) {
         email: cleanEmail,
         role: role || 'User (Brother SG)'
       };
+      logServerAudit({
+        event: 'OTP Code Verified (Login)',
+        user: user.name,
+        email: user.email,
+        role: user.role,
+        category: 'Auth',
+        details: `6-digit verification code confirmed for ${user.name} (${user.email})`,
+        status: 'Success'
+      });
       return res.status(200).json({
         success: true,
         message: '6-digit code verified successfully.',
@@ -57,6 +66,15 @@ export default async function handler(req, res) {
       Date.now() < session.expiresAt
     ) {
       session.verified = true;
+      logServerAudit({
+        event: 'OTP Code Verified (Login)',
+        user: session.user.name,
+        email: session.user.email,
+        role: session.user.role,
+        category: 'Auth',
+        details: `In-memory OTP session confirmed for ${session.user.name}`,
+        status: 'Success'
+      });
       return res.status(200).json({
         success: true,
         message: '6-digit code verified successfully.',
@@ -65,6 +83,16 @@ export default async function handler(req, res) {
       });
     }
   }
+
+  logServerAudit({
+    event: 'OTP Verification Failed',
+    user: name || 'Unknown',
+    email: cleanEmail,
+    role: role || 'User',
+    category: 'Auth',
+    details: `Failed OTP attempt for ${cleanEmail} (incorrect code: ${cleanCode})`,
+    status: 'Warning'
+  });
 
   return res.status(401).json({
     success: false,

@@ -3,6 +3,7 @@ import { Settings, Key, Check, ShieldCheck, Sparkles, Sliders, RefreshCw, Cpu, A
 import { testSerperKey } from '../lib/serperEngine.js';
 import { cleanLinkedInOrgId, formatLinkedInOrgUrn, testLinkedInCredentials, testBufferCredentials } from '../lib/linkedInApi.js';
 import { safeGetItem, safeSetItem } from '../lib/storage.js';
+import { logActivity } from '../lib/auditLogger.js';
 
 export default function SettingsView({ isDark }) {
   const [serperKey, setSerperKey] = useState(safeGetItem('key_serper') || '');
@@ -167,6 +168,13 @@ export default function SettingsView({ isDark }) {
     setSaved(true);
     setAutoSaveStatus('saved');
     setTimeout(() => setSaved(false), 2500);
+
+    logActivity({
+      event: 'Updated Integration Settings',
+      category: 'Settings',
+      details: 'Updated integration API keys and studio configurations',
+      status: 'Success'
+    });
   };
 
   const handleTestBuffer = async () => {

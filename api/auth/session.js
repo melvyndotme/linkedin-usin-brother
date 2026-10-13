@@ -1,4 +1,4 @@
-// Vercel Serverless Function: Polling & Approval for PWA Magic Link Sessions
+import { logServerAudit } from '../audit-helper.js';
 
 global.__sessions = global.__sessions || new Map();
 
@@ -29,12 +29,33 @@ export default async function handler(req, res) {
     if (session) {
       session.verified = true;
       if (user) session.user = user;
+      const targetUser = session.user || user;
+      if (targetUser) {
+        logServerAudit({
+          event: 'PWA Session Authenticated',
+          user: targetUser.name,
+          email: targetUser.email,
+          role: targetUser.role,
+          category: 'Auth',
+          details: `Magic link session token verified for ${targetUser.name}`,
+          status: 'Success'
+        });
+      }
       return res.status(200).json({ success: true, verified: true, user: session.user });
     } else if (user) {
       global.__sessions.set(token, {
         user,
         verified: true,
         expiresAt: Date.now() + 15 * 60 * 1000
+      });
+      logServerAudit({
+        event: 'PWA Session Authenticated',
+        user: user.name,
+        email: user.email,
+        role: user.role,
+        category: 'Auth',
+        details: `Magic link session token verified for ${user.name}`,
+        status: 'Success'
       });
       return res.status(200).json({ success: true, verified: true, user });
     }

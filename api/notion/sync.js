@@ -27,8 +27,24 @@ function formatAuditLogs(results) {
   });
 }
 
+const KNOWN_AUDIT_DB_ID = '3f201136de48815aa602fdcc23a98b8a';
+const PARENT_PAGE_ID = '3c701136de48802bba88ede64e4c0cc0'; // LinkedUsIn Hub
+
 async function getOrCreateAuditDatabase(headers, parentPageId) {
-  // 1. Search for existing Audit Log database
+  // 1. Verify known DB
+  try {
+    const metaRes = await fetch(`https://api.notion.com/v1/databases/${KNOWN_AUDIT_DB_ID}`, {
+      method: 'GET',
+      headers
+    });
+    if (metaRes.ok) {
+      return KNOWN_AUDIT_DB_ID;
+    }
+  } catch (e) {
+    console.warn('Known Audit DB check warning:', e.message);
+  }
+
+  // 2. Search for existing Audit Log database
   try {
     const searchRes = await fetch('https://api.notion.com/v1/search', {
       method: 'POST',
@@ -51,8 +67,8 @@ async function getOrCreateAuditDatabase(headers, parentPageId) {
     console.warn('Error searching for audit db:', e.message);
   }
 
-  // 2. Auto-create Audit Database if parent page is available
-  const cleanParentId = (parentPageId || '3c701136de488101b258000b3c706126').replace(/-/g, '');
+  // 3. Auto-create Audit Database if parent page is available
+  const cleanParentId = (parentPageId || PARENT_PAGE_ID).replace(/-/g, '');
   try {
     const createDbRes = await fetch('https://api.notion.com/v1/databases', {
       method: 'POST',

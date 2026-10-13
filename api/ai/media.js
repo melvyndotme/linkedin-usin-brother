@@ -1,5 +1,6 @@
 // Vercel Serverless Function: Consolidated AI Media Studio & CORS Image Proxy
 // Merges Imagen 3 Image Generation & Secure Image Proxy to optimize Vercel Serverless limits
+import { logServerAudit } from '../audit-helper.js';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', true);
@@ -164,6 +165,15 @@ Return ONLY a strict JSON array of exactly 3 objects:
       const data = await resp.json();
       const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
       const parsedDrafts = JSON.parse(rawText);
+      logServerAudit({
+        event: 'Generated 3 AI Drafts',
+        user: req.body?.user?.name || 'Content Creator',
+        email: req.body?.user?.email || '',
+        role: req.body?.user?.role || 'Team Member',
+        category: 'Content Generation',
+        details: `Generated 3 candidate drafts for "${occasionName || 'Campaign'}" with style guide "${styleGuide?.name || 'Curated Angle'}"`,
+        status: 'Success'
+      });
       return res.status(200).json({ success: true, drafts: parsedDrafts });
     } catch (err) {
       return res.status(500).json({ success: false, error: err.message });
@@ -240,6 +250,16 @@ Return ONLY a strict JSON array of exactly 3 objects:
             const imgPart = parts.find((p) => p.inlineData?.data);
             if (imgPart) {
               const mime = imgPart.inlineData.mimeType || 'image/jpeg';
+              logServerAudit({
+                apiKey: process.env.NOTION_API_KEY,
+                event: 'Generated AI Visual',
+                user: req.body?.user?.name || 'Visual Designer',
+                email: req.body?.user?.email || '',
+                role: req.body?.user?.role || 'Team Member',
+                category: 'Visual Studio',
+                details: `Generated AI visual using ${m} for "${occasionName || 'Brother Singapore'}" (${aspectRatio})`,
+                status: 'Success'
+              });
               return res.status(200).json({
                 success: true,
                 source: 'google-ai',
@@ -285,6 +305,16 @@ Return ONLY a strict JSON array of exactly 3 objects:
             const data = await imagenRes.json();
             const b64 = data.predictions?.[0]?.bytesBase64Encoded;
             if (b64) {
+              logServerAudit({
+                apiKey: process.env.NOTION_API_KEY,
+                event: 'Generated AI Visual',
+                user: req.body?.user?.name || 'Visual Designer',
+                email: req.body?.user?.email || '',
+                role: req.body?.user?.role || 'Team Member',
+                category: 'Visual Studio',
+                details: `Generated visual using Imagen 3 for "${occasionName || 'Brother Singapore'}" (${aspectRatio})`,
+                status: 'Success'
+              });
               return res.status(200).json({
                 success: true,
                 source: 'google-ai',
