@@ -108,17 +108,79 @@ export default async function handler(req, res) {
       });
     }
 
-    const systemPrompt = `You are the lead LinkedIn editorial strategist for Brother Singapore.
-Generate exactly 3 distinct, high-impact LinkedIn post drafts for Brother Singapore based on the following style guide rules and context.
+    const frameworks = req.body?.frameworks || (req.body?.framework ? [req.body.framework, req.body.framework, req.body.framework] : null);
 
-STYLE GUIDE NAME: ${styleGuide?.name || 'Brother Benchmark'}
-TONE: ${styleGuide?.tone || 'Consultative, humble yet authoritative, grounded'}
+    let systemPrompt = '';
+    if (Array.isArray(frameworks) && frameworks.length >= 3) {
+      systemPrompt = `You are the lead LinkedIn editorial strategist for Brother Singapore.
+Generate exactly 3 distinct, high-impact LinkedIn post drafts for Brother Singapore.
+Each draft MUST follow its specific reverse-engineered content framework:
+
+TOPIC / OCCASION: ${occasionName || 'Workplace Productivity & Innovation'}
+SOURCE CONTEXT / FACTS: ${occasionDetails || facts || 'Brother "At your side" philosophy, Japanese craftsmanship (Kaizen, Monozukuri), long-term reliability.'}
+
+--- DRAFT 1 FRAMEWORK:
+Name: ${frameworks[0]?.name || 'High-Impact Thought Leadership'}
+Formula: ${frameworks[0]?.formula || 'Hook → Context → Value → Action'}
+Philosophy: ${frameworks[0]?.philosophy || 'Sell outcome before features'}
+Steps: ${(frameworks[0]?.structureSteps || []).map(s => s.step + ': ' + (s.purpose || s.prompt)).join(' | ')}
+Writing Rules: ${(frameworks[0]?.rules || []).join(', ')}
+
+--- DRAFT 2 FRAMEWORK:
+Name: ${frameworks[1]?.name || 'Operational Excellence & Kaizen'}
+Formula: ${frameworks[1]?.formula || 'Friction → Turning Point → Proof → Takeaway'}
+Philosophy: ${frameworks[1]?.philosophy || 'Show practical reliability in high-stakes workflows'}
+Steps: ${(frameworks[1]?.structureSteps || []).map(s => s.step + ': ' + (s.purpose || s.prompt)).join(' | ')}
+Writing Rules: ${(frameworks[1]?.rules || []).join(', ')}
+
+--- DRAFT 3 FRAMEWORK:
+Name: ${frameworks[2]?.name || 'Cultural Harmony & Community (Wa)'}
+Formula: ${frameworks[2]?.formula || 'Moment → Story → Gratitude → Blessing'}
+Philosophy: ${frameworks[2]?.philosophy || 'Mutual respect and shared community harmony'}
+Steps: ${(frameworks[2]?.structureSteps || []).map(s => s.step + ': ' + (s.purpose || s.prompt)).join(' | ')}
+Writing Rules: ${(frameworks[2]?.rules || []).join(', ')}
+
+CULTURAL CALIBRATION: Respectful, consultative, collective harmony (Wa), Long-Term Orientation (LTO), and craft precision (Monozukuri). STRICT BAN ON LGBTQ+ TOPICS.
+
+Return ONLY a strict JSON array of exactly 3 objects:
+[
+  {
+    "id": "draft-1",
+    "name": "${frameworks[0]?.name || 'Draft 1'}",
+    "angle": "Specific Angle & Strategic Rationale",
+    "whyThisWorks": "Detailed explanation of why this hooks and persuades the audience using this framework",
+    "postContent": "Complete LinkedIn post with hook, narrative spacing, bullet points, consultative call to action, and hashtags #BrotherSingapore #AtYourSide",
+    "frameworkId": "${frameworks[0]?.id || ''}"
+  },
+  {
+    "id": "draft-2",
+    "name": "${frameworks[1]?.name || 'Draft 2'}",
+    "angle": "Specific Angle & Strategic Rationale",
+    "whyThisWorks": "Detailed explanation of why this hooks and persuades the audience using this framework",
+    "postContent": "Complete LinkedIn post with hook, narrative spacing, bullet points, consultative call to action, and hashtags #BrotherSingapore #AtYourSide",
+    "frameworkId": "${frameworks[1]?.id || ''}"
+  },
+  {
+    "id": "draft-3",
+    "name": "${frameworks[2]?.name || 'Draft 3'}",
+    "angle": "Specific Angle & Strategic Rationale",
+    "whyThisWorks": "Detailed explanation of why this hooks and persuades the audience using this framework",
+    "postContent": "Complete LinkedIn post with hook, narrative spacing, bullet points, consultative call to action, and hashtags #BrotherSingapore #AtYourSide",
+    "frameworkId": "${frameworks[2]?.id || ''}"
+  }
+]`;
+    } else {
+      systemPrompt = `You are the lead LinkedIn editorial strategist for Brother Singapore.
+Generate exactly 3 distinct, high-impact LinkedIn post drafts for Brother Singapore based on the following framework rules and context:
+
+FRAMEWORK NAME: ${styleGuide?.name || 'Brother Content Framework'}
+PHILOSOPHY: ${styleGuide?.philosophy || 'Sell outcome before features'}
 AUDIENCE: ${audience || styleGuide?.audience || 'Singapore professionals, SMEs, and community partners'}
 TOPIC / OCCASION: ${occasionName || 'Workplace Productivity & Innovation'}
 SOURCE FACTS: ${occasionDetails || facts || 'Brother "At your side" philosophy, Japanese craftsmanship (Kaizen), long-term reliability.'}
-HOOK RULES: ${styleGuide?.rules?.hookStyle || 'Strong operational tension, reflective observation, or warm community greeting'}
-CTA RULES: ${styleGuide?.rules?.ctaStyle || 'Sincere consultative inquiry inviting community perspectives in comments'}
-CULTURAL CALIBRATION: ${styleGuide?.rules?.hofstedeAlignment || 'Asian collectivist warmth, high Long-Term Orientation (LTO), respect for craft'}
+NARRATIVE STEPS: ${(styleGuide?.structureSteps || []).map(s => s.step + ': ' + (s.purpose || s.prompt)).join(' | ')}
+WRITING RULES: ${(styleGuide?.rules || []).join(', ')}
+CULTURAL CALIBRATION: Respectful, consultative, collective harmony (Wa), Long-Term Orientation (LTO), and craft precision (Monozukuri). STRICT BAN ON LGBTQ+ TOPICS.
 
 Return ONLY a strict JSON array of exactly 3 objects:
 [
@@ -144,6 +206,7 @@ Return ONLY a strict JSON array of exactly 3 objects:
     "postContent": "Complete LinkedIn post with hook, narrative spacing, bullet points, call to action, and hashtags #BrotherSingapore #AtYourSide"
   }
 ]`;
+    }
 
     try {
       const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${apiKey}`, {

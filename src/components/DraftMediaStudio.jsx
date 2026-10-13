@@ -11,7 +11,6 @@ import { publishToLinkedInApi } from '../lib/linkedInApi.js';
 import { safeGetItem, safeSetItem } from '../lib/storage.js';
 import { generateAIDrafts, generateFestiveDrafts } from '../lib/draftGenerator.js';
 import { FIVE_CORE_FRAMEWORKS, BENCHMARK_TEMPLATES, extractTemplateFromInput } from '../lib/templateExtractor.js';
-import { getSavedStyleGuides, saveStyleGuide } from '../lib/styleGuideLibrary.js';
 import { logActivity } from '../lib/auditLogger.js';
 import { GEMINI_MODEL_REGISTRY, DEFAULT_TEXT_MODEL } from '../lib/geminiModels.js';
 
@@ -61,29 +60,76 @@ To everyone celebrating, how is your team marking this special day? Share your f
   const [notionSavedData, setNotionSavedData] = useState(null);
   const [notionError, setNotionError] = useState(null);
 
-  // Style Guide Library & Extraction state
-  const [savedStyleGuides, setSavedStyleGuides] = useState(getSavedStyleGuides);
-  const [selectedStyleGuideId, setSelectedStyleGuideId] = useState(() => {
-    const list = getSavedStyleGuides();
-    return list[0]?.id || 'sme-commercial-savings';
+  // Helper to retrieve all saved & core frameworks
+  const getCombinedSavedFrameworks = () => {
+    try {
+      const stored = localStorage.getItem('custom_ingested_templates');
+      const validCustom = [];
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          parsed.forEach(t => {
+            if (!t || !t.name) return;
+            const norm = t.name.trim().toLowerCase();
+            if (t.id?.startsWith('tmpl-eb-') || t.id?.startsWith('tmpl-bench-')) return;
+            if (norm.includes('product launch announcement') || 
+                norm.includes('live extracted linkedin') || 
+                norm.includes('kaizen innovation & precision') ||
+                norm.includes('workplace flexibility') ||
+                norm.includes('quiet craft') ||
+                norm.includes('humble craftsmanship')) {
+              return;
+            }
+            if (Array.isArray(t.structureSteps) && t.structureSteps.length > 0) {
+              validCustom.push(t);
+            }
+          });
+        }
+      }
+      const combined = [...FIVE_CORE_FRAMEWORKS];
+      for (const c of validCustom) {
+        if (!combined.some(f => f.name?.trim().toLowerCase() === c.name?.trim().toLowerCase())) {
+          combined.push(c);
+        }
+      }
+      return combined;
+    } catch (e) {
+      return [...FIVE_CORE_FRAMEWORKS];
+    }
+  };
+
+  const [savedFrameworks, setSavedFrameworks] = useState(getCombinedSavedFrameworks);
+
+  // Per-draft framework selection: Draft 1, Draft 2, Draft 3
+  const [draftFrameworks, setDraftFrameworks] = useState(() => {
+    const fwList = getCombinedSavedFrameworks();
+    return [
+      fwList[0]?.id || FIVE_CORE_FRAMEWORKS[0].id,
+      fwList[1]?.id || fwList[0]?.id || FIVE_CORE_FRAMEWORKS[1].id,
+      fwList[2]?.id || fwList[0]?.id || FIVE_CORE_FRAMEWORKS[2].id
+    ];
   });
-  const [referenceMode, setReferenceMode] = useState('saved'); // 'saved' | 'reference'
-  const [referenceText, setReferenceText] = useState('');
+
+  const [userConceptIdea, setUserConceptIdea] = useState('');
   const [generatingAiDrafts, setGeneratingAiDrafts] = useState(false);
   const [aiDraftError, setAiDraftError] = useState(null);
 
-  // Curated 5 Frontier Text Models selector
+  // Curated 5 Frontier Text Models ONLY
   const [availableTextModels, setAvailableTextModels] = useState(GEMINI_MODEL_REGISTRY.text);
   const [selectedDraftModel, setSelectedDraftModel] = useState(() => {
     return safeGetItem('model_gemini') || DEFAULT_TEXT_MODEL;
   });
 
   useEffect(() => {
-    fetch('/api/gemini/models?type=text')
+    fetch('/api/gemini/models?context=text')
       .then((res) => res.json())
       .then((data) => {
         if (data.success && Array.isArray(data.models) && data.models.length > 0) {
-          setAvailableTextModels(data.models);
+          // Strictly keep only text models, guard against image models
+          const textOnly = data.models.filter(m => !m.id?.includes('image') && !m.id?.includes('banana'));
+          if (textOnly.length > 0) {
+            setAvailableTextModels(textOnly);
+          }
         }
       })
       .catch(() => {
@@ -401,36 +447,17 @@ To everyone celebrating, how is your team marking this special day? Share your f
     }
   };
 
-  // Generate 3 AI Drafts using Style Guide and Occasion/Facts
+  // Generate 3 AI Drafts using per-draft selected frameworks
   const handleGenerate3Drafts = async () => {
     setGeneratingAiDrafts(true);
     setAiDraftError(null);
     try {
-      let activeGuide = savedStyleGuides.find(g => g.id === selectedStyleGuideId) || savedStyleGuides[0];
+      const selectedFwList = draftFrameworks.map(id => {
+        return savedFrameworks.find(f => f.id === id) || savedFrameworks[0] || FIVE_CORE_FRAMEWORKS[0];
+      });
 
-      // If user extracted from a reference post
-      if (referenceMode === 'reference' && referenceText.trim()) {
-        const extracted = extractTemplateFromInput({
-          type: 'text',
-          content: referenceText.trim(),
-          title: `Extracted: ${title || 'Reference Post'}`
-        });
-        activeGuide = {
-          id: extracted.id,
-          name: extracted.name,
-          client: 'Brother Singapore',
-          platform: 'LinkedIn',
-          audience: 'Singapore professionals & SMEs',
-          tone: extracted.tone,
-          rules: {
-            hookStyle: 'Extracted benchmark hook format',
-            narrativeStructure: 'Extracted benchmark structural flow',
-            ctaStyle: 'Consultative community prompt'
-          }
-        };
-        saveStyleGuide(activeGuide);
-        setSavedStyleGuides(getSavedStyleGuides());
-      }
+      const effectiveTitle = title?.trim() || effectiveOccasion?.name || 'Brother Singapore Strategic Innovation';
+      const effectiveDetails = userConceptIdea?.trim() || effectiveOccasion?.details || effectiveOccasion?.subtitle || content;
 
       const res = await fetch('/api/ai/media', {
         method: 'POST',
@@ -438,10 +465,9 @@ To everyone celebrating, how is your team marking this special day? Share your f
         body: JSON.stringify({
           type: 'drafts',
           modelName: selectedDraftModel,
-          occasionName: effectiveOccasion?.name || title,
-          occasionDetails: effectiveOccasion?.details || effectiveOccasion?.subtitle || content,
-          styleGuide: activeGuide,
-          audience: activeGuide?.audience
+          occasionName: effectiveTitle,
+          occasionDetails: effectiveDetails,
+          frameworks: selectedFwList
         })
       });
 
@@ -449,13 +475,18 @@ To everyone celebrating, how is your team marking this special day? Share your f
       if (res.ok) {
         const data = await res.json();
         if (data.success && Array.isArray(data.drafts) && data.drafts.length > 0) {
-          generated = data.drafts;
+          generated = data.drafts.map((d, i) => ({
+            ...d,
+            frameworkId: selectedFwList[i]?.id,
+            frameworkName: selectedFwList[i]?.name,
+            formula: selectedFwList[i]?.formula
+          }));
         }
       }
 
-      // Fallback to cultural or B2B templates if endpoint returns empty
+      // Fallback if endpoint returns empty
       if (!generated || generated.length === 0) {
-        if (effectiveOccasion) {
+        if (effectiveOccasion && effectiveOccasion.eventType !== 'corporate') {
           generated = generateFestiveDrafts({
             name: effectiveOccasion.name,
             culturalContext: effectiveOccasion.details,
@@ -463,8 +494,8 @@ To everyone celebrating, how is your team marking this special day? Share your f
           });
         } else {
           generated = generateAIDrafts({
-            title: title || 'Workplace Innovation',
-            snippet: content,
+            title: effectiveTitle,
+            snippet: effectiveDetails,
             sourceTitle: 'Brother Singapore Intelligence'
           });
         }
@@ -475,7 +506,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
         const firstText = generated[0].postContent || generated[0].post || '';
         setContent(firstText);
         setActiveDraft(generated[0]);
-        setSelectedTemplateId(generated[0].id || 'draft-0');
+        setSelectedTemplateId(generated[0].frameworkId || generated[0].id || 'draft-0');
         setCurrentRationale(generated[0].whyThisWorks || generated[0].angle || '');
       }
 
@@ -862,163 +893,71 @@ To everyone celebrating, how is your team marking this special day? Share your f
         </div>
       )}
 
-      {/* Style Guide Extraction & 3-Draft AI Engine */}
+      {/* Streamlined Ideation & 3-Draft AI Engine */}
       <div className={`p-4 sm:p-5 rounded-2xl border transition-colors ${
         isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
-      } space-y-3.5`}>
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-[#0f2ea2] text-white flex items-center justify-center font-bold text-sm shadow-sm shrink-0">
-              <Sparkles className="w-4 h-4" />
+      } space-y-4`}>
+        {/* Top Header: Topic/Idea & Text Model Selector */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 items-end pb-3 border-b border-slate-100 dark:border-slate-800">
+          <div className="lg:col-span-7">
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
+                <span>Campaign Topic / Ideation Input</span>
+              </label>
+              <span className="text-[10px] text-slate-400">
+                Prefilled or entered from News, Events, or custom concept
+              </span>
             </div>
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h3 className={`text-xs sm:text-sm font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                  Style Guide & 3-Draft AI Engine
-                </h3>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/60 text-[#0f2ea2] dark:text-blue-300 font-bold">
-                  LinkedUs In Specification
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                Extract style rules from high-performing reference posts or select saved style guides, then generate 3 targeted LinkedIn drafts.
-              </p>
-            </div>
+            <input
+              type="text"
+              value={userConceptIdea || title}
+              onChange={(e) => {
+                setUserConceptIdea(e.target.value);
+                setTitle(e.target.value);
+              }}
+              placeholder="e.g. Brother MFC-L8390CDW compact color laser printer launch for Singapore SMEs..."
+              className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#0f2ea2]"
+            />
           </div>
 
-          {/* Mode Switcher: Saved Style Guide vs Reference Post */}
-          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-950 p-1 rounded-xl self-start md:self-auto border border-slate-200 dark:border-slate-800">
+          <div className="lg:col-span-3">
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                Frontier Text Model
+              </label>
+              <span className="text-[10px] font-mono text-[#0f2ea2] dark:text-blue-400 font-bold">
+                Text Only
+              </span>
+            </div>
+            <select
+              value={selectedDraftModel}
+              onChange={(e) => {
+                setSelectedDraftModel(e.target.value);
+                safeSetItem('model_gemini', e.target.value);
+              }}
+              className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs font-bold text-[#0f2ea2] dark:text-blue-400 focus:outline-none focus:ring-1 focus:ring-[#0f2ea2] cursor-pointer"
+            >
+              {availableTextModels.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.name || m.id} {m.badge ? `(${m.badge})` : ''}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="lg:col-span-2">
             <button
               type="button"
-              onClick={() => setReferenceMode('saved')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                referenceMode === 'saved'
-                  ? 'bg-white dark:bg-slate-800 text-[#0f2ea2] dark:text-blue-300 shadow-xs'
-                  : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
-              }`}
+              onClick={handleGenerate3Drafts}
+              disabled={generatingAiDrafts}
+              className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold transition-all shadow-md active:scale-95 disabled:opacity-50 cursor-pointer h-[42px]"
             >
-              Saved Style Guide ({savedStyleGuides.length})
-            </button>
-            <button
-              type="button"
-              onClick={() => setReferenceMode('reference')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                referenceMode === 'reference'
-                  ? 'bg-white dark:bg-slate-800 text-[#0f2ea2] dark:text-blue-300 shadow-xs'
-                  : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
-              }`}
-            >
-              Reference Social Post
+              <Sparkles className={`w-3.5 h-3.5 ${generatingAiDrafts ? 'animate-spin' : ''}`} />
+              <span>{generatingAiDrafts ? 'Generating...' : 'Generate 3 Drafts'}</span>
             </button>
           </div>
         </div>
-
-        {/* Style Guide Controls */}
-        {referenceMode === 'saved' ? (
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
-            <div className="md:col-span-5">
-              <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
-                Choose Reusable Style Guide:
-              </label>
-              <select
-                value={selectedStyleGuideId}
-                onChange={(e) => setSelectedStyleGuideId(e.target.value)}
-                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#0f2ea2] cursor-pointer"
-              >
-                {savedStyleGuides.map((g) => (
-                  <option key={g.id} value={g.id}>
-                    {g.name} • Audience: {g.audience} ({g.tone})
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="md:col-span-4">
-              <div className="flex items-center justify-between mb-1">
-                <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
-                  Frontier Text Model:
-                </label>
-                <span className="text-[10px] font-mono text-[#0f2ea2] dark:text-blue-400 font-bold">
-                  Curated Frontier
-                </span>
-              </div>
-              <select
-                value={selectedDraftModel}
-                onChange={(e) => {
-                  setSelectedDraftModel(e.target.value);
-                  safeSetItem('model_gemini', e.target.value);
-                }}
-                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-bold text-[#0f2ea2] dark:text-blue-400 focus:outline-none focus:ring-1 focus:ring-[#0f2ea2] cursor-pointer"
-              >
-                {availableTextModels.map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {m.name || m.id} {m.badge ? `(${m.badge})` : ''}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="md:col-span-3 flex items-end">
-              <button
-                type="button"
-                onClick={handleGenerate3Drafts}
-                disabled={generatingAiDrafts}
-                className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold transition-all shadow-md active:scale-95 disabled:opacity-50 cursor-pointer h-[38px]"
-              >
-                <Sparkles className={`w-3.5 h-3.5 ${generatingAiDrafts ? 'animate-spin' : ''}`} />
-                <span>{generatingAiDrafts ? 'Generating...' : 'Generate 3 Drafts'}</span>
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-2.5">
-            <div className="flex items-center justify-between">
-              <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
-                Paste Reference Social Post (Caption or Transcript):
-              </label>
-              <span className="text-[10px] text-slate-400">
-                Extracts hook techniques, rhythm & value proposition without duplicating text
-              </span>
-            </div>
-            <textarea
-              rows={3}
-              value={referenceText}
-              onChange={(e) => setReferenceText(e.target.value)}
-              placeholder="Paste a viral or high-performing LinkedIn post here to deconstruct and adopt its communication style..."
-              className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-3 text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:border-[#0f2ea2]"
-            />
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
-              <div className="flex items-center gap-2 w-full sm:w-auto">
-                <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 whitespace-nowrap">
-                  Model:
-                </span>
-                <select
-                  value={selectedDraftModel}
-                  onChange={(e) => {
-                    setSelectedDraftModel(e.target.value);
-                    safeSetItem('model_gemini', e.target.value);
-                  }}
-                  className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-2.5 py-1.5 text-xs font-bold text-[#0f2ea2] dark:text-blue-400"
-                >
-                  {availableTextModels.map((m) => (
-                    <option key={m.id} value={m.id}>
-                      {m.name || m.id} {m.badge ? `(${m.badge})` : ''}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <button
-                type="button"
-                onClick={handleGenerate3Drafts}
-                disabled={generatingAiDrafts || !referenceText.trim()}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold transition-all shadow-md active:scale-95 disabled:opacity-50 cursor-pointer"
-              >
-                <Sparkles className={`w-3.5 h-3.5 ${generatingAiDrafts ? 'animate-spin' : ''}`} />
-                <span>{generatingAiDrafts ? 'Extracting & Generating...' : 'Extract Style & Generate 3 Drafts'}</span>
-              </button>
-            </div>
-          </div>
-        )}
 
         {/* AI Draft Error */}
         {aiDraftError && (
@@ -1028,59 +967,122 @@ To everyone celebrating, how is your team marking this special day? Share your f
           </div>
         )}
 
-        {/* 3 Generated Candidate Drafts Cards */}
-        {availableDrafts && availableDrafts.length > 0 && (
-          <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 space-y-2">
-            <div className="flex items-center justify-between text-[11px]">
-              <span className="font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                <span>Generated Candidate Drafts (3 Options) • Auto-saved to Notion Candidates</span>
-              </span>
-              <span className="text-slate-400 hidden sm:inline">Select a draft below to edit</span>
-            </div>
+        {/* 3 Candidate Drafts with Independent Framework Dropdown per Draft */}
+        <div>
+          <div className="flex items-center justify-between text-xs mb-2.5">
+            <span className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+              <span>Select Framework for Each Draft & Pick Draft to Edit</span>
+            </span>
+            <span className="text-[11px] text-slate-400">
+              Each draft can use a distinct strategic framework
+            </span>
+          </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
-              {availableDrafts.slice(0, 3).map((draft, idx) => {
-                const draftText = draft.postContent || draft.post || '';
-                const isSelected = activeDraft?.id === draft.id || content === draftText;
-                return (
-                  <div
-                    key={draft.id || idx}
-                    onClick={() => {
-                      setContent(draftText);
-                      setActiveDraft(draft);
-                      setSelectedTemplateId(draft.id || `draft-${idx}`);
-                      setCurrentRationale(draft.whyThisWorks || draft.angle || draft.description || '');
-                    }}
-                    className={`p-3 rounded-xl border text-left cursor-pointer transition-all ${
-                      isSelected
-                        ? 'border-[#0f2ea2] bg-blue-50/70 dark:bg-blue-950/40 ring-2 ring-[#0f2ea2]/20'
-                        : 'border-slate-200 dark:border-slate-800 bg-slate-50/40 dark:bg-slate-950/40 hover:border-slate-300 dark:hover:border-slate-700'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between gap-1 mb-1">
-                      <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
-                        Draft 0{idx + 1}: {draft.name || draft.angle || `Option ${idx + 1}`}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {[0, 1, 2].map((idx) => {
+              const draft = availableDrafts[idx];
+              const draftText = draft ? (draft.postContent || draft.post || '') : '';
+              const isSelected = activeDraft && (activeDraft.id === draft?.id || (draftText && content === draftText));
+              const currentFrameworkId = draftFrameworks[idx];
+              const selectedFw = savedFrameworks.find(f => f.id === currentFrameworkId) || savedFrameworks[0];
+
+              return (
+                <div
+                  key={idx}
+                  className={`p-3.5 rounded-xl border flex flex-col justify-between transition-all ${
+                    isSelected
+                      ? 'border-[#0f2ea2] bg-blue-50/60 dark:bg-blue-950/40 ring-2 ring-[#0f2ea2]/20 shadow-xs'
+                      : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 hover:border-slate-300 dark:hover:border-slate-700'
+                  }`}
+                >
+                  <div className="space-y-2">
+                    {/* Draft Badge & Framework Selector */}
+                    <div className="flex items-center justify-between gap-1">
+                      <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded-md bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                        Draft 0{idx + 1}
                       </span>
-                      {isSelected ? (
-                        <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-[#0f2ea2] text-white shrink-0">
-                          Editing
-                        </span>
-                      ) : (
-                        <span className="text-[10px] font-bold text-slate-400 hover:text-slate-600">
-                          Select
+                      {isSelected && (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#0f2ea2] text-white">
+                          Editing in Post Copy
                         </span>
                       )}
                     </div>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
-                      {draft.whyThisWorks || draft.angle || draftText.slice(0, 80) + '...'}
-                    </p>
+
+                    {/* Framework Dropdown */}
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+                        Framework:
+                      </label>
+                      <select
+                        value={currentFrameworkId}
+                        onChange={(e) => {
+                          const newId = e.target.value;
+                          setDraftFrameworks((prev) => {
+                            const updated = [...prev];
+                            updated[idx] = newId;
+                            return updated;
+                          });
+                        }}
+                        className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#0f2ea2] cursor-pointer"
+                      >
+                        {savedFrameworks.map((fw) => (
+                          <option key={fw.id} value={fw.id}>
+                            {fw.name} ({fw.formula || 'Framework'})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Draft Content Snippet or Placeholder */}
+                    <div className="pt-1">
+                      {draft ? (
+                        <p className="text-[11px] text-slate-600 dark:text-slate-300 line-clamp-3 leading-relaxed font-sans">
+                          {draftText || draft.whyThisWorks || 'Generated candidate draft.'}
+                        </p>
+                      ) : (
+                        <p className="text-[11px] text-slate-400 dark:text-slate-500 italic py-2">
+                          Ready to generate with {selectedFw?.name || 'selected framework'}.
+                        </p>
+                      )}
+                    </div>
                   </div>
-                );
-              })}
-            </div>
+
+                  {/* Select to Edit Button */}
+                  <div className="pt-3 mt-2 border-t border-slate-200/60 dark:border-slate-800/80 flex items-center justify-between">
+                    <span className="text-[10px] text-slate-400 truncate max-w-[140px]">
+                      {draft?.angle || selectedFw?.formula || 'Custom sequence'}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (draft) {
+                          setContent(draftText);
+                          setActiveDraft(draft);
+                          setSelectedTemplateId(draft.frameworkId || draft.id || `draft-${idx}`);
+                          setCurrentRationale(draft.whyThisWorks || draft.angle || selectedFw?.whyThisWorks || '');
+                        } else {
+                          // Apply template example if no AI draft generated yet
+                          const exampleText = selectedFw?.examplePost || selectedFw?.placeholderTemplate || '';
+                          if (exampleText) setContent(exampleText);
+                          setSelectedTemplateId(selectedFw?.id || `draft-${idx}`);
+                          setCurrentRationale(selectedFw?.whyThisWorks || selectedFw?.description || '');
+                        }
+                      }}
+                      className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                        isSelected
+                          ? 'bg-[#0f2ea2] text-white shadow-xs'
+                          : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700'
+                      }`}
+                    >
+                      {isSelected ? 'Currently Editing' : 'Select to Edit'}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
           </div>
-        )}
+        </div>
       </div>
 
       {/* 2-Column Responsive Layout: Post Copy Editor (Left) + Visual Template Studio (Right) */}
@@ -1115,7 +1117,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
               </div>
             </div>
 
-            {/* Campaign Name */}
+            {/* Post Subject / Campaign Name */}
             <div>
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                 Post Subject / Campaign Name
@@ -1129,86 +1131,18 @@ To everyone celebrating, how is your team marking this special day? Share your f
               />
             </div>
 
-            {/* Template Selector Section */}
-            <div className="space-y-2 pt-1 border-t border-slate-100 dark:border-slate-800/80">
-              <div className="flex items-center justify-between text-xs">
-                <label className="font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
-                  <span>Choose Content Framework / Angle:</span>
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setShowTemplateModal(true)}
-                  className="text-[11px] font-bold text-[#0f2ea2] dark:text-blue-400 hover:underline flex items-center gap-1 cursor-pointer"
-                >
-                  <Layers className="w-3 h-3" />
-                  <span>Browse All ({allLibraryTemplates.length})</span>
-                </button>
-              </div>
-
-              {/* Template Dropdown Selector */}
-              <div className="flex items-center gap-2">
-                <div className="relative flex-1">
-                  <select
-                    value={selectedTemplateId || (contextualDrafts[0] ? (contextualDrafts[0].id || contextualDrafts[0].templateId) : '')}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      if (val === '__browse_all__') {
-                        setShowTemplateModal(true);
-                        return;
-                      }
-                      const found = allLibraryTemplates.find(t => (t.id || t.templateId) === val) ||
-                                    contextualDrafts.find(t => (t.id || t.templateId) === val);
-                      if (found) {
-                        handleSelectTemplate(found, 0);
-                      }
-                    }}
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:ring-1 focus:ring-[#0f2ea2] focus:outline-none appearance-none cursor-pointer pr-10 shadow-xs"
-                  >
-                    <optgroup label="Campaign Angles & Frameworks">
-                      {contextualDrafts.map((d, idx) => (
-                        <option key={d.id || idx} value={d.id || d.templateId}>
-                          #{idx + 1} {d.name || d.templateName}
-                        </option>
-                      ))}
-                    </optgroup>
-                    {allLibraryTemplates.some(t => !t.isContextual) && (
-                      <optgroup label="Brother Benchmark Templates">
-                        {allLibraryTemplates.filter(t => !t.isContextual).map((b, idx) => (
-                          <option key={b.id || `bench-${idx}`} value={b.id}>
-                            {b.name} ({b.category})
-                          </option>
-                        ))}
-                      </optgroup>
-                    )}
-                  </select>
-                  <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            {/* Strategic Rationale Banner (if available from active draft) */}
+            {currentRationale && (
+              <div className="bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-500/30 rounded-xl p-3">
+                <div className="flex items-start gap-2">
+                  <Sparkles className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400 mt-0.5 shrink-0" />
+                  <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+                    <strong className="text-[#0f2ea2] dark:text-blue-300">Strategic Angle: </strong>
+                    {currentRationale}
+                  </p>
                 </div>
-
-                <button
-                  type="button"
-                  onClick={() => setShowTemplateModal(true)}
-                  className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-[#0f2ea2] dark:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-700 text-xs font-bold transition-all shadow-xs shrink-0 cursor-pointer"
-                  title="Browse Full Template Library"
-                >
-                  <Layers className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Library</span>
-                </button>
               </div>
-
-              {/* Strategic Rationale Banner */}
-              {currentRationale && (
-                <div className="bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-500/30 rounded-xl p-3">
-                  <div className="flex items-start gap-2">
-                    <Sparkles className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400 mt-0.5 shrink-0" />
-                    <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
-                      <strong className="text-[#0f2ea2] dark:text-blue-300">Strategic Rationale: </strong>
-                      {currentRationale}
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
+            )}
 
             {/* Post Copy (Markdown & Formatting) Textarea */}
             <div>

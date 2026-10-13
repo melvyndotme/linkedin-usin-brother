@@ -74,7 +74,7 @@ export default async function handler(req, res) {
     process.env.GOOGLE_GEMINI_API_KEY || 
     process.env.VITE_GEMINI_API_KEY;
 
-  const filterContext = req.query.context; // 'text', 'image', or undefined for all
+  const filterContext = req.query.context || req.query.type; // 'text', 'image', or undefined for all
 
   // Select target curated models based on context
   const targetCurated = filterContext === 'image'
