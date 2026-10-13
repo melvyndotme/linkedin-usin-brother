@@ -2,14 +2,15 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Edit3, Send, CheckCircle2, Copy, Check, Sparkles, AlertCircle, Database, 
   ExternalLink, BookOpen, Layers, Search, X, Filter, ArrowRight, ChevronDown,
-  CalendarDays, Clock, Zap, ShieldCheck, Upload, Link2, RefreshCw
+  CalendarDays, Clock, Zap, ShieldCheck, Upload, Link2, RefreshCw,
+  Compass, Lightbulb, Target, MessageSquare, Quote
 } from 'lucide-react';
 import NotionIcon from './icons/NotionIcon.jsx';
 import ImageTemplateStudio from './ImageTemplateStudio.jsx';
 import { publishToLinkedInApi } from '../lib/linkedInApi.js';
 import { safeGetItem, safeSetItem } from '../lib/storage.js';
 import { generateAIDrafts, generateFestiveDrafts } from '../lib/draftGenerator.js';
-import { BENCHMARK_TEMPLATES, extractTemplateFromInput } from '../lib/templateExtractor.js';
+import { FIVE_CORE_FRAMEWORKS, BENCHMARK_TEMPLATES, extractTemplateFromInput } from '../lib/templateExtractor.js';
 import { getSavedStyleGuides, saveStyleGuide } from '../lib/styleGuideLibrary.js';
 import { logActivity } from '../lib/auditLogger.js';
 import { GEMINI_MODEL_REGISTRY, DEFAULT_TEXT_MODEL } from '../lib/geminiModels.js';
@@ -132,19 +133,37 @@ To everyone celebrating, how is your team marking this special day? Share your f
     }
   }, [initialAvailableDrafts]);
 
-  // Read custom ingested templates from local storage
+  // Read custom ingested templates from local storage (filtering out legacy templates)
   const getCustomIngestedTemplates = () => {
     try {
       const stored = localStorage.getItem('custom_ingested_templates');
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed)) return parsed;
+        if (Array.isArray(parsed)) {
+          return parsed.filter(t => {
+            if (!t || !t.name) return false;
+            const norm = t.name.trim().toLowerCase();
+            if (t.id?.startsWith('tmpl-eb-') || t.id?.startsWith('tmpl-bench-')) return false;
+            if (norm.includes('product launch announcement') || 
+                norm.includes('live extracted linkedin') || 
+                norm.includes('kaizen innovation & precision') ||
+                norm.includes('workplace flexibility') ||
+                norm.includes('quiet craft') ||
+                norm.includes('humble craftsmanship')) {
+              return false;
+            }
+            return Array.isArray(t.structureSteps) && t.structureSteps.length > 0;
+          });
+        }
       }
     } catch (e) {
       console.warn('Could not read custom templates:', e);
     }
     return [];
   };
+
+  // State for selected framework inspection in modal
+  const [modalSelectedFrameworkId, setModalSelectedFrameworkId] = useState(() => FIVE_CORE_FRAMEWORKS[0].id);
 
   // Derive contextual drafts for quick pill switching
   const contextualDrafts = useMemo(() => {
@@ -168,63 +187,55 @@ To everyone celebrating, how is your team marking this special day? Share your f
 
   // Set default active template if not set
   useEffect(() => {
-    if (!selectedTemplateId && contextualDrafts.length > 0) {
-      const first = contextualDrafts[0];
-      setSelectedTemplateId(first.id || first.templateId || 'draft-0');
-      if (!currentRationale && (first.whyThisWorks || first.description)) {
-        setCurrentRationale(first.whyThisWorks || first.description);
+    if (!selectedTemplateId && FIVE_CORE_FRAMEWORKS.length > 0) {
+      const first = FIVE_CORE_FRAMEWORKS[0];
+      setSelectedTemplateId(first.id);
+      if (!currentRationale) {
+        setCurrentRationale(first.description || first.whyThisWorks);
       }
     }
-  }, [contextualDrafts, selectedTemplateId, currentRationale]);
+  }, [selectedTemplateId, currentRationale]);
 
-  // Full comprehensive template catalog for the library modal
+  // Full comprehensive template catalog for the library modal:
+  // Starts with the 5 Core Strategic Content Frameworks, followed by user-deconstructed frameworks, followed by contextual drafts
   const allLibraryTemplates = useMemo(() => {
     const custom = getCustomIngestedTemplates();
-    const benchmark = BENCHMARK_TEMPLATES || [];
     const combined = [];
 
-    // Add contextual drafts first
-    contextualDrafts.forEach((d, idx) => {
+    // 1. Add the 5 Core Strategic Content Frameworks first
+    FIVE_CORE_FRAMEWORKS.forEach((f) => {
       combined.push({
-        id: d.id || `context-draft-${idx}`,
-        name: d.name || d.templateName || `Strategy Angle #${idx + 1}`,
-        category: d.category || (occasion ? 'Festive & Cultural' : 'Thought Leadership & Strategy'),
-        tone: d.tone || 'Strategic & Authoritative',
-        whyThisWorks: d.whyThisWorks || d.description || d.angle || 'Tailored to drive engagement and executive clarity.',
-        post: d.postContent || d.post || '',
-        postContent: d.postContent || d.post || '',
-        isContextual: true
+        ...f,
+        isFramework: true,
+        post: f.examplePost || f.placeholderTemplate,
+        postContent: f.examplePost || f.placeholderTemplate
       });
     });
 
-    // Add benchmark templates
-    benchmark.forEach((b) => {
-      if (!combined.some(c => c.name?.trim().toLowerCase() === b.name?.trim().toLowerCase())) {
+    // 2. Add custom deconstructed frameworks
+    custom.forEach((c) => {
+      if (!combined.some(item => item.name?.trim().toLowerCase() === c.name?.trim().toLowerCase())) {
         combined.push({
-          id: b.id,
-          name: b.name,
-          category: b.category,
-          tone: b.tone,
-          whyThisWorks: b.description,
-          post: b.examplePost || b.placeholderTemplate,
-          postContent: b.examplePost || b.placeholderTemplate,
-          isContextual: false
+          ...c,
+          isFramework: true,
+          post: c.examplePost || c.placeholderTemplate,
+          postContent: c.examplePost || c.placeholderTemplate
         });
       }
     });
 
-    // Add custom ingested templates
-    custom.forEach((c) => {
-      if (!combined.some(item => item.name?.trim().toLowerCase() === c.name?.trim().toLowerCase())) {
+    // 3. Add contextual drafts as applied angles
+    contextualDrafts.forEach((d, idx) => {
+      if (!combined.some(item => item.name?.trim().toLowerCase() === (d.name || d.templateName || '').trim().toLowerCase())) {
         combined.push({
-          id: c.id,
-          name: c.name,
-          category: c.category || 'Custom Ingested',
-          tone: c.tone || 'Culturally Calibrated',
-          whyThisWorks: c.description || 'Custom corporate benchmark template.',
-          post: c.examplePost || c.placeholderTemplate,
-          postContent: c.examplePost || c.placeholderTemplate,
-          isContextual: false
+          id: d.id || `context-draft-${idx}`,
+          name: d.name || d.templateName || `Strategy Angle #${idx + 1}`,
+          category: d.category || (occasion ? 'Festive & Cultural' : 'Thought Leadership & Strategy'),
+          tone: d.tone || 'Strategic & Authoritative',
+          whyThisWorks: d.whyThisWorks || d.description || d.angle || 'Tailored to drive engagement and executive clarity.',
+          post: d.postContent || d.post || '',
+          postContent: d.postContent || d.post || '',
+          isContextual: true
         });
       }
     });
@@ -239,7 +250,9 @@ To everyone celebrating, how is your team marking this special day? Share your f
         !templateSearchQuery ||
         tmpl.name?.toLowerCase().includes(templateSearchQuery.toLowerCase()) ||
         tmpl.category?.toLowerCase().includes(templateSearchQuery.toLowerCase()) ||
-        tmpl.whyThisWorks?.toLowerCase().includes(templateSearchQuery.toLowerCase());
+        tmpl.formula?.toLowerCase().includes(templateSearchQuery.toLowerCase()) ||
+        tmpl.whyThisWorks?.toLowerCase().includes(templateSearchQuery.toLowerCase()) ||
+        tmpl.description?.toLowerCase().includes(templateSearchQuery.toLowerCase());
 
       if (!matchesSearch) return false;
 
@@ -248,10 +261,10 @@ To everyone celebrating, how is your team marking this special day? Share your f
         return tmpl.category?.toLowerCase().includes('thought leadership') || tmpl.category?.toLowerCase().includes('strategy') || tmpl.category?.toLowerCase().includes('executive');
       }
       if (templateCategoryFilter === 'employer-branding') {
-        return tmpl.category?.toLowerCase().includes('employer') || tmpl.category?.toLowerCase().includes('culture') || tmpl.category?.toLowerCase().includes('talent') || tmpl.category?.toLowerCase().includes('intern');
+        return tmpl.category?.toLowerCase().includes('employer') || tmpl.category?.toLowerCase().includes('culture') || tmpl.category?.toLowerCase().includes('talent') || tmpl.category?.toLowerCase().includes('harmony') || tmpl.category?.toLowerCase().includes('wa');
       }
       if (templateCategoryFilter === 'b2b-solutions') {
-        return tmpl.category?.toLowerCase().includes('b2b') || tmpl.category?.toLowerCase().includes('engineering') || tmpl.category?.toLowerCase().includes('operations');
+        return tmpl.category?.toLowerCase().includes('b2b') || tmpl.category?.toLowerCase().includes('engineering') || tmpl.category?.toLowerCase().includes('operations') || tmpl.category?.toLowerCase().includes('kaizen') || tmpl.category?.toLowerCase().includes('monozukuri');
       }
       if (templateCategoryFilter === 'sustainability') {
         return tmpl.category?.toLowerCase().includes('sustainability') || tmpl.category?.toLowerCase().includes('esg') || tmpl.category?.toLowerCase().includes('green');
@@ -1261,7 +1274,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
       {/* Template Library Modal */}
       {showTemplateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4 animate-in fade-in duration-150">
-          <div className="w-full max-w-3xl max-h-[90vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden">
+          <div className="w-full max-w-5xl max-h-[90vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden">
             {/* Modal Header */}
             <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/40">
               <div className="flex items-center gap-2.5">
@@ -1334,86 +1347,208 @@ To everyone celebrating, how is your team marking this special day? Share your f
               </div>
             </div>
 
-            {/* Template List Cards */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
-              {filteredTemplates.length === 0 ? (
-                <div className="p-8 text-center text-slate-500">
-                  <BookOpen className="w-8 h-8 mx-auto mb-2 opacity-40" />
-                  <p className="text-xs font-semibold">No templates found matching your criteria.</p>
-                  <p className="text-[11px] opacity-75 mt-1">Try clearing your search query or selecting "All Templates".</p>
-                </div>
-              ) : (
-                filteredTemplates.map((tmpl, idx) => {
-                  const isCurrentlyActive = selectedTemplateId === tmpl.id || (activeDraft?.name === tmpl.name);
-                  return (
-                    <div
-                      key={tmpl.id || idx}
-                      className={`p-4 rounded-xl border transition-all ${
-                        isCurrentlyActive
-                          ? 'border-[#0f2ea2] bg-blue-50/40 dark:bg-blue-950/30 ring-1 ring-[#0f2ea2]'
-                          : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/60 hover:border-slate-300 dark:hover:border-slate-700'
-                      }`}
-                    >
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-2">
-                        <div>
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-xs font-bold text-slate-900 dark:text-white">
-                              {tmpl.name}
-                            </span>
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/60 text-[#0f2ea2] dark:text-blue-300">
-                              {tmpl.category}
-                            </span>
-                            {tmpl.tone && (
-                              <span className="text-[10px] text-slate-500 font-mono">
-                                • {tmpl.tone}
+            {/* 2-Column Responsive Framework Browser */}
+            {(() => {
+              const activeTmpl = filteredTemplates.find(t => t.id === modalSelectedFrameworkId) || filteredTemplates[0] || FIVE_CORE_FRAMEWORKS[0];
+              const isCurrentlyActive = selectedTemplateId === activeTmpl?.id || (activeDraft?.name === activeTmpl?.name);
+
+              return (
+                <div className="flex-1 overflow-hidden grid grid-cols-1 md:grid-cols-12 divide-y md:divide-y-0 md:divide-x divide-slate-100 dark:divide-slate-800">
+                  {/* Left Column: Strategic Framework Cards List */}
+                  <div className="md:col-span-5 p-3.5 overflow-y-auto space-y-2.5 max-h-[60vh] custom-scrollbar bg-slate-50/50 dark:bg-slate-950/30">
+                    <div className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 px-1">
+                      Strategic Content Frameworks ({filteredTemplates.length})
+                    </div>
+                    {filteredTemplates.length === 0 ? (
+                      <div className="p-6 text-center text-slate-500">
+                        <BookOpen className="w-6 h-6 mx-auto mb-1.5 opacity-40" />
+                        <p className="text-xs font-semibold">No frameworks match your filter.</p>
+                      </div>
+                    ) : (
+                      filteredTemplates.map((tmpl) => {
+                        const isSelectedInModal = activeTmpl?.id === tmpl.id;
+                        const isCurrentlyApplied = selectedTemplateId === tmpl.id || (activeDraft?.name === tmpl.name);
+                        const formulaBadge = tmpl.formula || (tmpl.id?.includes('possibility') ? 'H-C-V-P-P-A' : 'FRAMEWORK');
+
+                        return (
+                          <div
+                            key={tmpl.id}
+                            onClick={() => setModalSelectedFrameworkId(tmpl.id)}
+                            className={`p-3 rounded-xl border cursor-pointer transition-all ${
+                              isSelectedInModal
+                                ? 'bg-blue-50/90 border-[#0f2ea2] dark:bg-blue-950/60 dark:border-blue-400 shadow-sm ring-1 ring-[#0f2ea2]/20'
+                                : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 hover:border-slate-300 dark:hover:border-slate-700'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between gap-1 mb-1">
+                              <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-[#0f2ea2] text-white">
+                                {formulaBadge}
                               </span>
+                              <div className="flex items-center gap-1">
+                                {isCurrentlyApplied && (
+                                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+                                    In Use
+                                  </span>
+                                )}
+                                <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 truncate max-w-[110px]">
+                                  {tmpl.category}
+                                </span>
+                              </div>
+                            </div>
+                            <h4 className={`text-xs font-bold leading-snug ${
+                              isSelectedInModal ? 'text-[#0f2ea2] dark:text-blue-300' : 'text-slate-900 dark:text-white'
+                            }`}>
+                              {tmpl.name}
+                            </h4>
+                            <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 mt-1 leading-relaxed">
+                              {tmpl.description || tmpl.whyThisWorks || tmpl.philosophy}
+                            </p>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+
+                  {/* Right Column: Deep Explanation of Selected Framework */}
+                  <div className="md:col-span-7 p-4 sm:p-5 overflow-y-auto space-y-4 max-h-[60vh] custom-scrollbar bg-white dark:bg-slate-900">
+                    {activeTmpl && (
+                      <>
+                        {/* Header Details */}
+                        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
+                          <div>
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#0f2ea2] text-white">
+                                {activeTmpl.formula || 'H-C-V-P-P-A Formula'}
+                              </span>
+                              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950 text-[#0f2ea2] dark:text-blue-300 border border-blue-200 dark:border-blue-900">
+                                {activeTmpl.category}
+                              </span>
+                            </div>
+                            <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white mt-1">
+                              {activeTmpl.name}
+                            </h3>
+                            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                              <strong>Tone:</strong> {activeTmpl.tone}
+                            </p>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => handleSelectTemplate(activeTmpl, 0)}
+                            className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer shrink-0 ${
+                              isCurrentlyActive
+                                ? 'bg-emerald-600 text-white'
+                                : 'bg-[#0f2ea2] hover:bg-[#0c2482] text-white'
+                            }`}
+                          >
+                            {isCurrentlyActive ? (
+                              <>
+                                <CheckCircle2 className="w-3.5 h-3.5" />
+                                <span>Currently Active</span>
+                              </>
+                            ) : (
+                              <>
+                                <span>Apply to Studio</span>
+                                <ArrowRight className="w-3.5 h-3.5" />
+                              </>
+                            )}
+                          </button>
+                        </div>
+
+                        {/* Section 1: Cognitive Sequence / Narrative Architecture */}
+                        <div className="space-y-2">
+                          <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5">
+                            <Compass className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
+                            <span>1. Narrative Architecture & Cognitive Sequence</span>
+                          </h4>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            {(activeTmpl.structureSteps || [
+                              { step: "HOOK", label: "Attention Hook", purpose: "Earn attention with curiosity" },
+                              { step: "CONTEXT", label: "Communal Context", purpose: "Why this matters in daily work" },
+                              { step: "VALUE", label: "Human Value", purpose: "Convert specs into tangible possibility" },
+                              { step: "PROOF", label: "Credible Proof", purpose: "Model, promo details & facts" },
+                              { step: "POSSIBILITY", label: "Future Projection", purpose: "Help customer picture the experience" },
+                              { step: "ACTION", label: "Single CTA", purpose: "Clear invitation to take next step" }
+                            ]).map((st, sIdx) => (
+                              <div
+                                key={sIdx}
+                                className="p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/40 text-[11px]"
+                              >
+                                <div className="flex items-center justify-between text-[10px] font-mono text-[#0f2ea2] dark:text-blue-400 font-bold mb-0.5">
+                                  <span>Step 0{sIdx + 1}: {st.step}</span>
+                                  <span className="text-slate-400 font-normal">{st.label}</span>
+                                </div>
+                                <p className="font-semibold text-slate-800 dark:text-slate-200 leading-snug text-[11px]">
+                                  {st.purpose}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Section 2: Why This Framework Differs & Philosophy */}
+                        <div className="space-y-1.5 pt-2 border-t border-slate-100 dark:border-slate-800">
+                          <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5">
+                            <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
+                            <span>2. Why It Differs & Philosophy</span>
+                          </h4>
+                          <div className="p-3 rounded-xl bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/40 text-[11px] text-amber-950 dark:text-amber-200 space-y-1.5 leading-relaxed">
+                            <p className="font-medium">
+                              {activeTmpl.whyItDiffers || activeTmpl.whyThisWorks || "Replaces dry specification dumps and product model numbers with emotional resonance, human outcomes, and Brother's 'At your side' positioning."}
+                            </p>
+                            {activeTmpl.philosophy && (
+                              <div className="pt-1.5 border-t border-amber-200/60 dark:border-amber-800/40 flex items-start gap-1.5 text-[10px] text-amber-900 dark:text-amber-300">
+                                <Quote className="w-3 h-3 shrink-0 mt-0.5 text-amber-600" />
+                                <span><strong>Philosophy: </strong>{activeTmpl.philosophy}</span>
+                              </div>
                             )}
                           </div>
                         </div>
 
-                        <button
-                          type="button"
-                          onClick={() => handleSelectTemplate(tmpl, idx)}
-                          className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 ${
-                            isCurrentlyActive
-                              ? 'bg-emerald-600 text-white'
-                              : 'bg-[#0f2ea2] hover:bg-[#0c2482] text-white shadow-sm active:scale-95'
-                          }`}
-                        >
-                          {isCurrentlyActive ? (
-                            <>
-                              <CheckCircle2 className="w-3.5 h-3.5" />
-                              <span>Active Template</span>
-                            </>
-                          ) : (
-                            <>
-                              <span>Apply Template</span>
-                              <ArrowRight className="w-3.5 h-3.5" />
-                            </>
-                          )}
-                        </button>
-                      </div>
+                        {/* Section 3: When To Use It */}
+                        <div className="space-y-1.5 pt-2 border-t border-slate-100 dark:border-slate-800">
+                          <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5">
+                            <Target className="w-3.5 h-3.5 text-emerald-500" />
+                            <span>3. When To Use It</span>
+                          </h4>
+                          <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed bg-slate-50 dark:bg-slate-950 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800">
+                            {activeTmpl.whenToUse || "Product launches, customer value updates, promotional bundles, and milestone showcases across Singapore SMEs and professional audiences."}
+                          </p>
+                        </div>
 
-                      {tmpl.whyThisWorks && (
-                        <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed mb-2.5">
-                          <strong className="text-slate-800 dark:text-slate-200">Angle: </strong>
-                          {tmpl.whyThisWorks}
-                        </p>
-                      )}
-
-                      {/* Post Snippet Preview */}
-                      <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-950 font-mono text-[11px] text-slate-600 dark:text-slate-400 line-clamp-3 leading-relaxed border border-slate-200/60 dark:border-slate-800">
-                        {tmpl.post || tmpl.postContent || tmpl.examplePost || tmpl.placeholderTemplate}
-                      </div>
-                    </div>
-                  );
-                })
-              )}
-            </div>
+                        {/* Section 4: Applied Brother Singapore Example Post */}
+                        <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                          <div className="flex items-center justify-between">
+                            <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5">
+                              <MessageSquare className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
+                              <span>4. Applied Brother Singapore Post Example</span>
+                            </h4>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const postText = activeTmpl.examplePost || activeTmpl.placeholderTemplate || activeTmpl.post || '';
+                                navigator.clipboard.writeText(postText);
+                              }}
+                              className="text-[10px] font-semibold text-[#0f2ea2] dark:text-blue-400 hover:underline inline-flex items-center gap-1"
+                            >
+                              <Copy className="w-3 h-3" />
+                              <span>Copy Example</span>
+                            </button>
+                          </div>
+                          <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-[11px] leading-relaxed text-slate-800 dark:text-slate-200 whitespace-pre-wrap font-sans">
+                            {activeTmpl.examplePost || activeTmpl.placeholderTemplate || activeTmpl.post || "Post example available once selected."}
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* Modal Footer */}
             <div className="p-3.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 bg-slate-50/50 dark:bg-slate-800/40">
-              <span>Selecting a template updates post copy and synchronizes with the Visual Studio.</span>
+              <span>Selecting a framework applies its proven narrative architecture and example copy into the editor.</span>
               <button
                 type="button"
                 onClick={() => setShowTemplateModal(false)}
