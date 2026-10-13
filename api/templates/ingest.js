@@ -218,10 +218,10 @@ Key Reflections & Takeaways:
     });
   }
 
-  // Active Gemini 3.1 Model Selection
-  const targetModel = modelName === 'gemini-3.1-pro-preview' 
-    ? 'gemini-3.1-pro-preview' 
-    : 'gemini-3.1-flash-lite';
+  // Active Gemini 3 / Gemma Model Selection
+  const targetModel = modelName && typeof modelName === 'string'
+    ? modelName.trim()
+    : 'gemini-3.8-flash';
 
   const systemInstruction = `
 You are an elite B2B brand strategist, executive editorial consultant, and master creative director for Brother Singapore (calibrated to the "At your side" brand promise and Japanese Monozukuri / Kaizen craft).

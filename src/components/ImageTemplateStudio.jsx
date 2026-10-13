@@ -36,6 +36,7 @@ import {
 } from '../lib/imageTemplateEngine.js';
 import { safeGetItem, safeSetItem } from '../lib/storage.js';
 import { logActivity } from '../lib/auditLogger.js';
+import { GEMINI_MODEL_REGISTRY, DEFAULT_IMAGE_MODEL } from '../lib/geminiModels.js';
 
 export const GEMINI_STYLE_PROMPT_GUIDES = [
   {
@@ -100,24 +101,35 @@ export default function ImageTemplateStudio({
   const [promptLanguage, setPromptLanguage] = useState('English');
 
   // AI model selector and token advisory alert
+  const [availableImageModels, setAvailableImageModels] = useState(GEMINI_MODEL_REGISTRY.image);
   const [selectedAiModel, setSelectedAiModel] = useState(() => {
-    const validModels = [
-      'gemini-3.1-flash-lite-image',
-      'gemini-3.1-flash-image',
-      'gemini-3-pro-image',
-      'gemini-2.5-flash-image'
-    ];
     const saved = safeGetItem('model_gemini_image');
-    if (!validModels.includes(saved)) {
-      return 'gemini-3.1-flash-lite-image';
-    }
-    return saved;
+    return saved || DEFAULT_IMAGE_MODEL;
   });
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [cloudSaving, setCloudSaving] = useState(false);
   const [cloudSuccess, setCloudSuccess] = useState(null);
   const [cloudError, setCloudError] = useState(null);
   const [serverGeminiConfigured, setServerGeminiConfigured] = useState(false);
+
+  // Fetch live contextual image models (Nano Banana series)
+  useEffect(() => {
+    async function loadLiveImageModels() {
+      try {
+        const clientGeminiKey = safeGetItem('key_gemini') || '';
+        const headers = {};
+        if (clientGeminiKey) headers['x-gemini-key'] = clientGeminiKey;
+        const res = await fetch('/api/gemini/models?context=image', { headers });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && Array.isArray(data.models) && data.models.length > 0) {
+            setAvailableImageModels(data.models);
+          }
+        }
+      } catch (_) {}
+    }
+    loadLiveImageModels();
+  }, []);
 
   // Check if server-side GEMINI_API_KEY is configured in Vercel environment
   useEffect(() => {
@@ -1065,10 +1077,11 @@ export default function ImageTemplateStudio({
                 className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs font-semibold px-2 py-1 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#0f2ea2] cursor-pointer"
                 title="Select Google AI model for image synthesis"
               >
-                <option value="gemini-3.1-flash-lite-image">gemini-3.1-flash-lite-image</option>
-                <option value="gemini-3.1-flash-image">gemini-3.1-flash-image</option>
-                <option value="gemini-3-pro-image">gemini-3-pro-image</option>
-                <option value="gemini-2.5-flash-image">gemini-2.5-flash-image</option>
+                {availableImageModels.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.name || m.id} {m.badge ? `(${m.badge})` : ''}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -1312,10 +1325,11 @@ export default function ImageTemplateStudio({
                 }}
                 className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0f2ea2] cursor-pointer"
               >
-                <option value="gemini-3.1-flash-lite-image">gemini-3.1-flash-lite-image (Lite Efficiency)</option>
-                <option value="gemini-3.1-flash-image">gemini-3.1-flash-image (Fast Creative Vision)</option>
-                <option value="gemini-3-pro-image">gemini-3-pro-image (Advanced Creative Studio)</option>
-                <option value="gemini-2.5-flash-image">gemini-2.5-flash-image (Fast Multimodal)</option>
+                {availableImageModels.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.name || m.id} {m.badge ? `(${m.badge})` : ''}
+                  </option>
+                ))}
               </select>
             </div>
 

@@ -5,6 +5,7 @@ import {
   Lightbulb, Compass, Target, MessageSquare, Quote, X, ChevronRight, Sliders
 } from 'lucide-react';
 import { FIVE_CORE_FRAMEWORKS, BENCHMARK_TEMPLATES, extractTemplateFromInput } from '../lib/templateExtractor.js';
+import { GEMINI_MODEL_REGISTRY, DEFAULT_TEXT_MODEL } from '../lib/geminiModels.js';
 import { safeGetItem } from '../lib/storage.js';
 import { logActivity } from '../lib/auditLogger.js';
 
@@ -70,9 +71,29 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
   const [uploadFileName, setUploadFileName] = useState('');
   const [analyzing, setAnalyzing] = useState(false);
 
-  const [selectedModel, setSelectedModel] = useState('gemini-3.1-flash-lite');
+  const [selectedModel, setSelectedModel] = useState(DEFAULT_TEXT_MODEL);
+  const [availableModels, setAvailableModels] = useState(GEMINI_MODEL_REGISTRY.text);
   const [base64Image, setBase64Image] = useState('');
   const [extractError, setExtractError] = useState(null);
+
+  // Fetch dynamic models list from Google AI API / backend
+  useEffect(() => {
+    async function loadLiveModels() {
+      try {
+        const clientGeminiKey = safeGetItem('key_gemini') || '';
+        const headers = {};
+        if (clientGeminiKey) headers['x-gemini-key'] = clientGeminiKey;
+        const res = await fetch('/api/gemini/models?context=text', { headers });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && Array.isArray(data.models) && data.models.length > 0) {
+            setAvailableModels(data.models);
+          }
+        }
+      } catch (_) {}
+    }
+    loadLiveModels();
+  }, []);
 
   // Newly Extracted Framework Review & Notion Save State
   const [justExtractedTemplate, setJustExtractedTemplate] = useState(null);
@@ -734,10 +755,25 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
                 <select
                   value={selectedModel}
                   onChange={(e) => setSelectedModel(e.target.value)}
-                  className="bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-2.5 py-1 text-xs font-bold text-[#0f2ea2] dark:text-blue-400"
+                  className="bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-2.5 py-1 text-xs font-bold text-[#0f2ea2] dark:text-blue-400 max-w-[280px]"
                 >
-                  <option value="gemini-3.1-flash-lite">Gemini 3.1 Flash-Lite (Fast)</option>
-                  <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro-Preview (Deep Reasoning)</option>
+                  {/* Group models by category */}
+                  {Object.entries(
+                    availableModels.reduce((acc, m) => {
+                      const cat = m.category || 'Gemini 3 (Frontier)';
+                      if (!acc[cat]) acc[cat] = [];
+                      acc[cat].push(m);
+                      return acc;
+                    }, {})
+                  ).map(([category, items]) => (
+                    <optgroup key={category} label={category}>
+                      {items.map((m) => (
+                        <option key={m.id} value={m.id}>
+                          {m.name || m.id} {m.badge ? `(${m.badge})` : ''}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ))}
                 </select>
               </div>
 

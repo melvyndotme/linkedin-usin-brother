@@ -4,6 +4,7 @@ import { testSerperKey } from '../lib/serperEngine.js';
 import { cleanLinkedInOrgId, formatLinkedInOrgUrn, testLinkedInCredentials, testBufferCredentials } from '../lib/linkedInApi.js';
 import { safeGetItem, safeSetItem } from '../lib/storage.js';
 import { logActivity } from '../lib/auditLogger.js';
+import { GEMINI_MODEL_REGISTRY } from '../lib/geminiModels.js';
 
 export default function SettingsView({ isDark }) {
   const [serperKey, setSerperKey] = useState(safeGetItem('key_serper') || '');
@@ -765,13 +766,37 @@ export default function SettingsView({ isDark }) {
               onChange={(e) => updateSetting('model_gemini', e.target.value, setGeminiModel)}
               className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none cursor-pointer"
             >
-              <option value="gemini-3.8-flash">gemini-3.8-flash (Next-Gen High Velocity Reasoning)</option>
-              <option value="gemini-3.7-flash">gemini-3.7-flash (Hybrid Reasoning & High Velocity)</option>
-              <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite (Ultra Lightweight & Fast)</option>
-              <option value="gemini-3.1-flash-lite-image">gemini-3.1-flash-lite-image (Lite Multimodal Asset Processing)</option>
-              <option value="gemini-3.1-flash-image">gemini-3.1-flash-image (Multimodal Vision & Asset Synthesis)</option>
-              <option value="gemini-3-pro-image">gemini-3-pro-image (Advanced Creative Image Studio)</option>
-              <option value="gemini-2.5-flash-image">gemini-2.5-flash-image (Fast Multimodal Asset Processing)</option>
+              <optgroup label="Gemini 3 Text & Reasoning Models">
+                {GEMINI_MODEL_REGISTRY.text.filter(m => m.category.includes('Gemini 3')).map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.name} ({m.badge}) — {m.id}
+                  </option>
+                ))}
+              </optgroup>
+
+              <optgroup label="Gemma Open Family Models">
+                {GEMINI_MODEL_REGISTRY.text.filter(m => m.category.includes('Gemma')).map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.name} ({m.badge}) — {m.id}
+                  </option>
+                ))}
+              </optgroup>
+
+              <optgroup label="Nano Banana Native Image Models">
+                {GEMINI_MODEL_REGISTRY.image.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.name} ({m.badge}) — {m.id}
+                  </option>
+                ))}
+              </optgroup>
+
+              <optgroup label="Maintained Enterprise 2.5 Models">
+                {GEMINI_MODEL_REGISTRY.text.filter(m => m.category.includes('2.5')).map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.name} ({m.badge}) — {m.id}
+                  </option>
+                ))}
+              </optgroup>
             </select>
             <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1.5">
               Powered by <code className="bg-blue-100 dark:bg-blue-900/60 px-1 py-0.5 rounded text-[10px] font-mono text-[#0f2ea2] dark:text-blue-300 font-bold">GEMINI_API_KEY</code> on Vercel. All advocates generate high-converting copy and carousel visuals with zero manual key setup.
