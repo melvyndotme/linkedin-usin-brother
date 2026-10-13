@@ -766,34 +766,18 @@ export default function SettingsView({ isDark }) {
               onChange={(e) => updateSetting('model_gemini', e.target.value, setGeminiModel)}
               className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none cursor-pointer"
             >
-              <optgroup label="Gemini 3 Text & Reasoning Models">
-                {GEMINI_MODEL_REGISTRY.text.filter(m => m.category.includes('Gemini 3')).map((m) => (
+              <optgroup label="Frontier Text & Deconstruction (5 Models)">
+                {GEMINI_MODEL_REGISTRY.text.map((m) => (
                   <option key={m.id} value={m.id}>
-                    {m.name} ({m.badge}) — {m.id}
+                    {m.name} ({m.badge})
                   </option>
                 ))}
               </optgroup>
 
-              <optgroup label="Gemma Open Family Models">
-                {GEMINI_MODEL_REGISTRY.text.filter(m => m.category.includes('Gemma')).map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {m.name} ({m.badge}) — {m.id}
-                  </option>
-                ))}
-              </optgroup>
-
-              <optgroup label="Nano Banana Native Image Models">
+              <optgroup label="Frontier Visual & Image (3 Nano Banana Models)">
                 {GEMINI_MODEL_REGISTRY.image.map((m) => (
                   <option key={m.id} value={m.id}>
-                    {m.name} ({m.badge}) — {m.id}
-                  </option>
-                ))}
-              </optgroup>
-
-              <optgroup label="Maintained Enterprise 2.5 Models">
-                {GEMINI_MODEL_REGISTRY.text.filter(m => m.category.includes('2.5')).map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {m.name} ({m.badge}) — {m.id}
+                    {m.name} ({m.badge})
                   </option>
                 ))}
               </optgroup>

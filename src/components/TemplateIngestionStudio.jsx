@@ -757,22 +757,10 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
                   onChange={(e) => setSelectedModel(e.target.value)}
                   className="bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-2.5 py-1 text-xs font-bold text-[#0f2ea2] dark:text-blue-400 max-w-[280px]"
                 >
-                  {/* Group models by category */}
-                  {Object.entries(
-                    availableModels.reduce((acc, m) => {
-                      const cat = m.category || 'Gemini 3 (Frontier)';
-                      if (!acc[cat]) acc[cat] = [];
-                      acc[cat].push(m);
-                      return acc;
-                    }, {})
-                  ).map(([category, items]) => (
-                    <optgroup key={category} label={category}>
-                      {items.map((m) => (
-                        <option key={m.id} value={m.id}>
-                          {m.name || m.id} {m.badge ? `(${m.badge})` : ''}
-                        </option>
-                      ))}
-                    </optgroup>
+                  {availableModels.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.name || m.id} {m.badge ? `(${m.badge})` : ''}
+                    </option>
                   ))}
                 </select>
               </div>
