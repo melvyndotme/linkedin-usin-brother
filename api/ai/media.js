@@ -112,35 +112,43 @@ export default async function handler(req, res) {
 
     let systemPrompt = '';
     if (Array.isArray(frameworks) && frameworks.length >= 3) {
-      systemPrompt = `You are the lead LinkedIn editorial strategist for Brother Singapore.
-Generate exactly 3 distinct, high-impact LinkedIn post drafts for Brother Singapore.
-Each draft MUST follow its specific reverse-engineered content framework:
+      systemPrompt = `You are the lead executive LinkedIn editorial strategist and communication architect for Brother International Singapore.
+Your goal is to engineer 3 distinct, high-converting LinkedIn post candidate drafts that personify the Brother brand ethos:
+- BRAND POSITIONING: "At your side" — empathetic, dependable, consultative, customer-centric.
+- JAPANESE CRAFTSMANSHIP: Grounded in Kaizen (continuous refinement) and Monozukuri (the art, spirit, and dedication of Japanese making).
+- LOCAL SINGAPORE RELEVANCE: Tailored specifically to Singapore SMEs, enterprise decision-makers, office managers, IT heads, and modern workplaces.
+- STRICT ETHICAL GUARDRAIL: Strict ban on LGBTQ+ or polarizing political topics. Focus on workplace harmony (Wa), productivity, sustainable technology (Brother Earth), and genuine community connection.
 
 TOPIC / OCCASION: ${occasionName || 'Workplace Productivity & Innovation'}
-SOURCE CONTEXT / FACTS: ${occasionDetails || facts || 'Brother "At your side" philosophy, Japanese craftsmanship (Kaizen, Monozukuri), long-term reliability.'}
+SOURCE CONTEXT / FACTS: ${occasionDetails || facts || 'Brother "At your side" philosophy, Japanese craftsmanship (Kaizen, Monozukuri), long-term reliability, Singapore SME solutions.'}
+
+EDITORIAL EXECUTION REQUIREMENTS:
+1. HOOK: First 140 characters must captivate reader curiosity before the LinkedIn mobile fold ("...see more"). Never open with generic corporate self-congratulations.
+2. RHYTHM & PACING: Use short, breathable paragraphs (1-2 sentences each), rhythmic line breaks, and clear bullet points for scanning.
+3. CONCRETE VALUE OVER ABSTRACT TECH: Translate technical features into concrete human outcomes (time saved, seamless collaboration, uninterrupted peace of mind).
+4. ENGAGING CALL-TO-ACTION (CTA): End with an authentic, consultative conversation-starter that invites comments, reflections, or shares.
+5. HASHTAGS: Exactly 3 to 5 targeted professional hashtags including #BrotherSingapore and #AtYourSide.
 
 --- DRAFT 1 FRAMEWORK:
-Name: ${frameworks[0]?.name || 'High-Impact Thought Leadership'}
-Formula: ${frameworks[0]?.formula || 'Hook → Context → Value → Action'}
-Philosophy: ${frameworks[0]?.philosophy || 'Sell outcome before features'}
-Steps: ${(frameworks[0]?.structureSteps || []).map(s => s.step + ': ' + (s.purpose || s.prompt)).join(' | ')}
+Framework Name: ${frameworks[0]?.name || 'High-Impact Thought Leadership'}
+Cognitive Formula: ${frameworks[0]?.formula || 'Hook → Context → Value → Proof → Possibility → Action'}
+Underlying Philosophy: ${frameworks[0]?.philosophy || 'Sell the outcome before the feature; make the audience the protagonist.'}
+Sequence Steps: ${(frameworks[0]?.structureSteps || []).map(s => s.step + ': ' + (s.purpose || s.prompt)).join(' | ')}
 Writing Rules: ${(frameworks[0]?.rules || []).join(', ')}
 
 --- DRAFT 2 FRAMEWORK:
-Name: ${frameworks[1]?.name || 'Operational Excellence & Kaizen'}
-Formula: ${frameworks[1]?.formula || 'Friction → Turning Point → Proof → Takeaway'}
-Philosophy: ${frameworks[1]?.philosophy || 'Show practical reliability in high-stakes workflows'}
-Steps: ${(frameworks[1]?.structureSteps || []).map(s => s.step + ': ' + (s.purpose || s.prompt)).join(' | ')}
+Framework Name: ${frameworks[1]?.name || 'Operational Excellence & Kaizen'}
+Cognitive Formula: ${frameworks[1]?.formula || 'Friction → Turning Point → Proof → Takeaway'}
+Underlying Philosophy: ${frameworks[1]?.philosophy || 'Show practical reliability in high-stakes workflows; quiet craft over loud hype.'}
+Sequence Steps: ${(frameworks[1]?.structureSteps || []).map(s => s.step + ': ' + (s.purpose || s.prompt)).join(' | ')}
 Writing Rules: ${(frameworks[1]?.rules || []).join(', ')}
 
 --- DRAFT 3 FRAMEWORK:
-Name: ${frameworks[2]?.name || 'Cultural Harmony & Community (Wa)'}
-Formula: ${frameworks[2]?.formula || 'Moment → Story → Gratitude → Blessing'}
-Philosophy: ${frameworks[2]?.philosophy || 'Mutual respect and shared community harmony'}
-Steps: ${(frameworks[2]?.structureSteps || []).map(s => s.step + ': ' + (s.purpose || s.prompt)).join(' | ')}
+Framework Name: ${frameworks[2]?.name || 'Cultural Harmony & Community (Wa)'}
+Cognitive Formula: ${frameworks[2]?.formula || 'Moment → Story → Gratitude → Blessing'}
+Underlying Philosophy: ${frameworks[2]?.philosophy || 'Mutual respect and shared community harmony; honor collective bonds.'}
+Sequence Steps: ${(frameworks[2]?.structureSteps || []).map(s => s.step + ': ' + (s.purpose || s.prompt)).join(' | ')}
 Writing Rules: ${(frameworks[2]?.rules || []).join(', ')}
-
-CULTURAL CALIBRATION: Respectful, consultative, collective harmony (Wa), Long-Term Orientation (LTO), and craft precision (Monozukuri). STRICT BAN ON LGBTQ+ TOPICS.
 
 Return ONLY a strict JSON array of exactly 3 objects:
 [
@@ -262,7 +270,8 @@ Return ONLY a strict JSON array of exactly 3 objects:
       process.env.GOOGLE_GEMINI_API_KEY ||
       process.env.VITE_GEMINI_API_KEY;
 
-    const enhancedPrompt = prompt || `High-end commercial corporate photography for ${occasionName || 'Brother Singapore'}. Professional lighting, authentic cultural celebration in Singapore, elegant modern aesthetic, cinematic 8k resolution, photorealistic corporate editorial style. No text, no distorted hands, clean composition.`;
+    const baseUserPrompt = prompt?.trim() || `High-end commercial corporate photography for ${occasionName || 'Brother Singapore'}`;
+    const enhancedPrompt = `${baseUserPrompt}. Ultra-realistic commercial photography, high dynamic range, crisp three-point studio lighting with soft diffused fill, clean architectural lines, modern Japanese minimalist aesthetic, photorealistic corporate editorial visual. CRITICAL REQUIREMENTS: Text-free, no typography, no letters or numbers, no watermark, clean background layer for graphic layout. 8k resolution, cinematic color grading.`;
 
     if (!apiKey) {
       return res.status(200).json({

@@ -26,7 +26,7 @@ async function tryRefreshToken({ refreshToken, clientId, clientSecret }) {
 }
 
 // Buffer GraphQL API integration
-async function handleBufferPublish({ apiKey, channelId, commentary, imageUrl, isTest }) {
+async function handleBufferPublish({ apiKey, channelId, commentary, imageUrl, mediaUrl, scheduledDate, override1ClickPublish, existingScheduledDates, isTest }) {
   let targetChannelId = channelId;
   let targetChannelName = "LinkedIn Page";
 
@@ -122,8 +122,20 @@ async function handleBufferPublish({ apiKey, channelId, commentary, imageUrl, is
     input.dueAt = new Date(scheduledDate).toISOString();
   }
 
-  if (imageUrl) {
-    input.assets = [{ image: { url: imageUrl } }];
+  const mediaAssetUrl = imageUrl || mediaUrl;
+  if (mediaAssetUrl) {
+    const isPdf = mediaAssetUrl.toLowerCase().includes('.pdf') || mediaAssetUrl.startsWith('data:application/pdf');
+    if (isPdf) {
+      // Buffer / LinkedIn Document (PDF) attachment
+      input.assets = [{
+        document: {
+          url: mediaAssetUrl,
+          title: "Brother Singapore Thought Leadership Carousel"
+        }
+      }];
+    } else {
+      input.assets = [{ image: { url: mediaAssetUrl } }];
+    }
   }
 
   const postRes = await fetch("https://api.buffer.com", {

@@ -24,7 +24,9 @@ import {
   Coins,
   Info,
   Cloud,
-  Database
+  Database,
+  FileText,
+  Building2
 } from 'lucide-react';
 import { 
   OFFICIAL_BROTHER_ASSETS,
@@ -34,6 +36,7 @@ import {
   renderSlideToCanvas,
   getEffectiveFooterText
 } from '../lib/imageTemplateEngine.js';
+import { generateCarouselPdf } from '../lib/pdfCarouselExport.js';
 import { safeGetItem, safeSetItem } from '../lib/storage.js';
 import { logActivity } from '../lib/auditLogger.js';
 import { GEMINI_MODEL_REGISTRY, DEFAULT_IMAGE_MODEL } from '../lib/geminiModels.js';
@@ -84,6 +87,7 @@ export default function ImageTemplateStudio({
   const [aspectRatio, setAspectRatio] = useState('1:1'); // '1:1' (Square Carousel) or '1.91:1' (Landscape Banner)
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
   const [activeAssetTab, setActiveAssetTab] = useState('official'); // 'official' | 'festive'
+  const [visualSourceMode, setVisualSourceMode] = useState('library'); // 'library' | 'ai'
   const [slidePhotos, setSlidePhotos] = useState({}); // Per-slide background image mapping: { [slideIndex]: url }
   const [customPhotoUrl, setCustomPhotoUrl] = useState('');
   const [isAiGenerating, setIsAiGenerating] = useState(false);
@@ -339,6 +343,61 @@ export default function ImageTemplateStudio({
       });
     } catch (err) {
       console.error('Error batch exporting slides:', err);
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  // Compile full 5-slide carousel into PDF (for LinkedIn Document Carousel & Buffer API)
+  const handleExportPdf = async () => {
+    setDownloading(true);
+    try {
+      const { pdf, pdfBlob, pdfBase64, filename } = await generateCarouselPdf({
+        slides: baseSlides,
+        slidePhotos,
+        customSlideText,
+        aspectRatio
+      });
+
+      // 1. Trigger client download of the PDF
+      pdf.save(filename);
+
+      // 2. Upload to Vercel Blob so Buffer API can attach it to LinkedIn
+      try {
+        const blobRes = await fetch('/api/blob', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            filename,
+            fileBase64: pdfBase64,
+            access: 'public'
+          })
+        });
+
+        if (blobRes.ok) {
+          const blobData = await blobRes.json();
+          const publicUrl = blobData.publicUrl || blobData.url;
+          if (publicUrl) {
+            safeSetItem('brother_latest_carousel_pdf_url', publicUrl);
+          }
+        }
+      } catch (uploadErr) {
+        console.warn('PDF blob upload warning:', uploadErr);
+      }
+
+      setCloudSuccess({
+        message: 'Carousel PDF compiled & saved! Ready for LinkedIn & Buffer broadcast.'
+      });
+
+      logActivity({
+        event: 'Generated LinkedIn Carousel PDF',
+        category: 'Visual Studio',
+        details: `Exported 5-slide PDF carousel (${filename}) ready for Buffer document broadcast`,
+        status: 'Success'
+      });
+    } catch (err) {
+      console.error('Error exporting carousel PDF:', err);
+      setCloudError(`Failed to compile Carousel PDF: ${err.message}`);
     } finally {
       setDownloading(false);
     }
@@ -604,6 +663,20 @@ export default function ImageTemplateStudio({
             <span>{showTextEditor ? 'Close Text Editor' : 'Edit Text'}</span>
           </button>
 
+          {/* Export Carousel PDF for LinkedIn Document & Buffer */}
+          {aspectRatio === '1:1' && (
+            <button
+              type="button"
+              onClick={handleExportPdf}
+              disabled={downloading}
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-3 py-1.5 rounded-xl shadow-xs transition-all cursor-pointer disabled:opacity-50"
+              title="Compile all 5 slides into a LinkedIn Carousel PDF for Buffer & LinkedIn"
+            >
+              <FileText className="w-3.5 h-3.5" />
+              <span>{downloading ? 'Compiling PDF...' : 'Carousel PDF (Buffer)'}</span>
+            </button>
+          )}
+
           {/* Export PNG Buttons */}
           <button
             type="button"
@@ -636,8 +709,8 @@ export default function ImageTemplateStudio({
               title="Download all 5 slides in this series"
             >
               <FolderDown className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
-              <span className="hidden md:inline">Download 5-Slide Pack</span>
-              <span className="md:hidden">All 5</span>
+              <span className="hidden md:inline">5-Slide PNGs</span>
+              <span className="md:hidden">PNG Pack</span>
             </button>
           )}
         </div>
@@ -933,318 +1006,318 @@ export default function ImageTemplateStudio({
         </div>
       )}
 
-      {/* Gemini AI Generative Image Studio Panel */}
-      <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950 flex items-center justify-center text-[#0f2ea2] dark:text-blue-400">
-              <Sparkles className="w-4 h-4" />
-            </div>
-            <div>
-              <h3 className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                Gemini Image Generation Studio
-                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
-                  Text-Free Layer
-                </span>
-              </h3>
-              <p className="text-[11px] text-slate-500">
-                Instructional prompt presets calibrated from Google Gemini Image Documentation.
-              </p>
-            </div>
+      {/* Minimalist Visual Source Control: Regional Digital Asset Library vs Gemini AI Generation */}
+      <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        {/* Sleek Segmented Header Bar */}
+        <div className="p-3.5 sm:p-4 bg-slate-50/80 dark:bg-slate-800/40 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-1.5 p-1 bg-slate-200/70 dark:bg-slate-900 rounded-xl border border-slate-300/50 dark:border-slate-700/50">
+            <button
+              type="button"
+              onClick={() => setVisualSourceMode('library')}
+              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                visualSourceMode === 'library'
+                  ? 'bg-white dark:bg-slate-800 text-[#0f2ea2] dark:text-blue-400 shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <Building2 className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
+              <span>Regional Digital Asset Library</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setVisualSourceMode('ai')}
+              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                visualSourceMode === 'ai'
+                  ? 'bg-white dark:bg-slate-800 text-[#0f2ea2] dark:text-blue-400 shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
+              <span>Generate with Gemini Models</span>
+            </button>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] font-bold text-slate-500">Language:</span>
-            <span className="text-xs font-bold px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700">
-              English
-            </span>
-          </div>
-        </div>
-
-        {/* Style Presets Pills */}
-        <div>
-          <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-            Select Visual Style (Auto-populates Suggested Prompt):
-          </label>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-            {GEMINI_STYLE_PROMPT_GUIDES.map(guide => (
-              <button
-                key={guide.id}
-                type="button"
-                onClick={() => {
-                  setSelectedStyleGuideId(guide.id);
-                  setImagePrompt(guide.getSamplePrompt(occasion?.name));
-                }}
-                className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
-                  selectedStyleGuideId === guide.id
-                    ? 'border-[#0f2ea2] bg-blue-50/60 dark:bg-blue-950/40 text-[#0f2ea2] dark:text-blue-300 ring-1 ring-[#0f2ea2]'
-                    : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 bg-slate-50/50 dark:bg-slate-800/40 text-slate-700 dark:text-slate-300'
-                }`}
-              >
-                <div className="flex items-center justify-between gap-1 mb-1">
-                  <span className="text-xs font-bold leading-tight truncate">{guide.name}</span>
-                  <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-white dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-700 shrink-0">
-                    {guide.badge}
-                  </span>
-                </div>
-                <p className="text-[10px] text-slate-500 dark:text-slate-400 line-clamp-2">
-                  {guide.description}
-                </p>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Prompt Input Box */}
-        <div className="space-y-1.5">
-          <div className="flex items-center justify-between">
-            <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-              Describe the image you want to create (Instructional Prompt):
-            </label>
-            <span className="text-[10px] text-slate-400">
-              Clean background layer • Text overlay edited separately
-            </span>
-          </div>
-          <textarea
-            rows={3}
-            value={imagePrompt}
-            onChange={(e) => setImagePrompt(e.target.value)}
-            placeholder="A high-resolution, studio-lit commercial photograph of..."
-            className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-[#0f2ea2] leading-relaxed resize-none font-normal"
-          />
-        </div>
-
-        <div className="flex items-center justify-between gap-2 pt-1">
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] text-slate-500">
-              Targeting: <strong className="text-slate-800 dark:text-slate-200">Slide 0{activeSlideIndex + 1} ({aspectRatio === '1:1' ? '1:1 Square' : '1.91:1 Banner'})</strong>
-            </span>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => setShowConfirmModal(true)}
-            disabled={isAiGenerating}
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-gradient-to-r from-[#0f2ea2] to-blue-700 hover:from-[#0c2480] hover:to-blue-800 px-4 py-2 rounded-xl shadow-md transition-all cursor-pointer disabled:opacity-50"
+          {/* Quick Upload Action */}
+          <label
+            htmlFor="brother-photo-upload"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 transition-all cursor-pointer shadow-2xs self-start sm:self-auto"
+            title="Upload an image from your device"
           >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>{isAiGenerating ? 'Generating Text-Free Visual...' : 'Generate with Gemini AI'}</span>
-          </button>
+            <Upload className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
+            <span>Upload Photo</span>
+            <input
+              id="brother-photo-upload"
+              type="file"
+              accept="image/*"
+              onChange={handleUploadPhoto}
+              className="hidden"
+            />
+          </label>
         </div>
-      </div>
 
-      {/* Visual Asset Customizer & Photo Chooser Bar */}
-      <div className="p-3 sm:p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
-          {/* Asset Category Tabs */}
-          <div className="flex items-center gap-1.5">
-            <button
-              type="button"
-              onClick={() => setActiveAssetTab('official')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                activeAssetTab === 'official'
-                  ? 'bg-[#0f2ea2] text-white shadow-xs'
-                  : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-100'
-              }`}
-            >
-              Official Brother SG Assets ({OFFICIAL_BROTHER_ASSETS.length})
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveAssetTab('festive')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                activeAssetTab === 'festive'
-                  ? 'bg-[#0f2ea2] text-white shadow-xs'
-                  : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-100'
-              }`}
-            >
-              Cultural & Event Photography
-            </button>
-          </div>
+        {/* Tab 1: Regional Digital Asset Library */}
+        {visualSourceMode === 'library' && (
+          <div className="p-4 sm:p-5 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-2 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setActiveAssetTab('official')}
+                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    activeAssetTab === 'official'
+                      ? 'bg-[#0f2ea2] text-white shadow-xs'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+                  }`}
+                >
+                  Official Brother SG Assets ({OFFICIAL_BROTHER_ASSETS.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveAssetTab('festive')}
+                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    activeAssetTab === 'festive'
+                      ? 'bg-[#0f2ea2] text-white shadow-xs'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+                  }`}
+                >
+                  Cultural & Event Photography
+                </button>
+              </div>
 
-          <div className="flex items-center gap-2 flex-wrap">
-            {/* AI Model Selector */}
-            <div className="flex items-center gap-1.5">
-              <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider hidden sm:inline">
-                Model:
-              </label>
-              <select
-                value={selectedAiModel}
-                onChange={(e) => {
-                  setSelectedAiModel(e.target.value);
-                  safeSetItem('model_gemini_image', e.target.value);
-                }}
-                className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs font-semibold px-2 py-1 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#0f2ea2] cursor-pointer"
-                title="Select Google AI model for image synthesis"
-              >
-                {availableImageModels.map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {m.name || m.id} {m.badge ? `(${m.badge})` : ''}
-                  </option>
-                ))}
-              </select>
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => handleApplyToAllSlides()}
+                  className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 hover:text-[#0f2ea2] dark:hover:text-blue-400 px-2.5 py-1 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 cursor-pointer transition-colors shadow-2xs"
+                  title="Apply current photo to all 5 slides"
+                >
+                  Apply to All Slides
+                </button>
+                <button
+                  type="button"
+                  onClick={handleResetSlidePhotos}
+                  className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 hover:text-[#0f2ea2] dark:hover:text-blue-400 px-2.5 py-1 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 cursor-pointer transition-colors shadow-2xs"
+                  title="Reset each slide to its curated default image"
+                >
+                  Reset Defaults
+                </button>
+              </div>
             </div>
 
-            {/* Native HTML File Upload Label (100% reliable across all browsers) */}
-            <label
-              htmlFor="brother-photo-upload"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 transition-all cursor-pointer shadow-2xs"
-              title="Upload an image from your device"
-            >
-              <Upload className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
-              <span>Upload Photo</span>
-              <input
-                id="brother-photo-upload"
-                type="file"
-                accept="image/*"
-                onChange={handleUploadPhoto}
-                className="hidden"
-              />
-            </label>
-
-            {/* Generate with Gemini AI Button (triggers confirmation modal) */}
-            <button
-              type="button"
-              onClick={() => setShowConfirmModal(true)}
-              disabled={isAiGenerating}
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-gradient-to-r from-[#0f2ea2] to-blue-700 hover:from-[#0c2480] hover:to-blue-800 px-3 py-1.5 rounded-lg shadow-sm transition-all cursor-pointer disabled:opacity-50"
-              title="Generate tailored editorial photo using Gemini AI"
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>{isAiGenerating ? 'Generating...' : 'Generate with Gemini AI'}</span>
-            </button>
-          </div>
-        </div>
-
-        {aiError && (
-          <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700/60 text-xs text-amber-900 dark:text-amber-200 animate-in fade-in duration-200 space-y-1.5">
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex items-start gap-2.5 min-w-0">
-                <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-                <div className="space-y-1">
-                  <p className="font-bold text-xs leading-snug">
-                    {typeof aiError === 'string' ? aiError : aiError.message}
-                  </p>
-                  {aiError.troubleshooting && (
-                    <p className="text-[11px] text-amber-800/90 dark:text-amber-300/90 leading-relaxed font-normal">
-                      {aiError.troubleshooting}
+            {/* Custom Uploaded Photo Indicator Banner */}
+            {customPhotoUrl && (
+              <div className="flex items-center justify-between p-2.5 sm:p-3 rounded-xl bg-blue-50/80 dark:bg-blue-950/40 border-2 border-[#0f2ea2] shadow-xs animate-in fade-in duration-200">
+                <div className="flex items-center gap-3 min-w-0">
+                  <img
+                    src={customPhotoUrl}
+                    alt="Custom Uploaded"
+                    className="w-12 h-12 rounded-lg object-cover border border-[#0f2ea2]/40 shadow-xs shrink-0"
+                  />
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                      <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                        Custom Uploaded Photo Active
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                      Active on slide 0{activeSlideIndex + 1} and will be included in the carousel export.
                     </p>
-                  )}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  <label
+                    htmlFor="brother-photo-upload"
+                    className="px-2.5 py-1 text-xs font-bold text-[#0f2ea2] dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-lg cursor-pointer transition-colors"
+                  >
+                    Replace
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCustomPhotoUrl('');
+                      handleSelectPhotoForSlide(baseSlides[activeSlideIndex]?.defaultPhotoUrl || OFFICIAL_BROTHER_ASSETS[0]?.url);
+                    }}
+                    className="px-2.5 py-1 text-xs font-bold text-slate-500 hover:text-rose-600 rounded-lg cursor-pointer transition-colors"
+                    title="Remove custom photo and revert to curated preset"
+                  >
+                    Remove
+                  </button>
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={() => setAiError(null)}
-                className="text-[11px] font-bold px-2 py-1 rounded text-amber-800 hover:bg-amber-100 dark:text-amber-300 dark:hover:bg-amber-900/60 cursor-pointer shrink-0"
-              >
-                Dismiss
-              </button>
+            )}
+
+            {/* Thumbnail Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5">
+              {(activeAssetTab === 'official' ? OFFICIAL_BROTHER_ASSETS : festivePresets).map((asset) => (
+                <button
+                  key={asset.id}
+                  type="button"
+                  onClick={() => handleSelectPhotoForSlide(asset.url)}
+                  className={`group relative aspect-video rounded-xl overflow-hidden border-2 transition-all cursor-pointer bg-slate-900 ${
+                    currentPhoto === asset.url
+                      ? 'border-[#0f2ea2] ring-2 ring-[#0f2ea2]/40 shadow-md scale-[1.02]'
+                      : 'border-transparent hover:border-slate-400 opacity-85 hover:opacity-100'
+                  }`}
+                >
+                  <img
+                    src={asset.thumb}
+                    alt={asset.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-1.5 text-[10px] text-white font-medium truncate text-left">
+                    {asset.title}
+                  </div>
+                </button>
+              ))}
             </div>
           </div>
         )}
 
-        {/* Custom Uploaded Photo Indicator Banner */}
-        {customPhotoUrl && (
-          <div className="flex items-center justify-between p-2.5 sm:p-3 rounded-xl bg-blue-50/80 dark:bg-blue-950/40 border-2 border-[#0f2ea2] shadow-xs animate-in fade-in duration-200">
-            <div className="flex items-center gap-3 min-w-0">
-              <img
-                src={customPhotoUrl}
-                alt="Custom Uploaded"
-                className="w-12 h-12 rounded-lg object-cover border border-[#0f2ea2]/40 shadow-xs shrink-0"
-              />
-              <div className="min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-                  <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
-                    Custom Uploaded Photo Active
-                  </span>
+        {/* Tab 2: Gemini AI Generation Studio */}
+        {visualSourceMode === 'ai' && (
+          <div className="p-4 sm:p-5 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950 flex items-center justify-center text-[#0f2ea2] dark:text-blue-400">
+                  <Sparkles className="w-4 h-4" />
                 </div>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
-                  Now active on the slide canvas and will be exported in downloaded PNGs
-                </p>
+                <div>
+                  <h4 className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    Commercial Image Synthesis (Gemini)
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                      Text-Free Base Layer
+                    </span>
+                  </h4>
+                  <p className="text-[11px] text-slate-500">
+                    High-resolution studio photography calibrated to Google Gemini photographic standards.
+                  </p>
+                </div>
+              </div>
+
+              {/* Frontier Model Selector */}
+              <div className="flex items-center gap-2">
+                <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                  Model:
+                </label>
+                <select
+                  value={selectedAiModel}
+                  onChange={(e) => {
+                    setSelectedAiModel(e.target.value);
+                    safeSetItem('model_gemini_image', e.target.value);
+                  }}
+                  className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs font-semibold px-2.5 py-1.5 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#0f2ea2] cursor-pointer"
+                  title="Frontier Google AI image generation model"
+                >
+                  {availableImageModels.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.name || m.id} {m.badge ? `(${m.badge})` : ''}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 shrink-0">
-              <label
-                htmlFor="brother-photo-upload"
-                className="px-2.5 py-1 text-xs font-bold text-[#0f2ea2] dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-lg cursor-pointer transition-colors"
-              >
-                Replace
+            {/* Visual Style Presets */}
+            <div>
+              <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+                Select Visual Style Preset:
               </label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                {GEMINI_STYLE_PROMPT_GUIDES.map(guide => (
+                  <button
+                    key={guide.id}
+                    type="button"
+                    onClick={() => {
+                      setSelectedStyleGuideId(guide.id);
+                      setImagePrompt(guide.getSamplePrompt(occasion?.name));
+                    }}
+                    className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                      selectedStyleGuideId === guide.id
+                        ? 'border-[#0f2ea2] bg-blue-50/60 dark:bg-blue-950/40 text-[#0f2ea2] dark:text-blue-300 ring-1 ring-[#0f2ea2]'
+                        : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 bg-slate-50/50 dark:bg-slate-800/40 text-slate-700 dark:text-slate-300'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-1 mb-1">
+                      <span className="text-xs font-bold leading-tight truncate">{guide.name}</span>
+                      <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-white dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-700 shrink-0">
+                        {guide.badge}
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 line-clamp-2">
+                      {guide.description}
+                    </p>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Prompt Input Box */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                  Instructional Image Prompt:
+                </label>
+                <span className="text-[10px] text-slate-400">
+                  Text-free layer • Studio lighting • Japanese minimalist symmetry
+                </span>
+              </div>
+              <textarea
+                rows={3}
+                value={imagePrompt}
+                onChange={(e) => setImagePrompt(e.target.value)}
+                placeholder="A high-resolution, studio-lit commercial photograph of..."
+                className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0f2ea2] leading-relaxed resize-none font-normal"
+              />
+            </div>
+
+            <div className="flex items-center justify-between gap-2 pt-1">
+              <div className="text-[11px] text-slate-500">
+                Targeting: <strong className="text-slate-800 dark:text-slate-200">Slide 0{activeSlideIndex + 1} ({aspectRatio === '1:1' ? '1:1 Square' : '1.91:1 Banner'})</strong>
+              </div>
+
               <button
                 type="button"
-                onClick={() => {
-                  setCustomPhotoUrl('');
-                  handleSelectPhotoForSlide(baseSlides[activeSlideIndex]?.defaultPhotoUrl || OFFICIAL_BROTHER_ASSETS[0]?.url);
-                }}
-                className="px-2.5 py-1 text-xs font-bold text-slate-500 hover:text-rose-600 rounded-lg cursor-pointer transition-colors"
-                title="Remove custom photo and revert to curated preset"
+                onClick={() => setShowConfirmModal(true)}
+                disabled={isAiGenerating}
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-gradient-to-r from-[#0f2ea2] to-blue-700 hover:from-[#0c2480] hover:to-blue-800 px-4 py-2 rounded-xl shadow-md transition-all cursor-pointer disabled:opacity-50"
               >
-                Remove
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>{isAiGenerating ? 'Generating...' : 'Generate with Gemini AI'}</span>
               </button>
             </div>
           </div>
         )}
-
-        {/* Active slide targeting badge and multi-photo controls */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1 pb-1 border-b border-slate-200 dark:border-slate-800 text-xs">
-          <div className="flex items-center gap-2">
-            <span className="font-bold text-[#0f2ea2] dark:text-blue-400 flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-[#0f2ea2] dark:bg-blue-400 animate-pulse" />
-              Target: Slide 0{activeSlideIndex + 1} ({currentSlide.roleTitle})
-            </span>
-            <span className="text-[11px] text-slate-500 hidden md:inline">
-              • Click any image below to set background for this slide
-            </span>
-          </div>
-
-          <div className="flex items-center gap-1.5">
-            <button
-              type="button"
-              onClick={() => handleApplyToAllSlides()}
-              className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 hover:text-[#0f2ea2] dark:hover:text-blue-400 px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 cursor-pointer transition-colors shadow-2xs"
-              title="Apply current photo to all 5 slides"
-            >
-              Apply Photo to All Slides
-            </button>
-            <button
-              type="button"
-              onClick={handleResetSlidePhotos}
-              className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 hover:text-[#0f2ea2] dark:hover:text-blue-400 px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 cursor-pointer transition-colors shadow-2xs"
-              title="Reset each slide to its curated default image"
-            >
-              Reset to Curated Images
-            </button>
-          </div>
-        </div>
-
-        {/* Thumbnail Gallery based on active tab */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
-          {(activeAssetTab === 'official' ? OFFICIAL_BROTHER_ASSETS : festivePresets).map((asset) => (
-            <button
-              key={asset.id}
-              type="button"
-              onClick={() => handleSelectPhotoForSlide(asset.url)}
-              className={`group relative aspect-video rounded-lg overflow-hidden border-2 transition-all cursor-pointer bg-slate-900 ${
-                currentPhoto === asset.url
-                  ? 'border-[#0f2ea2] ring-2 ring-[#0f2ea2]/30 shadow-md'
-                  : 'border-transparent hover:border-slate-400 opacity-80 hover:opacity-100'
-              }`}
-            >
-              <img
-                src={asset.thumb}
-                alt={asset.title}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                loading="lazy"
-              />
-              <div className="absolute inset-x-0 bottom-0 bg-black/70 p-1 text-[9px] text-white font-medium truncate">
-                {asset.title}
-              </div>
-            </button>
-          ))}
-        </div>
       </div>
+
+      {aiError && (
+        <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700/60 text-xs text-amber-900 dark:text-amber-200 animate-in fade-in duration-200 space-y-1.5">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-start gap-2.5 min-w-0">
+              <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <p className="font-bold text-xs leading-snug">
+                  {typeof aiError === 'string' ? aiError : aiError.message}
+                </p>
+                {aiError.troubleshooting && (
+                  <p className="text-[11px] text-amber-800/90 dark:text-amber-300/90 leading-relaxed font-normal">
+                    {aiError.troubleshooting}
+                  </p>
+                )}
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setAiError(null)}
+              className="text-[11px] font-bold px-2 py-1 rounded text-amber-800 hover:bg-amber-100 dark:text-amber-300 dark:hover:bg-amber-900/60 cursor-pointer shrink-0"
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Gemini AI Token Confirmation Modal */}
       {showConfirmModal && (

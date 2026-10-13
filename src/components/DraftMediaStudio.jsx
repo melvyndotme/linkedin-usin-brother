@@ -572,11 +572,14 @@ To everyone celebrating, how is your team marking this special day? Share your f
     try {
       const bufferKey = safeGetItem('key_buffer');
       const bufferChannel = safeGetItem('buffer_channel_id');
+      const carouselPdfUrl = safeGetItem('brother_latest_carousel_pdf_url') || '';
+      const activeVisualUrl = carouselPdfUrl || safeGetItem('brother_latest_visual_url') || '';
       const result = await publishToLinkedInApi({
         commentary: content,
         scheduledDate: scheduledDateTime,
         bufferApiKey: bufferKey,
         bufferChannelId: bufferChannel,
+        imageUrl: activeVisualUrl || undefined,
         existingScheduledDates: existingDates
       });
 
@@ -642,7 +645,14 @@ To everyone celebrating, how is your team marking this special day? Share your f
 
     try {
       const bufferKey = safeGetItem('key_buffer');
-      const result = await publishToLinkedInApi({ commentary: content, orgId, token: token || undefined });
+      const carouselPdfUrl = safeGetItem('brother_latest_carousel_pdf_url') || '';
+      const activeVisualUrl = carouselPdfUrl || safeGetItem('brother_latest_visual_url') || '';
+      const result = await publishToLinkedInApi({ 
+        commentary: content, 
+        orgId, 
+        token: token || undefined,
+        imageUrl: activeVisualUrl || undefined 
+      });
 
       if (result && result.success) {
         setPublishing(false);

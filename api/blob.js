@@ -75,32 +75,36 @@ export default async function handler(req, res) {
       const {
         filename = `brother-visual-${Date.now()}.png`,
         imageBase64,
-        access = 'private'
+        fileBase64,
+        access = 'public'
       } = req.body || {};
 
-      if (!imageBase64) {
-        return res.status(400).json({ error: 'Missing imageBase64 data in request body' });
+      const rawBase64 = fileBase64 || imageBase64;
+      if (!rawBase64) {
+        return res.status(400).json({ error: 'Missing imageBase64 or fileBase64 data in request body' });
       }
 
       // Strip Data URL prefix if present
-      const cleanBase64 = imageBase64.replace(/^data:image\/\w+;base64,/, '');
+      const cleanBase64 = rawBase64.replace(/^data:[a-zA-Z0-9\/\+\-]+;base64,/, '');
       const buffer = Buffer.from(cleanBase64, 'base64');
 
       let contentType = 'image/png';
-      if (imageBase64.startsWith('data:image/jpeg') || imageBase64.startsWith('data:image/jpg')) {
+      if (rawBase64.startsWith('data:application/pdf') || filename.endsWith('.pdf')) {
+        contentType = 'application/pdf';
+      } else if (rawBase64.startsWith('data:image/jpeg') || rawBase64.startsWith('data:image/jpg')) {
         contentType = 'image/jpeg';
-      } else if (imageBase64.startsWith('data:image/webp')) {
+      } else if (rawBase64.startsWith('data:image/webp')) {
         contentType = 'image/webp';
       }
 
       const blob = await put(filename, buffer, {
-        access: 'private',
+        access: 'public',
         contentType,
         addRandomSuffix: true,
         token: token || undefined
       });
 
-      // Construct clean proxy URL for Notion and public browser viewing
+      // Construct clean proxy URL or public direct URL
       const protocol = req.headers['x-forwarded-proto'] || 'https';
       const host = req.headers['host'] || 'linkedin.bro-x.org';
       const proxyUrl = `${protocol}://${host}/api/blob?pathname=${encodeURIComponent(blob.pathname)}`;
@@ -109,8 +113,8 @@ export default async function handler(req, res) {
         success: true,
         pathname: blob.pathname,
         url: blob.url,
-        downloadUrl: blob.downloadUrl || null,
-        publicUrl: proxyUrl,
+        downloadUrl: blob.downloadUrl || blob.url,
+        publicUrl: blob.url || proxyUrl,
         contentType: blob.contentType
       });
     } catch (err) {

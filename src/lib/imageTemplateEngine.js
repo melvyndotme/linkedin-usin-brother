@@ -956,11 +956,18 @@ export function generateCarouselSlideSeries(occasion, activeDraft = null) {
 /**
  * Render a Slide onto an HTML5 Canvas for high-DPI export with Official Brother Logo
  */
-export async function renderSlideToCanvas({
-  slide,
-  photoUrl,
-  aspectRatio = '1:1'
-}) {
+export async function renderSlideToCanvas(arg1, arg2, arg3) {
+  let slide, photoUrl, aspectRatio;
+  if (arg1 && typeof arg1 === 'object' && ('slide' in arg1 || 'photoUrl' in arg1)) {
+    slide = arg1.slide;
+    photoUrl = arg1.photoUrl;
+    aspectRatio = arg1.aspectRatio || '1:1';
+  } else {
+    slide = arg1;
+    photoUrl = arg2;
+    aspectRatio = arg3 || '1:1';
+  }
+
   const isBanner = aspectRatio === '1.91:1';
   const width = isBanner ? 1200 : 1080;
   const height = isBanner ? 627 : 1080;
