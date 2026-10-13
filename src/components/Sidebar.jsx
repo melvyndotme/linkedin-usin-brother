@@ -60,21 +60,15 @@ export default function Sidebar({
       items: [
         { id: 'calendar', label: 'Content Calendar', icon: CalendarDays },
         { id: 'draft-studio', label: 'Content Studio', icon: Edit3 },
-        { id: 'template-studio', label: 'Content Frameworks', icon: Layers },
+        { id: 'template-studio', label: 'Content Frameworks', icon: Layers }
+      ]
+    },
+    {
+      title: 'SYSTEM',
+      items: [
+        { id: 'team', label: 'Team', icon: Users },
+        { id: 'settings', label: 'Integrations', icon: Sliders },
         { id: 'notion-hub', label: 'Notion', icon: NotionIcon }
-      ]
-    },
-    {
-      title: 'TEAM',
-      items: [
-        { id: 'team', label: 'Team', icon: Users }
-      ]
-    },
-    {
-      title: 'GENERAL',
-      items: [
-        { id: 'profile', label: 'My Profile', icon: User },
-        { id: 'settings', label: 'Integrations', icon: Sliders }
       ]
     }
   ];
