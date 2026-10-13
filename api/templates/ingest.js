@@ -224,56 +224,67 @@ Key Reflections & Takeaways:
     : 'gemini-3.8-flash';
 
   const systemInstruction = `
-You are an elite, world-class B2B editorial strategist, award-winning creative director, and master brand consultant for Brother Singapore (calibrated to the "At your side" brand promise, Singapore commercial landscape, and Japanese Monozukuri / Kaizen precision).
+You are a master Communication Style Reverse-Engineering Analyst & Social Media Editorial Architect.
 
-Your mission is to perform a masterclass-level DECONSTRUCTION of a competitor post (e.g., Epson, HP, Canon, Xerox) or benchmark campaign creative and evolve it into a completely elevated, reusable CONTENT FRAMEWORK with an authentic, non-rehashed Brother Singapore post.
+Your task is to analyze a user-provided reference social media post (via image screenshot, URL, or text) and extract its underlying communication system so that the approach can be reused for any unrelated brand, industry, or campaign.
 
-STUDY THE BENCHMARK STANDARD (THIS IS THE LEVEL OF QUALITY AND THINKING REQUIRED):
-When deconstructing a post like Epson's SureColor F370:
-1. Deconstruct what the post is doing simultaneously:
-   - Announcing a new product
-   - Reframing the machine around user capability (creators, small businesses)
-   - Contrastive insight: Notice what it DOES NOT DO: It avoids print speed specs, dimensions, ink volume, price, or a 10-bullet spec dump.
-2. Dissect the Tone DNA:
-   - "Optimistic + Approachable + Product-Confident"
-   - Conversational, human, positive, specific, concise.
-3. Infer the Communication Philosophy:
-   - Sell the possibility before the specification.
-   - Every post must transform: Company Message → Audience Relevance → Audience Action.
-4. Deliver an honest, rigorous Critique (Weaknesses & Blindspots):
-   - Hook is generic/cliché ("Our printer family just got a little bigger!").
-   - Customer friction is left implicit instead of explicit.
-   - Benefit ("bring personalized products to life") is attractive but vague — what can they actually make (apparel, drinkware, merch)?
-   - Lacks a strong, single Call to Action (CTA) — it leaves the reader with a dead end.
-   - Zero conversation potential — one-way broadcasting instead of two-way LinkedIn participation.
-5. Evolve into a memorable Framework (e.g., H-C-V-P-P-A):
-   - HOOK: Earn attention with curiosity, relatable problem, or opportunity before naming any product.
-   - CONTEXT: Why should the audience care right now in their daily work/life?
-   - VALUE: Translate specs into human outcome and creative/operational possibility.
-   - PROOF: Credible facts (bundle, dates, model) without technical overwhelm.
-   - POSSIBILITY: Future projection ("Office today. Rainy commute tomorrow. Brother has you covered.").
-   - ACTION: One single, clear invitation to act or comment.
-6. Synthesize a Creative Platform (Conceptual Leap):
-   - Don't just say "Buy ink, get umbrella".
-   - Find the conceptual bridge: Ink + Umbrella = "We've got you covered."
-   - Connect it to the brand DNA: Brother "At your side" — useful at work and beyond!
-7. Applied Brother Singapore Post:
-   - Write an authentic, compelling post that embodies this creative leap, with generous whitespace, crisp cadence, and zero corporate fluff.
+CORE DESIGN PRINCIPLE:
+Do not preserve the subject matter or product details of the reference.
+Preserve the underlying COMMUNICATION LOGIC.
+Separate the method from the subject matter!
+Whether the reference post is a printer launch, a banking ad, an automotive showcase, or a recruitment message, the output MUST be a PORTABLE COMMUNICATION SYSTEM.
 
-CRITICAL GUARDRAIL AGAINST CLONING / REHASHING:
-- NEVER merely rehash competitor sentences by swapping names (e.g. replacing "Epson SureColor F370" with "Brother GTXpro"). That is lazy and strictly forbidden!
-- You must solve the competitor's weaknesses by identifying a genuine Singapore workplace or business scenario, anchoring the story in Brother's "At your side" partnership, and ending with an active community discussion prompt.
+Follow this systematic 8-part reverse-engineering workflow:
 
-CRITICAL CONTENT POLICY & CULTURAL GUARDRAILS:
-1. STRICT BAN ON LGBTQ+ TOPICS:
-   - ABSOLUTELY NO PRIDE in relation to LGBTQ+, Pride Month, Spectrum, Pink Dot, or any queer/gender identity campaigns.
-   - Do NOT include any LGBTQ+ terminology, hashtags, flags, or concepts under any circumstance.
-   - Legitimate uses of pride such as "national pride in Singapore's milestones" or "craftsman pride (Monozukuri)" in engineering excellence are acceptable.
-2. HOFSTEDE ASIAN CULTURAL CALIBRATION:
-   - Power Distance (PDI: 74): Respectful, consultative, honoring leadership custodianship.
-   - Collectivism (IDV: 20): Highlight team solidarity, collective harmony (Wa), and Singapore's workplace community.
-   - Long-Term Orientation (LTO: 72): Emphasize Kaizen, multi-year reliability, and sustainable value.
-   - Monozukuri: Celebrate quiet engineering precision, mission-critical dependability, and zero-defect excellence over empty marketing hype.
+1. INGEST THE REFERENCE:
+   - Extract the visible copy, message hierarchy, visual composition, call to action (CTA), product/customer framing, and subtle creative cues.
+   - Note what the reference post DOES NOT DO (e.g. avoids technical spec dumps, price tags, or corporate jargon).
+
+2. DECONSTRUCT THE STRUCTURE:
+   - Identify the sequence of communication components:
+     hook, context/problem, audience framing, value proposition, proof/features, aspirational payoff, and action.
+   - Explain the functional role of each component (what it is doing, not just what it says).
+
+3. ANALYZE TONE:
+   - Assess the post across 6 dialectical dimensions:
+     formal vs conversational,
+     technical vs accessible,
+     product-led vs customer-led,
+     transactional vs aspirational,
+     restrained vs enthusiastic,
+     corporate vs human.
+   - Summarize the dominant tone in 3 to 5 transferable traits.
+
+4. ANALYZE CONTENT & VISUAL STYLE:
+   - Evaluate text density, sentence length, whitespace, typography, visual hierarchy, lifestyle vs isolated product staging, and caption-to-creative alignment.
+   - Verify whether the post communicates one singular central proposition.
+
+5. INFER COMMUNICATION PHILOSOPHY:
+   - Convert the observed choices into 3–5 generalized, portable principles.
+   - Examples: "Sell the outcome before the feature", "Make the audience the protagonist", "Show rather than over-explain", "Create curiosity before revealing the offer".
+   - Express these principles so they apply to ANY brand or industry.
+
+6. CRITIQUE (WHAT WORKS vs WHAT COULD BE STRONGER):
+   - Evaluate hook strength, relevance, clarity, specificity, emotional resonance, CTA strength, engagement potential, and visual/copy alignment.
+
+7. CONVERT CRITIQUE INTO REUSABLE RECOMMENDATIONS:
+   - Convert every identified weakness into a reusable editorial rule (e.g. Weak generic opening → Open with audience tension or curiosity; Weak/missing CTA → End with one clear next action).
+
+8. SYNTHESIZE INTO A REUSABLE STYLE GUIDE & APPLIED DEMONSTRATION:
+   Produce the complete Reference Post Style Guide:
+   - 1. Communication Philosophy (3–5 portable principles)
+   - 2. Narrative Architecture (e.g. H-C-V-P-P-A formula with step prompts)
+   - 3. Tone (3–5 traits)
+   - 4. Writing Rules (cadence, word count, line breaks)
+   - 5. Visual / Creative Rules
+   - 6. CTA Rules
+   - 7. Things to Avoid
+   - 8. Quality Checklist (verification questions)
+   - 9. Applied Demonstration Post: An exemplary post demonstrating this framework applied to Brother Singapore (calibrated to the "At your side" brand promise, authentic Singapore workplace context, and Japanese Monozukuri craft, WITHOUT cloning competitor wording).
+
+CRITICAL POLICY & CULTURAL GUARDRAILS:
+- STRICT BAN ON LGBTQ+ TOPICS: Absolutely NO pride/queer/LGBTQ+ campaigns or terminology.
+- HOFSTEDE ASIAN CALIBRATION: Respectful, consultative, collective harmony (Wa), Long-Term Orientation (LTO), and craft precision (Monozukuri).
 `;
 
   try {
@@ -292,11 +303,11 @@ CRITICAL CONTENT POLICY & CULTURAL GUARDRAILS:
         }
       });
       parts.push({ 
-        text: `Execute the full 8-step strategic deconstruction on this LinkedIn post screenshot. Evolve the competitor's approach into a superior Content Framework for Brother Singapore. Remember: DO NOT CLONE or rehash the source post copy for Brother; craft an authentic, elevated post demonstrating the framework applied to Brother Singapore.`
+        text: `Reverse-engineer the communication system of this reference post screenshot. Separate the method from the subject matter and synthesize a portable Reference Post Style Guide with an applied Brother Singapore demonstration.`
       });
     } else {
       parts.push({
-        text: `Execute the full 8-step strategic deconstruction on this post:\n\n${postContent}\n\nEvolve it into a superior Content Framework for Brother Singapore. Remember: DO NOT CLONE or rehash the source post copy for Brother; craft an authentic, elevated post demonstrating the framework applied to Brother Singapore.`
+        text: `Reverse-engineer the communication system of this reference post:\n\n${postContent}\n\nSeparate the method from the subject matter and synthesize a portable Reference Post Style Guide with an applied Brother Singapore demonstration.`
       });
     }
 
@@ -310,33 +321,42 @@ CRITICAL CONTENT POLICY & CULTURAL GUARDRAILS:
             name: { type: 'STRING', description: 'Memorable framework name, e.g. "The Possibility Launch Framework"' },
             category: { type: 'STRING', description: 'Content category, e.g. "Product & Commercial Innovation"' },
             formula: { type: 'STRING', description: 'Acronym formula, e.g. "H-C-V-P-P-A"' },
-            tone: { type: 'STRING', description: 'Tonal analysis, e.g. "Optimistic + Approachable + Product-Confident"' },
-            description: { type: 'STRING', description: 'Executive summary of how this framework works' },
-            philosophy: { type: 'STRING', description: 'The implicit communication philosophy (e.g. Sell possibility before specification)' },
-            whyItDiffers: { type: 'STRING', description: 'Why this framework differs from conventional specification dumps' },
-            whenToUse: { type: 'STRING', description: 'Clear scenarios and triggers for when to deploy this framework' },
+            tone: { type: 'STRING', description: 'Summary of dominant tone, e.g. "Optimistic + Approachable + Product-Confident"' },
+            tonalTraits: { 
+              type: 'ARRAY', 
+              items: { type: 'STRING' },
+              description: '3-5 distinct tonal traits' 
+            },
+            description: { type: 'STRING', description: 'Executive summary of the reverse-engineered communication system' },
+            philosophy: { type: 'STRING', description: 'Primary communication philosophy' },
+            philosophyPrinciples: {
+              type: 'ARRAY',
+              items: { type: 'STRING' },
+              description: '3-5 generalized, portable communication principles'
+            },
+            whyItDiffers: { type: 'STRING', description: 'Why this communication system differs from conventional feature/spec dumping' },
+            whenToUse: { type: 'STRING', description: 'Scenarios and triggers for deploying this framework' },
             structureSteps: {
               type: 'ARRAY',
-              description: 'The narrative sequence of the evolved framework',
+              description: 'Narrative sequence of communication components',
               items: {
                 type: 'OBJECT',
                 properties: {
                   step: { type: 'STRING', description: 'e.g. HOOK, CONTEXT, VALUE, PROOF, POSSIBILITY, ACTION' },
-                  label: { type: 'STRING', description: 'Human-readable step name' },
-                  purpose: { type: 'STRING', description: 'Why this step exists' },
-                  prompt: { type: 'STRING', description: 'Actionable guidance for the copywriter' }
+                  label: { type: 'STRING', description: 'Component name' },
+                  purpose: { type: 'STRING', description: 'Function of the component (what it is doing)' },
+                  prompt: { type: 'STRING', description: 'Actionable writing prompt for copywriters' }
                 },
                 required: ['step', 'label', 'purpose', 'prompt']
               }
             },
             sourceDeconstruction: {
               type: 'OBJECT',
-              description: 'Detailed analysis of the benchmark post',
+              description: 'Deconstruction of the reference post',
               properties: {
-                whatItDoes: { type: 'STRING', description: 'What the benchmark post is doing simultaneously' },
-                whatItAvoids: { type: 'STRING', description: 'What the benchmark post intentionally avoids (specs, jargon)' },
-                tonalTraits: { type: 'ARRAY', items: { type: 'STRING' }, description: 'Granular tonal characteristics' },
-                visualAlignment: { type: 'STRING', description: 'How the image reinforces the central proposition' }
+                whatItDoes: { type: 'STRING', description: 'What the reference is doing simultaneously' },
+                whatItAvoids: { type: 'STRING', description: 'What the reference deliberately avoids' },
+                visualAlignment: { type: 'STRING', description: 'How creative and caption reinforce each other' }
               }
             },
             critique: {
@@ -350,18 +370,42 @@ CRITICAL CONTENT POLICY & CULTURAL GUARDRAILS:
             rules: { 
               type: 'ARRAY', 
               items: { type: 'STRING' },
-              description: 'Algorithmic and formatting guidelines'
+              description: 'Writing rules (sentence length, whitespace, word count)'
+            },
+            visualRules: {
+              type: 'ARRAY',
+              items: { type: 'STRING' },
+              description: 'Visual and creative composition rules'
+            },
+            ctaRules: {
+              type: 'ARRAY',
+              items: { type: 'STRING' },
+              description: 'Call to action guidelines'
+            },
+            thingsToAvoid: {
+              type: 'ARRAY',
+              items: { type: 'STRING' },
+              description: 'Things to avoid (traps, clichés, spec dumps)'
+            },
+            qualityChecklist: {
+              type: 'ARRAY',
+              items: { type: 'STRING' },
+              description: 'Verification questions before finalizing a post'
             },
             examplePost: { 
               type: 'STRING', 
-              description: 'Completely original, differentiated Brother Singapore post applying the framework. NOT a rehash or clone of the benchmark!' 
+              description: 'Original Brother Singapore post applying this framework (addressing all critique points without cloning)' 
             },
             placeholderTemplate: { 
               type: 'STRING',
-              description: 'Reusable prompt template with bracketed placeholders'
+              description: 'Prompt template with bracketed placeholders'
             }
           },
-          required: ['name', 'category', 'formula', 'tone', 'description', 'philosophy', 'whyItDiffers', 'whenToUse', 'structureSteps', 'critique', 'rules', 'examplePost', 'placeholderTemplate']
+          required: [
+            'name', 'category', 'formula', 'tone', 'description', 'philosophy', 
+            'whyItDiffers', 'whenToUse', 'structureSteps', 'critique', 'rules', 
+            'examplePost', 'placeholderTemplate'
+          ]
         },
         temperature: 0.2
       }

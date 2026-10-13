@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   Layers, Upload, Link2, FileText, Image as ImageIcon, Sparkles, Copy, Check, 
   ArrowRight, BookOpen, Database, ExternalLink, Loader2, AlertCircle, CheckCircle2,
-  Lightbulb, Compass, Target, MessageSquare, Quote, X, ChevronRight, Sliders
+  Lightbulb, Compass, Target, MessageSquare, Quote, X, ChevronRight, Sliders,
+  ShieldAlert, CheckSquare, Eye, ArrowUpRight, Palette
 } from 'lucide-react';
 import { FIVE_CORE_FRAMEWORKS, BENCHMARK_TEMPLATES, extractTemplateFromInput } from '../lib/templateExtractor.js';
 import { GEMINI_MODEL_REGISTRY, DEFAULT_TEXT_MODEL } from '../lib/geminiModels.js';
@@ -591,8 +592,9 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
               {/* Section 5: Writing Rules */}
               {selectedTemplate.rules && selectedTemplate.rules.length > 0 && (
                 <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">
-                    5. Writing Rules & Algorithmic Guardrails
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5">
+                    <Check className="w-4 h-4 text-emerald-500" />
+                    <span>5. Writing Rules & Algorithmic Guardrails</span>
                   </h4>
                   <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-600 dark:text-slate-300">
                     {selectedTemplate.rules.map((r, rIdx) => (
@@ -602,6 +604,83 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
                       </li>
                     ))}
                   </ul>
+                </div>
+              )}
+
+              {/* Section 6: Visual & Creative Rules */}
+              {selectedTemplate.visualRules && selectedTemplate.visualRules.length > 0 && (
+                <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5">
+                    <Palette className="w-4 h-4 text-purple-500" />
+                    <span>6. Visual & Creative Rules</span>
+                  </h4>
+                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-600 dark:text-slate-300">
+                    {selectedTemplate.visualRules.map((vr, vrIdx) => (
+                      <li key={vrIdx} className="flex items-start gap-1.5">
+                        <Eye className="w-3.5 h-3.5 text-purple-500 shrink-0 mt-0.5" />
+                        <span>{vr}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Section 7: CTA Rules & Things to Avoid */}
+              {((selectedTemplate.ctaRules && selectedTemplate.ctaRules.length > 0) || (selectedTemplate.thingsToAvoid && selectedTemplate.thingsToAvoid.length > 0)) && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+                  {selectedTemplate.ctaRules && selectedTemplate.ctaRules.length > 0 && (
+                    <div className="p-3.5 rounded-xl bg-blue-50/60 dark:bg-blue-950/20 border border-blue-200/70 dark:border-blue-900/40 space-y-2">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700 dark:text-blue-300 flex items-center gap-1.5">
+                        <ArrowUpRight className="w-3.5 h-3.5" />
+                        CTA Rules
+                      </span>
+                      <ul className="text-[11px] text-blue-900 dark:text-blue-200 space-y-1">
+                        {selectedTemplate.ctaRules.map((cta, cIdx) => (
+                          <li key={cIdx} className="flex items-start gap-1.5">
+                            <span className="text-blue-600 dark:text-blue-400 font-bold shrink-0">→</span>
+                            <span>{cta}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {selectedTemplate.thingsToAvoid && selectedTemplate.thingsToAvoid.length > 0 && (
+                    <div className="p-3.5 rounded-xl bg-rose-50/60 dark:bg-rose-950/20 border border-rose-200/70 dark:border-rose-900/40 space-y-2">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-rose-700 dark:text-rose-300 flex items-center gap-1.5">
+                        <ShieldAlert className="w-3.5 h-3.5" />
+                        Things to Avoid (Traps & Clichés)
+                      </span>
+                      <ul className="text-[11px] text-rose-900 dark:text-rose-200 space-y-1">
+                        {selectedTemplate.thingsToAvoid.map((a, aIdx) => (
+                          <li key={aIdx} className="flex items-start gap-1.5">
+                            <span className="text-rose-500 font-bold shrink-0">✕</span>
+                            <span>{a}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Section 8: Quality Checklist */}
+              {selectedTemplate.qualityChecklist && selectedTemplate.qualityChecklist.length > 0 && (
+                <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5">
+                    <CheckSquare className="w-4 h-4 text-emerald-500" />
+                    <span>8. Pre-Publish Quality Checklist</span>
+                  </h4>
+                  <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-700 dark:text-slate-300">
+                      {selectedTemplate.qualityChecklist.map((qc, qIdx) => (
+                        <li key={qIdx} className="flex items-start gap-1.5">
+                          <CheckSquare className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
+                          <span>{qc}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               )}
             </div>
@@ -920,6 +999,84 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
                       </div>
                     ))}
                   </div>
+                </div>
+              )}
+
+              {/* Visual Rules & CTA Rules */}
+              {((justExtractedTemplate.visualRules && justExtractedTemplate.visualRules.length > 0) || (justExtractedTemplate.ctaRules && justExtractedTemplate.ctaRules.length > 0)) && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {justExtractedTemplate.visualRules && justExtractedTemplate.visualRules.length > 0 && (
+                    <div className="p-3.5 rounded-xl bg-purple-50/60 dark:bg-purple-950/20 border border-purple-200/70 dark:border-purple-900/40 space-y-1.5">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-purple-700 dark:text-purple-300 flex items-center gap-1.5">
+                        <Palette className="w-3.5 h-3.5" />
+                        Visual & Creative Rules
+                      </span>
+                      <ul className="text-[11px] text-purple-950 dark:text-purple-200 space-y-1">
+                        {justExtractedTemplate.visualRules.map((vr, vrIdx) => (
+                          <li key={vrIdx} className="flex items-start gap-1.5">
+                            <Eye className="w-3.5 h-3.5 text-purple-500 shrink-0 mt-0.5" />
+                            <span>{vr}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {justExtractedTemplate.ctaRules && justExtractedTemplate.ctaRules.length > 0 && (
+                    <div className="p-3.5 rounded-xl bg-blue-50/60 dark:bg-blue-950/20 border border-blue-200/70 dark:border-blue-900/40 space-y-1.5">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700 dark:text-blue-300 flex items-center gap-1.5">
+                        <ArrowUpRight className="w-3.5 h-3.5" />
+                        CTA Rules
+                      </span>
+                      <ul className="text-[11px] text-blue-950 dark:text-blue-200 space-y-1">
+                        {justExtractedTemplate.ctaRules.map((cta, cIdx) => (
+                          <li key={cIdx} className="flex items-start gap-1.5">
+                            <span className="text-blue-600 dark:text-blue-400 font-bold shrink-0">→</span>
+                            <span>{cta}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Things to Avoid & Pre-Publish Quality Checklist */}
+              {((justExtractedTemplate.thingsToAvoid && justExtractedTemplate.thingsToAvoid.length > 0) || (justExtractedTemplate.qualityChecklist && justExtractedTemplate.qualityChecklist.length > 0)) && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {justExtractedTemplate.thingsToAvoid && justExtractedTemplate.thingsToAvoid.length > 0 && (
+                    <div className="p-3.5 rounded-xl bg-rose-50/60 dark:bg-rose-950/20 border border-rose-200/70 dark:border-rose-900/40 space-y-1.5">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-rose-700 dark:text-rose-300 flex items-center gap-1.5">
+                        <ShieldAlert className="w-3.5 h-3.5" />
+                        Things to Avoid (Traps & Clichés)
+                      </span>
+                      <ul className="text-[11px] text-rose-950 dark:text-rose-200 space-y-1">
+                        {justExtractedTemplate.thingsToAvoid.map((a, aIdx) => (
+                          <li key={aIdx} className="flex items-start gap-1.5">
+                            <span className="text-rose-500 font-bold shrink-0">✕</span>
+                            <span>{a}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {justExtractedTemplate.qualityChecklist && justExtractedTemplate.qualityChecklist.length > 0 && (
+                    <div className="p-3.5 rounded-xl bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-200/70 dark:border-emerald-900/40 space-y-1.5">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5">
+                        <CheckSquare className="w-3.5 h-3.5" />
+                        Pre-Publish Quality Checklist
+                      </span>
+                      <ul className="text-[11px] text-emerald-950 dark:text-emerald-200 space-y-1">
+                        {justExtractedTemplate.qualityChecklist.map((qc, qIdx) => (
+                          <li key={qIdx} className="flex items-start gap-1.5">
+                            <CheckSquare className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                            <span>{qc}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
               )}
 
