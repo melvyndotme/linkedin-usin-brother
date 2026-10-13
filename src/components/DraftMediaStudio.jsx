@@ -12,6 +12,7 @@ import { generateAIDrafts, generateFestiveDrafts } from '../lib/draftGenerator.j
 import { BENCHMARK_TEMPLATES, extractTemplateFromInput } from '../lib/templateExtractor.js';
 import { getSavedStyleGuides, saveStyleGuide } from '../lib/styleGuideLibrary.js';
 import { logActivity } from '../lib/auditLogger.js';
+import { GEMINI_MODEL_REGISTRY, DEFAULT_TEXT_MODEL } from '../lib/geminiModels.js';
 
 export default function DraftMediaStudio({ 
   isDark, 
@@ -69,6 +70,25 @@ To everyone celebrating, how is your team marking this special day? Share your f
   const [referenceText, setReferenceText] = useState('');
   const [generatingAiDrafts, setGeneratingAiDrafts] = useState(false);
   const [aiDraftError, setAiDraftError] = useState(null);
+
+  // Curated 5 Frontier Text Models selector
+  const [availableTextModels, setAvailableTextModels] = useState(GEMINI_MODEL_REGISTRY.text);
+  const [selectedDraftModel, setSelectedDraftModel] = useState(() => {
+    return safeGetItem('model_gemini') || DEFAULT_TEXT_MODEL;
+  });
+
+  useEffect(() => {
+    fetch('/api/gemini/models?type=text')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.models) && data.models.length > 0) {
+          setAvailableTextModels(data.models);
+        }
+      })
+      .catch(() => {
+        // Fallback already pre-loaded from GEMINI_MODEL_REGISTRY.text
+      });
+  }, []);
 
   // Buffer Scheduling Modal state
   const [showScheduleModal, setShowScheduleModal] = useState(false);
@@ -404,6 +424,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           type: 'drafts',
+          modelName: selectedDraftModel,
           occasionName: effectiveOccasion?.name || title,
           occasionDetails: effectiveOccasion?.details || effectiveOccasion?.subtitle || content,
           styleGuide: activeGuide,
@@ -881,8 +902,8 @@ To everyone celebrating, how is your team marking this special day? Share your f
 
         {/* Style Guide Controls */}
         {referenceMode === 'saved' ? (
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
-            <div className="md:col-span-8">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
+            <div className="md:col-span-5">
               <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
                 Choose Reusable Style Guide:
               </label>
@@ -898,15 +919,41 @@ To everyone celebrating, how is your team marking this special day? Share your f
                 ))}
               </select>
             </div>
-            <div className="md:col-span-4 flex items-end">
+
+            <div className="md:col-span-4">
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                  Frontier Text Model:
+                </label>
+                <span className="text-[10px] font-mono text-[#0f2ea2] dark:text-blue-400 font-bold">
+                  Curated Frontier
+                </span>
+              </div>
+              <select
+                value={selectedDraftModel}
+                onChange={(e) => {
+                  setSelectedDraftModel(e.target.value);
+                  safeSetItem('model_gemini', e.target.value);
+                }}
+                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-bold text-[#0f2ea2] dark:text-blue-400 focus:outline-none focus:ring-1 focus:ring-[#0f2ea2] cursor-pointer"
+              >
+                {availableTextModels.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.name || m.id} {m.badge ? `(${m.badge})` : ''}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="md:col-span-3 flex items-end">
               <button
                 type="button"
                 onClick={handleGenerate3Drafts}
                 disabled={generatingAiDrafts}
-                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold transition-all shadow-md active:scale-95 disabled:opacity-50 cursor-pointer"
+                className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold transition-all shadow-md active:scale-95 disabled:opacity-50 cursor-pointer h-[38px]"
               >
                 <Sparkles className={`w-3.5 h-3.5 ${generatingAiDrafts ? 'animate-spin' : ''}`} />
-                <span>{generatingAiDrafts ? 'Generating with Gemini...' : 'Generate 3 Drafts with AI'}</span>
+                <span>{generatingAiDrafts ? 'Generating...' : 'Generate 3 Drafts'}</span>
               </button>
             </div>
           </div>
@@ -927,12 +974,31 @@ To everyone celebrating, how is your team marking this special day? Share your f
               placeholder="Paste a viral or high-performing LinkedIn post here to deconstruct and adopt its communication style..."
               className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-3 text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:border-[#0f2ea2]"
             />
-            <div className="flex justify-end">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 whitespace-nowrap">
+                  Model:
+                </span>
+                <select
+                  value={selectedDraftModel}
+                  onChange={(e) => {
+                    setSelectedDraftModel(e.target.value);
+                    safeSetItem('model_gemini', e.target.value);
+                  }}
+                  className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-2.5 py-1.5 text-xs font-bold text-[#0f2ea2] dark:text-blue-400"
+                >
+                  {availableTextModels.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.name || m.id} {m.badge ? `(${m.badge})` : ''}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <button
                 type="button"
                 onClick={handleGenerate3Drafts}
                 disabled={generatingAiDrafts || !referenceText.trim()}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold transition-all shadow-md active:scale-95 disabled:opacity-50 cursor-pointer"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold transition-all shadow-md active:scale-95 disabled:opacity-50 cursor-pointer"
               >
                 <Sparkles className={`w-3.5 h-3.5 ${generatingAiDrafts ? 'animate-spin' : ''}`} />
                 <span>{generatingAiDrafts ? 'Extracting & Generating...' : 'Extract Style & Generate 3 Drafts'}</span>

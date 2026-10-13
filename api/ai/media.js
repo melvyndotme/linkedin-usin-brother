@@ -90,7 +90,8 @@ export default async function handler(req, res) {
 
   // 1.5 Gemini 3-Draft Post Generation Mode (POST /api/ai/media with type: 'drafts')
   if (req.method === 'POST' && req.body?.type === 'drafts') {
-    const { occasionName, occasionDetails, styleGuide, facts, audience } = req.body;
+    const { occasionName, occasionDetails, styleGuide, facts, audience, modelName } = req.body;
+    const targetModel = modelName || req.body?.model || 'gemini-3.8-flash';
     const clientKey = (req.headers['x-gemini-key'] || req.body?.apiKey || '').trim();
     const apiKey = 
       clientKey ||
@@ -145,7 +146,7 @@ Return ONLY a strict JSON array of exactly 3 objects:
 ]`;
 
     try {
-      const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+      const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${apiKey}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
