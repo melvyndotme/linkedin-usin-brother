@@ -14,20 +14,42 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
       const stored = localStorage.getItem('custom_ingested_templates');
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          const list = [...parsed];
-          for (const b of BENCHMARK_TEMPLATES) {
-            if (!list.some(t => t.name?.trim().toLowerCase() === b.name?.trim().toLowerCase())) {
-              list.push(b);
+        if (Array.isArray(parsed)) {
+          // Keep only user-deconstructed frameworks that are valid and NOT legacy benchmark items
+          const validCustom = parsed.filter(t => {
+            if (!t || !t.name) return false;
+            const norm = t.name.trim().toLowerCase();
+            // Discard legacy template names & old IDs
+            if (t.id?.startsWith('tmpl-eb-') || t.id?.startsWith('tmpl-bench-')) return false;
+            if (norm.includes('product launch announcement') || 
+                norm.includes('live extracted linkedin') || 
+                norm.includes('kaizen innovation & precision') ||
+                norm.includes('workplace flexibility') ||
+                norm.includes('quiet craft') ||
+                norm.includes('humble craftsmanship')) {
+              return false;
+            }
+            // Must have structureSteps or formula to be considered a genuine content framework
+            return Array.isArray(t.structureSteps) && t.structureSteps.length > 0;
+          });
+
+          // Sync back cleaned custom list to localStorage
+          localStorage.setItem('custom_ingested_templates', JSON.stringify(validCustom));
+
+          // Combine with the 5 core strategic frameworks
+          const combined = [...FIVE_CORE_FRAMEWORKS];
+          for (const c of validCustom) {
+            if (!combined.some(f => f.name?.trim().toLowerCase() === c.name?.trim().toLowerCase())) {
+              combined.push(c);
             }
           }
-          return list;
+          return combined;
         }
       }
     } catch (e) {
       console.warn('Could not read stored templates:', e);
     }
-    return BENCHMARK_TEMPLATES;
+    return [...FIVE_CORE_FRAMEWORKS];
   };
 
   const [activeTab, setActiveTab] = useState('library'); // 'library' or 'deconstruct'
