@@ -816,41 +816,103 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
                 </div>
               )}
 
-              {/* 3-Column Breakdown of Deconstruction */}
+              {/* Strategic Insights Cards */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <div className="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1">
-                  <span className="text-[10px] font-bold text-[#0f2ea2] dark:text-blue-400 uppercase">Communication Philosophy</span>
+                <div className="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1.5">
+                  <span className="text-[10px] font-bold text-[#0f2ea2] dark:text-blue-400 uppercase tracking-wider flex items-center gap-1">
+                    <Lightbulb className="w-3.5 h-3.5" />
+                    Communication Philosophy
+                  </span>
                   <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed font-semibold">
                     {justExtractedTemplate.philosophy || "Sell the possibility before the specification. Human outcome over machine specs."}
                   </p>
+                  {justExtractedTemplate.sourceDeconstruction?.whatItAvoids && (
+                    <div className="text-[11px] text-slate-500 pt-1 border-t border-slate-100 dark:border-slate-800">
+                      <strong>Avoids:</strong> {justExtractedTemplate.sourceDeconstruction.whatItAvoids}
+                    </div>
+                  )}
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1">
-                  <span className="text-[10px] font-bold text-amber-600 uppercase">Critique: Weaknesses & Gaps</span>
-                  <ul className="text-[11px] text-slate-600 dark:text-slate-400 space-y-0.5">
+                <div className="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1.5">
+                  <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wider flex items-center gap-1">
+                    <AlertCircle className="w-3.5 h-3.5" />
+                    Critique: Weaknesses & Gaps
+                  </span>
+                  <ul className="text-[11px] text-slate-600 dark:text-slate-400 space-y-1">
                     {(justExtractedTemplate.critique?.weaknesses || ["Generic announcement hook", "Customer friction not explicit", "No strong CTA"]).map((w, idx) => (
-                      <li key={idx}>• {w}</li>
+                      <li key={idx} className="flex items-start gap-1.5">
+                        <span className="text-amber-500 font-bold shrink-0">⚠️</span>
+                        <span>{w}</span>
+                      </li>
                     ))}
                   </ul>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1">
-                  <span className="text-[10px] font-bold text-emerald-600 uppercase">Evolved Framework</span>
+                <div className="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1.5">
+                  <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider flex items-center gap-1">
+                    <Target className="w-3.5 h-3.5" />
+                    Evolved Framework Formula
+                  </span>
                   <p className="text-xs font-mono font-bold text-slate-800 dark:text-slate-200">
                     Formula: {justExtractedTemplate.formula || 'H-C-V-P-P-A'}
                   </p>
-                  <p className="text-[11px] text-slate-500">
+                  <p className="text-[11px] text-slate-500 font-medium">
                     {(justExtractedTemplate.structureSteps || []).map(s => s.step).join(' → ') || 'Hook → Context → Value → Action'}
                   </p>
+                  {justExtractedTemplate.tone && (
+                    <div className="text-[11px] text-slate-500 pt-1 border-t border-slate-100 dark:border-slate-800">
+                      <strong>Tone:</strong> {justExtractedTemplate.tone}
+                    </div>
+                  )}
                 </div>
               </div>
 
-              {/* Applied Brother Example Post */}
+              {/* Narrative Architecture Sequence */}
+              {justExtractedTemplate.structureSteps && justExtractedTemplate.structureSteps.length > 0 && (
+                <div className="space-y-2">
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                    <Sliders className="w-3.5 h-3.5 text-[#0f2ea2]" />
+                    Evolved Narrative Steps (Prompt Architecture):
+                  </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                    {justExtractedTemplate.structureSteps.map((st, sIdx) => (
+                      <div key={sIdx} className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-mono font-bold text-[#0f2ea2] dark:text-blue-400">
+                            {st.step}
+                          </span>
+                          <span className="text-[10px] text-slate-400 font-medium">{st.label}</span>
+                        </div>
+                        <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 leading-snug">
+                          {st.purpose}
+                        </p>
+                        {st.prompt && (
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400 italic">
+                            "{st.prompt}"
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Applied Brother Example Post (Original, Differentiated Execution) */}
               <div className="space-y-1.5">
-                <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                  Applied Brother Singapore Post Demonstration:
-                </span>
-                <div className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 font-sans text-xs whitespace-pre-wrap leading-relaxed text-slate-800 dark:text-slate-200">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                    <MessageSquare className="w-3.5 h-3.5 text-[#0f2ea2]" />
+                    Applied Brother Singapore Post Demonstration (Original Differentiated Copy):
+                  </span>
+                  <button
+                    onClick={() => handleCopy(justExtractedTemplate.examplePost, 'example')}
+                    className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 cursor-pointer transition-colors shadow-xs"
+                  >
+                    {copiedType === 'example' ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                    <span>{copiedType === 'example' ? 'Copied' : 'Copy Post'}</span>
+                  </button>
+                </div>
+                <div className="p-4 sm:p-5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 font-sans text-xs whitespace-pre-wrap leading-relaxed text-slate-800 dark:text-slate-200 shadow-xs">
                   {justExtractedTemplate.examplePost}
                 </div>
               </div>

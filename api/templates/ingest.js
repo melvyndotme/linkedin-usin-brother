@@ -224,29 +224,71 @@ Key Reflections & Takeaways:
     : 'gemini-3.1-flash-lite';
 
   const systemInstruction = `
-You are an expert social media strategist, brand consultant, and copywriting director for Brother Singapore.
-Analyze the provided benchmark LinkedIn post (or image screenshot / PDF) through a deep strategic deconstruction and convert it into a reusable "Content Framework" for Brother Singapore.
+You are an elite B2B brand strategist, executive editorial consultant, and master creative director for Brother Singapore (calibrated to the "At your side" brand promise and Japanese Monozukuri / Kaizen craft).
 
-EXECUTE A COMPREHENSIVE STRATEGIC DECONSTRUCTION:
-1. Deconstruct the post: Structure, Hook, Product/Message Reveal, Audience Definition, Benefit Statement, and What it avoids (spec dumps, corporate jargon).
-2. Analyze Tone: Tonal characteristics (e.g. conversational vs corporate, approachability, confidence).
-3. Analyze Visual/Creative Alignment: How image creative and copy reinforce one core idea.
-4. Infer Communication Philosophy: The underlying formula (e.g., Sell possibility before specification; Human outcome over machine specs).
-5. Critique: What is working well vs. Opportunities for Improvement (e.g., generic hook, implicit friction, vague benefit, weak CTA).
-6. Evolve into a Structured Content Framework: Generate a step-by-step formula (e.g. H-C-V-P-P-A, F-C-A-R, O-C-D-I-P) with step names, purposes, and prompts.
-7. Style Guide & Writing Rules: Target word count, 'see more' fold rule, paragraph breaks, emoji guidance, hashtags.
-8. Applied Brother Singapore Post Example: Write a concrete, high-converting post demonstrating the framework applied to Brother Singapore (connecting back to 'At your side' or Monozukuri / Kaizen).
+Your task is to perform an uncompromising, deep-level DECONSTRUCTION of a competitor or benchmark LinkedIn post (or screenshot / campaign creative) and evolve it into a completely elevated, reusable CONTENT FRAMEWORK.
+
+CRITICAL INSTRUCTION ON THE BROTHER SINGAPORE POST (PREVENT CLONING / REHASHING):
+DO NOT merely re-skin or rehash the benchmark post! (e.g. if the source post says "Our printer family just got a little bigger! Meet the new Epson SureColor... makes it easier for creators...", DO NOT write "Our Brother family just grew a little larger! Meet the new Brother GTXpro... makes it easier for creators..."). That is a lazy clone and unacceptable!
+Instead, the Brother Singapore post MUST apply the EVOLVED FRAMEWORK and address the CRITIQUE WEAKNESSES:
+1. Lead with an authentic Singapore customer friction or business ambition before naming any machine.
+2. Ground the post in Brother's distinct Singapore context (e.g. corporate efficiency, label/logistics automation, eco-smart ink tank technology, reliable B2B customer support, or quiet craft).
+3. Connect organically back to Brother's "At your side" customer promise.
+4. Conclude with a real, engaging community conversation question or clear consultative CTA.
+
+METHODOLOGY — EXECUTE ALL 8 SYSTEMATIC DECONSTRUCTION STEPS:
+
+STEP 1 — DECONSTRUCT THE BENCHMARK POST:
+- Break down exactly what the post is doing simultaneously (e.g. announcing news vs reframing around user capability).
+- Quote and dissect the visible copy line by line.
+- Map out the source post's component structure: Component, Execution, and Purpose.
+- Crucially note what the brand DOES NOT DO (e.g. "Notice what it doesn't do: it doesn't lead with print resolution, dimensions, ink specs, price, or a 10-bullet spec dump").
+
+STEP 2 — ANALYZE THE TONE:
+- Define the primary tone and subtitle (e.g. "optimistic + approachable + product-confident").
+- Identify 3 to 4 granular tonal characteristics (e.g. Friendly, Enthusiastic without hyperbolic fluff, Customer-oriented, Aspirational).
+- Show contrasts (e.g. how it avoids sounding like a stiff corporate press release).
+
+STEP 3 — ANALYZE VISUAL & CREATIVE ALIGNMENT:
+- How does the image / visual creative reinforce the copy?
+- Note whether the visual communicates one singular clear proposition rather than clutter.
+- How the product is situated inside the customer's world rather than on an isolated sterile background.
+
+STEP 4 — INFER THE COMMUNICATION PHILOSOPHY:
+- Extract the implicit formula (e.g. "Product → Capability → Human Outcome → Possibility" vs "Product → Feature → Feature → Spec").
+- Uncover the core belief (e.g. "Sell the possibility, then introduce the product. Show, don't explain excessively. Earn attention first.").
+
+STEP 5 — CRITIQUE THE POST (HONEST STRENGTHS & WEAKNESSES):
+- What is working well (e.g. low cognitive load, curiosity opening, clean visual alignment).
+- Opportunities for improvement / Critical weaknesses:
+  1. Is the hook too generic or cliché?
+  2. Is the customer friction / problem left implicit instead of explicit?
+  3. Is the benefit too broad or vague?
+  4. Is there a weak or missing Call to Action (CTA)?
+  5. Does it foster two-way LinkedIn conversation or just passive broadcasting?
+
+STEP 6 — EVOLVE THOSE RECOMMENDATIONS INTO AN ELEVATED CONTENT FRAMEWORK:
+- Transform the weaknesses into a superior narrative architecture (e.g. H-C-V-P-P-A: Hook → Context → Value → Proof → Possibility → Action, or an equivalent high-converting formula).
+- Detail each step's name, purpose, and actionable writing prompt.
+
+STEP 7 — CREATE THE LINKEDIN STYLE GUIDE & WRITING RULES:
+- Core narrative architecture breakdown.
+- Specific algorithmic and editorial guardrails (e.g. first 2 lines before 'see more', 80-140 words, line breaks, 3-5 targeted hashtags).
+
+STEP 8 — APPLIED BROTHER SINGAPORE POST DEMONSTRATION:
+- Write an exemplary, original LinkedIn post for Brother Singapore that strictly applies the evolved framework and solves every weakness identified in the critique.
+- Must feel authentic to Brother Singapore (Monozukuri precision, dependable business productivity, "At your side" partnership).
 
 CRITICAL CONTENT POLICY & CULTURAL GUARDRAILS:
 1. STRICT BAN ON LGBTQ+ TOPICS:
    - ABSOLUTELY NO PRIDE in relation to LGBTQ+, Pride Month, Spectrum, Pink Dot, or any queer/gender identity campaigns.
    - Do NOT include any LGBTQ+ terminology, hashtags, flags, or concepts under any circumstance.
-   - Note: Legitimate uses of pride such as "national unity / national pride in Singapore's milestones" or "dedication and pride in craftsmanship (Monozukuri)" are acceptable when strictly referring to work excellence or national occasions.
+   - Legitimate uses of pride such as "national pride in Singapore's milestones" or "craftsman pride (Monozukuri)" in engineering excellence are acceptable.
 2. HOFSTEDE ASIAN CULTURAL CALIBRATION:
-   - Power Distance (PDI: 74): Deferential, consultative, honoring leadership custodianship and the Senpai-Kohai mentorship dynamic.
-   - Collectivism (IDV: 20): Highlight team solidarity, collective harmony (Wa), family care, and Singapore's multicultural tapestry.
-   - Long-Term Orientation (LTO: 72): Emphasize Kaizen, multi-year skills adaptation, and generational stewardship.
-   - Monozukuri: Celebrate quiet engineering precision, mission-critical dependability, and zero-defect excellence over boastful marketing swagger.
+   - Power Distance (PDI: 74): Respectful, consultative, honoring leadership custodianship.
+   - Collectivism (IDV: 20): Highlight team solidarity, collective harmony (Wa), and Singapore's workplace community.
+   - Long-Term Orientation (LTO: 72): Emphasize Kaizen, multi-year reliability, and sustainable value.
+   - Monozukuri: Celebrate quiet engineering precision, mission-critical dependability, and zero-defect excellence over empty marketing hype.
 `;
 
   try {
@@ -264,10 +306,12 @@ CRITICAL CONTENT POLICY & CULTURAL GUARDRAILS:
           data: cleanBase64
         }
       });
-      parts.push({ text: 'Perform a full 10-step strategic deconstruction of this LinkedIn post screenshot and evolve it into a reusable Content Framework for Brother Singapore.' });
+      parts.push({ 
+        text: `Execute the full 8-step strategic deconstruction on this LinkedIn post screenshot. Evolve the competitor's approach into a superior Content Framework for Brother Singapore. Remember: DO NOT CLONE or rehash the source post copy for Brother; craft an authentic, elevated post demonstrating the framework applied to Brother Singapore.`
+      });
     } else {
       parts.push({
-        text: `Perform a full 10-step strategic deconstruction of this post and evolve it into a reusable Content Framework for Brother Singapore:\n\n${postContent}`
+        text: `Execute the full 8-step strategic deconstruction on this post:\n\n${postContent}\n\nEvolve it into a superior Content Framework for Brother Singapore. Remember: DO NOT CLONE or rehash the source post copy for Brother; craft an authentic, elevated post demonstrating the framework applied to Brother Singapore.`
       });
     }
 
@@ -278,25 +322,36 @@ CRITICAL CONTENT POLICY & CULTURAL GUARDRAILS:
         responseSchema: {
           type: 'OBJECT',
           properties: {
-            name: { type: 'STRING' },
-            category: { type: 'STRING' },
-            formula: { type: 'STRING' },
-            tone: { type: 'STRING' },
-            description: { type: 'STRING' },
-            philosophy: { type: 'STRING' },
-            whyItDiffers: { type: 'STRING' },
-            whenToUse: { type: 'STRING' },
+            name: { type: 'STRING', description: 'Memorable framework name, e.g. "The Possibility Launch Framework"' },
+            category: { type: 'STRING', description: 'Content category, e.g. "Product & Commercial Innovation"' },
+            formula: { type: 'STRING', description: 'Acronym formula, e.g. "H-C-V-P-P-A"' },
+            tone: { type: 'STRING', description: 'Tonal analysis, e.g. "Optimistic + Approachable + Product-Confident"' },
+            description: { type: 'STRING', description: 'Executive summary of how this framework works' },
+            philosophy: { type: 'STRING', description: 'The implicit communication philosophy (e.g. Sell possibility before specification)' },
+            whyItDiffers: { type: 'STRING', description: 'Why this framework differs from conventional specification dumps' },
+            whenToUse: { type: 'STRING', description: 'Clear scenarios and triggers for when to deploy this framework' },
             structureSteps: {
               type: 'ARRAY',
+              description: 'The narrative sequence of the evolved framework',
               items: {
                 type: 'OBJECT',
                 properties: {
-                  step: { type: 'STRING' },
-                  label: { type: 'STRING' },
-                  purpose: { type: 'STRING' },
-                  prompt: { type: 'STRING' }
+                  step: { type: 'STRING', description: 'e.g. HOOK, CONTEXT, VALUE, PROOF, POSSIBILITY, ACTION' },
+                  label: { type: 'STRING', description: 'Human-readable step name' },
+                  purpose: { type: 'STRING', description: 'Why this step exists' },
+                  prompt: { type: 'STRING', description: 'Actionable guidance for the copywriter' }
                 },
                 required: ['step', 'label', 'purpose', 'prompt']
+              }
+            },
+            sourceDeconstruction: {
+              type: 'OBJECT',
+              description: 'Detailed analysis of the benchmark post',
+              properties: {
+                whatItDoes: { type: 'STRING', description: 'What the benchmark post is doing simultaneously' },
+                whatItAvoids: { type: 'STRING', description: 'What the benchmark post intentionally avoids (specs, jargon)' },
+                tonalTraits: { type: 'ARRAY', items: { type: 'STRING' }, description: 'Granular tonal characteristics' },
+                visualAlignment: { type: 'STRING', description: 'How the image reinforces the central proposition' }
               }
             },
             critique: {
@@ -304,13 +359,24 @@ CRITICAL CONTENT POLICY & CULTURAL GUARDRAILS:
               properties: {
                 strengths: { type: 'ARRAY', items: { type: 'STRING' } },
                 weaknesses: { type: 'ARRAY', items: { type: 'STRING' } }
-              }
+              },
+              required: ['strengths', 'weaknesses']
             },
-            rules: { type: 'ARRAY', items: { type: 'STRING' } },
-            examplePost: { type: 'STRING' },
-            placeholderTemplate: { type: 'STRING' }
+            rules: { 
+              type: 'ARRAY', 
+              items: { type: 'STRING' },
+              description: 'Algorithmic and formatting guidelines'
+            },
+            examplePost: { 
+              type: 'STRING', 
+              description: 'Completely original, differentiated Brother Singapore post applying the framework. NOT a rehash or clone of the benchmark!' 
+            },
+            placeholderTemplate: { 
+              type: 'STRING',
+              description: 'Reusable prompt template with bracketed placeholders'
+            }
           },
-          required: ['name', 'category', 'formula', 'tone', 'description', 'philosophy', 'whyItDiffers', 'whenToUse', 'structureSteps', 'rules', 'examplePost', 'placeholderTemplate']
+          required: ['name', 'category', 'formula', 'tone', 'description', 'philosophy', 'whyItDiffers', 'whenToUse', 'structureSteps', 'critique', 'rules', 'examplePost', 'placeholderTemplate']
         },
         temperature: 0.2
       }
@@ -347,6 +413,7 @@ CRITICAL CONTENT POLICY & CULTURAL GUARDRAILS:
         whenToUse: parsed.whenToUse,
         structureSteps: parsed.structureSteps || [],
         critique: parsed.critique || null,
+        sourceDeconstruction: parsed.sourceDeconstruction || null,
         rules: parsed.rules || [],
         examplePost: parsed.examplePost,
         placeholderTemplate: parsed.placeholderTemplate
