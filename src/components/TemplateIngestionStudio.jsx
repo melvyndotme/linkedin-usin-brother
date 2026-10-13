@@ -799,8 +799,10 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
                   <button
                     onClick={handleApplyJustExtracted}
                     className="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-md transition-all active:scale-95 cursor-pointer"
+                    title="Save this framework to your persistent library and view full side-by-side details"
                   >
-                    <span>View in Library</span>
+                    <BookOpen className="w-3.5 h-3.5" />
+                    <span>Save & Open in Framework Library</span>
                     <ChevronRight className="w-3.5 h-3.5" />
                   </button>
                   <button
