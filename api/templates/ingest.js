@@ -280,7 +280,20 @@ Follow this systematic 8-part reverse-engineering workflow:
    - 6. CTA Rules
    - 7. Things to Avoid
    - 8. Quality Checklist (verification questions)
-   - 9. Applied Demonstration Post: An exemplary post demonstrating this framework applied to Brother Singapore (calibrated to the "At your side" brand promise, authentic Singapore workplace context, and Japanese Monozukuri craft, WITHOUT cloning competitor wording).
+   - 9. Applied Demonstration Post for Brother Singapore:
+     CRITICAL INSTRUCTION ON THE DEMONSTRATION POST:
+     DO NOT DO A SHALLOW MAD-LIB REHASH!
+     If the reference post says: "Our printer family just got a little bigger! Meet the new [Model]...",
+     DO NOT simply swap the words to: "Our business solutions family just got a little bigger! Meet the new Brother MFC-...".
+     That is a lazy parody/clone, NOT reverse-engineering.
+     In your critique, you flagged that a generic announcement hook ("family just got bigger") is a major weakness!
+     Therefore, the Applied Demonstration Post MUST ACTUALLY FIX THAT WEAKNESS:
+     - Open with real operational tension, an engaging industry insight, or audience curiosity.
+     - Frame the customer or Singapore SME as the protagonist.
+     - Ground the copy in authentic B2B workplace realities (e.g. logistics dispatch, clinic paperwork, architectural blueprints, legal auditing).
+     - Weave in the Brother "At your side" ethos and Japanese Monozukuri craft naturally, not as a buzzword slapped on the end.
+     - Close with one consultative, thoughtful next step or discussion prompt.
+     The post must read like a polished, world-class executive LinkedIn post by a seasoned B2B copywriter.
 
 CRITICAL POLICY & CULTURAL GUARDRAILS:
 - STRICT BAN ON LGBTQ+ TOPICS: Absolutely NO pride/queer/LGBTQ+ campaigns or terminology.
@@ -394,7 +407,7 @@ CRITICAL POLICY & CULTURAL GUARDRAILS:
             },
             examplePost: { 
               type: 'STRING', 
-              description: 'Original Brother Singapore post applying this framework (addressing all critique points without cloning)' 
+              description: 'A completely original, elevated B2B LinkedIn post for Brother Singapore that executes the reverse-engineered philosophy. It MUST NOT parrot or Mad-Lib swap the reference post sentences (e.g. do not say "Our family just got bigger! Meet the new Brother..."). It must address the critique, lead with audience tension or friction, and exemplify Brother "At your side" reliability.' 
             },
             placeholderTemplate: { 
               type: 'STRING',
