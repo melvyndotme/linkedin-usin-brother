@@ -56,20 +56,22 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Static assets: Stale-while-revalidate
+  // Static assets: Stale-while-revalidate with reliable fallback
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
-      const fetchPromise = fetch(event.request).then((networkResponse) => {
-        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
-          const responseToCache = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
-        }
-        return networkResponse;
-      }).catch(() => cachedResponse);
+      const fetchPromise = fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseToCache);
+            });
+          }
+          return networkResponse;
+        })
+        .catch(() => cachedResponse);
 
-      return cachedResponse || fetchPromise;
-    })
+      return cachedResponse || fetchPromise.then((res) => res || new Response('', { status: 404 }));
+    }).catch(() => fetch(event.request))
   );
 });

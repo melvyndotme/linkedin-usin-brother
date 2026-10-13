@@ -459,15 +459,20 @@ To everyone celebrating, how is your team marking this special day? Share your f
       const effectiveTitle = title?.trim() || effectiveOccasion?.name || 'Brother Singapore Strategic Innovation';
       const effectiveDetails = userConceptIdea?.trim() || effectiveOccasion?.details || effectiveOccasion?.subtitle || content;
 
+      const clientKey = safeGetItem('key_gemini') || '';
+      const headers = { 'Content-Type': 'application/json' };
+      if (clientKey) headers['x-gemini-key'] = clientKey;
+
       const res = await fetch('/api/ai/media', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           type: 'drafts',
           modelName: selectedDraftModel,
           occasionName: effectiveTitle,
           occasionDetails: effectiveDetails,
-          frameworks: selectedFwList
+          frameworks: selectedFwList,
+          apiKey: clientKey || undefined
         })
       });
 
@@ -534,7 +539,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
       logActivity({
         event: 'Generated 3 AI Drafts',
         category: 'Content Generation',
-        details: `Generated 3 drafts with style guide "${activeGuide?.name}" for "${title}"`,
+        details: `Generated 3 drafts with frameworks: ${selectedFwList.map(f => f?.name).filter(Boolean).join(', ')} for "${title}"`,
         status: 'Success'
       });
     } catch (err) {
