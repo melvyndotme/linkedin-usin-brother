@@ -1202,7 +1202,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
                       >
                         {savedFrameworks.map((fw) => (
                           <option key={fw.id} value={fw.id}>
-                            {fw.name} ({fw.formula || 'Framework'})
+                            {fw.name}
                           </option>
                         ))}
                       </select>
@@ -1212,12 +1212,9 @@ To everyone celebrating, how is your team marking this special day? Share your f
                     <div className="pt-2 pb-1 space-y-2.5">
                       {/* Core Feature / What it's about */}
                       <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-1.5">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider">
+                        <div>
+                          <span className="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider block">
                             Core Feature:
-                          </span>
-                          <span className="text-xs font-mono font-bold text-[#0f2ea2] dark:text-blue-400 bg-blue-50 dark:bg-blue-950/80 px-2 py-0.5 rounded-md border border-blue-200/60 dark:border-blue-900/50">
-                            {selectedFw?.formula || 'Framework'}
                           </span>
                         </div>
                         <p className="text-[13px] sm:text-sm font-semibold text-slate-800 dark:text-slate-100 leading-relaxed">
@@ -1274,7 +1271,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
                   {/* Pick Draft Button */}
                   <div className="pt-3 mt-2 border-t border-slate-200/60 dark:border-slate-800/80 flex items-center justify-between">
                     <span className="text-xs text-slate-500 dark:text-slate-400 font-medium truncate max-w-[150px]">
-                      {selectedFw?.category || selectedFw?.tone || selectedFw?.formula || 'Strategic sequence'}
+                      {selectedFw?.category || selectedFw?.tone || 'Strategic sequence'}
                     </span>
                     <button
                       type="button"
@@ -1842,7 +1839,6 @@ To everyone celebrating, how is your team marking this special day? Share your f
                       filteredTemplates.map((tmpl) => {
                         const isSelectedInModal = activeTmpl?.id === tmpl.id;
                         const isCurrentlyApplied = selectedTemplateId === tmpl.id || (activeDraft?.name === tmpl.name);
-                        const formulaBadge = tmpl.formula || (tmpl.id?.includes('possibility') ? 'H-C-V-P-P-A' : 'FRAMEWORK');
 
                         return (
                           <div
@@ -1855,19 +1851,14 @@ To everyone celebrating, how is your team marking this special day? Share your f
                             }`}
                           >
                             <div className="flex items-center justify-between gap-1 mb-1">
-                              <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-[#0f2ea2] text-white">
-                                {formulaBadge}
+                              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 truncate max-w-[140px]">
+                                {tmpl.category}
                               </span>
-                              <div className="flex items-center gap-1">
-                                {isCurrentlyApplied && (
-                                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
-                                    In Use
-                                  </span>
-                                )}
-                                <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 truncate max-w-[110px]">
-                                  {tmpl.category}
+                              {isCurrentlyApplied && (
+                                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+                                  In Use
                                 </span>
-                              </div>
+                              )}
                             </div>
                             <h4 className={`text-xs font-bold leading-snug ${
                               isSelectedInModal ? 'text-[#0f2ea2] dark:text-blue-300' : 'text-slate-900 dark:text-white'
@@ -1889,10 +1880,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
                         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
                           <div>
                             <div className="flex items-center gap-1.5 flex-wrap">
-                              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#0f2ea2] text-white">
-                                {activeTmpl.formula || 'H-C-V-P-P-A Formula'}
-                              </span>
-                              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950 text-[#0f2ea2] dark:text-blue-300 border border-blue-200 dark:border-blue-900">
+                              <span className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950 text-[#0f2ea2] dark:text-blue-300 border border-blue-200 dark:border-blue-900">
                                 {activeTmpl.category}
                               </span>
                             </div>

@@ -384,7 +384,7 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
                 type="text"
                 value={searchFilter}
                 onChange={(e) => setSearchFilter(e.target.value)}
-                placeholder="Search frameworks (e.g. H-C-V-P-P-A, Kaizen)..."
+                placeholder="Search frameworks (e.g. Kaizen, Thought Leadership)..."
                 className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#0f2ea2] mb-3"
               />
 
@@ -392,7 +392,6 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
               <div className="space-y-2.5 max-h-[640px] overflow-y-auto pr-1 custom-scrollbar">
                 {filteredTemplates.map((tmpl) => {
                   const isSelected = selectedTemplate?.id === tmpl.id;
-                  const formulaBadge = tmpl.formula || (tmpl.id?.includes('possibility') ? 'H-C-V-P-P-A' : 'FRAMEWORK');
                   return (
                     <div
                       key={tmpl.id}
@@ -406,10 +405,7 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
                       }`}
                     >
                       <div className="flex items-center justify-between gap-1 mb-1.5">
-                        <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-[#0f2ea2] text-white">
-                          {formulaBadge}
-                        </span>
-                        <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 truncate max-w-[140px]">
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/70 text-[#0f2ea2] dark:text-blue-300 border border-blue-200/60 dark:border-blue-900/40 truncate max-w-[200px]">
                           {tmpl.category}
                         </span>
                       </div>
@@ -437,10 +433,7 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
               <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 border-b pb-4 dark:border-slate-800">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-[#0f2ea2] text-white">
-                      {selectedTemplate.formula || 'H-C-V-P-P-A Formula'}
-                    </span>
-                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950 text-[#0f2ea2] dark:text-blue-300 border border-blue-200 dark:border-blue-900">
+                    <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950 text-[#0f2ea2] dark:text-blue-300 border border-blue-200 dark:border-blue-900">
                       {selectedTemplate.category}
                     </span>
                     <span className="text-[11px] text-slate-400">
@@ -869,7 +862,7 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
                       Strategic Deconstruction Complete
                     </span>
                     <h4 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
-                      {justExtractedTemplate.name} ({justExtractedTemplate.formula || 'H-C-V-A'})
+                      {justExtractedTemplate.name}
                     </h4>
                   </div>
                 </div>
@@ -956,10 +949,10 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
                 <div className="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1.5">
                   <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider flex items-center gap-1">
                     <Target className="w-3.5 h-3.5" />
-                    Evolved Framework Formula
+                    Narrative Step Sequence
                   </span>
-                  <p className="text-xs font-mono font-bold text-slate-800 dark:text-slate-200">
-                    Formula: {justExtractedTemplate.formula || 'H-C-V-P-P-A'}
+                  <p className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+                    {(justExtractedTemplate.structureSteps || []).map(s => s.step).join(' → ') || 'Hook → Context → Value → Action'}
                   </p>
                   <p className="text-[11px] text-slate-500 font-medium">
                     {(justExtractedTemplate.structureSteps || []).map(s => s.step).join(' → ') || 'Hook → Context → Value → Action'}

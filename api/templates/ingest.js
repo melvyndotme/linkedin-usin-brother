@@ -273,7 +273,7 @@ Follow this systematic 8-part reverse-engineering workflow:
 8. SYNTHESIZE INTO A REUSABLE STYLE GUIDE & APPLIED DEMONSTRATION:
    Produce the complete Reference Post Style Guide:
    - 1. Communication Philosophy (3–5 portable principles)
-   - 2. Narrative Architecture (e.g. H-C-V-P-P-A formula with step prompts)
+   - 2. Narrative Architecture (e.g. Hook → Context → Value → Action with step prompts)
    - 3. Tone (3–5 traits)
    - 4. Writing Rules (cadence, word count, line breaks)
    - 5. Visual / Creative Rules
@@ -333,7 +333,7 @@ CRITICAL POLICY & CULTURAL GUARDRAILS:
           properties: {
             name: { type: 'STRING', description: 'Memorable framework name, e.g. "The Possibility Launch Framework"' },
             category: { type: 'STRING', description: 'Content category, e.g. "Product & Commercial Innovation"' },
-            formula: { type: 'STRING', description: 'Acronym formula, e.g. "H-C-V-P-P-A"' },
+            formula: { type: 'STRING', description: 'Narrative sequence, e.g. "Hook → Context → Value → Action"' },
             tone: { type: 'STRING', description: 'Summary of dominant tone, e.g. "Optimistic + Approachable + Product-Confident"' },
             tonalTraits: { 
               type: 'ARRAY', 

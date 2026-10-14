@@ -2,7 +2,7 @@ export const FIVE_CORE_FRAMEWORKS = [
   {
     id: "framework-possibility-launch",
     name: "The Possibility Launch Framework",
-    formula: "H-C-V-P-P-A",
+    formula: "Hook → Context → Value → Proof → Possibility → Action",
     category: "Product & Promotion Innovation",
     source: "Epson America Benchmark Deconstruction",
     tone: "Optimistic, approachable, product-confident",
@@ -55,7 +55,7 @@ Discover the Brother LC462 Bundle and make your next refill a little more reward
   {
     id: "framework-kaizen-problem-solution",
     name: "The Kaizen Problem-Solution Framework",
-    formula: "F-C-A-R",
+    formula: "Friction → Cost of Inaction → Micro-Adjustment → Measurable Impact",
     category: "Operational Excellence & Monozukuri",
     source: "Brother Engineering & Monozukuri Archive",
     tone: "Empathetic, disciplined, precise, consultative",
@@ -108,7 +108,7 @@ What is one small operational bottleneck your team solved this quarter that made
   {
     id: "framework-thought-leadership",
     name: "Thought Leadership & Contrarian Commentary",
-    formula: "O-C-D-I-P",
+    formula: "Observation → Counter-Intuitive Truth → Ground Reality → Strategic Roadmap → Conversation Starter",
     category: "Strategic Insight & Future of Work",
     source: "Singapore B2B Industry Intelligence",
     tone: "Thought-provoking, authoritative, balanced, engaging",
@@ -163,7 +163,7 @@ How is your organization balancing digital transformation with statutory physica
   {
     id: "framework-cultural-harmony-wa",
     name: "The Cultural Harmony & Community Framework (Wa)",
-    formula: "M-S-G-B",
+    formula: "Milestone Moment → Human Story → Gratitude → Heartfelt Blessing",
     category: "Employer Branding & Culture",
     source: "Brother Singapore CSR & Multicultural Harmony Archive",
     tone: "Heartfelt, humble, harmonious, respectful",
@@ -215,7 +215,7 @@ How is your team marking the upcoming holidays together? Share your favorite tra
   {
     id: "framework-customer-transformation",
     name: "The B2B Customer Transformation Framework",
-    formula: "B-T-A-N-P",
+    formula: "Operational Bottleneck → Turning Point → Frontline Transformation → Hard Proof → Peer Advice",
     category: "Customer Case Study & Social Proof",
     source: "Brother Industrial & SME Solutions Archive",
     tone: "Grounded, evidence-based, inspiring, peer-to-peer",
@@ -278,7 +278,7 @@ export function extractTemplateFromInput({ type, content, title = "Custom Extrac
     source: type === 'url' ? `Live Post: ${content}` : type === 'screenshot' ? 'Screenshot Image Analysis' : 'PDF Document Archive',
     name: title,
     category: isPromo ? "Product & Promotion Innovation" : isKaizen ? "Operational Excellence & Monozukuri" : "Extracted Benchmark",
-    formula: isPromo ? "H-C-V-P-P-A" : isKaizen ? "F-C-A-R" : "H-C-V-A",
+    formula: isPromo ? "Hook → Context → Value → Proof → Possibility → Action" : isKaizen ? "Friction → Cost of Inaction → Micro-Adjustment → Measurable Impact" : "Hook → Context → Value → Action",
     tone: "Culturally Calibrated, Respectful, Professional",
     description: "Reverse-engineered and calibrated to Hofstede Asian dimensions (Wa Harmony, Monozukuri Precision, Long-term Stewardship).",
     philosophy: "Sell the possibility before the specification. Transform: Company Message → Audience Relevance → Metaphorical Bridge ('At your side') → Audience Action.",
