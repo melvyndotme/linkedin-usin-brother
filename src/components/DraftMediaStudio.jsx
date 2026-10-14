@@ -609,6 +609,8 @@ To everyone celebrating, how is your team marking this special day? Share your f
         setSelectedTemplateId(generated[0].frameworkId || generated[0].id || 'draft-0');
         setCurrentRationale(generated[0].whyThisWorks || generated[0].angle || '');
         setSelectedDraftIndex(0);
+        setSelectNotification('✨ 3 posts generated based on your 3 selected frameworks! Draft 01 is loaded in Step 04 below.');
+        setTimeout(() => setSelectNotification(null), 5000);
       }
 
       // Automatically persist all 3 candidate drafts to Notion as "Generated Candidate"
@@ -1303,19 +1305,18 @@ To everyone celebrating, how is your team marking this special day? Share your f
         </div>
 
         {/* ------------------------------------------------------------- */}
-        {/* (3) [in red] AI Models [drop down with short descriptions]     */}
-        {/*     + Generate Button next to it                                */}
+        {/* Step 03: AI Generation for Selected Frameworks               */}
         {/* ------------------------------------------------------------- */}
         <div className="space-y-3 pb-6 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div className="flex items-center gap-2">
               <span className="text-xs sm:text-sm font-mono font-bold text-[#0f2ea2] dark:text-blue-400">Step 03:</span>
               <h3 className={`text-sm sm:text-base font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                AI Models
+                AI Models & Generation
               </h3>
             </div>
-            <span className="text-[11px] text-slate-400">
-              Select frontier text model with key capability description
+            <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+              Generates 3 posts tailored to the 3 frameworks selected above
             </span>
           </div>
 
@@ -1347,8 +1348,16 @@ To everyone celebrating, how is your team marking this special day? Share your f
               className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold transition-all shadow-md active:scale-95 disabled:opacity-50 cursor-pointer shrink-0 h-[42px]"
             >
               <Sparkles className={`w-4 h-4 ${generatingAiDrafts ? 'animate-spin' : ''}`} />
-              <span>{generatingAiDrafts ? 'Generating 3 Drafts...' : 'Generate 3 Drafts'}</span>
+              <span>{generatingAiDrafts ? 'Generating 3 Framework Posts...' : 'Generate Posts for 3 Selected Frameworks'}</span>
             </button>
+          </div>
+
+          {/* Educational clarification banner */}
+          <div className="flex items-start gap-2.5 p-3 rounded-xl bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-900/50 text-xs text-slate-700 dark:text-slate-300">
+            <Sparkles className="w-4 h-4 text-[#0f2ea2] dark:text-blue-400 shrink-0 mt-0.5" />
+            <p className="leading-relaxed">
+              When clicked, AI will generate <strong className="text-[#0f2ea2] dark:text-blue-300 font-bold">3 unique post drafts</strong> corresponding to <strong className="text-slate-900 dark:text-white">Draft 01, Draft 02, and Draft 03</strong> using the specific frameworks chosen above. You can then tap <span className="font-semibold text-slate-900 dark:text-white underline decoration-[#0f2ea2] decoration-2">"Select to Edit"</span> on any draft to refine it.
+            </p>
           </div>
 
           {aiDraftError && (
