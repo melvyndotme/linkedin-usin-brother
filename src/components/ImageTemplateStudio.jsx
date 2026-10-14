@@ -187,9 +187,48 @@ export default function ImageTemplateStudio({
     loadNotionAssets();
   }, []);
 
-  // Filtered Notion Assets by country, category, and search query
+  const isIrrelevantAsset = (item) => {
+    const n = (item.title || item.name || '').toLowerCase();
+    const u = (item.url || item.imageUrl || item.thumb || '').toLowerCase();
+    const c = (item.category || '').toLowerCase();
+    if (c.includes('icon') || c.includes('logo') || c.includes('ui')) return true;
+    if (
+      u.includes('/icon') ||
+      u.includes('_icon') ||
+      u.includes('link_icon') ||
+      u.includes('logo_') ||
+      u.includes('/logo') ||
+      u.includes('common/img/header') ||
+      u.includes('/btn') ||
+      u.includes('_btn') ||
+      u.includes('/arrow') ||
+      u.includes('social') ||
+      u.includes('facebook') ||
+      u.includes('twitter') ||
+      u.includes('youtube') ||
+      u.includes('instagram') ||
+      u.includes('favicon')
+    ) return true;
+    if (
+      n.includes('[pdf]') ||
+      n.includes('[新しいウィンドウ]') ||
+      n.includes('検索') ||
+      n.includes('search') ||
+      n.includes('facebook') ||
+      n.includes('twitter') ||
+      n.includes('youtube') ||
+      n.includes('logo') ||
+      n.includes('favicon') ||
+      n.includes('important_') ||
+      n.includes('お知らせ')
+    ) return true;
+    return false;
+  };
+
+  // Filtered Notion Assets by country, category, search query, and excluding junk icons/logos
   const filteredNotionAssets = useMemo(() => {
     return notionAssets.filter(item => {
+      if (isIrrelevantAsset(item)) return false;
       if (notionCountryFilter !== 'all' && item.country?.toLowerCase() !== notionCountryFilter.toLowerCase()) {
         return false;
       }
@@ -205,10 +244,11 @@ export default function ImageTemplateStudio({
     });
   }, [notionAssets, notionCountryFilter, notionCategoryFilter, notionSearchQuery]);
 
-  // Dynamic country counts for filter chips
+  // Dynamic country counts for filter chips (calculating only clean photographs)
   const countryCounts = useMemo(() => {
-    const counts = { all: notionAssets.length };
-    notionAssets.forEach(a => {
+    const cleanAssets = notionAssets.filter(a => !isIrrelevantAsset(a));
+    const counts = { all: cleanAssets.length };
+    cleanAssets.forEach(a => {
       const c = (a.country || 'Other').toLowerCase();
       counts[c] = (counts[c] || 0) + 1;
     });
@@ -1128,10 +1168,10 @@ export default function ImageTemplateStudio({
                   key={asset.id}
                   type="button"
                   onClick={() => handleSelectPhotoForSlide(asset.url)}
-                  className={`group relative aspect-video rounded-xl overflow-hidden border-2 transition-all cursor-pointer bg-slate-900 ${
+                  className={`group relative w-full h-28 sm:h-36 rounded-xl overflow-hidden border-2 transition-all cursor-pointer bg-slate-900 ${
                     currentPhoto === asset.url
                       ? 'border-[#0f2ea2] ring-2 ring-[#0f2ea2]/40 shadow-md scale-[1.02]'
-                      : 'border-transparent hover:border-slate-400 opacity-85 hover:opacity-100'
+                      : 'border-transparent hover:border-slate-400 opacity-90 hover:opacity-100'
                   }`}
                   title={`${asset.title || asset.name} - ${asset.country || ''}`}
                 >
@@ -1143,13 +1183,13 @@ export default function ImageTemplateStudio({
                   />
                   {/* Country badge */}
                   {asset.country && (
-                    <div className="absolute top-1.5 left-1.5">
-                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-black/70 text-white backdrop-blur-xs font-mono shadow-xs">
+                    <div className="absolute top-1.5 left-1.5 z-10">
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-black/75 text-white backdrop-blur-xs font-mono shadow-xs">
                         {asset.country}
                       </span>
                     </div>
                   )}
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/50 to-transparent p-1.5 text-[10px] text-white font-medium truncate text-left">
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-1.5 text-[10px] text-white font-medium truncate text-left z-10">
                     {asset.title || asset.name}
                   </div>
                 </button>

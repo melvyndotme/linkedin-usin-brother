@@ -1,5 +1,5 @@
 // Progressive Web App Service Worker for Brother LinkedUs
-const CACHE_NAME = 'brother-linkedus-v13';
+const CACHE_NAME = 'brother-linkedus-v14';
 
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {

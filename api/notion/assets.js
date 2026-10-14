@@ -89,17 +89,20 @@ export default async function handler(req, res) {
             const sourceSite = props['Source Site']?.select?.name || 'Brother';
 
             if (imgUrl && typeof imgUrl === 'string' && (imgUrl.startsWith('http') || imgUrl.startsWith('data:image'))) {
-              allResults.push({
-                id: p.id,
-                title: name,
-                name: name,
-                url: imgUrl,
-                thumb: imgUrl,
-                country,
-                category,
-                sourceSite,
-                source: 'notion-live'
-              });
+              // Exclude tiny icons, site logos, social badges, and navigation arrows
+              if (!isIrrelevantAsset(name, imgUrl, category)) {
+                allResults.push({
+                  id: p.id,
+                  title: name,
+                  name: name,
+                  url: imgUrl,
+                  thumb: imgUrl,
+                  country,
+                  category,
+                  sourceSite,
+                  source: 'notion-live'
+                });
+              }
             }
           });
         }
@@ -135,17 +138,19 @@ export default async function handler(req, res) {
     const dataPath = path.join(process.cwd(), 'data/brother_scraped_images.json');
     if (fs.existsSync(dataPath)) {
       const raw = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
-      const records = (raw.records || []).map(r => ({
-        id: r.id || `scraped-${Math.random().toString(36).substring(7)}`,
-        title: r.name || r.filename || 'Brother Digital Asset',
-        name: r.name || r.filename || 'Brother Digital Asset',
-        url: r.imageUrl,
-        thumb: r.imageUrl,
-        country: r.country || 'Regional',
-        category: r.category || 'Marketing Asset',
-        sourceSite: r.sourceSite || 'Brother',
-        source: 'local-sync'
-      }));
+      const records = (raw.records || [])
+        .filter(r => !isIrrelevantAsset(r.name || r.filename, r.imageUrl, r.category))
+        .map(r => ({
+          id: r.id || `scraped-${Math.random().toString(36).substring(7)}`,
+          title: r.name || r.filename || 'Brother Digital Asset',
+          name: r.name || r.filename || 'Brother Digital Asset',
+          url: r.imageUrl,
+          thumb: r.imageUrl,
+          country: r.country || 'Regional',
+          category: r.category || 'Marketing Asset',
+          sourceSite: r.sourceSite || 'Brother',
+          source: 'local-sync'
+        }));
 
       assetsCache = {
         data: records,
@@ -191,3 +196,53 @@ function filterAssets(assets, country, category, search) {
     return true;
   });
 }
+
+function isIrrelevantAsset(name = '', url = '', category = '') {
+  const n = String(name || '').toLowerCase();
+  const u = String(url || '').toLowerCase();
+  const c = String(category || '').toLowerCase();
+
+  // Exclude icon, logo, and UI categories
+  if (c.includes('icon') || c.includes('logo') || c.includes('ui')) return true;
+
+  // Exclude URLs pointing to icons, logos, buttons, arrows, headers, or social marks
+  if (
+    u.includes('/icon') ||
+    u.includes('_icon') ||
+    u.includes('link_icon') ||
+    u.includes('logo_') ||
+    u.includes('/logo') ||
+    u.includes('common/img/header') ||
+    u.includes('/btn') ||
+    u.includes('_btn') ||
+    u.includes('/arrow') ||
+    u.includes('social') ||
+    u.includes('facebook') ||
+    u.includes('twitter') ||
+    u.includes('youtube') ||
+    u.includes('instagram') ||
+    u.includes('favicon')
+  ) {
+    return true;
+  }
+
+  // Exclude titles indicating web navigational elements or symbols
+  if (
+    n.includes('[pdf]') ||
+    n.includes('[新しいウィンドウ]') ||
+    n.includes('検索') ||
+    n.includes('search') ||
+    n.includes('facebook') ||
+    n.includes('twitter') ||
+    n.includes('youtube') ||
+    n.includes('logo') ||
+    n.includes('favicon') ||
+    n.includes('important_') ||
+    n.includes('お知らせ')
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
