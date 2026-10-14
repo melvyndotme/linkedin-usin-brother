@@ -116,6 +116,52 @@ export default function ImageTemplateStudio({
   const [cloudError, setCloudError] = useState(null);
   const [serverGeminiConfigured, setServerGeminiConfigured] = useState(false);
 
+  // Notion Database Image Assets
+  const [notionAssets, setNotionAssets] = useState([]);
+  const [loadingNotionAssets, setLoadingNotionAssets] = useState(false);
+
+  // Fetch live images saved in Notion database
+  useEffect(() => {
+    async function loadNotionAssets() {
+      setLoadingNotionAssets(true);
+      try {
+        const token = safeGetItem('notion_token') || safeGetItem('token_notion');
+        const dbId = safeGetItem('notion_database_id') || '3c701136de4881de9d29ca4ea415e856';
+        const res = await fetch('/api/notion/sync?action=get_posts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            apiKey: token || undefined,
+            databaseId: dbId
+          })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && Array.isArray(data.posts)) {
+            const foundImages = [];
+            data.posts.forEach((p, idx) => {
+              const img = p.cleanImageUrl || p.compositeImageUrl || p.imageUrl;
+              if (img && typeof img === 'string' && (img.startsWith('http') || img.startsWith('data:image'))) {
+                foundImages.push({
+                  id: p.id || `notion-img-${idx}`,
+                  title: p.title || 'Notion Visual Asset',
+                  url: img,
+                  thumb: img
+                });
+              }
+            });
+            setNotionAssets(foundImages);
+          }
+        }
+      } catch (e) {
+        console.warn('Could not load Notion image assets:', e);
+      } finally {
+        setLoadingNotionAssets(false);
+      }
+    }
+    loadNotionAssets();
+  }, []);
+
   // Fetch live contextual image models (Nano Banana series)
   useEffect(() => {
     async function loadLiveImageModels() {
@@ -184,6 +230,12 @@ export default function ImageTemplateStudio({
 
   // Active photo URL for current slide
   const currentPhoto = getPhotoForSlide(activeSlideIndex);
+
+  useEffect(() => {
+    if (currentPhoto) {
+      safeSetItem('brother_latest_visual_url', currentPhoto);
+    }
+  }, [currentPhoto]);
 
   // Assign photo to current active slide
   const handleSelectPhotoForSlide = (url) => {
@@ -599,113 +651,374 @@ export default function ImageTemplateStudio({
   };
 
   return (
-    <div className="space-y-4 pt-2">
-      {/* Studio Header Toolbar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50 dark:bg-slate-900/60 p-3 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-800">
-        <div className="flex items-center gap-3">
-          <img 
-            src="/brother-logo.svg" 
-            alt="Brother • at your side" 
-            className="h-8 w-auto object-contain bg-slate-950 px-2 py-1 rounded-lg border border-slate-800"
-            onError={(e) => {
-              e.target.src = '/brother-logo.png';
-            }}
-          />
-          <div>
-            <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
-              Official LinkedIn Visual Studio
-            </h4>
-            <p className="text-[11px] text-slate-500">
-              Official Brother SG brand assets & 5-slide editorial carousels
-            </p>
-          </div>
-        </div>
-
-        {/* Action Controls & Format Selector */}
-        <div className="flex items-center gap-2 flex-wrap">
-          {/* Format Selector: 1:1 Square vs 1.91:1 Banner */}
-          <div className="flex items-center p-1 rounded-xl bg-slate-200/70 dark:bg-slate-800 border border-slate-300/60 dark:border-slate-700 text-xs font-semibold">
-            <button
-              type="button"
-              onClick={() => setAspectRatio('1:1')}
-              className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
-                aspectRatio === '1:1'
-                  ? 'bg-white dark:bg-slate-900 text-[#0f2ea2] dark:text-blue-400 font-bold shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
-              }`}
-            >
-              1:1 Carousel (1080×1080)
-            </button>
-            <button
-              type="button"
-              onClick={() => setAspectRatio('1.91:1')}
-              className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
-                aspectRatio === '1.91:1'
-                  ? 'bg-white dark:bg-slate-900 text-[#0f2ea2] dark:text-blue-400 font-bold shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
-              }`}
-            >
-              1.91:1 Banner (1200×627)
-            </button>
-          </div>
-
-          {/* Edit Text Toggle Button */}
+    <div className="space-y-5 pt-2">
+      {/* Two Source Tabs: (1) Regional Asset Library & (2) Generate with Gemini */}
+      <div className="p-3 sm:p-3.5 bg-slate-50 dark:bg-slate-900/60 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-1.5 p-1 bg-slate-200/70 dark:bg-slate-950 rounded-xl border border-slate-300/60 dark:border-slate-800 w-full sm:w-auto">
           <button
             type="button"
-            onClick={() => setShowTextEditor(!showTextEditor)}
-            className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-xl border transition-all cursor-pointer ${
-              showTextEditor
-                ? 'bg-blue-50 dark:bg-blue-950 text-[#0f2ea2] dark:text-blue-400 border-blue-300 dark:border-blue-700 shadow-xs'
-                : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-100'
+            onClick={() => setVisualSourceMode('library')}
+            className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              visualSourceMode === 'library'
+                ? 'bg-white dark:bg-slate-800 text-[#0f2ea2] dark:text-blue-400 shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            <Edit3 className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
-            <span>{showTextEditor ? 'Close Text Editor' : 'Edit Text'}</span>
+            <Building2 className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400 shrink-0" />
+            <span>(1) Regional Asset Library</span>
+            {notionAssets.length > 0 && (
+              <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-blue-100 dark:bg-blue-900/60 text-[#0f2ea2] dark:text-blue-300 font-mono">
+                +{notionAssets.length} Notion
+              </span>
+            )}
           </button>
-
-          {/* Export Carousel PDF for LinkedIn Document & Buffer */}
-          {aspectRatio === '1:1' && (
-            <button
-              type="button"
-              onClick={handleExportPdf}
-              disabled={downloading}
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-3 py-1.5 rounded-xl shadow-xs transition-all cursor-pointer disabled:opacity-50"
-              title="Compile all 5 slides into a LinkedIn Carousel PDF for Buffer & LinkedIn"
-            >
-              <FileText className="w-3.5 h-3.5" />
-              <span>{downloading ? 'Compiling PDF...' : 'Carousel PDF (Buffer)'}</span>
-            </button>
-          )}
-
-          {/* Export PNG Buttons */}
           <button
             type="button"
-            onClick={handleDownloadActiveSlide}
-            disabled={downloading}
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-[#0f2ea2] hover:bg-[#004b8f] px-3 py-1.5 rounded-xl shadow-xs transition-all cursor-pointer disabled:opacity-50"
+            onClick={() => setVisualSourceMode('ai')}
+            className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              visualSourceMode === 'ai'
+                ? 'bg-white dark:bg-slate-800 text-[#0f2ea2] dark:text-blue-400 shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+            }`}
           >
-            <Download className="w-3.5 h-3.5" />
-            <span>{downloading ? 'Exporting...' : 'Download PNG'}</span>
+            <Sparkles className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400 shrink-0" />
+            <span>(2) Generate with Gemini</span>
           </button>
+        </div>
 
+        {/* Quick Photo Upload Button */}
+        <label
+          htmlFor="brother-photo-upload"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 transition-all cursor-pointer shadow-2xs self-start sm:self-auto"
+          title="Upload an image from your device"
+        >
+          <Upload className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
+          <span>Upload Photo</span>
+          <input
+            id="brother-photo-upload"
+            type="file"
+            accept="image/*"
+            onChange={handleUploadPhoto}
+            className="hidden"
+          />
+        </label>
+      </div>
 
-          {aspectRatio === '1:1' && (
+      {/* Tab 1 Content: Regional Digital Asset Library with Notion Thumbnails */}
+      {visualSourceMode === 'library' && (
+        <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-3.5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-2.5 border-b border-slate-100 dark:border-slate-800">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <button
+                type="button"
+                onClick={() => setActiveAssetTab('official')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  activeAssetTab === 'official'
+                    ? 'bg-[#0f2ea2] text-white shadow-xs'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+                }`}
+              >
+                Official Brother Assets ({OFFICIAL_BROTHER_ASSETS.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveAssetTab('festive')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  activeAssetTab === 'festive'
+                    ? 'bg-[#0f2ea2] text-white shadow-xs'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+                }`}
+              >
+                Cultural & Events ({festivePresets.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveAssetTab('notion')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  activeAssetTab === 'notion'
+                    ? 'bg-[#0f2ea2] text-white shadow-xs'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+                }`}
+              >
+                <Database className="w-3 h-3" />
+                <span>Notion Saved Images ({notionAssets.length})</span>
+              </button>
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => handleApplyToAllSlides()}
+                className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 hover:text-[#0f2ea2] dark:hover:text-blue-400 px-2.5 py-1 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 cursor-pointer transition-colors shadow-2xs"
+                title="Apply current photo to all 5 slides"
+              >
+                Apply to All Slides
+              </button>
+              <button
+                type="button"
+                onClick={handleResetSlidePhotos}
+                className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 hover:text-[#0f2ea2] dark:hover:text-blue-400 px-2.5 py-1 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 cursor-pointer transition-colors shadow-2xs"
+                title="Reset each slide to its curated default image"
+              >
+                Reset Defaults
+              </button>
+            </div>
+          </div>
+
+          {/* Custom Uploaded Photo Indicator Banner */}
+          {customPhotoUrl && (
+            <div className="flex items-center justify-between p-2.5 rounded-xl bg-blue-50/80 dark:bg-blue-950/40 border-2 border-[#0f2ea2] shadow-xs">
+              <div className="flex items-center gap-3 min-w-0">
+                <img
+                  src={customPhotoUrl}
+                  alt="Custom Uploaded"
+                  className="w-10 h-10 rounded-lg object-cover border border-[#0f2ea2]/40 shadow-xs shrink-0"
+                />
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                    <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                      Custom Uploaded Photo Active
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                    Active on slide 0{activeSlideIndex + 1}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setCustomPhotoUrl('');
+                  handleSelectPhotoForSlide(baseSlides[activeSlideIndex]?.defaultPhotoUrl || OFFICIAL_BROTHER_ASSETS[0]?.url);
+                }}
+                className="px-2 py-1 text-[11px] font-bold text-slate-500 hover:text-rose-600 rounded-lg cursor-pointer transition-colors"
+              >
+                Remove
+              </button>
+            </div>
+          )}
+
+          {/* Thumbnail Grid for Selected Tab */}
+          {activeAssetTab === 'notion' && loadingNotionAssets ? (
+            <div className="p-8 text-center text-xs text-slate-400">
+              <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-[#0f2ea2]" />
+              <span>Loading saved image assets from Notion repository...</span>
+            </div>
+          ) : activeAssetTab === 'notion' && notionAssets.length === 0 ? (
+            <div className="p-8 text-center text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-950/40 rounded-xl border border-dashed border-slate-200 dark:border-slate-800">
+              <Database className="w-6 h-6 mx-auto mb-2 opacity-50" />
+              <p className="font-bold">No saved images found in Notion yet.</p>
+              <p className="text-[11px] opacity-80 mt-1">
+                Generate images with Gemini or save visuals to Notion, and they will automatically appear here as reusable thumbnails.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5">
+              {(activeAssetTab === 'official' 
+                ? OFFICIAL_BROTHER_ASSETS 
+                : activeAssetTab === 'festive' 
+                ? festivePresets 
+                : notionAssets
+              ).map((asset) => (
+                <button
+                  key={asset.id}
+                  type="button"
+                  onClick={() => handleSelectPhotoForSlide(asset.url)}
+                  className={`group relative aspect-video rounded-xl overflow-hidden border-2 transition-all cursor-pointer bg-slate-900 ${
+                    currentPhoto === asset.url
+                      ? 'border-[#0f2ea2] ring-2 ring-[#0f2ea2]/40 shadow-md scale-[1.02]'
+                      : 'border-transparent hover:border-slate-400 opacity-85 hover:opacity-100'
+                  }`}
+                >
+                  <img
+                    src={asset.thumb || asset.url}
+                    alt={asset.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-1.5 text-[10px] text-white font-medium truncate text-left">
+                    {asset.title}
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Tab 2 Content: Gemini AI Generation Studio */}
+      {visualSourceMode === 'ai' && (
+        <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950 flex items-center justify-center text-[#0f2ea2] dark:text-blue-400">
+                <Sparkles className="w-4 h-4" />
+              </div>
+              <div>
+                <h4 className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  Commercial Image Synthesis (Gemini)
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                    Text-Free Base Layer
+                  </span>
+                </h4>
+                <p className="text-[11px] text-slate-500">
+                  High-resolution studio photography calibrated to Google Gemini photographic standards.
+                </p>
+              </div>
+            </div>
+
+            {/* Frontier Model Selector */}
+            <div className="flex items-center gap-2">
+              <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                Model:
+              </label>
+              <select
+                value={selectedAiModel}
+                onChange={(e) => {
+                  setSelectedAiModel(e.target.value);
+                  safeSetItem('model_gemini_image', e.target.value);
+                }}
+                className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs font-semibold px-2.5 py-1.5 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#0f2ea2] cursor-pointer"
+              >
+                {availableImageModels.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.name || m.id} {m.badge ? `(${m.badge})` : ''}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Visual Style Presets */}
+          <div>
+            <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+              Select Visual Style Preset:
+            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+              {GEMINI_STYLE_PROMPT_GUIDES.map(guide => (
+                <button
+                  key={guide.id}
+                  type="button"
+                  onClick={() => {
+                    setSelectedStyleGuideId(guide.id);
+                    setImagePrompt(guide.getSamplePrompt(occasion?.name));
+                  }}
+                  className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                    selectedStyleGuideId === guide.id
+                      ? 'border-[#0f2ea2] bg-blue-50/60 dark:bg-blue-950/40 text-[#0f2ea2] dark:text-blue-300 ring-1 ring-[#0f2ea2]'
+                      : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 bg-slate-50/50 dark:bg-slate-800/40 text-slate-700 dark:text-slate-300'
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-1 mb-1">
+                    <span className="text-xs font-bold leading-tight truncate">{guide.name}</span>
+                    <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-white dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-700 shrink-0">
+                      {guide.badge}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 line-clamp-2">
+                    {guide.description}
+                  </p>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Prompt Input Box */}
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                Instructional Image Prompt:
+              </label>
+              <span className="text-[10px] text-slate-400">
+                Text-free layer • Studio lighting • Japanese minimalist symmetry
+              </span>
+            </div>
+            <textarea
+              rows={3}
+              value={imagePrompt}
+              onChange={(e) => setImagePrompt(e.target.value)}
+              placeholder="A high-resolution, studio-lit commercial photograph of..."
+              className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0f2ea2] leading-relaxed resize-none font-normal"
+            />
+          </div>
+
+          <div className="flex items-center justify-between gap-2 pt-1">
+            <div className="text-[11px] text-slate-500">
+              Targeting: <strong className="text-slate-800 dark:text-slate-200">Slide 0{activeSlideIndex + 1} ({aspectRatio === '1:1' ? '1:1 Square' : '1.91:1 Banner'})</strong>
+            </div>
+
             <button
               type="button"
-              onClick={handleDownloadAllSlides}
-              disabled={downloading}
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 transition-all cursor-pointer disabled:opacity-50"
-              title="Download all 5 slides in this series"
+              onClick={() => setShowConfirmModal(true)}
+              disabled={isAiGenerating}
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-gradient-to-r from-[#0f2ea2] to-blue-700 hover:from-[#0c2480] hover:to-blue-800 px-4 py-2 rounded-xl shadow-md transition-all cursor-pointer disabled:opacity-50"
             >
-              <FolderDown className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
-              <span className="hidden md:inline">5-Slide PNGs</span>
-              <span className="md:hidden">PNG Pack</span>
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>{isAiGenerating ? 'Generating...' : 'Generate with Gemini AI'}</span>
             </button>
-          )}
+          </div>
+        </div>
+      )}
+
+      {/* SECTION (1): [in red] (1) [in black] Image Size */}
+      <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
+        <div className="flex items-center gap-2">
+          <span className="text-rose-600 font-extrabold text-sm sm:text-base">(1)</span>
+          <span className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white uppercase tracking-wider">
+            Image Size
+          </span>
+          <span className="text-[11px] text-slate-400 font-normal ml-auto">
+            Choose aspect ratio for LinkedIn post
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+          <button
+            type="button"
+            onClick={() => setAspectRatio('1.91:1')}
+            className={`p-3.5 rounded-xl border flex items-center justify-between transition-all cursor-pointer ${
+              aspectRatio === '1.91:1'
+                ? 'border-[#0f2ea2] bg-blue-50/70 dark:bg-blue-950/40 text-[#0f2ea2] dark:text-blue-300 ring-2 ring-[#0f2ea2]/20 shadow-xs'
+                : 'border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/40 hover:border-slate-300 text-slate-700 dark:text-slate-300'
+            }`}
+          >
+            <div className="text-left">
+              <span className="text-xs font-bold block">(a) Banner (1.91:1 Landscape)</span>
+              <span className="text-[11px] text-slate-500 dark:text-slate-400">1200 × 627 px • Standard feed banner</span>
+            </div>
+            <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${
+              aspectRatio === '1.91:1' ? 'border-[#0f2ea2] bg-[#0f2ea2]' : 'border-slate-300'
+            }`}>
+              {aspectRatio === '1.91:1' && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+            </div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setAspectRatio('1:1')}
+            className={`p-3.5 rounded-xl border flex items-center justify-between transition-all cursor-pointer ${
+              aspectRatio === '1:1'
+                ? 'border-[#0f2ea2] bg-blue-50/70 dark:bg-blue-950/40 text-[#0f2ea2] dark:text-blue-300 ring-2 ring-[#0f2ea2]/20 shadow-xs'
+                : 'border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/40 hover:border-slate-300 text-slate-700 dark:text-slate-300'
+            }`}
+          >
+            <div className="text-left">
+              <span className="text-xs font-bold block">(b) Carousel (1:1 Square Multi-Slide)</span>
+              <span className="text-[11px] text-slate-500 dark:text-slate-400">1080 × 1080 px • 5-slide PDF swipeable document</span>
+            </div>
+            <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${
+              aspectRatio === '1:1' ? 'border-[#0f2ea2] bg-[#0f2ea2]' : 'border-slate-300'
+            }`}>
+              {aspectRatio === '1:1' && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+            </div>
+          </button>
         </div>
       </div>
 
-      {/* Cloud Save Feedback Banners */}
+
+      {/* Cloud Feedback Banners */}
       {cloudSuccess && (
         <div className="flex items-center justify-between p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700/60 text-xs text-emerald-900 dark:text-emerald-200 animate-in fade-in duration-200">
           <div className="flex items-center gap-2 min-w-0">
@@ -726,7 +1039,7 @@ export default function ImageTemplateStudio({
           <button
             type="button"
             onClick={() => setCloudSuccess(null)}
-            className="text-emerald-700 hover:text-emerald-950 dark:text-emerald-300 dark:hover:text-white p-0.5"
+            className="text-emerald-700 hover:text-emerald-950 dark:text-emerald-300 dark:hover:text-white p-0.5 cursor-pointer"
           >
             <X className="w-3.5 h-3.5" />
           </button>
@@ -742,543 +1055,384 @@ export default function ImageTemplateStudio({
           <button
             type="button"
             onClick={() => setCloudError(null)}
-            className="text-rose-700 hover:text-rose-950 dark:text-rose-300 dark:hover:text-white p-0.5"
+            className="text-rose-700 hover:text-rose-950 dark:text-rose-300 dark:hover:text-white p-0.5 cursor-pointer"
           >
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
       )}
 
-      {/* 5-Slide Carousel Navigation Tabs (Only in 1:1 Carousel Mode) */}
-      {aspectRatio === '1:1' && (
-        <div className="flex items-center justify-between gap-2 overflow-x-auto pb-1 custom-scrollbar">
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            {baseSlides.map((slide, idx) => {
-              const slideImg = getPhotoForSlide(idx);
-              const isActive = activeSlideIndex === idx;
-              return (
-                <button
-                  key={slide.slideNumber}
-                  type="button"
-                  onClick={() => setActiveSlideIndex(idx)}
-                  className={`flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer border ${
-                    isActive
-                      ? 'bg-[#0f2ea2] text-white border-[#0f2ea2] shadow-xs ring-1 ring-[#0f2ea2]'
-                      : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-750'
-                  }`}
-                >
-                  <span className={`text-[10px] font-mono font-bold ${isActive ? 'text-blue-200' : 'text-slate-400'}`}>
-                    0{idx + 1}
-                  </span>
-                  {slideImg && (
-                    <img 
-                      src={slideImg} 
-                      alt="" 
-                      className="w-4 h-4 rounded-sm object-cover border border-white/20"
-                    />
-                  )}
-                  <span>{slide.roleTitle}</span>
-                </button>
-              );
-            })}
+      {/* SECTION (2): [in red] (2) [in black] Edit Text */}
+      <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-rose-600 font-extrabold text-sm sm:text-base">(2)</span>
+            <span className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white uppercase tracking-wider">
+              Edit Text
+            </span>
           </div>
 
-          <div className="flex items-center gap-1 shrink-0">
-            <button
-              type="button"
-              onClick={handlePrevSlide}
-              className="p-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-600 dark:text-slate-300 transition-colors cursor-pointer"
-              title="Previous slide"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button
-              type="button"
-              onClick={handleNextSlide}
-              className="p-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-600 dark:text-slate-300 transition-colors cursor-pointer"
-              title="Next slide"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => setShowTextEditor(!showTextEditor)}
+            className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+              showTextEditor
+                ? 'bg-blue-50 dark:bg-blue-950 text-[#0f2ea2] dark:text-blue-300 border-blue-300 dark:border-blue-700 shadow-xs'
+                : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-100'
+            }`}
+          >
+            <Edit3 className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
+            <span>{showTextEditor ? 'Hide Text Editor' : 'Click to edit text'}</span>
+            <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${showTextEditor ? 'rotate-180' : ''}`} />
+          </button>
         </div>
-      )}
 
-      {/* Main Visual Stage (Live Responsive Editorial Canvas Composite) */}
-      <div className="relative w-full rounded-2xl overflow-hidden shadow-xl border border-slate-300/80 dark:border-slate-800 bg-slate-950 group">
-        <div 
-          className={`w-full relative transition-all duration-300 ${
-            aspectRatio === '1.91:1' ? 'aspect-[1.91/1]' : 'aspect-square'
-          }`}
-        >
-          {/* Background Image (Official Brother SG Asset or Festive Photo) */}
-          <img
-            key={currentPhoto}
-            src={currentPhoto}
-            alt={currentSlide.headline}
-            className="absolute inset-0 w-full h-full object-cover select-none transition-all duration-500 group-hover:scale-105"
-          />
-
-          {/* Cinematic Scrim & Brother Gradient Overlay */}
-          <div className={`absolute inset-0 transition-opacity duration-300 pointer-events-none ${
-            aspectRatio === '1.91:1'
-              ? 'bg-gradient-to-r from-slate-950/90 via-slate-950/50 to-slate-950/15'
-              : 'bg-gradient-to-t from-slate-950/95 via-slate-950/60 to-slate-950/20'
-          }`} />
-
-          {/* Signature Brother Blue Accent Edge */}
-          <div className={`absolute ${aspectRatio === '1.91:1' ? 'left-0 top-0 bottom-0 w-2.5' : 'top-0 left-0 right-0 h-2.5'} bg-[#0f2ea2] shadow-lg pointer-events-none`} />
-
-          {/* Slide Content Overlay */}
-          <div className="absolute inset-0 p-6 sm:p-10 flex flex-col justify-between text-white select-none">
-            {/* Top Bar: Official Brother Logo & Slide Indicator */}
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-2">
-                <img 
-                  src="/brother-logo.svg" 
-                  alt="Brother • at your side" 
-                  className="h-8 sm:h-10 w-auto object-contain drop-shadow-md"
-                  onError={(e) => {
-                    e.target.src = '/brother-logo.png';
-                  }}
-                />
-              </div>
-
-              {aspectRatio === '1:1' && (
-                <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#0f2ea2] text-white text-[11px] font-mono font-bold shadow-md border border-white/20">
-                  {currentSlide.slideNumber}
-                </div>
-              )}
-            </div>
-
-            {/* Middle Section: Badges, Headline, and Narrative */}
-            <div className={`space-y-2 sm:space-y-3 ${aspectRatio === '1.91:1' ? 'max-w-2xl my-auto' : 'my-auto'}`}>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-[#0f2ea2] text-white text-[10px] sm:text-xs font-bold uppercase tracking-wider shadow-sm">
-                {currentSlide.badge}
-              </div>
-
-              <h3 className="text-xl sm:text-3xl md:text-4xl font-black text-white leading-tight tracking-tight drop-shadow-md">
-                {currentSlide.headline}
-              </h3>
-
-              <p className="text-sm sm:text-base md:text-lg text-slate-200 font-medium leading-snug drop-shadow-sm line-clamp-3">
-                {currentSlide.subheadline}
-              </p>
-
-              {currentSlide.supportingText && (
-                <p className="text-xs sm:text-sm text-slate-300 font-normal leading-relaxed pt-1 line-clamp-3">
-                  {currentSlide.supportingText}
-                </p>
-              )}
-            </div>
-
-            {/* Bottom Footer: Official Tagline (Omits swipe prompts on 1.91:1 Banners) */}
-            <div className="pt-3 border-t border-white/15 flex items-center justify-between text-[11px] text-slate-400 font-medium">
-              <span>{getEffectiveFooterText(currentSlide, aspectRatio)}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Interactive Text Overlay Editor Drawer */}
-      {showTextEditor && (
-        <div className="p-4 rounded-xl bg-white dark:bg-slate-900 border-2 border-[#0f2ea2]/40 shadow-lg space-y-3 animate-in fade-in duration-200">
-          <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-lg bg-[#0f2ea2] text-white flex items-center justify-center">
-                <Edit3 className="w-3 h-3" />
-              </div>
-              <div>
-                <h5 className="text-xs font-bold text-slate-900 dark:text-white">
-                  Edit Text Overlay — Slide {activeSlideIndex + 1} ({currentSlide.roleTitle})
-                </h5>
-                <p className="text-[10px] text-slate-500">
-                  Live updates are reflected immediately on the image and in exported PNGs
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
+        {/* Collapsible Edit Text Part: Unfolds Immediately Below */}
+        {showTextEditor && (
+          <div className="p-4 rounded-xl bg-slate-50/70 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 space-y-3.5 animate-in fade-in duration-200">
+            <div className="flex items-center justify-between border-b border-slate-200/60 dark:border-slate-700 pb-2">
+              <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                Overlay Text — Slide {activeSlideIndex + 1} ({currentSlide.roleTitle})
+              </span>
               <button
                 type="button"
                 onClick={handleResetSlideText}
                 className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500 hover:text-rose-600 transition-colors cursor-pointer"
-                title="Revert back to default text"
               >
                 <RotateCcw className="w-3 h-3" />
                 <span>Reset to Default</span>
               </button>
-              <button
-                type="button"
-                onClick={() => setShowTextEditor(false)}
-                className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 cursor-pointer"
-                title="Close Editor"
-              >
-                <X className="w-4 h-4" />
-              </button>
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
+                  Badge Pill Text
+                </label>
+                <input
+                  type="text"
+                  value={currentSlide.badge || ''}
+                  onChange={(e) => updateSlideField('badge', e.target.value)}
+                  placeholder="e.g. MONOZUKURI PRECISION"
+                  className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#0f2ea2]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
+                  Headline
+                </label>
+                <input
+                  type="text"
+                  value={currentSlide.headline || ''}
+                  onChange={(e) => updateSlideField('headline', e.target.value)}
+                  placeholder="e.g. Precision in Every Detail"
+                  className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#0f2ea2] font-semibold"
+                />
+              </div>
+            </div>
+
             <div>
               <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
-                Badge Pill Text
+                Sub-headline / Angle
               </label>
               <input
                 type="text"
-                value={currentSlide.badge || ''}
-                onChange={(e) => updateSlideField('badge', e.target.value)}
-                placeholder="e.g. FESTIVAL OF LIGHTS / SPECIAL HIGHLIGHT"
-                className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0f2ea2]"
+                value={currentSlide.subheadline || ''}
+                onChange={(e) => updateSlideField('subheadline', e.target.value)}
+                placeholder="e.g. Empowering Singapore businesses with seamless reliability"
+                className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#0f2ea2]"
               />
             </div>
 
             <div>
               <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
-                Headline
+                Supporting Narrative / Details
               </label>
-              <input
-                type="text"
-                value={currentSlide.headline || ''}
-                onChange={(e) => updateSlideField('headline', e.target.value)}
-                placeholder="e.g. Deepavali / Precision in Every Detail"
-                className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0f2ea2] font-semibold"
+              <textarea
+                rows={2}
+                value={currentSlide.supportingText || ''}
+                onChange={(e) => updateSlideField('supportingText', e.target.value)}
+                placeholder="e.g. When technology works silently at your side, your teams achieve uninterrupted focus."
+                className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#0f2ea2] resize-none"
               />
             </div>
-          </div>
 
-          <div>
-            <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
-              Subheadline / Angle
-            </label>
-            <input
-              type="text"
-              value={currentSlide.subheadline || ''}
-              onChange={(e) => updateSlideField('subheadline', e.target.value)}
-              placeholder="e.g. Warm Community Unity & Shared Harmony (Wa)"
-              className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0f2ea2]"
-            />
-          </div>
-
-          <div>
-            <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
-              Supporting Narrative / Details
-            </label>
-            <textarea
-              rows={2}
-              value={currentSlide.supportingText || ''}
-              onChange={(e) => updateSlideField('supportingText', e.target.value)}
-              placeholder="e.g. May the divine light illuminate your path with joy, wisdom & prosperity..."
-              className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0f2ea2] resize-none"
-            />
-          </div>
-
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+            <div>
+              <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
                 Footer Tagline / Watermark
               </label>
-              {aspectRatio === '1.91:1' && /swipe/i.test(currentSlide.footerText || '') && (
-                <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium">
-                  (Swipe cues auto-replaced with brand tagline in Banner mode)
-                </span>
-              )}
-            </div>
-            <input
-              type="text"
-              value={currentSlide.footerText || ''}
-              onChange={(e) => updateSlideField('footerText', e.target.value)}
-              placeholder={aspectRatio === '1.91:1' ? 'Brother Singapore • At your side' : 'Swipe to explore our story ➔'}
-              className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0f2ea2]"
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Minimalist Visual Source Control: Regional Digital Asset Library vs Gemini AI Generation */}
-      <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-        {/* Sleek Segmented Header Bar */}
-        <div className="p-3.5 sm:p-4 bg-slate-50/80 dark:bg-slate-800/40 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-1 p-1 bg-slate-200/70 dark:bg-slate-900 rounded-xl border border-slate-300/50 dark:border-slate-700/50 w-full sm:w-auto">
-            <button
-              type="button"
-              onClick={() => setVisualSourceMode('library')}
-              className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 rounded-lg text-[11px] sm:text-xs font-bold transition-all cursor-pointer truncate ${
-                visualSourceMode === 'library'
-                  ? 'bg-white dark:bg-slate-800 text-[#0f2ea2] dark:text-blue-400 shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-              }`}
-            >
-              <Building2 className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400 shrink-0" />
-              <span className="truncate">Regional Asset Library</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setVisualSourceMode('ai')}
-              className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 rounded-lg text-[11px] sm:text-xs font-bold transition-all cursor-pointer truncate ${
-                visualSourceMode === 'ai'
-                  ? 'bg-white dark:bg-slate-800 text-[#0f2ea2] dark:text-blue-400 shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-              }`}
-            >
-              <Sparkles className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400 shrink-0" />
-              <span className="truncate">Generate with Gemini</span>
-            </button>
-          </div>
-
-          {/* Quick Upload Action */}
-          <label
-            htmlFor="brother-photo-upload"
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 transition-all cursor-pointer shadow-2xs self-start sm:self-auto"
-            title="Upload an image from your device"
-          >
-            <Upload className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
-            <span>Upload Photo</span>
-            <input
-              id="brother-photo-upload"
-              type="file"
-              accept="image/*"
-              onChange={handleUploadPhoto}
-              className="hidden"
-            />
-          </label>
-        </div>
-
-        {/* Tab 1: Regional Digital Asset Library */}
-        {visualSourceMode === 'library' && (
-          <div className="p-4 sm:p-5 space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-2 border-b border-slate-100 dark:border-slate-800">
-              <div className="flex items-center gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => setActiveAssetTab('official')}
-                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                    activeAssetTab === 'official'
-                      ? 'bg-[#0f2ea2] text-white shadow-xs'
-                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
-                  }`}
-                >
-                  Official Brother SG Assets ({OFFICIAL_BROTHER_ASSETS.length})
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveAssetTab('festive')}
-                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                    activeAssetTab === 'festive'
-                      ? 'bg-[#0f2ea2] text-white shadow-xs'
-                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
-                  }`}
-                >
-                  Cultural & Event Photography
-                </button>
-              </div>
-
-              <div className="flex items-center gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => handleApplyToAllSlides()}
-                  className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 hover:text-[#0f2ea2] dark:hover:text-blue-400 px-2.5 py-1 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 cursor-pointer transition-colors shadow-2xs"
-                  title="Apply current photo to all 5 slides"
-                >
-                  Apply to All Slides
-                </button>
-                <button
-                  type="button"
-                  onClick={handleResetSlidePhotos}
-                  className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 hover:text-[#0f2ea2] dark:hover:text-blue-400 px-2.5 py-1 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 cursor-pointer transition-colors shadow-2xs"
-                  title="Reset each slide to its curated default image"
-                >
-                  Reset Defaults
-                </button>
-              </div>
-            </div>
-
-            {/* Custom Uploaded Photo Indicator Banner */}
-            {customPhotoUrl && (
-              <div className="flex items-center justify-between p-2.5 sm:p-3 rounded-xl bg-blue-50/80 dark:bg-blue-950/40 border-2 border-[#0f2ea2] shadow-xs animate-in fade-in duration-200">
-                <div className="flex items-center gap-3 min-w-0">
-                  <img
-                    src={customPhotoUrl}
-                    alt="Custom Uploaded"
-                    className="w-12 h-12 rounded-lg object-cover border border-[#0f2ea2]/40 shadow-xs shrink-0"
-                  />
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-                      <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
-                        Custom Uploaded Photo Active
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
-                      Active on slide 0{activeSlideIndex + 1} and will be included in the carousel export.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 shrink-0">
-                  <label
-                    htmlFor="brother-photo-upload"
-                    className="px-2.5 py-1 text-xs font-bold text-[#0f2ea2] dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-lg cursor-pointer transition-colors"
-                  >
-                    Replace
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setCustomPhotoUrl('');
-                      handleSelectPhotoForSlide(baseSlides[activeSlideIndex]?.defaultPhotoUrl || OFFICIAL_BROTHER_ASSETS[0]?.url);
-                    }}
-                    className="px-2.5 py-1 text-xs font-bold text-slate-500 hover:text-rose-600 rounded-lg cursor-pointer transition-colors"
-                    title="Remove custom photo and revert to curated preset"
-                  >
-                    Remove
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Thumbnail Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5">
-              {(activeAssetTab === 'official' ? OFFICIAL_BROTHER_ASSETS : festivePresets).map((asset) => (
-                <button
-                  key={asset.id}
-                  type="button"
-                  onClick={() => handleSelectPhotoForSlide(asset.url)}
-                  className={`group relative aspect-video rounded-xl overflow-hidden border-2 transition-all cursor-pointer bg-slate-900 ${
-                    currentPhoto === asset.url
-                      ? 'border-[#0f2ea2] ring-2 ring-[#0f2ea2]/40 shadow-md scale-[1.02]'
-                      : 'border-transparent hover:border-slate-400 opacity-85 hover:opacity-100'
-                  }`}
-                >
-                  <img
-                    src={asset.thumb}
-                    alt={asset.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-1.5 text-[10px] text-white font-medium truncate text-left">
-                    {asset.title}
-                  </div>
-                </button>
-              ))}
+              <input
+                type="text"
+                value={currentSlide.footerText || ''}
+                onChange={(e) => updateSlideField('footerText', e.target.value)}
+                placeholder={aspectRatio === '1.91:1' ? 'Brother Singapore • At your side' : 'Swipe to explore our story ➔'}
+                className="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#0f2ea2]"
+              />
             </div>
           </div>
         )}
+      </div>
 
-        {/* Tab 2: Gemini AI Generation Studio */}
-        {visualSourceMode === 'ai' && (
-          <div className="p-4 sm:p-5 space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950 flex items-center justify-center text-[#0f2ea2] dark:text-blue-400">
-                  <Sparkles className="w-4 h-4" />
-                </div>
-                <div>
-                  <h4 className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    Commercial Image Synthesis (Gemini)
-                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
-                      Text-Free Base Layer
-                    </span>
-                  </h4>
-                  <p className="text-[11px] text-slate-500">
-                    High-resolution studio photography calibrated to Google Gemini photographic standards.
-                  </p>
-                </div>
-              </div>
+      {/* SECTION (3): [in red] (3) [in black] The Image (Banner or Carousel) */}
+      <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-rose-600 font-extrabold text-sm sm:text-base">(3)</span>
+            <span className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white uppercase tracking-wider">
+              {aspectRatio === '1:1' ? 'The Image / Carousel Canvas' : 'The Image / Banner Canvas'}
+            </span>
+          </div>
 
-              {/* Frontier Model Selector */}
-              <div className="flex items-center gap-2">
-                <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                  Model:
-                </label>
-                <select
-                  value={selectedAiModel}
-                  onChange={(e) => {
-                    setSelectedAiModel(e.target.value);
-                    safeSetItem('model_gemini_image', e.target.value);
-                  }}
-                  className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs font-semibold px-2.5 py-1.5 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#0f2ea2] cursor-pointer"
-                  title="Frontier Google AI image generation model"
-                >
-                  {availableImageModels.map((m) => (
-                    <option key={m.id} value={m.id}>
-                      {m.name || m.id} {m.badge ? `(${m.badge})` : ''}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
+          {aspectRatio === '1:1' && (
+            <span className="text-xs font-mono font-bold text-[#0f2ea2] dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-2.5 py-1 rounded-lg">
+              Slide {activeSlideIndex + 1} of {baseSlides.length}
+            </span>
+          )}
+        </div>
 
-            {/* Visual Style Presets */}
-            <div>
-              <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
-                Select Visual Style Preset:
-              </label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                {GEMINI_STYLE_PROMPT_GUIDES.map(guide => (
+        {/* 5-Slide Navigation Tabs (Only in Carousel mode) */}
+        {aspectRatio === '1:1' && (
+          <div className="flex items-center justify-between gap-2 overflow-x-auto pb-1 custom-scrollbar">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              {baseSlides.map((slide, idx) => {
+                const slideImg = getPhotoForSlide(idx);
+                const isActive = activeSlideIndex === idx;
+                return (
                   <button
-                    key={guide.id}
+                    key={slide.slideNumber}
                     type="button"
-                    onClick={() => {
-                      setSelectedStyleGuideId(guide.id);
-                      setImagePrompt(guide.getSamplePrompt(occasion?.name));
-                    }}
-                    className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
-                      selectedStyleGuideId === guide.id
-                        ? 'border-[#0f2ea2] bg-blue-50/60 dark:bg-blue-950/40 text-[#0f2ea2] dark:text-blue-300 ring-1 ring-[#0f2ea2]'
-                        : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 bg-slate-50/50 dark:bg-slate-800/40 text-slate-700 dark:text-slate-300'
+                    onClick={() => setActiveSlideIndex(idx)}
+                    className={`flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer border ${
+                      isActive
+                        ? 'bg-[#0f2ea2] text-white border-[#0f2ea2] shadow-xs ring-1 ring-[#0f2ea2]'
+                        : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-750'
                     }`}
                   >
-                    <div className="flex items-center justify-between gap-1 mb-1">
-                      <span className="text-xs font-bold leading-tight truncate">{guide.name}</span>
-                      <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-white dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-700 shrink-0">
-                        {guide.badge}
-                      </span>
-                    </div>
-                    <p className="text-[10px] text-slate-500 dark:text-slate-400 line-clamp-2">
-                      {guide.description}
-                    </p>
+                    <span className={`text-[10px] font-mono font-bold ${isActive ? 'text-blue-200' : 'text-slate-400'}`}>
+                      0{idx + 1}
+                    </span>
+                    {slideImg && (
+                      <img 
+                        src={slideImg} 
+                        alt="" 
+                        className="w-4 h-4 rounded-sm object-cover border border-white/20"
+                      />
+                    )}
+                    <span>{slide.roleTitle}</span>
                   </button>
-                ))}
-              </div>
+                );
+              })}
             </div>
 
-            {/* Prompt Input Box */}
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                  Instructional Image Prompt:
-                </label>
-                <span className="text-[10px] text-slate-400">
-                  Text-free layer • Studio lighting • Japanese minimalist symmetry
-                </span>
-              </div>
-              <textarea
-                rows={3}
-                value={imagePrompt}
-                onChange={(e) => setImagePrompt(e.target.value)}
-                placeholder="A high-resolution, studio-lit commercial photograph of..."
-                className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0f2ea2] leading-relaxed resize-none font-normal"
-              />
-            </div>
-
-            <div className="flex items-center justify-between gap-2 pt-1">
-              <div className="text-[11px] text-slate-500">
-                Targeting: <strong className="text-slate-800 dark:text-slate-200">Slide 0{activeSlideIndex + 1} ({aspectRatio === '1:1' ? '1:1 Square' : '1.91:1 Banner'})</strong>
-              </div>
-
+            <div className="flex items-center gap-1 shrink-0">
               <button
                 type="button"
-                onClick={() => setShowConfirmModal(true)}
-                disabled={isAiGenerating}
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-gradient-to-r from-[#0f2ea2] to-blue-700 hover:from-[#0c2480] hover:to-blue-800 px-4 py-2 rounded-xl shadow-md transition-all cursor-pointer disabled:opacity-50"
+                onClick={handlePrevSlide}
+                className="p-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-600 dark:text-slate-300 transition-colors cursor-pointer"
+                title="Previous slide"
               >
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>{isAiGenerating ? 'Generating...' : 'Generate with Gemini AI'}</span>
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                onClick={handleNextSlide}
+                className="p-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-600 dark:text-slate-300 transition-colors cursor-pointer"
+                title="Next slide"
+              >
+                <ChevronRight className="w-4 h-4" />
               </button>
             </div>
           </div>
         )}
+
+        {/* The Live Composite Image / Carousel Canvas */}
+        <div className="relative w-full rounded-2xl overflow-hidden shadow-xl border border-slate-300/80 dark:border-slate-800 bg-slate-950 group">
+          <div 
+            className={`w-full relative transition-all duration-300 ${
+              aspectRatio === '1.91:1' ? 'aspect-[1.91/1]' : 'aspect-square'
+            }`}
+          >
+            {/* Background Image */}
+            <img
+              key={currentPhoto}
+              src={currentPhoto}
+              alt={currentSlide.headline}
+              className="absolute inset-0 w-full h-full object-cover select-none transition-all duration-500 group-hover:scale-105"
+            />
+
+            {/* Cinematic Scrim & Brother Gradient Overlay */}
+            <div className={`absolute inset-0 transition-opacity duration-300 pointer-events-none ${
+              aspectRatio === '1.91:1'
+                ? 'bg-gradient-to-r from-slate-950/90 via-slate-950/50 to-slate-950/15'
+                : 'bg-gradient-to-t from-slate-950/95 via-slate-950/60 to-slate-950/20'
+            }`} />
+
+            {/* Signature Brother Blue Accent Edge */}
+            <div className={`absolute ${aspectRatio === '1.91:1' ? 'left-0 top-0 bottom-0 w-2.5' : 'top-0 left-0 right-0 h-2.5'} bg-[#0f2ea2] shadow-lg pointer-events-none`} />
+
+            {/* Slide Content Overlay */}
+            <div className="absolute inset-0 p-6 sm:p-10 flex flex-col justify-between text-white select-none">
+              {/* Top Bar: Official Brother Logo & Slide Indicator */}
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-2">
+                  <img 
+                    src="/brother-logo.svg" 
+                    alt="Brother • at your side" 
+                    className="h-8 sm:h-10 w-auto object-contain drop-shadow-md"
+                    onError={(e) => {
+                      e.target.src = '/brother-logo.png';
+                    }}
+                  />
+                </div>
+
+                {aspectRatio === '1:1' && (
+                  <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#0f2ea2] text-white text-[11px] font-mono font-bold shadow-md border border-white/20">
+                    {currentSlide.slideNumber}
+                  </div>
+                )}
+              </div>
+
+              {/* Middle Section: Badges, Headline, and Narrative */}
+              <div className={`space-y-2 sm:space-y-3 ${aspectRatio === '1.91:1' ? 'max-w-2xl my-auto' : 'my-auto'}`}>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-[#0f2ea2] text-white text-[10px] sm:text-xs font-bold uppercase tracking-wider shadow-sm">
+                  {currentSlide.badge}
+                </div>
+
+                <h3 className="text-xl sm:text-3xl md:text-4xl font-black text-white leading-tight tracking-tight drop-shadow-md">
+                  {currentSlide.headline}
+                </h3>
+
+                <p className="text-sm sm:text-base md:text-lg text-slate-200 font-medium leading-snug drop-shadow-sm line-clamp-3">
+                  {currentSlide.subheadline}
+                </p>
+
+                {currentSlide.supportingText && (
+                  <p className="text-xs sm:text-sm text-slate-300 font-normal leading-relaxed pt-1 line-clamp-3">
+                    {currentSlide.supportingText}
+                  </p>
+                )}
+              </div>
+
+              {/* Bottom Footer: Official Tagline */}
+              <div className="pt-3 border-t border-white/15 flex items-center justify-between text-[11px] text-slate-400 font-medium">
+                <span>{getEffectiveFooterText(currentSlide, aspectRatio)}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Directly Below Each Image: Individual "Generate with Gemini" Control Bar */}
+        <div className="p-3.5 sm:p-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/60 space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-[#0f2ea2] dark:text-blue-400" />
+              <span className="text-xs font-bold text-slate-900 dark:text-white">
+                Generate this image background with Gemini AI
+              </span>
+              <span className="text-[10px] font-semibold text-slate-400">
+                (Regenerate individual visual if not satisfied)
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowConfirmModal(true)}
+              disabled={isAiGenerating}
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-[#0f2ea2] hover:bg-[#0c2480] px-3.5 py-1.5 rounded-xl shadow-xs transition-all cursor-pointer disabled:opacity-50 self-start sm:self-auto"
+            >
+              <Sparkles className={`w-3.5 h-3.5 ${isAiGenerating ? 'animate-spin' : ''}`} />
+              <span>{isAiGenerating ? 'Synthesizing...' : `Generate Slide 0${activeSlideIndex + 1} Image`}</span>
+            </button>
+          </div>
+
+          {/* Visual Style Preset Selector Pills */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 custom-scrollbar">
+            {GEMINI_STYLE_PROMPT_GUIDES.map(guide => (
+              <button
+                key={guide.id}
+                type="button"
+                onClick={() => {
+                  setSelectedStyleGuideId(guide.id);
+                  setImagePrompt(guide.getSamplePrompt(occasion?.name));
+                }}
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap transition-all cursor-pointer border ${
+                  selectedStyleGuideId === guide.id
+                    ? 'bg-[#0f2ea2] text-white border-[#0f2ea2]'
+                    : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100'
+                }`}
+              >
+                {guide.name.split('&')[0].trim()}
+              </button>
+            ))}
+          </div>
+
+          {/* Instructional Image Prompt Input */}
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              value={imagePrompt}
+              onChange={(e) => setImagePrompt(e.target.value)}
+              placeholder="Instructional prompt for this slide's visual layer..."
+              className="flex-1 px-3 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#0f2ea2]"
+            />
+          </div>
+        </div>
+
+        {/* Bottom Actions Toolbar: Download as PNG, Download as PDF, Save to Notion */}
+        <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Download as PNG */}
+            <button
+              type="button"
+              onClick={handleDownloadActiveSlide}
+              disabled={downloading}
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-[#0f2ea2] hover:bg-[#004b8f] px-4 py-2 rounded-xl shadow-xs transition-all cursor-pointer disabled:opacity-50"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>{downloading ? 'Exporting...' : 'Download as PNG'}</span>
+            </button>
+
+            {/* Download as PDF (for Carousel) */}
+            {aspectRatio === '1:1' && (
+              <button
+                type="button"
+                onClick={handleExportPdf}
+                disabled={downloading}
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-4 py-2 rounded-xl shadow-xs transition-all cursor-pointer disabled:opacity-50"
+                title="Compile all 5 slides into a LinkedIn Carousel PDF for Buffer & LinkedIn"
+              >
+                <FileText className="w-3.5 h-3.5" />
+                <span>{downloading ? 'Compiling PDF...' : 'Download as PDF (Carousel)'}</span>
+              </button>
+            )}
+
+            {/* 5-Slide PNG Pack */}
+            {aspectRatio === '1:1' && (
+              <button
+                type="button"
+                onClick={handleDownloadAllSlides}
+                disabled={downloading}
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 transition-all cursor-pointer disabled:opacity-50"
+              >
+                <FolderDown className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
+                <span>All 5 PNGs</span>
+              </button>
+            )}
+          </div>
+
+          {/* Save to Notion */}
+          <button
+            type="button"
+            onClick={handleSaveToCloud}
+            disabled={cloudSaving}
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0f2ea2] dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 px-4 py-2 rounded-xl border border-blue-200 dark:border-blue-800/60 shadow-xs transition-all cursor-pointer disabled:opacity-50"
+            title="Archive visual layer to Notion database"
+          >
+            <Database className={`w-3.5 h-3.5 ${cloudSaving ? 'animate-spin' : ''}`} />
+            <span>{cloudSaving ? 'Saving to Notion...' : 'Save to Notion'}</span>
+          </button>
+        </div>
       </div>
 
       {aiError && (

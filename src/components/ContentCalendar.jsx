@@ -19,7 +19,9 @@ import {
   Filter,
   Check,
   ShieldCheck,
-  Zap
+  Zap,
+  ArrowRight,
+  FileText
 } from 'lucide-react';
 import { safeGetItem, safeSetItem } from '../lib/storage.js';
 import { publishToLinkedInApi } from '../lib/linkedInApi.js';
@@ -48,7 +50,7 @@ const DEMO_CALENDAR_POSTS = [
     status: "Working Draft",
     category: "Thought Leadership",
     author: "Chloe Lee",
-    scheduledDate: "2026-10-24T14:30:00",
+    scheduledDate: "",
     cleanImageUrl: "",
     compositeImageUrl: "",
     imageType: "Carousel (1:1)",
@@ -70,17 +72,32 @@ const DEMO_CALENDAR_POSTS = [
     slideCount: 5,
     content: "Every toner cartridge responsibly recycled brings us one step closer to Singapore's Green Plan 2030. Join Brother Singapore's community eco-drive this month. 🌿 #BrotherEarth #GreenPlan2030",
     urn: "urn:buffer:post:demo-3"
+  },
+  {
+    id: "demo-post-4",
+    pageId: "demo-4",
+    title: "Brother MFC-L8390CDW SME Productivity Launch",
+    status: "Generated Candidate",
+    category: "B2B & Solutions",
+    author: "Allan Cheng",
+    scheduledDate: "",
+    cleanImageUrl: "",
+    compositeImageUrl: "",
+    imageType: "Carousel (1:1)",
+    slideCount: 5,
+    content: "Empowering Singapore's growing businesses with compact colour precision. Meet the new Brother MFC-L8390CDW — engineered for high-yield, uninterrupted productivity at your side.",
+    urn: ""
   }
 ];
 
 export default function ContentCalendar({ isDark = false, onNavigateToStudio }) {
-  const [viewMode, setViewMode] = useState('month'); // 'month' | 'week' | 'list'
+  const [viewMode, setViewMode] = useState('month'); // strictly 'month' | 'week' | 'list'
   const [currentDate, setCurrentDate] = useState(new Date(2026, 9, 1)); // Default to October 2026
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Edit / Modal State
+  // Edit / Scheduling Modal State
   const [selectedPost, setSelectedPost] = useState(null);
   const [editTitle, setEditTitle] = useState('');
   const [editContent, setEditContent] = useState('');
@@ -233,10 +250,23 @@ export default function ContentCalendar({ isDark = false, onNavigateToStudio }) 
     return days;
   }, [currentDate]);
 
-  // Map posts by date string (YYYY-MM-DD)
+  // Separate Unscheduled Draft Posts from Scheduled / Published Posts
+  const draftPosts = useMemo(() => {
+    return posts.filter(p => {
+      return p.status === 'Working Draft' || p.status === 'Generated Candidate' || !p.scheduledDate;
+    });
+  }, [posts]);
+
+  const scheduledOrPublishedPosts = useMemo(() => {
+    return posts.filter(p => {
+      return (p.status === 'Scheduled' || p.status === 'Published') && Boolean(p.scheduledDate);
+    });
+  }, [posts]);
+
+  // Map scheduled/published posts by date string (YYYY-MM-DD)
   const postsByDate = useMemo(() => {
     const map = {};
-    posts.forEach(post => {
+    scheduledOrPublishedPosts.forEach(post => {
       if (post.scheduledDate) {
         const dateKey = post.scheduledDate.slice(0, 10);
         if (!map[dateKey]) map[dateKey] = [];
@@ -244,20 +274,44 @@ export default function ContentCalendar({ isDark = false, onNavigateToStudio }) 
       }
     });
     return map;
-  }, [posts]);
+  }, [scheduledOrPublishedPosts]);
 
-  // Open Edit Modal
+  // Open Edit / Schedule Modal
   const openEditModal = (post) => {
     setSelectedPost(post);
     setEditTitle(post.title || '');
     setEditContent(post.content || '');
     setEditScheduledDate(post.scheduledDate ? post.scheduledDate.slice(0, 16) : '');
-    setEditStatus(post.status || 'Scheduled');
+    setEditStatus(post.status === 'Generated Candidate' || post.status === 'Working Draft' ? 'Scheduled' : (post.status || 'Scheduled'));
     setConflictWarning(null);
     setPublishSuccessMsg(null);
   };
 
-  // Real-time conflict validation when editing scheduled date
+  // Navigate to Content Studio to edit draft
+  const handleEditInStudio = (draft) => {
+    if (!onNavigateToStudio) return;
+    onNavigateToStudio({
+      title: draft.title,
+      content: draft.content,
+      occasion: {
+        id: draft.id || draft.pageId || `draft-${Date.now()}`,
+        name: draft.title,
+        subtitle: draft.category || 'Strategic Draft',
+        category: draft.category || 'Strategic Draft',
+        eventType: 'corporate',
+        details: draft.content
+      },
+      activeDraft: {
+        id: draft.id || draft.pageId || `draft-${Date.now()}`,
+        name: draft.title,
+        post: draft.content,
+        postContent: draft.content,
+        whyThisWorks: 'Draft loaded from Content Calendar.'
+      }
+    });
+  };
+
+  // Real-time conflict validation when editing scheduled date (1 post per day policy)
   const handleDateChange = (newDateStr) => {
     setEditScheduledDate(newDateStr);
     if (!newDateStr) {
@@ -266,13 +320,13 @@ export default function ContentCalendar({ isDark = false, onNavigateToStudio }) 
     }
 
     const targetDay = newDateStr.slice(0, 10);
-    const hasCollision = posts.some(p => {
+    const hasCollision = scheduledOrPublishedPosts.some(p => {
       if (p.id === selectedPost?.id || p.pageId === selectedPost?.pageId) return false;
-      return p.status === 'Scheduled' && p.scheduledDate && p.scheduledDate.slice(0, 10) === targetDay;
+      return p.scheduledDate && p.scheduledDate.slice(0, 10) === targetDay;
     });
 
     if (hasCollision) {
-      setConflictWarning(`⚠️ A post is already scheduled for ${targetDay}. Only 1 post per day can be scheduled. Select a different date or use "1-Click Publish Now" to post immediately.`);
+      setConflictWarning(`⚠️ A post is already scheduled for ${targetDay}. Only 1 post per day can be scheduled. Select a different date or publish immediately.`);
     } else {
       setConflictWarning(null);
     }
@@ -330,7 +384,7 @@ export default function ContentCalendar({ isDark = false, onNavigateToStudio }) 
     setPublishActionLoading(true);
 
     try {
-      const bufferKey = safeGetItem('buffer_api_key');
+      const bufferKey = safeGetItem('buffer_api_key') || safeGetItem('key_buffer');
       const bufferChannel = safeGetItem('buffer_channel_id');
       const result = await publishToLinkedInApi({
         commentary: editContent || selectedPost.content,
@@ -405,7 +459,7 @@ export default function ContentCalendar({ isDark = false, onNavigateToStudio }) 
           </div>
         </div>
 
-        {/* View Switcher & Controls */}
+        {/* View Switcher & Controls: Strictly Month, Week, List */}
         <div className="flex flex-wrap items-center gap-2.5">
           {/* Navigation Controls */}
           <div className="flex items-center bg-slate-100 dark:bg-slate-800 rounded-xl p-1 border border-slate-200 dark:border-slate-700">
@@ -435,7 +489,7 @@ export default function ContentCalendar({ isDark = false, onNavigateToStudio }) 
             Today
           </button>
 
-          {/* View Mode Buttons */}
+          {/* View Mode Buttons: strictly Month, Week, or List */}
           <div className="flex items-center bg-slate-100 dark:bg-slate-800 rounded-xl p-1 border border-slate-200 dark:border-slate-700">
             <button
               onClick={() => setViewMode('month')}
@@ -484,7 +538,88 @@ export default function ContentCalendar({ isDark = false, onNavigateToStudio }) 
         </div>
       </div>
 
-      {/* Main Content Area based on View Mode */}
+      {/* ========================================================================= */}
+      {/* Top Card: Draft Posts (Unscheduled Posts)                                 */}
+      {/* ========================================================================= */}
+      <div className={`p-4 sm:p-5 rounded-2xl border transition-colors ${
+        isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+      } space-y-3`}>
+        <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+              <FileText className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className={`text-sm font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                Draft Posts (Unscheduled)
+              </h3>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                Working drafts and AI-generated candidate posts ready for review, studio editing, or scheduling
+              </p>
+            </div>
+          </div>
+          <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+            {draftPosts.length} drafts
+          </span>
+        </div>
+
+        {draftPosts.length === 0 ? (
+          <div className="py-6 text-center text-slate-400">
+            <p className="text-xs">No unscheduled drafts. Generate candidate posts in Content Studio.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {draftPosts.map((draft) => (
+              <div
+                key={draft.id || draft.pageId}
+                className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 hover:border-slate-300 dark:hover:border-slate-700 transition-all flex flex-col justify-between space-y-3"
+              >
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between gap-1">
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${getStatusBadge(draft.status)}`}>
+                      {draft.status || 'Draft'}
+                    </span>
+                    {draft.category && (
+                      <span className="text-[10px] text-slate-400 truncate max-w-[120px]">
+                        {draft.category}
+                      </span>
+                    )}
+                  </div>
+                  <h4 className={`text-xs font-bold line-clamp-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                    {draft.title || 'Untitled Draft'}
+                  </h4>
+                  <p className="text-[11px] text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                    {draft.content || 'Draft content empty.'}
+                  </p>
+                </div>
+
+                <div className="pt-2 border-t border-slate-200/60 dark:border-slate-800/80 flex items-center justify-between gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleEditInStudio(draft)}
+                    className="text-xs font-bold px-2.5 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-[#0f2ea2] dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors flex items-center gap-1 cursor-pointer"
+                  >
+                    <Edit3 className="w-3 h-3" />
+                    <span>Edit in Studio</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => openEditModal(draft)}
+                    className="text-xs font-bold px-2.5 py-1.5 rounded-lg bg-[#0f2ea2] hover:bg-[#0c2482] text-white transition-colors flex items-center gap-1 cursor-pointer shadow-xs"
+                  >
+                    <CalendarDays className="w-3 h-3" />
+                    <span>Schedule</span>
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* ========================================================================= */}
+      {/* Calendar Area (Month, Week, or List) with Scheduled & Published Posts    */}
+      {/* ========================================================================= */}
       {viewMode === 'month' && (
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
           {/* Day Headers (Mon - Sun) */}
@@ -518,44 +653,37 @@ export default function ContentCalendar({ isDark = false, onNavigateToStudio }) 
                   {/* Date Header */}
                   <div className="flex items-center justify-between mb-1">
                     <span className={`text-xs font-bold ${
-                      cell.dayNumber === 6 && currentDate.getMonth() === 9 
-                        ? 'w-6 h-6 rounded-full bg-[#0f2ea2] text-white flex items-center justify-center' 
-                        : 'text-slate-700 dark:text-slate-300'
+                      cell.dayNumber === 6 ? 'text-[#0f2ea2] dark:text-blue-400' : 'text-slate-700 dark:text-slate-300'
                     }`}>
                       {cell.dayNumber}
                     </span>
-
-                    {hasScheduled && (
-                      <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-0.5" title="Daily Slot Booked">
+                    {cellPosts.length > 0 && (
+                      <span className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 flex items-center gap-0.5">
                         <ShieldCheck className="w-3 h-3" />
                         1/1
                       </span>
                     )}
                   </div>
 
-                  {/* Post Badges */}
+                  {/* Posts for this day */}
                   <div className="space-y-1.5 flex-1">
-                    {cellPosts.map(post => (
+                    {cellPosts.map((post) => (
                       <div
                         key={post.id || post.pageId}
                         onClick={() => openEditModal(post)}
                         className={`p-1.5 rounded-lg border text-left cursor-pointer transition-all hover:scale-[1.02] shadow-2xs ${
-                          post.status === 'Scheduled'
-                            ? 'bg-blue-100/70 dark:bg-blue-950/70 border-blue-300 dark:border-blue-800 text-blue-900 dark:text-blue-100'
-                            : post.status === 'Published'
-                            ? 'bg-emerald-100/70 dark:bg-emerald-950/70 border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-100'
-                            : 'bg-amber-100/70 dark:bg-amber-950/70 border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-100'
+                          post.status === 'Published'
+                            ? 'bg-emerald-50/90 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-100'
+                            : 'bg-blue-50/90 dark:bg-blue-950/60 border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-100'
                         }`}
                       >
-                        <div className="flex items-center justify-between text-[10px] font-bold">
-                          <span className="truncate max-w-[80px]">
-                            {post.scheduledDate ? post.scheduledDate.slice(11, 16) : 'Draft'}
-                          </span>
-                          <span className="text-[9px] uppercase tracking-wider opacity-80">
-                            {post.status === 'Scheduled' ? 'Ready' : post.status}
+                        <div className="flex items-center justify-between text-[9px] font-bold">
+                          <span>{post.scheduledDate ? post.scheduledDate.slice(11, 16) : '09:00'}</span>
+                          <span className={`px-1 py-0.2 rounded text-[8px] uppercase font-bold border ${getStatusBadge(post.status)}`}>
+                            {post.status}
                           </span>
                         </div>
-                        <div className="text-[11px] font-semibold truncate leading-tight mt-0.5">
+                        <div className="text-[10px] font-bold line-clamp-2 leading-tight mt-0.5">
                           {post.title}
                         </div>
                       </div>
@@ -571,11 +699,11 @@ export default function ContentCalendar({ isDark = false, onNavigateToStudio }) 
       {/* Week View */}
       {viewMode === 'week' && (
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-          <div className="grid grid-cols-1 md:grid-cols-7 divide-y md:divide-y-0 md:divide-x divide-slate-100 dark:divide-slate-800">
+          <div className="grid grid-cols-7 divide-x divide-slate-100 dark:divide-slate-800">
             {weekDays.map((day) => {
               const cellPosts = postsByDate[day.dateStr] || [];
+              const isToday = day.dayNumber === 6;
               const hasScheduled = cellPosts.some(p => p.status === 'Scheduled');
-              const isToday = day.dateStr === '2026-10-06';
 
               return (
                 <div key={day.dateStr} className="min-h-[360px] p-3 flex flex-col justify-between hover:bg-blue-50/20 dark:hover:bg-blue-950/10 transition-colors">
@@ -609,15 +737,13 @@ export default function ContentCalendar({ isDark = false, onNavigateToStudio }) 
                           key={post.id || post.pageId}
                           onClick={() => openEditModal(post)}
                           className={`p-2.5 rounded-xl border text-left cursor-pointer transition-all hover:scale-[1.02] shadow-2xs space-y-1.5 ${
-                            post.status === 'Scheduled'
-                              ? 'bg-blue-50/80 dark:bg-blue-950/60 border-blue-200 dark:border-blue-800/80 text-blue-900 dark:text-blue-100'
-                              : post.status === 'Published'
+                            post.status === 'Published'
                               ? 'bg-emerald-50/80 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-800/80 text-emerald-900 dark:text-emerald-100'
-                              : 'bg-amber-50/80 dark:bg-amber-950/60 border-amber-200 dark:border-amber-800/80 text-amber-900 dark:text-amber-100'
+                              : 'bg-blue-50/80 dark:bg-blue-950/60 border-blue-200 dark:border-blue-800/80 text-blue-900 dark:text-blue-100'
                           }`}
                         >
                           <div className="flex items-center justify-between text-[10px] font-bold">
-                            <span>{post.scheduledDate ? post.scheduledDate.slice(11, 16) : 'Draft'}</span>
+                            <span>{post.scheduledDate ? post.scheduledDate.slice(11, 16) : '09:00'}</span>
                             <span className={`px-1.5 py-0.2 rounded text-[9px] uppercase font-bold border ${getStatusBadge(post.status)}`}>
                               {post.status}
                             </span>
@@ -625,12 +751,6 @@ export default function ContentCalendar({ isDark = false, onNavigateToStudio }) 
                           <div className="text-xs font-bold line-clamp-2 leading-tight">
                             {post.title}
                           </div>
-                          {post.imageType && (
-                            <div className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-1 font-mono">
-                              <ImageIcon className="w-3 h-3" />
-                              <span>{post.imageType} ({post.slideCount || 1}s)</span>
-                            </div>
-                          )}
                         </div>
                       ))}
                     </div>
@@ -650,7 +770,7 @@ export default function ContentCalendar({ isDark = false, onNavigateToStudio }) 
       {viewMode === 'list' && (
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
           <div className="divide-y divide-slate-100 dark:divide-slate-800">
-            {posts.map(post => (
+            {scheduledOrPublishedPosts.map(post => (
               <div 
                 key={post.id || post.pageId}
                 className="p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
@@ -697,6 +817,15 @@ export default function ContentCalendar({ isDark = false, onNavigateToStudio }) 
         </div>
       )}
 
+      {/* Platform Tracking Alert Notice (at bottom as requested) */}
+      <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 text-blue-500 shrink-0" />
+          <span>Only posts published or scheduled via this platform are tracked in this calendar.</span>
+        </div>
+        <span className="text-[11px] font-mono text-slate-400">Brother Singapore Cadence Guard: 1 Post / Day</span>
+      </div>
+
       {/* Edit & Scheduling Modal */}
       {selectedPost && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
@@ -705,12 +834,12 @@ export default function ContentCalendar({ isDark = false, onNavigateToStudio }) 
               <div className="flex items-center gap-2">
                 <Edit3 className="w-5 h-5 text-[#0f2ea2] dark:text-blue-400" />
                 <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                  Edit Scheduled Post
+                  Schedule / Edit Calendar Post
                 </h3>
               </div>
               <button
                 onClick={() => setSelectedPost(null)}
-                className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-white rounded-lg transition-colors"
+                className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-white rounded-lg transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -764,9 +893,9 @@ export default function ContentCalendar({ isDark = false, onNavigateToStudio }) 
                     onChange={(e) => setEditStatus(e.target.value)}
                     className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs font-semibold text-slate-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-[#0f2ea2]"
                   >
-                    <option value="Working Draft">Working Draft</option>
                     <option value="Scheduled">Scheduled</option>
                     <option value="Published">Published</option>
+                    <option value="Working Draft">Working Draft</option>
                     <option value="Generated Candidate">Generated Candidate</option>
                   </select>
                 </div>
@@ -791,7 +920,7 @@ export default function ContentCalendar({ isDark = false, onNavigateToStudio }) 
                 type="button"
                 onClick={handleInstantPublish}
                 disabled={publishActionLoading}
-                className="w-full sm:w-auto px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm transition-all disabled:opacity-50"
+                className="w-full sm:w-auto px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm transition-all disabled:opacity-50 cursor-pointer"
               >
                 <Zap className="w-3.5 h-3.5" />
                 {publishActionLoading ? 'Publishing...' : '1-Click Publish Now'}
@@ -801,7 +930,7 @@ export default function ContentCalendar({ isDark = false, onNavigateToStudio }) 
                 <button
                   type="button"
                   onClick={() => setSelectedPost(null)}
-                  className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold transition-all"
+                  className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold transition-all cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -809,7 +938,7 @@ export default function ContentCalendar({ isDark = false, onNavigateToStudio }) 
                   type="button"
                   onClick={handleSaveEdit}
                   disabled={savingEdit || Boolean(conflictWarning)}
-                  className="px-5 py-2.5 bg-[#0f2ea2] hover:bg-[#0c2482] text-white rounded-xl text-xs font-bold transition-all shadow-md disabled:opacity-50"
+                  className="px-5 py-2.5 bg-[#0f2ea2] hover:bg-[#0c2482] text-white rounded-xl text-xs font-bold transition-all shadow-md disabled:opacity-50 cursor-pointer"
                 >
                   {savingEdit ? 'Saving...' : 'Save Changes'}
                 </button>

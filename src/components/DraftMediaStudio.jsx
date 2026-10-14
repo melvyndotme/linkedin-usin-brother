@@ -3,16 +3,26 @@ import {
   Edit3, Send, CheckCircle2, Copy, Check, Sparkles, AlertCircle, Database, 
   ExternalLink, BookOpen, Layers, Search, X, Filter, ArrowRight, ChevronDown,
   CalendarDays, Clock, Zap, ShieldCheck, Upload, Link2, RefreshCw,
-  Compass, Lightbulb, Target, MessageSquare, Quote
+  Compass, Lightbulb, Target, MessageSquare, Quote, Eye, Smartphone, Monitor,
+  ThumbsUp, Share2, Trash2, Image as ImageIcon
 } from 'lucide-react';
 import NotionIcon from './icons/NotionIcon.jsx';
 import ImageTemplateStudio from './ImageTemplateStudio.jsx';
 import { publishToLinkedInApi } from '../lib/linkedInApi.js';
 import { safeGetItem, safeSetItem } from '../lib/storage.js';
 import { generateAIDrafts, generateFestiveDrafts } from '../lib/draftGenerator.js';
-import { FIVE_CORE_FRAMEWORKS, BENCHMARK_TEMPLATES, extractTemplateFromInput } from '../lib/templateExtractor.js';
+import { FIVE_CORE_FRAMEWORKS, extractTemplateFromInput } from '../lib/templateExtractor.js';
 import { logActivity } from '../lib/auditLogger.js';
 import { GEMINI_MODEL_REGISTRY, DEFAULT_TEXT_MODEL } from '../lib/geminiModels.js';
+
+// Clear, short capability descriptions for frontier text models
+const MODEL_CAPABILITY_DESCRIPTIONS = {
+  'gemini-2.5-pro': 'Reasoning & Strategic Polish (Deepest analysis, nuanced tone)',
+  'gemini-2.5-flash': 'Fast & Versatile (Balanced speed and high quality)',
+  'gemini-2.5-flash-lite': 'Ultra-Fast & Lightweight (Rapid iterative drafting)',
+  'gemini-1.5-pro': 'Long Context Specialist (Complex historical cross-reference)',
+  'gemini-1.5-flash': 'High Throughput Standard (Fast generation)'
+};
 
 export default function DraftMediaStudio({ 
   isDark, 
@@ -51,6 +61,16 @@ To everyone celebrating, how is your team marking this special day? Share your f
   const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [templateSearchQuery, setTemplateSearchQuery] = useState('');
   const [templateCategoryFilter, setTemplateCategoryFilter] = useState('all');
+
+  // Promotional Photo Upload State for multimodal AI inspection
+  const [uploadedPromoPhoto, setUploadedPromoPhoto] = useState(null);
+  const [uploadedPromoFileName, setUploadedPromoFileName] = useState('');
+  const [uploadedPromoFileSize, setUploadedPromoFileSize] = useState('');
+
+  // LinkedIn Mockup Preview Modal State
+  const [showLinkedInPreviewModal, setShowLinkedInPreviewModal] = useState(false);
+  const [previewDevice, setPreviewDevice] = useState('mobile'); // 'mobile' | 'desktop'
+  const [previewExpandedSeeMore, setPreviewExpandedSeeMore] = useState(false);
 
   const [copied, setCopied] = useState(false);
   const [publishing, setPublishing] = useState(false);
@@ -144,7 +164,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
   const [schedulingLoading, setSchedulingLoading] = useState(false);
   const [scheduleSuccessMsg, setScheduleSuccessMsg] = useState(null);
 
-  // Sync state when props update (e.g., navigating from Events or News & Trends)
+  // Sync state when props update
   useEffect(() => {
     if (initialTitle !== undefined && initialTitle !== null) {
       setTitle(initialTitle);
@@ -179,7 +199,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
     }
   }, [initialAvailableDrafts]);
 
-  // Read custom ingested templates from local storage (filtering out legacy templates)
+  // Read custom ingested templates from local storage
   const getCustomIngestedTemplates = () => {
     try {
       const stored = localStorage.getItem('custom_ingested_templates');
@@ -208,10 +228,9 @@ To everyone celebrating, how is your team marking this special day? Share your f
     return [];
   };
 
-  // State for selected framework inspection in modal
   const [modalSelectedFrameworkId, setModalSelectedFrameworkId] = useState(() => FIVE_CORE_FRAMEWORKS[0].id);
 
-  // Derive contextual drafts for quick pill switching
+  // Derive contextual drafts for quick switching
   const contextualDrafts = useMemo(() => {
     if (availableDrafts && availableDrafts.length > 0) {
       return availableDrafts;
@@ -223,7 +242,6 @@ To everyone celebrating, how is your team marking this special day? Share your f
         suggestedHashtags: occasion.suggestedHashtags
       });
     }
-    // Default AI strategy angles
     return generateAIDrafts({
       title: title || 'Workplace Innovation Breakthrough',
       snippet: content || 'Recent breakthroughs in workplace technology are transforming daily operations.',
@@ -231,7 +249,6 @@ To everyone celebrating, how is your team marking this special day? Share your f
     });
   }, [availableDrafts, occasion, title, content]);
 
-  // Set default active template if not set
   useEffect(() => {
     if (!selectedTemplateId && FIVE_CORE_FRAMEWORKS.length > 0) {
       const first = FIVE_CORE_FRAMEWORKS[0];
@@ -242,13 +259,12 @@ To everyone celebrating, how is your team marking this special day? Share your f
     }
   }, [selectedTemplateId, currentRationale]);
 
-  // Full comprehensive template catalog for the library modal:
-  // Starts with the 5 Core Strategic Content Frameworks, followed by user-deconstructed frameworks, followed by contextual drafts
+  // Full comprehensive template catalog for the library modal
   const allLibraryTemplates = useMemo(() => {
     const custom = getCustomIngestedTemplates();
     const combined = [];
 
-    // 1. Add the 5 Core Strategic Content Frameworks first
+    // 1. Core Frameworks
     FIVE_CORE_FRAMEWORKS.forEach((f) => {
       combined.push({
         ...f,
@@ -258,7 +274,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
       });
     });
 
-    // 2. Add custom deconstructed frameworks
+    // 2. Custom Deconstructed Frameworks
     custom.forEach((c) => {
       if (!combined.some(item => item.name?.trim().toLowerCase() === c.name?.trim().toLowerCase())) {
         combined.push({
@@ -270,7 +286,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
       }
     });
 
-    // 3. Add contextual drafts as applied angles
+    // 3. Contextual drafts
     contextualDrafts.forEach((d, idx) => {
       if (!combined.some(item => item.name?.trim().toLowerCase() === (d.name || d.templateName || '').trim().toLowerCase())) {
         combined.push({
@@ -322,7 +338,6 @@ To everyone celebrating, how is your team marking this special day? Share your f
     });
   }, [allLibraryTemplates, templateSearchQuery, templateCategoryFilter]);
 
-  // Handle template selection
   const handleSelectTemplate = (template, idx) => {
     const text = template.postContent || template.post || template.examplePost || template.placeholderTemplate || '';
     if (text) {
@@ -376,7 +391,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
     };
   }, [activeDraft, title, content, currentRationale]);
 
-  // Persist draft to localStorage so edits survive page reloads and tab switches
+  // Persist draft to localStorage
   useEffect(() => {
     safeSetItem('brother_active_draft_payload', JSON.stringify({
       title,
@@ -393,6 +408,33 @@ To everyone celebrating, how is your team marking this special day? Share your f
     setTimeout(() => setCopied(false), 2000);
   };
 
+  // Upload promotional photo handler
+  const handlePromoPhotoUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setAiDraftError('Please upload a valid image file (PNG, JPG, WEBP).');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setUploadedPromoPhoto(reader.result);
+      setUploadedPromoFileName(file.name);
+      setUploadedPromoFileSize((file.size / 1024).toFixed(1) + ' KB');
+      setAiDraftError(null);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemovePromoPhoto = () => {
+    setUploadedPromoPhoto(null);
+    setUploadedPromoFileName('');
+    setUploadedPromoFileSize('');
+  };
+
+  // Save to Notion Repository (guaranteed Notion record across all actions)
   const handleSaveToNotionRepository = async (passedUrn = null, customStatus = 'Published') => {
     const token = safeGetItem('notion_token') || safeGetItem('token_notion');
     const explicitDb = safeGetItem('notion_database_id') || '3c701136de4881de9d29ca4ea415e856';
@@ -429,7 +471,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
       if (res.ok && data.success) {
         setNotionSavedData({
           url: data.url,
-          message: customStatus === 'Working Draft' ? 'Saved as Working Draft in Notion!' : 'Saved to Notion Enterprise Repository'
+          message: customStatus === 'Working Draft' ? 'Saved as Working Draft in Notion!' : `Saved as ${customStatus} to Notion!`
         });
         logActivity({
           event: 'Saved Post to Notion Repository',
@@ -447,8 +489,14 @@ To everyone celebrating, how is your team marking this special day? Share your f
     }
   };
 
-  // Generate 3 AI Drafts using per-draft selected frameworks
+  // Generate 3 AI Drafts using per-draft selected frameworks and optional multimodal promotional image
   const handleGenerate3Drafts = async () => {
+    const canGenerate = Boolean(userConceptIdea?.trim() || title?.trim() || uploadedPromoPhoto);
+    if (!canGenerate) {
+      setAiDraftError('Please enter ideas as text or upload a promotional image to generate drafts.');
+      return;
+    }
+
     setGeneratingAiDrafts(true);
     setAiDraftError(null);
     try {
@@ -472,6 +520,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
           occasionName: effectiveTitle,
           occasionDetails: effectiveDetails,
           frameworks: selectedFwList,
+          inputImage: uploadedPromoPhoto || undefined, // Multimodal vision support!
           apiKey: clientKey || undefined
         })
       });
@@ -569,7 +618,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
     const targetDay = scheduledDateTime.slice(0, 10);
     const hasConflict = existingDates.some(d => String(d).slice(0, 10) === targetDay);
     if (hasConflict) {
-      setScheduleConflict(`⚠️ A post is already scheduled for ${targetDay}. To maintain engagement cadence, only 1 post per day can be scheduled. Please choose another date or use "1-Click Publish Now" to post immediately.`);
+      setScheduleConflict(`⚠️ A post is already scheduled for ${targetDay}. To maintain engagement cadence, only 1 post per day can be scheduled. Please choose another date or publish immediately.`);
       setSchedulingLoading(false);
       return;
     }
@@ -589,25 +638,8 @@ To everyone celebrating, how is your team marking this special day? Share your f
       });
 
       if (result.success) {
-        // Record in Notion as Scheduled
-        const token = safeGetItem('notion_token');
-        if (token) {
-          fetch('/api/notion/sync', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              apiKey: token,
-              post: {
-                title,
-                content,
-                status: 'Scheduled',
-                date: scheduledDateTime,
-                scheduledDate: scheduledDateTime,
-                urn: result.urn
-              }
-            })
-          }).catch(() => {});
-        }
+        // Record in Notion as Scheduled (always saved to Notion)
+        handleSaveToNotionRepository(result.urn, 'Scheduled');
 
         // Add to calendar posts cache
         const newPost = {
@@ -621,7 +653,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
         const currentCal = JSON.parse(safeGetItem('brother_calendar_posts') || '[]');
         safeSetItem('brother_calendar_posts', JSON.stringify([...currentCal, newPost]));
 
-        setScheduleSuccessMsg(`🎉 Successfully scheduled for ${targetDay} via Buffer API!`);
+        setScheduleSuccessMsg(`🎉 Successfully scheduled for ${targetDay} via Buffer API & saved to Notion!`);
         logActivity({
           event: 'Scheduled Post to Calendar',
           category: 'Publishing',
@@ -678,7 +710,8 @@ To everyone celebrating, how is your team marking this special day? Share your f
           details: `Published "${title}" via ${result.provider || 'LinkedIn REST API'} (URN: ${result.urn})`,
           status: 'Success'
         });
-        handleSaveToNotionRepository(result.urn);
+        // Always save to Notion as Published!
+        handleSaveToNotionRepository(result.urn, 'Published');
         return;
       } else {
         setPublishing(false);
@@ -729,7 +762,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
         details: `Simulated post broadcast for "${title}" in Sandbox mode`,
         status: 'Success'
       });
-      handleSaveToNotionRepository(mockUrn);
+      handleSaveToNotionRepository(mockUrn, 'Published');
     }, 800);
   };
 
@@ -739,9 +772,12 @@ To everyone celebrating, how is your team marking this special day? Share your f
   const preFoldText = content.slice(0, foldCharLimit);
   const postFoldText = content.slice(foldCharLimit);
 
+  // Active visual image for the LinkedIn mockup
+  const activeVisualPreviewUrl = safeGetItem('brother_latest_visual_url') || uploadedPromoPhoto || '';
+
   return (
-    <div className="space-y-4 sm:space-y-6 max-w-7xl mx-auto">
-      {/* Header Banner */}
+    <div className="space-y-6 max-w-7xl mx-auto">
+      {/* Top Header Banner & Fast Actions */}
       <div className={`p-4 sm:p-6 rounded-2xl border transition-colors ${
         isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
       }`}>
@@ -752,14 +788,29 @@ To everyone celebrating, how is your team marking this special day? Share your f
               Content Studio
             </div>
             <h2 className={`text-lg sm:text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
-              Post Copy & Visual Studio
+              Campaign Drafting & Visual Studio
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Choose from high-converting narrative templates and craft multi-slide carousel visuals in real-time.
+              Generate strategic drafts using proven frameworks, design accompanying carousel visuals, and preview before publishing.
             </p>
           </div>
 
-          <div className="flex items-center gap-2 w-full sm:w-auto">
+          <div className="flex items-center gap-2 w-full sm:w-auto flex-wrap">
+            {/* Preview on LinkedIn Button */}
+            <button
+              type="button"
+              onClick={() => {
+                setShowLinkedInPreviewModal(true);
+                setPreviewExpandedSeeMore(false);
+              }}
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-[#0f2ea2] bg-blue-50 dark:bg-blue-950/60 text-[#0f2ea2] dark:text-blue-300 text-xs font-bold hover:bg-blue-100 dark:hover:bg-blue-900/80 transition-all shadow-sm cursor-pointer"
+              title="Preview how this post looks on LinkedIn (Mobile & Desktop)"
+            >
+              <Eye className="w-4 h-4" />
+              <span>Preview on LinkedIn</span>
+            </button>
+
+            {/* Save as Draft (Notion) */}
             <button
               onClick={() => handleSaveToNotionRepository(null, 'Working Draft')}
               disabled={notionSaving}
@@ -767,8 +818,10 @@ To everyone celebrating, how is your team marking this special day? Share your f
               title="Save current post in Notion as Working Draft"
             >
               <NotionIcon className={`w-3.5 h-3.5 ${notionSaving ? 'animate-spin' : ''}`} />
-              <span>{notionSaving ? 'Saving Draft...' : 'Save Draft (Notion)'}</span>
+              <span>{notionSaving ? 'Saving...' : 'Save Draft (Notion)'}</span>
             </button>
+
+            {/* Schedule (Buffer) */}
             <button
               onClick={() => {
                 setShowScheduleModal(true);
@@ -779,8 +832,10 @@ To everyone celebrating, how is your team marking this special day? Share your f
               title="Schedule post via Buffer API"
             >
               <CalendarDays className="w-3.5 h-3.5" />
-              <span>Schedule (Buffer)</span>
+              <span>Schedule</span>
             </button>
+
+            {/* 1-Click Publish */}
             <button
               onClick={handlePublishToLinkedIn}
               disabled={publishing || (publishedData && publishedData.status === 'Live on LinkedIn')}
@@ -797,13 +852,13 @@ To everyone celebrating, how is your team marking this special day? Share your f
               ) : (
                 <Send className="w-4 h-4" />
               )}
-              {publishing ? 'Connecting to LinkedIn...' : publishedData ? 'Published on LinkedIn!' : '1-Click Publish'}
+              {publishing ? 'Publishing...' : publishedData ? 'Published!' : 'Post Now'}
             </button>
           </div>
         </div>
       </div>
 
-      {/* Publish Error / Missing Credentials Notice Banner */}
+      {/* Publish Error Notice Banner */}
       {publishError && (
         <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700/50 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-amber-900 dark:text-amber-200">
           <div className="flex items-start gap-2.5">
@@ -840,8 +895,8 @@ To everyone celebrating, how is your team marking this special day? Share your f
           <div className="flex items-center gap-2">
             <Database className="w-4 h-4 text-[#0f2ea2] dark:text-blue-400 shrink-0" />
             <div>
-              <span className="font-bold">Archived to Notion Enterprise Repository!</span>
-              <span className="text-[11px] opacity-80 ml-2">Permanent database record saved for analytics telemetry.</span>
+              <span className="font-bold">{notionSavedData.message}</span>
+              <span className="text-[11px] opacity-80 ml-2">Synced to Notion database for tracking.</span>
             </div>
           </div>
           {notionSavedData.url && (
@@ -908,93 +963,114 @@ To everyone celebrating, how is your team marking this special day? Share your f
         </div>
       )}
 
-      {/* Streamlined Ideation & 3-Draft AI Engine */}
-      <div className={`p-4 sm:p-5 rounded-2xl border transition-colors ${
+      {/* ========================================================================= */}
+      {/* CARD 1: Full-Width Unified Card (1) Campaign topic, (2) Select Framework, */}
+      {/*         (3) AI Models + Generate, (4) Draft Post Editor                   */}
+      {/* ========================================================================= */}
+      <div className={`p-4 sm:p-6 rounded-2xl border transition-colors ${
         isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
-      } space-y-4`}>
-        {/* Top Header: Topic/Idea & Text Model Selector */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 items-end pb-3 border-b border-slate-100 dark:border-slate-800">
-          <div className="lg:col-span-7">
-            <div className="flex items-center justify-between mb-1">
-              <label className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
-                <span>Campaign Topic / Ideation Input</span>
-              </label>
-              <span className="text-[10px] text-slate-400">
-                Prefilled or entered from News, Events, or custom concept
-              </span>
+      } space-y-6`}>
+
+        {/* ------------------------------------------------------------- */}
+        {/* (1) [in red] Campaign topic [in black]                         */}
+        {/* ------------------------------------------------------------- */}
+        <div className="space-y-3 pb-6 border-b border-slate-100 dark:border-slate-800">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center gap-2">
+              <span className="text-base font-black text-red-600 dark:text-red-500 font-mono">(1)</span>
+              <h3 className={`text-sm sm:text-base font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                Campaign topic
+              </h3>
             </div>
-            <input
-              type="text"
-              value={userConceptIdea || title}
-              onChange={(e) => {
-                setUserConceptIdea(e.target.value);
-                setTitle(e.target.value);
-              }}
-              placeholder="e.g. Brother MFC-L8390CDW compact color laser printer launch for Singapore SMEs..."
-              className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#0f2ea2]"
-            />
+            <span className="text-[11px] text-slate-400">
+              Enter ideas as text OR upload a promotional photo (at least one input required)
+            </span>
           </div>
 
-          <div className="lg:col-span-3">
-            <div className="flex items-center justify-between mb-1">
-              <label className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                Frontier Text Model
-              </label>
-              <span className="text-[10px] font-mono text-[#0f2ea2] dark:text-blue-400 font-bold">
-                Text Only
-              </span>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 items-stretch">
+            {/* Idea Text Input */}
+            <div className="lg:col-span-8 flex flex-col justify-between">
+              <textarea
+                rows={3}
+                value={userConceptIdea || title}
+                onChange={(e) => {
+                  setUserConceptIdea(e.target.value);
+                  setTitle(e.target.value);
+                }}
+                placeholder="e.g. Brother MFC-L8390CDW compact color laser printer launch for Singapore SMEs. Highlight Monozukuri craftsmanship, high-yield toners, and cost-effective productivity..."
+                className="w-full h-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-3.5 text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#0f2ea2] leading-relaxed custom-scrollbar"
+              />
             </div>
-            <select
-              value={selectedDraftModel}
-              onChange={(e) => {
-                setSelectedDraftModel(e.target.value);
-                safeSetItem('model_gemini', e.target.value);
-              }}
-              className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs font-bold text-[#0f2ea2] dark:text-blue-400 focus:outline-none focus:ring-1 focus:ring-[#0f2ea2] cursor-pointer"
-            >
-              {availableTextModels.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.name || m.id} {m.badge ? `(${m.badge})` : ''}
-                </option>
-              ))}
-            </select>
-          </div>
 
-          <div className="lg:col-span-2">
-            <button
-              type="button"
-              onClick={handleGenerate3Drafts}
-              disabled={generatingAiDrafts}
-              className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold transition-all shadow-md active:scale-95 disabled:opacity-50 cursor-pointer h-[42px]"
-            >
-              <Sparkles className={`w-3.5 h-3.5 ${generatingAiDrafts ? 'animate-spin' : ''}`} />
-              <span>{generatingAiDrafts ? 'Generating...' : 'Generate 3 Drafts'}</span>
-            </button>
+            {/* Promotional Photo Upload Dropzone */}
+            <div className="lg:col-span-4 flex flex-col justify-between">
+              {uploadedPromoPhoto ? (
+                <div className="p-3 rounded-xl border border-blue-200 dark:border-blue-900/60 bg-blue-50/50 dark:bg-blue-950/20 flex items-center justify-between gap-3 h-full">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <img
+                      src={uploadedPromoPhoto}
+                      alt="Promotional Attachment"
+                      className="w-14 h-14 object-cover rounded-lg border border-blue-200 dark:border-blue-800 shrink-0 shadow-xs"
+                    />
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500 text-white font-mono">
+                          Multimodal Active
+                        </span>
+                      </div>
+                      <p className="text-[11px] font-bold text-slate-800 dark:text-slate-200 truncate mt-1" title={uploadedPromoFileName}>
+                        {uploadedPromoFileName || 'promo-image.png'}
+                      </p>
+                      <p className="text-[10px] text-slate-400">{uploadedPromoFileSize}</p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleRemovePromoPhoto}
+                    className="p-1.5 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors cursor-pointer shrink-0"
+                    title="Remove promotional photo"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <label className="border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-[#0f2ea2] dark:hover:border-blue-400 rounded-xl p-3.5 flex flex-col items-center justify-center text-center cursor-pointer bg-slate-50/50 dark:bg-slate-950/30 transition-all h-full group">
+                  <Upload className="w-5 h-5 text-slate-400 group-hover:text-[#0f2ea2] transition-colors mb-1" />
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                    Upload Promotional Photo
+                  </span>
+                  <span className="text-[10px] text-slate-400 mt-0.5">
+                    Gemini AI will inspect product specs & visual cues
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePromoPhotoUpload}
+                    className="hidden"
+                  />
+                </label>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* AI Draft Error */}
-        {aiDraftError && (
-          <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 text-xs text-rose-800 dark:text-rose-300 flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0" />
-            <span>{aiDraftError}</span>
-          </div>
-        )}
-
-        {/* 3 Candidate Drafts with Independent Framework Dropdown per Draft */}
-        <div>
-          <div className="flex items-center justify-between text-xs mb-2.5">
-            <span className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-              <span>Select Framework for Each Draft & Pick Draft to Edit</span>
-            </span>
+        {/* ------------------------------------------------------------- */}
+        {/* (2) [in red] Select Framework [these has up to 3 drafts]       */}
+        {/* ------------------------------------------------------------- */}
+        <div className="space-y-3 pb-6 border-b border-slate-100 dark:border-slate-800">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center gap-2">
+              <span className="text-base font-black text-red-600 dark:text-red-500 font-mono">(2)</span>
+              <h3 className={`text-sm sm:text-base font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                Select Framework
+              </h3>
+            </div>
             <span className="text-[11px] text-slate-400">
-              Each draft can use a distinct strategic framework
+              Customize the framework for each of the 3 drafts below
             </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
             {[0, 1, 2].map((idx) => {
               const draft = availableDrafts[idx];
               const draftText = draft ? (draft.postContent || draft.post || '') : '';
@@ -1012,19 +1088,18 @@ To everyone celebrating, how is your team marking this special day? Share your f
                   }`}
                 >
                   <div className="space-y-2">
-                    {/* Draft Badge & Framework Selector */}
                     <div className="flex items-center justify-between gap-1">
                       <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded-md bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
                         Draft 0{idx + 1}
                       </span>
                       {isSelected && (
                         <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#0f2ea2] text-white">
-                          Editing in Post Copy
+                          Currently In Editor
                         </span>
                       )}
                     </div>
 
-                    {/* Framework Dropdown */}
+                    {/* Framework Dropdown for this draft */}
                     <div>
                       <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
                         Framework:
@@ -1049,7 +1124,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
                       </select>
                     </div>
 
-                    {/* Draft Content Snippet or Placeholder */}
+                    {/* Draft Snippet */}
                     <div className="pt-1">
                       {draft ? (
                         <p className="text-[11px] text-slate-600 dark:text-slate-300 line-clamp-3 leading-relaxed font-sans">
@@ -1063,10 +1138,10 @@ To everyone celebrating, how is your team marking this special day? Share your f
                     </div>
                   </div>
 
-                  {/* Select to Edit Button */}
+                  {/* Pick Draft Button */}
                   <div className="pt-3 mt-2 border-t border-slate-200/60 dark:border-slate-800/80 flex items-center justify-between">
-                    <span className="text-[10px] text-slate-400 truncate max-w-[140px]">
-                      {draft?.angle || selectedFw?.formula || 'Custom sequence'}
+                    <span className="text-[10px] text-slate-400 truncate max-w-[130px]">
+                      {draft?.angle || selectedFw?.formula || 'Strategic sequence'}
                     </span>
                     <button
                       type="button"
@@ -1077,7 +1152,6 @@ To everyone celebrating, how is your team marking this special day? Share your f
                           setSelectedTemplateId(draft.frameworkId || draft.id || `draft-${idx}`);
                           setCurrentRationale(draft.whyThisWorks || draft.angle || selectedFw?.whyThisWorks || '');
                         } else {
-                          // Apply template example if no AI draft generated yet
                           const exampleText = selectedFw?.examplePost || selectedFw?.placeholderTemplate || '';
                           if (exampleText) setContent(exampleText);
                           setSelectedTemplateId(selectedFw?.id || `draft-${idx}`);
@@ -1090,7 +1164,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
                           : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700'
                       }`}
                     >
-                      {isSelected ? 'Currently Editing' : 'Select to Edit'}
+                      {isSelected ? 'Currently Selected' : 'Select to Edit'}
                     </button>
                   </div>
                 </div>
@@ -1098,133 +1172,405 @@ To everyone celebrating, how is your team marking this special day? Share your f
             })}
           </div>
         </div>
-      </div>
 
-      {/* 2-Column Responsive Layout: Post Copy Editor (Left) + Visual Template Studio (Right) */}
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 sm:gap-6">
-        {/* Left: Text Editor & LinkedIn Fold Preview */}
-        <div className="xl:col-span-5 space-y-4">
-          <div className={`p-4 sm:p-6 rounded-2xl border space-y-4 ${
-            isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
-          }`}>
-            <div className="flex items-center justify-between border-b pb-3 dark:border-slate-800">
-              <h3 className={`text-xs font-bold uppercase tracking-wider ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                Editorial Post Copy
+        {/* ------------------------------------------------------------- */}
+        {/* (3) [in red] AI Models [drop down with short descriptions]     */}
+        {/*     + Generate Button next to it                                */}
+        {/* ------------------------------------------------------------- */}
+        <div className="space-y-3 pb-6 border-b border-slate-100 dark:border-slate-800">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center gap-2">
+              <span className="text-base font-black text-red-600 dark:text-red-500 font-mono">(3)</span>
+              <h3 className={`text-sm sm:text-base font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                AI Models
               </h3>
-              <div className="flex items-center gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => setShowTemplateModal(true)}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-[#0f2ea2] dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900 text-xs font-bold transition-all cursor-pointer border border-blue-200 dark:border-blue-800/60"
-                  title="Browse All Content Frameworks"
-                >
-                  <BookOpen className="w-3.5 h-3.5" />
-                  <span>Frameworks ({allLibraryTemplates.length})</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={handleCopy}
-                  className="inline-flex items-center gap-1 text-slate-500 hover:text-slate-800 dark:hover:text-white font-semibold text-xs cursor-pointer px-2 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
-                >
-                  {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span>{copied ? 'Copied' : 'Copy Text'}</span>
-                </button>
+            </div>
+            <span className="text-[11px] text-slate-400">
+              Select frontier text model with key capability description
+            </span>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <div className="flex-1">
+              <select
+                value={selectedDraftModel}
+                onChange={(e) => {
+                  setSelectedDraftModel(e.target.value);
+                  safeSetItem('model_gemini', e.target.value);
+                }}
+                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-bold text-[#0f2ea2] dark:text-blue-400 focus:outline-none focus:ring-1 focus:ring-[#0f2ea2] cursor-pointer"
+              >
+                {availableTextModels.map((m) => {
+                  const desc = MODEL_CAPABILITY_DESCRIPTIONS[m.id] || m.badge || 'Frontier text generation';
+                  return (
+                    <option key={m.id} value={m.id}>
+                      {m.name || m.id} — {desc}
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleGenerate3Drafts}
+              disabled={generatingAiDrafts || (!userConceptIdea.trim() && !title.trim() && !uploadedPromoPhoto)}
+              className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold transition-all shadow-md active:scale-95 disabled:opacity-50 cursor-pointer shrink-0 h-[42px]"
+            >
+              <Sparkles className={`w-4 h-4 ${generatingAiDrafts ? 'animate-spin' : ''}`} />
+              <span>{generatingAiDrafts ? 'Generating 3 Drafts...' : 'Generate 3 Drafts'}</span>
+            </button>
+          </div>
+
+          {aiDraftError && (
+            <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 text-xs text-rose-800 dark:text-rose-300 flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{aiDraftError}</span>
+            </div>
+          )}
+        </div>
+
+        {/* ------------------------------------------------------------- */}
+        {/* (4) [in red] Draft Post [in black]                             */}
+        {/* ------------------------------------------------------------- */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center gap-2">
+              <span className="text-base font-black text-red-600 dark:text-red-500 font-mono">(4)</span>
+              <h3 className={`text-sm sm:text-base font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                Draft Post
+              </h3>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setShowTemplateModal(true)}
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-[#0f2ea2] dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900 text-xs font-bold transition-all cursor-pointer border border-blue-200 dark:border-blue-800/60"
+                title="Browse All Content Frameworks"
+              >
+                <BookOpen className="w-3.5 h-3.5" />
+                <span>Browse Frameworks ({allLibraryTemplates.length})</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleCopy}
+                className="inline-flex items-center gap-1 text-slate-500 hover:text-slate-800 dark:hover:text-white font-semibold text-xs cursor-pointer px-2.5 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
+                {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                <span>{copied ? 'Copied' : 'Copy Text'}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Strategic Rationale Banner (if available from active draft) */}
+          {currentRationale && (
+            <div className="bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-500/30 rounded-xl p-3">
+              <div className="flex items-start gap-2">
+                <Sparkles className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400 mt-0.5 shrink-0" />
+                <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+                  <strong className="text-[#0f2ea2] dark:text-blue-300">Strategic Angle: </strong>
+                  {currentRationale}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Post Copy (Markdown & Formatting) Textarea */}
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                Editorial Post Copy
+              </label>
+              <div className="flex items-center gap-2 text-[11px] font-mono">
+                <span className="text-slate-400">{content.length} characters</span>
+                <span className="text-[#0f2ea2] dark:text-blue-400 font-bold">• {content.split(/\s+/).filter(Boolean).length} words</span>
               </div>
             </div>
 
-            {/* Post Subject / Campaign Name */}
-            <div>
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                Post Subject / Campaign Name
-              </label>
-              <input
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Campaign or Occasion Title..."
-                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none"
-              />
-            </div>
+            <textarea
+              rows={10}
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="Write or refine your LinkedIn post copy here..."
+              className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-3.5 font-mono text-xs leading-relaxed text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none custom-scrollbar"
+            />
+          </div>
 
-            {/* Strategic Rationale Banner (if available from active draft) */}
-            {currentRationale && (
-              <div className="bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-500/30 rounded-xl p-3">
-                <div className="flex items-start gap-2">
-                  <Sparkles className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400 mt-0.5 shrink-0" />
-                  <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
-                    <strong className="text-[#0f2ea2] dark:text-blue-300">Strategic Angle: </strong>
-                    {currentRationale}
+          {/* LinkedIn Mobile Fold Line Visualizer */}
+          <div className="p-3 rounded-xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-500/30 space-y-1.5">
+            <div className="flex items-center justify-between text-[11px]">
+              <span className="font-bold text-[#0f2ea2] dark:text-blue-400 flex items-center gap-1.5">
+                <AlertCircle className="w-3.5 h-3.5" />
+                LinkedIn Mobile "...see more" Fold Line (First 140 Chars)
+              </span>
+              <span className="font-mono text-slate-500">
+                {Math.min(content.length, 140)} / 140
+              </span>
+            </div>
+            <div className="text-xs text-slate-700 dark:text-slate-300 leading-snug font-sans">
+              <span className="bg-blue-200/60 dark:bg-blue-900/60 font-semibold px-0.5 rounded">
+                {preFoldText}
+              </span>
+              {isOverFold && (
+                <span className="text-slate-400 italic">
+                  {" "}[...see more fold line]{" "}
+                  <span className="opacity-60">{postFoldText.slice(0, 40)}...</span>
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ========================================================================= */}
+      {/* CARD 2: Full-Width Visual Studio (ImageTemplateStudio)                    */}
+      {/* ========================================================================= */}
+      <div className={`p-4 sm:p-6 rounded-2xl border ${
+        isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+      }`}>
+        <ImageTemplateStudio
+          occasion={effectiveOccasion}
+          activeDraft={effectiveDraft}
+          isDark={isDark}
+        />
+      </div>
+
+      {/* ========================================================================= */}
+      {/* LinkedIn Mockup Preview Modal with Device Switch & Notion Actions          */}
+      {/* ========================================================================= */}
+      {showLinkedInPreviewModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/75 backdrop-blur-sm p-3 sm:p-6 animate-in fade-in duration-150 overflow-y-auto">
+          <div className="w-full max-w-2xl bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden my-auto max-h-[92vh]">
+            {/* Modal Header */}
+            <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/60 dark:bg-slate-800/40">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-[#0f2ea2] text-white flex items-center justify-center">
+                  <Eye className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
+                    LinkedIn Post Preview
+                  </h3>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                    Authentic feed rendering with fold line & visual creative
                   </p>
                 </div>
               </div>
-            )}
 
-            {/* Post Copy (Markdown & Formatting) Textarea */}
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                  Post Copy (Markdown & Formatting)
-                </label>
-                <div className="flex items-center gap-2 text-[11px] font-mono">
-                  <span className="text-slate-400">{content.length} characters</span>
-                  <span className="text-[#0f2ea2] dark:text-blue-400 font-bold">• {content.split(/\s+/).filter(Boolean).length} words</span>
+              {/* Mobile vs Desktop Toggle & Close */}
+              <div className="flex items-center gap-2">
+                <div className="flex items-center bg-slate-200 dark:bg-slate-800 rounded-xl p-1">
+                  <button
+                    type="button"
+                    onClick={() => setPreviewDevice('mobile')}
+                    className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                      previewDevice === 'mobile'
+                        ? 'bg-white dark:bg-slate-700 text-[#0f2ea2] dark:text-blue-300 shadow-xs'
+                        : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                    }`}
+                  >
+                    <Smartphone className="w-3.5 h-3.5" />
+                    <span>Mobile</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPreviewDevice('desktop')}
+                    className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                      previewDevice === 'desktop'
+                        ? 'bg-white dark:bg-slate-700 text-[#0f2ea2] dark:text-blue-300 shadow-xs'
+                        : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                    }`}
+                  >
+                    <Monitor className="w-3.5 h-3.5" />
+                    <span>Desktop</span>
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setShowLinkedInPreviewModal(false)}
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* LinkedIn Card Body */}
+            <div className="p-4 sm:p-6 overflow-y-auto custom-scrollbar bg-slate-100/70 dark:bg-slate-950/60 flex justify-center">
+              <div className={`bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden transition-all ${
+                previewDevice === 'mobile' ? 'w-full max-w-[390px]' : 'w-full max-w-[560px]'
+              }`}>
+                {/* Profile Header */}
+                <div className="p-3.5 flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-10 h-10 rounded-full bg-[#0f2ea2] flex items-center justify-center text-white font-black text-sm shrink-0 border border-slate-200 dark:border-slate-700">
+                      B
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs font-bold text-slate-900 dark:text-white hover:underline cursor-pointer">
+                          Brother International Singapore Pte Ltd
+                        </span>
+                        <CheckCircle2 className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                      </div>
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">
+                        At your side • 24,500 followers
+                      </p>
+                      <div className="flex items-center gap-1 text-[10px] text-slate-400 mt-0.5">
+                        <span>Just now</span>
+                        <span>•</span>
+                        <span>🌐</span>
+                      </div>
+                    </div>
+                  </div>
+                  <button className="text-slate-400 hover:text-slate-600 text-sm font-bold">•••</button>
+                </div>
+
+                {/* Post Commentary Text */}
+                <div className="px-3.5 pb-3 text-xs text-slate-800 dark:text-slate-100 leading-relaxed font-sans whitespace-pre-wrap">
+                  {(() => {
+                    if (previewExpandedSeeMore || !isOverFold) {
+                      return (
+                        <>
+                          {content}
+                          {isOverFold && (
+                            <button
+                              type="button"
+                              onClick={() => setPreviewExpandedSeeMore(false)}
+                              className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 font-bold ml-1 cursor-pointer"
+                            >
+                              see less
+                            </button>
+                          )}
+                        </>
+                      );
+                    }
+                    return (
+                      <>
+                        {preFoldText}
+                        <button
+                          type="button"
+                          onClick={() => setPreviewExpandedSeeMore(true)}
+                          className="text-[#0f2ea2] dark:text-blue-400 font-bold hover:underline ml-1 cursor-pointer"
+                        >
+                          ...see more
+                        </button>
+                      </>
+                    );
+                  })()}
+                </div>
+
+                {/* Post Visual Creative */}
+                {activeVisualPreviewUrl ? (
+                  <div className="border-t border-b border-slate-100 dark:border-slate-800 bg-slate-950 flex items-center justify-center overflow-hidden">
+                    <img
+                      src={activeVisualPreviewUrl}
+                      alt="LinkedIn Visual Creative"
+                      className="w-full object-cover max-h-[380px]"
+                    />
+                  </div>
+                ) : (
+                  <div className="border-t border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-8 text-center text-slate-400">
+                    <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                    <p className="text-xs font-semibold">Visual Creative Attached</p>
+                    <p className="text-[10px] opacity-75 mt-0.5">Carousel / Banner generated in Visual Studio below</p>
+                  </div>
+                )}
+
+                {/* LinkedIn Social Counters */}
+                <div className="px-3.5 py-2 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between text-[10px] text-slate-500">
+                  <div className="flex items-center gap-1">
+                    <span className="w-4 h-4 rounded-full bg-blue-600 text-white flex items-center justify-center text-[9px]">👍</span>
+                    <span className="w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[9px]">👏</span>
+                    <span className="ml-1 font-semibold">42</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span>8 comments</span>
+                    <span>•</span>
+                    <span>3 reposts</span>
+                  </div>
+                </div>
+
+                {/* LinkedIn Interaction Buttons */}
+                <div className="px-2 py-1.5 grid grid-cols-4 gap-1 text-[11px] font-semibold text-slate-600 dark:text-slate-300">
+                  <button className="flex items-center justify-center gap-1.5 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                    <ThumbsUp className="w-3.5 h-3.5" />
+                    <span>Like</span>
+                  </button>
+                  <button className="flex items-center justify-center gap-1.5 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                    <MessageSquare className="w-3.5 h-3.5" />
+                    <span>Comment</span>
+                  </button>
+                  <button className="flex items-center justify-center gap-1.5 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                    <Share2 className="w-3.5 h-3.5" />
+                    <span>Repost</span>
+                  </button>
+                  <button className="flex items-center justify-center gap-1.5 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                    <Send className="w-3.5 h-3.5" />
+                    <span>Send</span>
+                  </button>
                 </div>
               </div>
-
-              <textarea
-                rows={12}
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder="Write your LinkedIn post copy here..."
-                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-3.5 font-mono text-xs leading-relaxed text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none custom-scrollbar"
-              />
             </div>
 
-            {/* LinkedIn Mobile Fold Line Visualizer */}
-            <div className="p-3 rounded-xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-500/30 space-y-1.5">
-              <div className="flex items-center justify-between text-[11px]">
-                <span className="font-bold text-[#0f2ea2] dark:text-blue-400 flex items-center gap-1.5">
-                  <AlertCircle className="w-3.5 h-3.5" />
-                  LinkedIn Mobile "...see more" Fold Line (First 140 Chars)
-                </span>
-                <span className="font-mono text-slate-500">
-                  {Math.min(content.length, 140)} / 140
-                </span>
+            {/* Modal Action Footer: Save as Draft, Schedule, or Post Now (All save to Notion!) */}
+            <div className="p-4 sm:p-5 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-50/60 dark:bg-slate-800/40">
+              <div className="text-[11px] text-slate-500 dark:text-slate-400">
+                <span>All actions automatically archive record to Notion Repository.</span>
               </div>
-              <div className="text-xs text-slate-700 dark:text-slate-300 leading-snug font-sans">
-                <span className="bg-blue-200/60 dark:bg-blue-900/60 font-semibold px-0.5 rounded">
-                  {preFoldText}
-                </span>
-                {isOverFold && (
-                  <span className="text-slate-400 italic">
-                    {" "}[...see more fold line]{" "}
-                    <span className="opacity-60">{postFoldText.slice(0, 40)}...</span>
-                  </span>
-                )}
+
+              <div className="flex items-center gap-2 w-full sm:w-auto justify-end flex-wrap">
+                {/* 1. Save as Draft */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleSaveToNotionRepository(null, 'Working Draft');
+                  }}
+                  disabled={notionSaving}
+                  className="px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-700 transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                >
+                  <NotionIcon className={`w-3.5 h-3.5 inline mr-1.5 ${notionSaving ? 'animate-spin' : ''}`} />
+                  <span>Save as Draft</span>
+                </button>
+
+                {/* 2. Schedule */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowScheduleModal(true);
+                  }}
+                  className="px-4 py-2 rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/60 text-[#0f2ea2] dark:text-blue-300 text-xs font-bold hover:bg-blue-100 dark:hover:bg-blue-900 transition-all shadow-xs cursor-pointer"
+                >
+                  <CalendarDays className="w-3.5 h-3.5 inline mr-1.5" />
+                  <span>Schedule</span>
+                </button>
+
+                {/* 3. Post Now */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowLinkedInPreviewModal(false);
+                    handlePublishToLinkedIn();
+                  }}
+                  disabled={publishing}
+                  className="px-5 py-2 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold shadow-md transition-all active:scale-95 cursor-pointer disabled:opacity-50"
+                >
+                  <Send className="w-3.5 h-3.5 inline mr-1.5" />
+                  <span>Post Now</span>
+                </button>
               </div>
             </div>
           </div>
         </div>
+      )}
 
-        {/* Right: Visual Studio with Multi-Slide Carousels, Official Assets & AI */}
-        <div className="xl:col-span-7 space-y-4">
-          <div className={`p-4 sm:p-6 rounded-2xl border ${
-            isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
-          }`}>
-            <ImageTemplateStudio
-              occasion={effectiveOccasion}
-              activeDraft={effectiveDraft}
-              isDark={isDark}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Template Library Modal */}
+      {/* ========================================================================= */}
+      {/* Template Library Modal                                                    */}
+      {/* ========================================================================= */}
       {showTemplateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4 animate-in fade-in duration-150">
           <div className="w-full max-w-5xl max-h-[90vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden">
-            {/* Modal Header */}
             <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/40">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-xl bg-[#0f2ea2] text-white flex items-center justify-center">
@@ -1248,7 +1594,6 @@ To everyone celebrating, how is your team marking this special day? Share your f
               </button>
             </div>
 
-            {/* Filter & Search Bar */}
             <div className="p-4 border-b border-slate-100 dark:border-slate-800 space-y-3 bg-white dark:bg-slate-900">
               <div className="relative">
                 <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -1270,7 +1615,6 @@ To everyone celebrating, how is your team marking this special day? Share your f
                 )}
               </div>
 
-              {/* Category Filter Pills */}
               <div className="flex items-center gap-1.5 overflow-x-auto pb-1 custom-scrollbar text-xs">
                 {[
                   { id: 'all', label: 'All Templates' },
@@ -1296,14 +1640,12 @@ To everyone celebrating, how is your team marking this special day? Share your f
               </div>
             </div>
 
-            {/* 2-Column Responsive Framework Browser */}
             {(() => {
               const activeTmpl = filteredTemplates.find(t => t.id === modalSelectedFrameworkId) || filteredTemplates[0] || FIVE_CORE_FRAMEWORKS[0];
               const isCurrentlyActive = selectedTemplateId === activeTmpl?.id || (activeDraft?.name === activeTmpl?.name);
 
               return (
                 <div className="flex-1 overflow-hidden grid grid-cols-1 md:grid-cols-12 divide-y md:divide-y-0 md:divide-x divide-slate-100 dark:divide-slate-800">
-                  {/* Left Column: Strategic Framework Cards List */}
                   <div className="md:col-span-5 p-3.5 overflow-y-auto space-y-2.5 max-h-[60vh] custom-scrollbar bg-slate-50/50 dark:bg-slate-950/30">
                     <div className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 px-1">
                       Strategic Content Frameworks ({filteredTemplates.length})
@@ -1358,11 +1700,9 @@ To everyone celebrating, how is your team marking this special day? Share your f
                     )}
                   </div>
 
-                  {/* Right Column: Deep Explanation of Selected Framework */}
                   <div className="md:col-span-7 p-4 sm:p-5 overflow-y-auto space-y-4 max-h-[60vh] custom-scrollbar bg-white dark:bg-slate-900">
                     {activeTmpl && (
                       <>
-                        {/* Header Details */}
                         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
                           <div>
                             <div className="flex items-center gap-1.5 flex-wrap">
@@ -1404,7 +1744,6 @@ To everyone celebrating, how is your team marking this special day? Share your f
                           </button>
                         </div>
 
-                        {/* Section 1: Cognitive Sequence / Narrative Architecture */}
                         <div className="space-y-2">
                           <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5">
                             <Compass className="w-3.5 h-3.5 text-[#0f2ea2] dark:text-blue-400" />
@@ -1435,7 +1774,6 @@ To everyone celebrating, how is your team marking this special day? Share your f
                           </div>
                         </div>
 
-                        {/* Section 2: Why This Framework Differs & Philosophy */}
                         <div className="space-y-1.5 pt-2 border-t border-slate-100 dark:border-slate-800">
                           <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5">
                             <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
@@ -1454,7 +1792,6 @@ To everyone celebrating, how is your team marking this special day? Share your f
                           </div>
                         </div>
 
-                        {/* Section 3: When To Use It */}
                         <div className="space-y-1.5 pt-2 border-t border-slate-100 dark:border-slate-800">
                           <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5">
                             <Target className="w-3.5 h-3.5 text-emerald-500" />
@@ -1465,7 +1802,6 @@ To everyone celebrating, how is your team marking this special day? Share your f
                           </p>
                         </div>
 
-                        {/* Section 4: Applied Brother Singapore Example Post */}
                         <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
                           <div className="flex items-center justify-between">
                             <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5">
@@ -1495,7 +1831,6 @@ To everyone celebrating, how is your team marking this special day? Share your f
               );
             })()}
 
-            {/* Modal Footer */}
             <div className="p-3.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 bg-slate-50/50 dark:bg-slate-800/40">
               <span>Selecting a framework applies its proven narrative architecture and example copy into the editor.</span>
               <button
@@ -1510,11 +1845,12 @@ To everyone celebrating, how is your team marking this special day? Share your f
         </div>
       )}
 
-      {/* Buffer Scheduling Modal */}
+      {/* ========================================================================= */}
+      {/* Buffer Scheduling Modal with 1-Post-per-Day Collision Check               */}
+      {/* ========================================================================= */}
       {showScheduleModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4 animate-in fade-in duration-150">
           <div className="w-full max-w-lg bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden">
-            {/* Modal Header */}
             <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/40">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-xl bg-[#0f2ea2] text-white flex items-center justify-center">
@@ -1538,7 +1874,6 @@ To everyone celebrating, how is your team marking this special day? Share your f
               </button>
             </div>
 
-            {/* Modal Body */}
             <div className="p-4 sm:p-5 space-y-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
@@ -1558,7 +1893,6 @@ To everyone celebrating, how is your team marking this special day? Share your f
                 </p>
               </div>
 
-              {/* Conflict Alert / Warning */}
               {scheduleConflict && (
                 <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700 text-xs text-amber-900 dark:text-amber-200 space-y-2">
                   <div className="flex items-start gap-2">
@@ -1567,7 +1901,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
                   </div>
                   <div className="pt-2 border-t border-amber-200 dark:border-amber-800/60 flex items-center justify-between">
                     <span className="text-[11px] font-semibold text-amber-800 dark:text-amber-300">
-                      Need multiple posts today?
+                      Need to publish right now instead?
                     </span>
                     <button
                       type="button"
@@ -1578,13 +1912,12 @@ To everyone celebrating, how is your team marking this special day? Share your f
                       className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-xs cursor-pointer"
                     >
                       <Zap className="w-3.5 h-3.5" />
-                      <span>1-Click Publish Now</span>
+                      <span>Post Now</span>
                     </button>
                   </div>
                 </div>
               )}
 
-              {/* Success Message */}
               {scheduleSuccessMsg && (
                 <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700 text-xs text-emerald-800 dark:text-emerald-200 flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
@@ -1593,7 +1926,6 @@ To everyone celebrating, how is your team marking this special day? Share your f
               )}
             </div>
 
-            {/* Modal Footer */}
             <div className="p-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/40">
               <button
                 type="button"
@@ -1613,7 +1945,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
                 ) : (
                   <CalendarDays className="w-4 h-4" />
                 )}
-                <span>{schedulingLoading ? 'Scheduling via Buffer...' : 'Confirm Schedule'}</span>
+                <span>{schedulingLoading ? 'Scheduling...' : 'Confirm Schedule'}</span>
               </button>
             </div>
           </div>

@@ -217,11 +217,29 @@ Return ONLY a strict JSON array of exactly 3 objects:
     }
 
     try {
+      const parts = [{ text: systemPrompt }];
+
+      // Multimodal Support: Attach uploaded promotional image if supplied
+      const inputImage = req.body?.imageBase64 || req.body?.image;
+      if (inputImage && typeof inputImage === 'string') {
+        const base64Data = inputImage.includes('base64,') ? inputImage.split('base64,')[1] : inputImage;
+        const mimeMatch = inputImage.match(/data:([^;]+);base64,/);
+        const mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+        parts.unshift({
+          inline_data: {
+            mime_type: mimeType,
+            data: base64Data
+          }
+        });
+        // Append explicit multimodal instruction to prompt
+        parts[1].text += '\n\nIMPORTANT MULTIMODAL INSTRUCTION: The user has attached a promotional product image. Carefully inspect the visual features, product name/model, visible specs, headlines, and aesthetic cues in this image, and weave these specific product details directly into each generated draft.';
+      }
+
       const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${apiKey}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: systemPrompt }] }],
+          contents: [{ parts }],
           generationConfig: {
             responseMimeType: 'application/json',
             temperature: 0.7
