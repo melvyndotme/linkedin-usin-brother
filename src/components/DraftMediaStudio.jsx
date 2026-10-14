@@ -1207,39 +1207,39 @@ To everyone celebrating, how is your team marking this special day? Share your f
                     </div>
 
                     {/* Framework Features & Core Elements */}
-                    <div className="pt-2 pb-1 space-y-2">
+                    <div className="pt-2 pb-1 space-y-2.5">
                       {/* Core Feature / What it's about */}
-                      <div className="p-2.5 rounded-lg bg-white/70 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 space-y-1">
+                      <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-1.5">
                         <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                          <span className="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider">
                             Core Feature:
                           </span>
-                          <span className="text-[10px] font-mono font-bold text-[#0f2ea2] dark:text-blue-400 bg-blue-50 dark:bg-blue-950/80 px-1.5 py-0.5 rounded">
+                          <span className="text-xs font-mono font-bold text-[#0f2ea2] dark:text-blue-400 bg-blue-50 dark:bg-blue-950/80 px-2 py-0.5 rounded-md border border-blue-200/60 dark:border-blue-900/50">
                             {selectedFw?.formula || 'Framework'}
                           </span>
                         </div>
-                        <p className="text-[11px] font-medium text-slate-800 dark:text-slate-200 leading-snug line-clamp-2">
+                        <p className="text-[13px] sm:text-sm font-semibold text-slate-800 dark:text-slate-100 leading-relaxed">
                           {selectedFw?.description || selectedFw?.whyItDiffers || 'Strategic structure designed for LinkedIn engagement.'}
                         </p>
                       </div>
 
                       {/* Main Elements (Cognitive Step Flow) */}
-                      <div className="space-y-1">
-                        <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
+                      <div className="space-y-1.5">
+                        <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider block">
                           Main Elements:
                         </span>
-                        <div className="flex flex-wrap gap-1">
+                        <div className="flex flex-wrap gap-1.5">
                           {(selectedFw?.structureSteps || []).slice(0, 5).map((st, sIdx) => (
                             <span
                               key={sIdx}
-                              className="inline-flex items-center text-[10px] font-semibold px-1.5 py-0.5 rounded bg-blue-50/80 dark:bg-blue-950/60 text-[#0f2ea2] dark:text-blue-300 border border-blue-200/50 dark:border-blue-900/40"
+                              className="inline-flex items-center text-[11px] sm:text-xs font-semibold px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/70 text-[#0f2ea2] dark:text-blue-300 border border-blue-200/70 dark:border-blue-900/50"
                               title={st.purpose || st.prompt}
                             >
                               {st.label || st.step}
                             </span>
                           ))}
                           {(selectedFw?.structureSteps?.length || 0) > 5 && (
-                            <span className="text-[9px] text-slate-400 font-semibold self-center">
+                            <span className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold self-center">
                               +{selectedFw.structureSteps.length - 5}
                             </span>
                           )}
@@ -1248,8 +1248,8 @@ To everyone celebrating, how is your team marking this special day? Share your f
 
                       {/* Best Scenario */}
                       {selectedFw?.whenToUse && (
-                        <p className="text-[10px] text-slate-500 dark:text-slate-400 line-clamp-1">
-                          <strong className="text-slate-600 dark:text-slate-300 font-semibold">Best for: </strong>
+                        <p className="text-xs text-slate-600 dark:text-slate-300 leading-snug">
+                          <strong className="text-slate-800 dark:text-white font-bold">Best for: </strong>
                           {selectedFw.whenToUse}
                         </p>
                       )}
@@ -1271,7 +1271,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
 
                   {/* Pick Draft Button */}
                   <div className="pt-3 mt-2 border-t border-slate-200/60 dark:border-slate-800/80 flex items-center justify-between">
-                    <span className="text-[10px] text-slate-500 dark:text-slate-400 truncate max-w-[130px]">
+                    <span className="text-xs text-slate-500 dark:text-slate-400 font-medium truncate max-w-[150px]">
                       {selectedFw?.category || selectedFw?.tone || selectedFw?.formula || 'Strategic sequence'}
                     </span>
                     <button
