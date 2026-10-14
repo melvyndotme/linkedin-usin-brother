@@ -108,12 +108,15 @@ export default async function handler(req, res) {
       });
     }
 
-    const frameworks = req.body?.frameworks || (req.body?.framework ? [req.body.framework, req.body.framework, req.body.framework] : null);
+    const rawFrameworks = req.body?.frameworks || (req.body?.framework ? [req.body.framework] : []);
+    const activeFrameworks = Array.isArray(rawFrameworks) 
+      ? rawFrameworks.filter(f => f && f.id && f.id !== 'none')
+      : [];
 
     let systemPrompt = '';
-    if (Array.isArray(frameworks) && frameworks.length >= 3) {
+    if (activeFrameworks.length > 0) {
       systemPrompt = `You are the lead executive LinkedIn editorial strategist and communication architect for Brother International Singapore.
-Your goal is to engineer 3 distinct, high-converting LinkedIn post candidate drafts that personify the Brother brand ethos:
+Your goal is to engineer exactly ${activeFrameworks.length} distinct, high-converting LinkedIn post candidate draft(s) tailored to each framework below:
 - BRAND POSITIONING: "At your side" — empathetic, dependable, consultative, customer-centric.
 - JAPANESE CRAFTSMANSHIP: Grounded in Kaizen (continuous refinement) and Monozukuri (the art, spirit, and dedication of Japanese making).
 - LOCAL SINGAPORE RELEVANCE: Tailored specifically to Singapore SMEs, enterprise decision-makers, office managers, IT heads, and modern workplaces.
@@ -129,53 +132,26 @@ EDITORIAL EXECUTION REQUIREMENTS:
 4. ENGAGING CALL-TO-ACTION (CTA): End with an authentic, consultative conversation-starter that invites comments, reflections, or shares.
 5. HASHTAGS: Exactly 3 to 5 targeted professional hashtags including #BrotherSingapore and #AtYourSide.
 
---- DRAFT 1 FRAMEWORK:
-Framework Name: ${frameworks[0]?.name || 'High-Impact Thought Leadership'}
-Cognitive Formula: ${frameworks[0]?.formula || 'Hook → Context → Value → Proof → Possibility → Action'}
-Underlying Philosophy: ${frameworks[0]?.philosophy || 'Sell the outcome before the feature; make the audience the protagonist.'}
-Sequence Steps: ${(frameworks[0]?.structureSteps || []).map(s => s.step + ': ' + (s.purpose || s.prompt)).join(' | ')}
-Writing Rules: ${(frameworks[0]?.rules || []).join(', ')}
+${activeFrameworks.map((fw, i) => `
+--- DRAFT ${i + 1} (Target Slot: Draft 0${(typeof fw.slotIndex === 'number' ? fw.slotIndex : i) + 1}) ---
+Framework Name: ${fw.name || 'High-Impact Thought Leadership'}
+Cognitive Formula: ${fw.formula || 'Strategic narrative sequence'}
+Underlying Philosophy: ${fw.philosophy || 'Sell the outcome before the feature; make the audience the protagonist.'}
+Sequence Steps: ${(fw.structureSteps || []).map(s => s.step + ': ' + (s.purpose || s.prompt)).join(' | ')}
+Writing Rules: ${(fw.rules || []).join(', ')}
+`).join('\n')}
 
---- DRAFT 2 FRAMEWORK:
-Framework Name: ${frameworks[1]?.name || 'Operational Excellence & Kaizen'}
-Cognitive Formula: ${frameworks[1]?.formula || 'Friction → Turning Point → Proof → Takeaway'}
-Underlying Philosophy: ${frameworks[1]?.philosophy || 'Show practical reliability in high-stakes workflows; quiet craft over loud hype.'}
-Sequence Steps: ${(frameworks[1]?.structureSteps || []).map(s => s.step + ': ' + (s.purpose || s.prompt)).join(' | ')}
-Writing Rules: ${(frameworks[1]?.rules || []).join(', ')}
-
---- DRAFT 3 FRAMEWORK:
-Framework Name: ${frameworks[2]?.name || 'Cultural Harmony & Community (Wa)'}
-Cognitive Formula: ${frameworks[2]?.formula || 'Moment → Story → Gratitude → Blessing'}
-Underlying Philosophy: ${frameworks[2]?.philosophy || 'Mutual respect and shared community harmony; honor collective bonds.'}
-Sequence Steps: ${(frameworks[2]?.structureSteps || []).map(s => s.step + ': ' + (s.purpose || s.prompt)).join(' | ')}
-Writing Rules: ${(frameworks[2]?.rules || []).join(', ')}
-
-Return ONLY a strict JSON array of exactly 3 objects:
+Return ONLY a strict JSON array of exactly ${activeFrameworks.length} object(s):
 [
-  {
-    "id": "draft-1",
-    "name": "${frameworks[0]?.name || 'Draft 1'}",
+${activeFrameworks.map((fw, i) => `  {
+    "slotIndex": ${typeof fw.slotIndex === 'number' ? fw.slotIndex : i},
+    "id": "draft-${(typeof fw.slotIndex === 'number' ? fw.slotIndex : i) + 1}",
+    "name": "${fw.name || `Draft ${i + 1}`}",
     "angle": "Specific Angle & Strategic Rationale",
     "whyThisWorks": "Detailed explanation of why this hooks and persuades the audience using this framework",
     "postContent": "Complete LinkedIn post with hook, narrative spacing, bullet points, consultative call to action, and hashtags #BrotherSingapore #AtYourSide",
-    "frameworkId": "${frameworks[0]?.id || ''}"
-  },
-  {
-    "id": "draft-2",
-    "name": "${frameworks[1]?.name || 'Draft 2'}",
-    "angle": "Specific Angle & Strategic Rationale",
-    "whyThisWorks": "Detailed explanation of why this hooks and persuades the audience using this framework",
-    "postContent": "Complete LinkedIn post with hook, narrative spacing, bullet points, consultative call to action, and hashtags #BrotherSingapore #AtYourSide",
-    "frameworkId": "${frameworks[1]?.id || ''}"
-  },
-  {
-    "id": "draft-3",
-    "name": "${frameworks[2]?.name || 'Draft 3'}",
-    "angle": "Specific Angle & Strategic Rationale",
-    "whyThisWorks": "Detailed explanation of why this hooks and persuades the audience using this framework",
-    "postContent": "Complete LinkedIn post with hook, narrative spacing, bullet points, consultative call to action, and hashtags #BrotherSingapore #AtYourSide",
-    "frameworkId": "${frameworks[2]?.id || ''}"
-  }
+    "frameworkId": "${fw.id || ''}"
+  }`).join(',\n')}
 ]`;
     } else {
       systemPrompt = `You are the lead LinkedIn editorial strategist for Brother Singapore.

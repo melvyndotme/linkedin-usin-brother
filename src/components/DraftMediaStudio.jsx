@@ -497,9 +497,15 @@ To everyone celebrating, how is your team marking this special day? Share your f
 
   // 1-Tap Select Draft into Editor with tactile feedback & auto-scroll
   const handleSelectDraft = (idx) => {
+    const currentFrameworkId = draftFrameworks[idx];
+    if (currentFrameworkId === 'none') {
+      setSelectNotification(`Draft 0${idx + 1} is set to None. Select a framework first to activate it.`);
+      setTimeout(() => setSelectNotification(null), 3000);
+      return;
+    }
+
     setSelectedDraftIndex(idx);
     const draft = availableDrafts[idx] || contextualDrafts[idx];
-    const currentFrameworkId = draftFrameworks[idx];
     const selectedFw = savedFrameworks.find(f => f.id === currentFrameworkId) || savedFrameworks[0];
     
     // Determine post text: prioritize generated draft, then contextual draft, then framework example/template
@@ -535,8 +541,21 @@ To everyone celebrating, how is your team marking this special day? Share your f
     }, 120);
   };
 
-  // Generate 3 AI Drafts using per-draft selected frameworks and optional multimodal promotional image
+  // Generate AI Drafts using per-draft selected frameworks and optional multimodal promotional image
   const handleGenerate3Drafts = async () => {
+    const activeFrameworks = draftFrameworks
+      .map((id, idx) => {
+        if (!id || id === 'none') return null;
+        const fw = savedFrameworks.find(f => f.id === id) || savedFrameworks[0] || FIVE_CORE_FRAMEWORKS[0];
+        return { ...fw, slotIndex: idx };
+      })
+      .filter(Boolean);
+
+    if (activeFrameworks.length === 0) {
+      setAiDraftError('Please select a framework for at least one draft before generating.');
+      return;
+    }
+
     const canGenerate = Boolean(userConceptIdea?.trim() || title?.trim() || uploadedPromoPhoto);
     if (!canGenerate) {
       setAiDraftError('Please enter ideas as text or upload a promotional image to generate drafts.');
@@ -546,10 +565,6 @@ To everyone celebrating, how is your team marking this special day? Share your f
     setGeneratingAiDrafts(true);
     setAiDraftError(null);
     try {
-      const selectedFwList = draftFrameworks.map(id => {
-        return savedFrameworks.find(f => f.id === id) || savedFrameworks[0] || FIVE_CORE_FRAMEWORKS[0];
-      });
-
       const effectiveTitle = title?.trim() || effectiveOccasion?.name || 'Brother Singapore Strategic Innovation';
       const effectiveDetails = userConceptIdea?.trim() || effectiveOccasion?.details || effectiveOccasion?.subtitle || content;
 
@@ -565,7 +580,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
           modelName: selectedDraftModel,
           occasionName: effectiveTitle,
           occasionDetails: effectiveDetails,
-          frameworks: selectedFwList,
+          frameworks: activeFrameworks,
           inputImage: uploadedPromoPhoto || undefined, // Multimodal vision support!
           apiKey: clientKey || undefined
         })
@@ -575,48 +590,66 @@ To everyone celebrating, how is your team marking this special day? Share your f
       if (res.ok) {
         const data = await res.json();
         if (data.success && Array.isArray(data.drafts) && data.drafts.length > 0) {
-          generated = data.drafts.map((d, i) => ({
+          generated = data.drafts;
+        }
+      }
+
+      // Update availableDrafts: preserve existing or fill in corresponding slots
+      const newDrafts = [...availableDrafts];
+      // Clear slots explicitly set to 'none'
+      draftFrameworks.forEach((id, idx) => {
+        if (id === 'none') {
+          newDrafts[idx] = null;
+        }
+      });
+
+      if (generated && generated.length > 0) {
+        generated.forEach((d, i) => {
+          const slotIdx = typeof d.slotIndex === 'number' ? d.slotIndex : (activeFrameworks[i]?.slotIndex ?? i);
+          const matchedFw = activeFrameworks.find(f => f.slotIndex === slotIdx) || activeFrameworks[i];
+          newDrafts[slotIdx] = {
             ...d,
-            frameworkId: selectedFwList[i]?.id,
-            frameworkName: selectedFwList[i]?.name,
-            formula: selectedFwList[i]?.formula
-          }));
-        }
+            frameworkId: matchedFw?.id || d.frameworkId,
+            frameworkName: matchedFw?.name || d.name,
+            formula: matchedFw?.formula || d.formula
+          };
+        });
+      } else {
+        // Fallback for active slots
+        activeFrameworks.forEach((fw) => {
+          const slotIdx = fw.slotIndex;
+          newDrafts[slotIdx] = {
+            id: `draft-${slotIdx + 1}`,
+            frameworkId: fw.id,
+            frameworkName: fw.name,
+            angle: fw.name,
+            postContent: fw.examplePost || fw.placeholderTemplate || '',
+            whyThisWorks: fw.description
+          };
+        });
       }
 
-      // Fallback if endpoint returns empty
-      if (!generated || generated.length === 0) {
-        if (effectiveOccasion && effectiveOccasion.eventType !== 'corporate') {
-          generated = generateFestiveDrafts({
-            name: effectiveOccasion.name,
-            culturalContext: effectiveOccasion.details,
-            suggestedHashtags: effectiveOccasion.suggestedHashtags
-          });
-        } else {
-          generated = generateAIDrafts({
-            title: effectiveTitle,
-            snippet: effectiveDetails,
-            sourceTitle: 'Brother Singapore Intelligence'
-          });
-        }
-      }
+      setAvailableDrafts(newDrafts);
 
-      setAvailableDrafts(generated);
-      if (generated[0]) {
-        const firstText = generated[0].postContent || generated[0].post || '';
+      // Auto-load the first active generated draft into Step 04
+      const firstActiveSlot = activeFrameworks[0]?.slotIndex ?? 0;
+      const firstActiveDraft = newDrafts[firstActiveSlot];
+      if (firstActiveDraft) {
+        const firstText = firstActiveDraft.postContent || firstActiveDraft.post || '';
         setContent(firstText);
-        setActiveDraft(generated[0]);
-        setSelectedTemplateId(generated[0].frameworkId || generated[0].id || 'draft-0');
-        setCurrentRationale(generated[0].whyThisWorks || generated[0].angle || '');
-        setSelectedDraftIndex(0);
-        setSelectNotification('✨ 3 posts generated based on your 3 selected frameworks! Draft 01 is loaded in Step 04 below.');
+        setActiveDraft(firstActiveDraft);
+        setSelectedTemplateId(firstActiveDraft.frameworkId || firstActiveDraft.id || `draft-${firstActiveSlot}`);
+        setCurrentRationale(firstActiveDraft.whyThisWorks || firstActiveDraft.angle || '');
+        setSelectedDraftIndex(firstActiveSlot);
+        setSelectNotification(`✨ ${activeFrameworks.length} post${activeFrameworks.length === 1 ? '' : 's'} generated based on your selected framework${activeFrameworks.length === 1 ? '' : 's'}! Draft 0${firstActiveSlot + 1} is loaded in Step 04 below.`);
         setTimeout(() => setSelectNotification(null), 5000);
       }
 
-      // Automatically persist all 3 candidate drafts to Notion as "Generated Candidate"
+      // Automatically persist active candidate drafts to Notion as "Generated Candidate"
       const token = safeGetItem('notion_token') || safeGetItem('token_notion');
-      if (token && generated.length > 0) {
-        const postsToSync = generated.map((g, idx) => ({
+      const validPosts = newDrafts.filter(Boolean);
+      if (token && validPosts.length > 0) {
+        const postsToSync = validPosts.map((g, idx) => ({
           title: `${title || 'Post'} (Candidate 0${idx + 1} - ${g.name || g.angle || 'Draft'})`,
           content: g.postContent || g.post,
           status: 'Generated Candidate',
@@ -635,9 +668,9 @@ To everyone celebrating, how is your team marking this special day? Share your f
       }
 
       logActivity({
-        event: 'Generated 3 AI Drafts',
+        event: `Generated ${activeFrameworks.length} AI Draft(s)`,
         category: 'Content Generation',
-        details: `Generated 3 drafts with frameworks: ${selectedFwList.map(f => f?.name).filter(Boolean).join(', ')} for "${title}"`,
+        details: `Generated ${activeFrameworks.length} drafts with frameworks: ${activeFrameworks.map(f => f?.name).filter(Boolean).join(', ')} for "${title}"`,
         status: 'Success'
       });
     } catch (err) {
@@ -1132,7 +1165,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
               </h3>
             </div>
             <span className="text-[11px] text-slate-400">
-              Customize the framework for each of the 3 drafts below
+              Customize the framework for each draft or select "None" to skip
             </span>
           </div>
 
@@ -1147,31 +1180,39 @@ To everyone celebrating, how is your team marking this special day? Share your f
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
             {[0, 1, 2].map((idx) => {
               const draft = availableDrafts[idx] || contextualDrafts[idx];
-              const draftText = draft ? (draft.postContent || draft.post || '') : '';
-              const isSelected = selectedDraftIndex === idx;
               const currentFrameworkId = draftFrameworks[idx];
-              const selectedFw = savedFrameworks.find(f => f.id === currentFrameworkId) || savedFrameworks[0];
+              const isNone = currentFrameworkId === 'none';
+              const isSelected = selectedDraftIndex === idx && !isNone;
+              const selectedFw = isNone ? null : (savedFrameworks.find(f => f.id === currentFrameworkId) || savedFrameworks[0]);
 
               return (
                 <div
                   key={idx}
-                  onClick={() => handleSelectDraft(idx)}
-                  className={`p-3.5 rounded-xl border flex flex-col justify-between transition-all cursor-pointer ${
-                    isSelected
-                      ? 'border-[#0f2ea2] bg-blue-50/70 dark:bg-blue-950/40 ring-2 ring-[#0f2ea2]/25 shadow-md'
-                      : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 hover:border-slate-300 dark:hover:border-slate-700'
+                  onClick={() => !isNone && handleSelectDraft(idx)}
+                  className={`p-3.5 rounded-xl border flex flex-col justify-between transition-all ${
+                    isNone
+                      ? 'border-dashed border-slate-200 dark:border-slate-800 bg-slate-50/40 dark:bg-slate-950/20 opacity-70 cursor-default'
+                      : isSelected
+                        ? 'border-[#0f2ea2] bg-blue-50/70 dark:bg-blue-950/40 ring-2 ring-[#0f2ea2]/25 shadow-md cursor-pointer'
+                        : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer'
                   }`}
                 >
                   <div className="space-y-2">
                     <div className="flex items-center justify-between gap-1">
                       <span className={`text-[11px] font-mono font-bold px-2 py-0.5 rounded-md ${
-                        isSelected 
-                          ? 'bg-[#0f2ea2] text-white' 
-                          : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                        isNone
+                          ? 'bg-slate-200/60 dark:bg-slate-800/60 text-slate-400'
+                          : isSelected 
+                            ? 'bg-[#0f2ea2] text-white' 
+                            : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
                       }`}>
                         Draft 0{idx + 1}
                       </span>
-                      {isSelected ? (
+                      {isNone ? (
+                        <span className="text-[10px] font-medium text-slate-400 italic">
+                          Skipped
+                        </span>
+                      ) : isSelected ? (
                         <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-600 text-white flex items-center gap-1 shadow-xs animate-in fade-in">
                           <CheckCircle2 className="w-3 h-3" />
                           Currently In Editor
@@ -1197,103 +1238,123 @@ To everyone celebrating, how is your team marking this special day? Share your f
                             updated[idx] = newId;
                             return updated;
                           });
+                          if (newId === 'none' && selectedDraftIndex === idx) {
+                            const otherActive = [0, 1, 2].find(i => i !== idx && draftFrameworks[i] !== 'none');
+                            if (typeof otherActive === 'number') {
+                              handleSelectDraft(otherActive);
+                            }
+                          }
                         }}
-                        className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#0f2ea2] cursor-pointer"
+                        className={`w-full bg-white dark:bg-slate-900 border rounded-lg px-2.5 py-1.5 text-xs font-bold focus:outline-none focus:ring-1 focus:ring-[#0f2ea2] cursor-pointer ${
+                          isNone 
+                            ? 'border-dashed border-slate-300 dark:border-slate-700 text-slate-400 italic'
+                            : 'border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white'
+                        }`}
                       >
                         {savedFrameworks.map((fw) => (
                           <option key={fw.id} value={fw.id}>
                             {fw.name}
                           </option>
                         ))}
+                        <option value="none">— None (Do not generate) —</option>
                       </select>
                     </div>
 
-                    {/* Framework Features & Core Elements */}
-                    <div className="pt-2 pb-1 space-y-2.5">
-                      {/* Core Feature / What it's about */}
-                      <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-1.5">
-                        <div>
-                          <span className="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider block">
-                            Core Feature:
-                          </span>
-                        </div>
-                        <p className="text-[13px] sm:text-sm font-semibold text-slate-800 dark:text-slate-100 leading-relaxed">
-                          {selectedFw?.description || selectedFw?.whyItDiffers || 'Strategic structure designed for LinkedIn engagement.'}
+                    {/* Framework Features & Core Elements or None State */}
+                    {isNone ? (
+                      <div className="py-6 px-3 rounded-xl bg-slate-100/50 dark:bg-slate-900/30 border border-dashed border-slate-200 dark:border-slate-800 text-center space-y-1">
+                        <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                          Draft 0{idx + 1} skipped
+                        </p>
+                        <p className="text-[11px] text-slate-400 dark:text-slate-500">
+                          AI will not generate a post for this slot.
                         </p>
                       </div>
-
-                      {/* Main Elements (Cognitive Step Flow) */}
-                      <div className="space-y-1.5">
-                        <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider block">
-                          Main Elements:
-                        </span>
-                        <div className="flex flex-wrap gap-1.5">
-                          {(selectedFw?.structureSteps || []).slice(0, 5).map((st, sIdx) => (
-                            <span
-                              key={sIdx}
-                              className="inline-flex items-center text-[11px] sm:text-xs font-semibold px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/70 text-[#0f2ea2] dark:text-blue-300 border border-blue-200/70 dark:border-blue-900/50"
-                              title={st.purpose || st.prompt}
-                            >
-                              {st.label || st.step}
+                    ) : (
+                      <div className="pt-2 pb-1 space-y-2.5">
+                        {/* Core Feature / What it's about */}
+                        <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-1.5">
+                          <div>
+                            <span className="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider block">
+                              Core Feature:
                             </span>
-                          ))}
-                          {(selectedFw?.structureSteps?.length || 0) > 5 && (
-                            <span className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold self-center">
-                              +{selectedFw.structureSteps.length - 5}
-                            </span>
-                          )}
+                          </div>
+                          <p className="text-[13px] sm:text-sm font-semibold text-slate-800 dark:text-slate-100 leading-relaxed">
+                            {selectedFw?.description || selectedFw?.whyItDiffers || 'Strategic structure designed for LinkedIn engagement.'}
+                          </p>
                         </div>
+
+                        {/* Main Elements (Cognitive Step Flow) */}
+                        <div className="space-y-1.5">
+                          <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider block">
+                            Main Elements:
+                          </span>
+                          <div className="flex flex-wrap gap-1.5">
+                            {(selectedFw?.structureSteps || []).slice(0, 5).map((st, sIdx) => (
+                              <span
+                                key={sIdx}
+                                className="inline-flex items-center text-[11px] sm:text-xs font-semibold px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/70 text-[#0f2ea2] dark:text-blue-300 border border-blue-200/70 dark:border-blue-900/50"
+                                title={st.purpose || st.prompt}
+                              >
+                                {st.label || st.step}
+                              </span>
+                            ))}
+                            {(selectedFw?.structureSteps?.length || 0) > 5 && (
+                              <span className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold self-center">
+                                +{selectedFw.structureSteps.length - 5}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Best Scenario */}
+                        {selectedFw?.whenToUse && (
+                          <p className="text-xs text-slate-600 dark:text-slate-300 leading-snug">
+                            <strong className="text-slate-800 dark:text-white font-bold">Best for: </strong>
+                            {selectedFw.whenToUse}
+                          </p>
+                        )}
                       </div>
-
-                      {/* Best Scenario */}
-                      {selectedFw?.whenToUse && (
-                        <p className="text-xs text-slate-600 dark:text-slate-300 leading-snug">
-                          <strong className="text-slate-800 dark:text-white font-bold">Best for: </strong>
-                          {selectedFw.whenToUse}
-                        </p>
-                      )}
-
-                      {/* AI Draft Status Indicator */}
-                      {draftText && (
-                        <div className="pt-1.5 border-t border-slate-200/60 dark:border-slate-800 flex items-center justify-between text-[10px]">
-                          <span className="font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span>
-                            {availableDrafts[idx] ? 'Generated by AI' : 'Contextual Draft Ready'}
-                          </span>
-                          <span className="text-slate-400 font-mono">
-                            {draftText.split(/\s+/).filter(Boolean).length} words
-                          </span>
-                        </div>
-                      )}
-                    </div>
+                    )}
                   </div>
 
                   {/* Pick Draft Button */}
                   <div className="pt-3 mt-2 border-t border-slate-200/60 dark:border-slate-800/80 flex items-center justify-between">
-                    <span className="text-xs text-slate-500 dark:text-slate-400 font-medium truncate max-w-[150px]">
-                      {selectedFw?.category || selectedFw?.tone || 'Strategic sequence'}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleSelectDraft(idx);
-                      }}
-                      className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 active:scale-95 ${
-                        isSelected
-                          ? 'bg-[#0f2ea2] text-white shadow-sm'
-                          : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700'
-                      }`}
-                    >
-                      {isSelected ? (
-                        <>
-                          <Check className="w-3.5 h-3.5 text-white" />
-                          <span>Currently Selected</span>
-                        </>
-                      ) : (
-                        <span>Select to Edit</span>
-                      )}
-                    </button>
+                    {isNone ? (
+                      <>
+                        <span className="text-xs text-slate-400 italic">No framework assigned</span>
+                        <span className="text-xs text-slate-400 font-medium px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800/60">
+                          Skipped
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-xs text-slate-500 dark:text-slate-400 font-medium truncate max-w-[150px]">
+                          {selectedFw?.category || selectedFw?.tone || 'Strategic sequence'}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleSelectDraft(idx);
+                          }}
+                          className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 active:scale-95 ${
+                            isSelected
+                              ? 'bg-[#0f2ea2] text-white shadow-sm'
+                              : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700'
+                          }`}
+                        >
+                          {isSelected ? (
+                            <>
+                              <Check className="w-3.5 h-3.5 text-white" />
+                              <span>Currently Selected</span>
+                            </>
+                          ) : (
+                            <span>Select to Edit</span>
+                          )}
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
               );
@@ -1313,7 +1374,9 @@ To everyone celebrating, how is your team marking this special day? Share your f
               </h3>
             </div>
             <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
-              Generates 3 posts tailored to the 3 frameworks selected above
+              {draftFrameworks.filter(id => id && id !== 'none').length === 0
+                ? 'No frameworks selected'
+                : `Generates ${draftFrameworks.filter(id => id && id !== 'none').length} post${draftFrameworks.filter(id => id && id !== 'none').length === 1 ? '' : 's'} tailored to your selected framework${draftFrameworks.filter(id => id && id !== 'none').length === 1 ? '' : 's'}`}
             </span>
           </div>
 
@@ -1341,11 +1404,17 @@ To everyone celebrating, how is your team marking this special day? Share your f
             <button
               type="button"
               onClick={handleGenerate3Drafts}
-              disabled={generatingAiDrafts || (!userConceptIdea.trim() && !title.trim() && !uploadedPromoPhoto)}
+              disabled={generatingAiDrafts || draftFrameworks.filter(id => id && id !== 'none').length === 0 || (!userConceptIdea.trim() && !title.trim() && !uploadedPromoPhoto)}
               className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold transition-all shadow-md active:scale-95 disabled:opacity-50 cursor-pointer shrink-0 h-[42px]"
             >
               <Sparkles className={`w-4 h-4 ${generatingAiDrafts ? 'animate-spin' : ''}`} />
-              <span>{generatingAiDrafts ? 'Generating 3 Framework Posts...' : 'Generate Posts for 3 Selected Frameworks'}</span>
+              <span>
+                {generatingAiDrafts
+                  ? `Generating ${draftFrameworks.filter(id => id && id !== 'none').length} Post${draftFrameworks.filter(id => id && id !== 'none').length === 1 ? '' : 's'}...`
+                  : draftFrameworks.filter(id => id && id !== 'none').length === 0
+                    ? 'Select At Least 1 Framework'
+                    : `Generate Posts for ${draftFrameworks.filter(id => id && id !== 'none').length} Selected Framework${draftFrameworks.filter(id => id && id !== 'none').length === 1 ? '' : 's'}`}
+              </span>
             </button>
           </div>
 
@@ -1353,7 +1422,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
           <div className="flex items-start gap-2.5 p-3 rounded-xl bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-900/50 text-xs text-slate-700 dark:text-slate-300">
             <Sparkles className="w-4 h-4 text-[#0f2ea2] dark:text-blue-400 shrink-0 mt-0.5" />
             <p className="leading-relaxed">
-              When clicked, AI will generate <strong className="text-[#0f2ea2] dark:text-blue-300 font-bold">3 unique post drafts</strong> corresponding to <strong className="text-slate-900 dark:text-white">Draft 01, Draft 02, and Draft 03</strong> using the specific frameworks chosen above. You can then tap <span className="font-semibold text-slate-900 dark:text-white underline decoration-[#0f2ea2] decoration-2">"Select to Edit"</span> on any draft to refine it.
+              When clicked, AI will generate <strong className="text-[#0f2ea2] dark:text-blue-300 font-bold">{draftFrameworks.filter(id => id && id !== 'none').length} unique post draft{draftFrameworks.filter(id => id && id !== 'none').length === 1 ? '' : 's'}</strong> corresponding to your selected framework{draftFrameworks.filter(id => id && id !== 'none').length === 1 ? '' : 's'} above. Any draft set to "None" will be skipped. You can then tap <span className="font-semibold text-slate-900 dark:text-white underline decoration-[#0f2ea2] decoration-2">"Select to Edit"</span> on any generated draft to refine it.
             </p>
           </div>
 
