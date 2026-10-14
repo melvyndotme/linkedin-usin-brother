@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { 
   Edit3, Send, CheckCircle2, Copy, Check, Sparkles, AlertCircle, Database, 
   ExternalLink, BookOpen, Layers, Search, X, Filter, ArrowRight, ChevronDown,
@@ -57,6 +57,11 @@ To everyone celebrating, how is your team marking this special day? Share your f
   const [currentRationale, setCurrentRationale] = useState(
     initialDraft?.whyThisWorks || ''
   );
+
+  // Active Draft Selection Index & Editor Ref for 1-tap mobile auto-scroll
+  const draftEditorRef = useRef(null);
+  const [selectedDraftIndex, setSelectedDraftIndex] = useState(0);
+  const [selectNotification, setSelectNotification] = useState(null);
 
   // Template Library Modal state
   const [showTemplateModal, setShowTemplateModal] = useState(false);
@@ -490,6 +495,46 @@ To everyone celebrating, how is your team marking this special day? Share your f
     }
   };
 
+  // 1-Tap Select Draft into Editor with tactile feedback & auto-scroll
+  const handleSelectDraft = (idx) => {
+    setSelectedDraftIndex(idx);
+    const draft = availableDrafts[idx] || contextualDrafts[idx];
+    const currentFrameworkId = draftFrameworks[idx];
+    const selectedFw = savedFrameworks.find(f => f.id === currentFrameworkId) || savedFrameworks[0];
+    
+    // Determine post text: prioritize generated draft, then contextual draft, then framework example/template
+    const chosenText = draft?.postContent || draft?.post || selectedFw?.examplePost || selectedFw?.placeholderTemplate || '';
+    if (chosenText) {
+      setContent(chosenText);
+    }
+
+    const rationale = draft?.whyThisWorks || draft?.angle || selectedFw?.whyThisWorks || selectedFw?.description || '';
+    setCurrentRationale(rationale);
+    setSelectedTemplateId(draft?.frameworkId || draft?.id || selectedFw?.id || `draft-${idx}`);
+    setActiveDraft(draft || {
+      id: `draft-${idx}`,
+      frameworkId: selectedFw?.id,
+      frameworkName: selectedFw?.name,
+      formula: selectedFw?.formula,
+      postContent: chosenText,
+      whyThisWorks: rationale
+    });
+
+    setSelectNotification(`Draft 0${idx + 1} loaded into editor below!`);
+    setTimeout(() => setSelectNotification(null), 3000);
+
+    // Smoothly scroll down to Step 04 (Draft Post Editor) so the user immediately sees it
+    setTimeout(() => {
+      if (draftEditorRef.current) {
+        draftEditorRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      const textarea = document.getElementById('draft-editor-textarea');
+      if (textarea) {
+        textarea.focus();
+      }
+    }, 120);
+  };
+
   // Generate 3 AI Drafts using per-draft selected frameworks and optional multimodal promotional image
   const handleGenerate3Drafts = async () => {
     const canGenerate = Boolean(userConceptIdea?.trim() || title?.trim() || uploadedPromoPhoto);
@@ -563,6 +608,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
         setActiveDraft(generated[0]);
         setSelectedTemplateId(generated[0].frameworkId || generated[0].id || 'draft-0');
         setCurrentRationale(generated[0].whyThisWorks || generated[0].angle || '');
+        setSelectedDraftIndex(0);
       }
 
       // Automatically persist all 3 candidate drafts to Notion as "Generated Candidate"
@@ -1088,37 +1134,55 @@ To everyone celebrating, how is your team marking this special day? Share your f
             </span>
           </div>
 
+          {/* Real-time selection notification toast */}
+          {selectNotification && (
+            <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-300 dark:border-emerald-800 text-xs font-bold text-emerald-800 dark:text-emerald-200 flex items-center gap-2 animate-in fade-in slide-in-from-top-1">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <span>{selectNotification}</span>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
             {[0, 1, 2].map((idx) => {
-              const draft = availableDrafts[idx];
+              const draft = availableDrafts[idx] || contextualDrafts[idx];
               const draftText = draft ? (draft.postContent || draft.post || '') : '';
-              const isSelected = activeDraft && (activeDraft.id === draft?.id || (draftText && content === draftText));
+              const isSelected = selectedDraftIndex === idx;
               const currentFrameworkId = draftFrameworks[idx];
               const selectedFw = savedFrameworks.find(f => f.id === currentFrameworkId) || savedFrameworks[0];
 
               return (
                 <div
                   key={idx}
-                  className={`p-3.5 rounded-xl border flex flex-col justify-between transition-all ${
+                  onClick={() => handleSelectDraft(idx)}
+                  className={`p-3.5 rounded-xl border flex flex-col justify-between transition-all cursor-pointer ${
                     isSelected
-                      ? 'border-[#0f2ea2] bg-blue-50/60 dark:bg-blue-950/40 ring-2 ring-[#0f2ea2]/20 shadow-xs'
+                      ? 'border-[#0f2ea2] bg-blue-50/70 dark:bg-blue-950/40 ring-2 ring-[#0f2ea2]/25 shadow-md'
                       : 'border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 hover:border-slate-300 dark:hover:border-slate-700'
                   }`}
                 >
                   <div className="space-y-2">
                     <div className="flex items-center justify-between gap-1">
-                      <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded-md bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                      <span className={`text-[11px] font-mono font-bold px-2 py-0.5 rounded-md ${
+                        isSelected 
+                          ? 'bg-[#0f2ea2] text-white' 
+                          : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                      }`}>
                         Draft 0{idx + 1}
                       </span>
-                      {isSelected && (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#0f2ea2] text-white">
+                      {isSelected ? (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-600 text-white flex items-center gap-1 shadow-xs animate-in fade-in">
+                          <CheckCircle2 className="w-3 h-3" />
                           Currently In Editor
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-medium text-slate-400">
+                          Tap card to edit
                         </span>
                       )}
                     </div>
 
                     {/* Framework Dropdown for this draft */}
-                    <div>
+                    <div onClick={(e) => e.stopPropagation()}>
                       <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
                         Framework:
                       </label>
@@ -1191,11 +1255,11 @@ To everyone celebrating, how is your team marking this special day? Share your f
                       )}
 
                       {/* AI Draft Status Indicator */}
-                      {draft && draft.frameworkId === currentFrameworkId && draftText && (
+                      {draftText && (
                         <div className="pt-1.5 border-t border-slate-200/60 dark:border-slate-800 flex items-center justify-between text-[10px]">
                           <span className="font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span>
-                            Draft Generated & Ready
+                            {availableDrafts[idx] ? 'Generated by AI' : 'Contextual Draft Ready'}
                           </span>
                           <span className="text-slate-400 font-mono">
                             {draftText.split(/\s+/).filter(Boolean).length} words
@@ -1212,34 +1276,24 @@ To everyone celebrating, how is your team marking this special day? Share your f
                     </span>
                     <button
                       type="button"
-                      onClick={() => {
-                        if (draft && draft.frameworkId === currentFrameworkId) {
-                          setContent(draftText);
-                          setActiveDraft(draft);
-                          setSelectedTemplateId(draft.frameworkId || draft.id || `draft-${idx}`);
-                          setCurrentRationale(draft.whyThisWorks || draft.angle || selectedFw?.whyThisWorks || selectedFw?.description || '');
-                        } else {
-                          const exampleText = selectedFw?.examplePost || selectedFw?.placeholderTemplate || '';
-                          if (exampleText) setContent(exampleText);
-                          setSelectedTemplateId(selectedFw?.id || `draft-${idx}`);
-                          setActiveDraft({
-                            id: `draft-${idx}`,
-                            frameworkId: selectedFw?.id,
-                            frameworkName: selectedFw?.name,
-                            formula: selectedFw?.formula,
-                            postContent: exampleText,
-                            whyThisWorks: selectedFw?.description
-                          });
-                          setCurrentRationale(selectedFw?.whyThisWorks || selectedFw?.description || '');
-                        }
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleSelectDraft(idx);
                       }}
-                      className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                      className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 active:scale-95 ${
                         isSelected
-                          ? 'bg-[#0f2ea2] text-white shadow-xs'
+                          ? 'bg-[#0f2ea2] text-white shadow-sm'
                           : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700'
                       }`}
                     >
-                      {isSelected ? 'Currently Selected' : 'Select to Edit'}
+                      {isSelected ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 text-white" />
+                          <span>Currently Selected</span>
+                        </>
+                      ) : (
+                        <span>Select to Edit</span>
+                      )}
                     </button>
                   </div>
                 </div>
@@ -1308,7 +1362,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
         {/* ------------------------------------------------------------- */}
         {/* Step 04: Draft Post                                           */}
         {/* ------------------------------------------------------------- */}
-        <div className="space-y-4">
+        <div ref={draftEditorRef} className="space-y-4 scroll-mt-20">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div className="flex items-center gap-2">
               <span className="text-xs sm:text-sm font-mono font-bold text-[#0f2ea2] dark:text-blue-400">Step 04:</span>
@@ -1363,6 +1417,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
             </div>
 
             <textarea
+              id="draft-editor-textarea"
               rows={10}
               value={content}
               onChange={(e) => setContent(e.target.value)}
