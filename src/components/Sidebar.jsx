@@ -159,8 +159,12 @@ export default function Sidebar({
               className="flex items-center gap-2.5 p-2 pb-2 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors"
               title="Edit Profile"
             >
-              <div className="w-8 h-8 rounded-full bg-[#0e2ea0] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-sm">
-                {userInitials}
+              <div className="w-8 h-8 rounded-full bg-[#0e2ea0] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-sm overflow-hidden">
+                {currentUser?.avatarImage ? (
+                  <img src={currentUser.avatarImage} alt={userName} className="w-full h-full object-cover" />
+                ) : (
+                  userInitials
+                )}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="text-xs font-bold text-slate-900 truncate">
@@ -213,11 +217,15 @@ export default function Sidebar({
 
         <button
           onClick={() => setProfileMenuOpen(!profileMenuOpen)}
-          className="w-10 h-10 rounded-xl bg-white text-[#0e2ea0] flex items-center justify-center font-bold text-xs shadow-sm hover:scale-105 transition-transform cursor-pointer border border-white/20"
+          className="w-10 h-10 rounded-xl bg-white text-[#0e2ea0] flex items-center justify-center font-bold text-xs shadow-sm hover:scale-105 transition-transform cursor-pointer border border-white/20 overflow-hidden"
           title={`${userName} • ${userRole}`}
           aria-label="User Profile"
         >
-          {userInitials}
+          {currentUser?.avatarImage ? (
+            <img src={currentUser.avatarImage} alt={userName} className="w-full h-full object-cover" />
+          ) : (
+            userInitials
+          )}
         </button>
       </div>
     </div>
@@ -319,8 +327,12 @@ export default function Sidebar({
               className="flex items-center gap-2.5 p-2 pb-2 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors"
               title="Edit Profile"
             >
-              <div className="w-8 h-8 rounded-full bg-[#0e2ea0] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-sm">
-                {userInitials}
+              <div className="w-8 h-8 rounded-full bg-[#0e2ea0] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-sm overflow-hidden">
+                {currentUser?.avatarImage ? (
+                  <img src={currentUser.avatarImage} alt={userName} className="w-full h-full object-cover" />
+                ) : (
+                  userInitials
+                )}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="text-xs font-bold text-slate-900 truncate">
@@ -381,8 +393,12 @@ export default function Sidebar({
           }`}
         >
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-7 h-7 rounded-full bg-white text-[#0e2ea0] flex items-center justify-center font-bold text-[11px] shrink-0 shadow-sm">
-              {userInitials}
+            <div className="w-7 h-7 rounded-full bg-white text-[#0e2ea0] flex items-center justify-center font-bold text-[11px] shrink-0 shadow-sm overflow-hidden">
+              {currentUser?.avatarImage ? (
+                <img src={currentUser.avatarImage} alt={userName} className="w-full h-full object-cover" />
+              ) : (
+                userInitials
+              )}
             </div>
             <div className="min-w-0">
               <div className="text-xs font-bold text-white leading-none truncate">

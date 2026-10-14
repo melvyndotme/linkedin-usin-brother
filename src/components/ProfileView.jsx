@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   User, 
   Mail, 
@@ -12,9 +12,13 @@ import {
   ExternalLink, 
   FileText, 
   Sliders,
-  Check
+  Check,
+  Camera,
+  Upload,
+  Trash2,
+  Image as ImageIcon
 } from 'lucide-react';
-import { safeSetItem } from '../lib/storage.js';
+import { safeSetItem, safeGetItem } from '../lib/storage.js';
 
 export default function ProfileView({ isDark, currentUser, onUpdateProfile }) {
   const [name, setName] = useState(currentUser?.name || 'Melvyn Tan');
@@ -26,10 +30,14 @@ export default function ProfileView({ isDark, currentUser, onUpdateProfile }) {
   const [signoff, setSignoff] = useState(currentUser?.signoff || '— Melvyn Tan, External Advisor');
   const [tonePreference, setTonePreference] = useState(currentUser?.tonePreference || 'Strategic & Authoritative');
   const [avatarColor, setAvatarColor] = useState(currentUser?.avatarColor || '#0e2ea0');
+  const [avatarImage, setAvatarImage] = useState(currentUser?.avatarImage || null);
+  const [avatarError, setAvatarError] = useState(null);
 
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [notionSyncStatus, setNotionSyncStatus] = useState(null);
+
+  const fileInputRef = useRef(null);
 
   const initials = name
     .trim()
@@ -39,6 +47,37 @@ export default function ProfileView({ isDark, currentUser, onUpdateProfile }) {
     .join('')
     .slice(0, 2)
     .toUpperCase() || 'MT';
+
+  // Handle local avatar file upload
+  const handleAvatarFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setAvatarError('Please select a valid image file (PNG, JPG, WEBP, GIF).');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setAvatarError('Image size exceeds 5MB limit. Please choose a smaller file.');
+      return;
+    }
+
+    setAvatarError(null);
+    const reader = new FileReader();
+    reader.onload = () => {
+      setAvatarImage(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveAvatar = () => {
+    setAvatarImage(null);
+    setAvatarError(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   const handleSave = async (e) => {
     e?.preventDefault();
@@ -55,7 +94,8 @@ export default function ProfileView({ isDark, currentUser, onUpdateProfile }) {
       bio,
       signoff,
       tonePreference,
-      avatarColor
+      avatarColor,
+      avatarImage
     };
 
     if (onUpdateProfile) {
@@ -104,6 +144,15 @@ export default function ProfileView({ isDark, currentUser, onUpdateProfile }) {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 pb-12">
+      {/* Hidden File Input for Avatar Upload */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleAvatarFileChange}
+        className="hidden"
+      />
+
       {/* Top Banner Card */}
       <div className={`p-6 sm:p-8 rounded-3xl border shadow-sm relative overflow-hidden transition-all ${
         isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200/90'
@@ -112,12 +161,28 @@ export default function ProfileView({ isDark, currentUser, onUpdateProfile }) {
 
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 relative z-10">
           <div className="flex items-center gap-5">
-            {/* User Avatar */}
-            <div 
-              className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl text-white flex items-center justify-center font-black text-2xl sm:text-3xl shadow-lg border-2 border-white/20 shrink-0 transition-transform hover:scale-105"
-              style={{ backgroundColor: avatarColor }}
-            >
-              {initials}
+            {/* User Avatar with Hover Camera Upload Button */}
+            <div className="relative group shrink-0">
+              <div 
+                className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl text-white flex items-center justify-center font-black text-2xl sm:text-3xl shadow-lg border-2 border-white/20 shrink-0 overflow-hidden transition-all group-hover:shadow-xl"
+                style={{ backgroundColor: avatarImage ? 'transparent' : avatarColor }}
+              >
+                {avatarImage ? (
+                  <img src={avatarImage} alt={name} className="w-full h-full object-cover" />
+                ) : (
+                  initials
+                )}
+              </div>
+
+              {/* Floating Camera Button */}
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="absolute -bottom-1 -right-1 p-2 rounded-xl bg-[#0e2ea0] hover:bg-[#0b247d] text-white shadow-md border-2 border-white dark:border-slate-900 transition-all cursor-pointer active:scale-95"
+                title="Upload avatar image"
+              >
+                <Camera className="w-3.5 h-3.5" />
+              </button>
             </div>
 
             <div className="space-y-1 min-w-0">
@@ -137,6 +202,37 @@ export default function ProfileView({ isDark, currentUser, onUpdateProfile }) {
               <p className="text-xs text-slate-400 dark:text-slate-500 font-mono">
                 {email}
               </p>
+
+              {/* Quick Avatar Actions */}
+              <div className="flex items-center gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="text-[11px] font-bold text-[#0e2ea0] dark:text-blue-400 hover:underline flex items-center gap-1 cursor-pointer"
+                >
+                  <Upload className="w-3 h-3" />
+                  <span>{avatarImage ? 'Change Photo' : 'Upload Avatar'}</span>
+                </button>
+                {avatarImage && (
+                  <>
+                    <span className="text-slate-300 dark:text-slate-700">•</span>
+                    <button
+                      type="button"
+                      onClick={handleRemoveAvatar}
+                      className="text-[11px] font-bold text-rose-500 hover:underline flex items-center gap-1 cursor-pointer"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                      <span>Remove</span>
+                    </button>
+                  </>
+                )}
+              </div>
+
+              {avatarError && (
+                <p className="text-[11px] text-rose-500 font-semibold pt-0.5">
+                  {avatarError}
+                </p>
+              )}
             </div>
           </div>
 
@@ -187,6 +283,88 @@ export default function ProfileView({ isDark, currentUser, onUpdateProfile }) {
         {/* Left 2 Columns: Identity & Role */}
         <div className="lg:col-span-2 space-y-6">
           
+          {/* Avatar Photo & Theme Color Card */}
+          <div className={`p-6 rounded-3xl border shadow-sm space-y-5 transition-all ${
+            isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200/90'
+          }`}>
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <Camera className="w-4 h-4 text-[#0e2ea0] dark:text-blue-400" />
+                <h2 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                  Avatar Photo & Visual Identity
+                </h2>
+              </div>
+              <span className="text-[10px] text-slate-400">PNG, JPG, WEBP up to 5MB</span>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center gap-5">
+              <div 
+                className="w-20 h-20 rounded-2xl text-white flex items-center justify-center font-black text-2xl shadow-md border-2 border-slate-200 dark:border-slate-700 shrink-0 overflow-hidden"
+                style={{ backgroundColor: avatarImage ? 'transparent' : avatarColor }}
+              >
+                {avatarImage ? (
+                  <img src={avatarImage} alt={name} className="w-full h-full object-cover" />
+                ) : (
+                  initials
+                )}
+              </div>
+
+              <div className="space-y-2 flex-1 text-center sm:text-left">
+                <div className="flex items-center gap-2.5 justify-center sm:justify-start flex-wrap">
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="px-4 py-2 rounded-xl bg-[#0e2ea0] hover:bg-[#0b247d] text-white text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center gap-1.5"
+                  >
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>{avatarImage ? 'Upload New Photo' : 'Upload Avatar Photo'}</span>
+                  </button>
+
+                  {avatarImage && (
+                    <button
+                      type="button"
+                      onClick={handleRemoveAvatar}
+                      className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Remove Photo</span>
+                    </button>
+                  )}
+                </div>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  Your custom avatar appears across the navigation sidebar, executive header, and author credits.
+                </p>
+              </div>
+            </div>
+
+            {/* Initials Accent Theme Color (Fallback) */}
+            <div className="pt-3 border-t border-slate-100 dark:border-slate-800">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                Initials Accent Theme Color {avatarImage ? '(Used if photo is removed)' : ''}
+              </label>
+              <div className="flex items-center gap-3 flex-wrap">
+                {AVATAR_COLOR_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setAvatarColor(opt.value)}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-semibold cursor-pointer transition-all ${
+                      avatarColor === opt.value
+                        ? 'border-[#0e2ea0] bg-blue-50/70 dark:bg-blue-950/40 text-slate-900 dark:text-white ring-2 ring-[#0e2ea0]/20'
+                        : 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400'
+                    }`}
+                  >
+                    <span 
+                      className="w-3.5 h-3.5 rounded-full shrink-0 shadow-xs" 
+                      style={{ backgroundColor: opt.value }} 
+                    />
+                    <span>{opt.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
           {/* Personal & Work Details */}
           <div className={`p-6 rounded-3xl border shadow-sm space-y-5 transition-all ${
             isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200/90'
@@ -261,32 +439,6 @@ export default function ProfileView({ isDark, currentUser, onUpdateProfile }) {
                   />
                   <Building2 className="w-4 h-4 text-slate-400 absolute left-3 top-3 pointer-events-none" />
                 </div>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                Avatar Accent Theme Color
-              </label>
-              <div className="flex items-center gap-3 flex-wrap">
-                {AVATAR_COLOR_OPTIONS.map((opt) => (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => setAvatarColor(opt.value)}
-                    className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-semibold cursor-pointer transition-all ${
-                      avatarColor === opt.value
-                        ? 'border-[#0e2ea0] bg-blue-50/70 dark:bg-blue-950/40 text-slate-900 dark:text-white ring-2 ring-[#0e2ea0]/20'
-                        : 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400'
-                    }`}
-                  >
-                    <span 
-                      className="w-3.5 h-3.5 rounded-full shrink-0 shadow-xs" 
-                      style={{ backgroundColor: opt.value }} 
-                    />
-                    <span>{opt.label}</span>
-                  </button>
-                ))}
               </div>
             </div>
           </div>
