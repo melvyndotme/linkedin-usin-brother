@@ -956,16 +956,18 @@ export function generateCarouselSlideSeries(occasion, activeDraft = null) {
 /**
  * Render a Slide onto an HTML5 Canvas for high-DPI export with Official Brother Logo
  */
-export async function renderSlideToCanvas(arg1, arg2, arg3) {
-  let slide, photoUrl, aspectRatio;
+export async function renderSlideToCanvas(arg1, arg2, arg3, arg4) {
+  let slide, photoUrl, aspectRatio, overlayMode;
   if (arg1 && typeof arg1 === 'object' && ('slide' in arg1 || 'photoUrl' in arg1)) {
     slide = arg1.slide;
     photoUrl = arg1.photoUrl;
     aspectRatio = arg1.aspectRatio || '1:1';
+    overlayMode = arg1.overlayMode || slide?.overlayMode || 'minimal';
   } else {
     slide = arg1;
     photoUrl = arg2;
     aspectRatio = arg3 || '1:1';
+    overlayMode = arg4 || slide?.overlayMode || 'minimal';
   }
 
   const isBanner = aspectRatio === '1.91:1';
@@ -1014,6 +1016,270 @@ export async function renderSlideToCanvas(arg1, arg2, arg3) {
     ctx.fillRect(0, 0, width, height);
   }
 
+  // Helper to load and draw the Official Brother Logo
+  const drawBrotherLogo = async (x, y, targetH = isBanner ? 34 : 40) => {
+    let logoLoaded = false;
+    const logoImg = new Image();
+    logoImg.crossOrigin = 'anonymous';
+
+    const loadLogo = (src) => new Promise((resolve) => {
+      logoImg.onload = () => { logoLoaded = true; resolve(); };
+      logoImg.onerror = () => { logoLoaded = false; resolve(); };
+      logoImg.src = src;
+    });
+
+    await loadLogo('/brother-logo.svg');
+    if (!logoLoaded) {
+      await loadLogo('/brother-logo.png');
+    }
+
+    ctx.save();
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
+    ctx.shadowBlur = 8;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 2;
+
+    if (logoLoaded && logoImg.width > 0) {
+      const logoW = (logoImg.width / logoImg.height) * targetH;
+      ctx.drawImage(logoImg, x, y, logoW, targetH);
+    } else {
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = 'bold 30px "Plus Jakarta Sans", system-ui, sans-serif';
+      ctx.fillText('brother', x, y + 22);
+      ctx.font = 'italic 500 13px "Plus Jakarta Sans", system-ui, sans-serif';
+      ctx.fillStyle = '#94A3B8';
+      ctx.fillText('at your side', x + 2, y + 38);
+    }
+    ctx.restore();
+  };
+
+  // -------------------------------------------------------------
+  // MODE: 'none' (Pure Image / No Text Overlay)
+  // Renders 100% clean photograph with clean Brother logo watermark
+  // -------------------------------------------------------------
+  if (overlayMode === 'none') {
+    // Top-left subtle official Brother watermark with drop shadow
+    await drawBrotherLogo(isBanner ? 48 : 60, isBanner ? 40 : 52, isBanner ? 34 : 40);
+    return canvas.toDataURL('image/png');
+  }
+
+  // -------------------------------------------------------------
+  // MODE: 'minimal' (Clean Editorial - Recommended Uncluttered)
+  // Top 60% of photograph is completely clear.
+  // Gentle bottom vignette anchors badge + punchy headline.
+  // -------------------------------------------------------------
+  if (overlayMode === 'minimal') {
+    // 1. Bottom-third soft vignette only
+    const scrim = ctx.createLinearGradient(0, height * 0.4, 0, height);
+    scrim.addColorStop(0, 'rgba(2, 6, 23, 0)');
+    scrim.addColorStop(0.35, 'rgba(2, 6, 23, 0.45)');
+    scrim.addColorStop(0.7, 'rgba(2, 6, 23, 0.85)');
+    scrim.addColorStop(1, 'rgba(2, 6, 23, 0.98)');
+    ctx.fillStyle = scrim;
+    ctx.fillRect(0, 0, width, height);
+
+    // 2. Brother Blue Accent Bar (subtle 5px)
+    ctx.fillStyle = '#0f2ea2';
+    if (isBanner) {
+      ctx.fillRect(0, 0, 6, height);
+    } else {
+      ctx.fillRect(0, 0, width, 6);
+    }
+
+    // 3. Top Header: Logo & Slide Number
+    await drawBrotherLogo(70, isBanner ? 42 : 55, isBanner ? 32 : 38);
+
+    if (slide?.slideNumber && !isBanner) {
+      ctx.save();
+      ctx.font = 'bold 13px "Plus Jakarta Sans", monospace';
+      const numWidth = ctx.measureText(slide.slideNumber).width;
+      const pillW = numWidth + 24;
+      const pillH = 28;
+      const pillX = width - 70 - pillW;
+      const pillY = 55;
+
+      ctx.fillStyle = '#0f2ea2';
+      ctx.beginPath();
+      ctx.roundRect(pillX, pillY, pillW, pillH, 14);
+      ctx.fill();
+
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      ctx.fillStyle = '#FFFFFF';
+      ctx.textAlign = 'center';
+      ctx.fillText(slide.slideNumber, pillX + pillW / 2, pillY + 18);
+      ctx.restore();
+    }
+
+    // 4. Bottom-anchored Badge Pill
+    const badgeY = isBanner ? height - 250 : height - 340;
+    if (slide?.badge) {
+      ctx.save();
+      ctx.font = 'bold 12px "Plus Jakarta Sans", system-ui, sans-serif';
+      const textWidth = ctx.measureText(slide.badge.toUpperCase()).width;
+      const pillWidth = textWidth + 26;
+      const pillHeight = 26;
+
+      ctx.fillStyle = '#0f2ea2';
+      ctx.beginPath();
+      ctx.roundRect(70, badgeY, pillWidth, pillHeight, 6);
+      ctx.fill();
+
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillText(slide.badge.toUpperCase(), 83, badgeY + 18);
+      ctx.restore();
+    }
+
+    // 5. Main Headline (Bottom-Third)
+    const headlineY = isBanner ? height - 190 : height - 270;
+    ctx.save();
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = isBanner 
+      ? 'bold 40px "Plus Jakarta Sans", system-ui, sans-serif'
+      : 'bold 46px "Plus Jakarta Sans", system-ui, sans-serif';
+
+    const maxLineWidth = width - 140;
+    wrapText(ctx, slide?.headline || '', 70, headlineY, maxLineWidth, isBanner ? 46 : 54);
+    ctx.restore();
+
+    // 6. Subheadline (Punchy 1-line takeaway)
+    const subY = isBanner ? height - 110 : height - 150;
+    ctx.save();
+    ctx.fillStyle = '#E2E8F0';
+    ctx.font = isBanner 
+      ? '500 18px "Plus Jakarta Sans", system-ui, sans-serif'
+      : '500 21px "Plus Jakarta Sans", system-ui, sans-serif';
+    wrapText(ctx, slide?.subheadline || '', 70, subY, maxLineWidth, 28);
+    ctx.restore();
+
+    // 7. Bottom Footer Line & Tagline
+    ctx.save();
+    const footerY = height - 42;
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(70, footerY - 18);
+    ctx.lineTo(width - 70, footerY - 18);
+    ctx.stroke();
+
+    ctx.fillStyle = '#94A3B8';
+    ctx.font = '500 12px "Plus Jakarta Sans", system-ui, sans-serif';
+    const effectiveFooter = getEffectiveFooterText(slide, aspectRatio);
+    ctx.fillText(effectiveFooter, 70, footerY);
+    ctx.restore();
+
+    return canvas.toDataURL('image/png');
+  }
+
+  // -------------------------------------------------------------
+  // MODE: 'frosted' (Floating Frosted Glass Card)
+  // Background photo remains 100% visible and bright.
+  // Translucent card at bottom docks the headline & takeaway.
+  // -------------------------------------------------------------
+  if (overlayMode === 'frosted') {
+    // 1. Top Bar: Official Brother Logo & Slide Number
+    await drawBrotherLogo(70, isBanner ? 45 : 60, isBanner ? 34 : 40);
+
+    if (slide?.slideNumber && !isBanner) {
+      ctx.save();
+      ctx.font = 'bold 13px "Plus Jakarta Sans", monospace';
+      const numWidth = ctx.measureText(slide.slideNumber).width;
+      const pillW = numWidth + 24;
+      const pillH = 28;
+      const pillX = width - 70 - pillW;
+      const pillY = 60;
+
+      ctx.fillStyle = '#0f2ea2';
+      ctx.beginPath();
+      ctx.roundRect(pillX, pillY, pillW, pillH, 14);
+      ctx.fill();
+
+      ctx.fillStyle = '#FFFFFF';
+      ctx.textAlign = 'center';
+      ctx.fillText(slide.slideNumber, pillX + pillW / 2, pillY + 18);
+      ctx.restore();
+    }
+
+    // 2. Translucent Glass Card at Bottom
+    const cardMargin = isBanner ? 45 : 60;
+    const cardW = width - (cardMargin * 2);
+    const cardH = isBanner ? 260 : 340;
+    const cardX = cardMargin;
+    const cardY = height - cardH - (isBanner ? 35 : 50);
+
+    ctx.save();
+    ctx.fillStyle = 'rgba(6, 16, 43, 0.78)';
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
+    ctx.lineWidth = 1.5;
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+    ctx.shadowBlur = 24;
+    ctx.shadowOffsetY = 8;
+    ctx.beginPath();
+    ctx.roundRect(cardX, cardY, cardW, cardH, 20);
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+
+    // Inside card: Badge
+    const innerPadX = 35;
+    const contentX = cardX + innerPadX;
+    const contentMaxW = cardW - (innerPadX * 2);
+
+    if (slide?.badge) {
+      const badgeY = cardY + 30;
+      ctx.save();
+      ctx.font = 'bold 11px "Plus Jakarta Sans", system-ui, sans-serif';
+      const textWidth = ctx.measureText(slide.badge.toUpperCase()).width;
+      const pillWidth = textWidth + 24;
+      const pillHeight = 24;
+
+      ctx.fillStyle = '#0f2ea2';
+      ctx.beginPath();
+      ctx.roundRect(contentX, badgeY, pillWidth, pillHeight, 5);
+      ctx.fill();
+
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillText(slide.badge.toUpperCase(), contentX + 12, badgeY + 16);
+      ctx.restore();
+    }
+
+    // Inside card: Headline
+    const headlineY = cardY + (slide?.badge ? 90 : 65);
+    ctx.save();
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = isBanner 
+      ? 'bold 36px "Plus Jakarta Sans", system-ui, sans-serif'
+      : 'bold 42px "Plus Jakarta Sans", system-ui, sans-serif';
+    wrapText(ctx, slide?.headline || '', contentX, headlineY, contentMaxW, isBanner ? 42 : 50);
+    ctx.restore();
+
+    // Inside card: Subheadline
+    const subY = headlineY + (isBanner ? 65 : 85);
+    ctx.save();
+    ctx.fillStyle = '#E2E8F0';
+    ctx.font = isBanner 
+      ? '500 17px "Plus Jakarta Sans", system-ui, sans-serif'
+      : '500 19px "Plus Jakarta Sans", system-ui, sans-serif';
+    wrapText(ctx, slide?.subheadline || '', contentX, subY, contentMaxW, 26);
+    ctx.restore();
+
+    // Footer inside card at bottom
+    ctx.save();
+    ctx.fillStyle = '#94A3B8';
+    ctx.font = '500 11px "Plus Jakarta Sans", system-ui, sans-serif';
+    const effectiveFooter = getEffectiveFooterText(slide, aspectRatio);
+    ctx.fillText(effectiveFooter, contentX, cardY + cardH - 22);
+    ctx.restore();
+
+    return canvas.toDataURL('image/png');
+  }
+
+  // -------------------------------------------------------------
+  // MODE: 'full' (Classic Detailed 4-Tier Layout)
+  // Preserves full scrim & all 4 text tiers for comprehensive posts
+  // -------------------------------------------------------------
   // 2. Cinematic Gradient Overlays for High Legibility
   const scrim = ctx.createLinearGradient(0, 0, width, height);
   if (isBanner) {
@@ -1036,36 +1302,8 @@ export async function renderSlideToCanvas(arg1, arg2, arg3) {
     ctx.fillRect(0, 0, width, 8);
   }
 
-  // 3. Top Header: Official Brother Logo & Slide Number
-  let logoLoaded = false;
-  const logoImg = new Image();
-  logoImg.crossOrigin = 'anonymous';
-
-  const loadLogo = (src) => new Promise((resolve) => {
-    logoImg.onload = () => { logoLoaded = true; resolve(); };
-    logoImg.onerror = () => { logoLoaded = false; resolve(); };
-    logoImg.src = src;
-  });
-
-  await loadLogo('/brother-logo.svg');
-  if (!logoLoaded) {
-    await loadLogo('/brother-logo.png');
-  }
-
-  if (logoLoaded && logoImg.width > 0) {
-    const logoH = isBanner ? 34 : 40;
-    const logoW = (logoImg.width / logoImg.height) * logoH;
-    ctx.drawImage(logoImg, 70, isBanner ? 48 : 65, logoW, logoH);
-  } else {
-    ctx.save();
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 30px "Plus Jakarta Sans", system-ui, sans-serif';
-    ctx.fillText('brother', 70, isBanner ? 65 : 85);
-    ctx.font = 'italic 500 13px "Plus Jakarta Sans", system-ui, sans-serif';
-    ctx.fillStyle = '#94A3B8';
-    ctx.fillText('at your side', 72, isBanner ? 83 : 103);
-    ctx.restore();
-  }
+  // Top Header: Official Brother Logo & Slide Number
+  await drawBrotherLogo(70, isBanner ? 48 : 65, isBanner ? 34 : 40);
 
   // Slide Numbering (e.g. 01 / 05 in official Brother Blue) — Carousel only, omitted on 1.91:1 banner
   if (slide?.slideNumber && !isBanner) {

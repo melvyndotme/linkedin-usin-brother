@@ -243,6 +243,14 @@ export default function ImageTemplateStudio({
   const [showTextEditor, setShowTextEditor] = useState(false);
   const [customSlideText, setCustomSlideText] = useState({});
 
+  // Slide Overlay Presentation Style: 'none' (Pure Image) | 'minimal' (Clean Editorial) | 'frosted' (Frosted Card) | 'full' (Classic 4-Tier)
+  const [overlayMode, setOverlayMode] = useState(() => safeGetItem('brother_overlay_mode') || 'minimal');
+
+  const handleSetOverlayMode = (mode) => {
+    setOverlayMode(mode);
+    safeSetItem('brother_overlay_mode', mode);
+  };
+
   // Determine photo theme category based on current occasion
   const photoCategory = useMemo(() => {
     return getPhotoCategoryForOccasion(occasion);
@@ -383,7 +391,8 @@ export default function ImageTemplateStudio({
       const dataUrl = await renderSlideToCanvas({
         slide: currentSlide,
         photoUrl: currentPhoto,
-        aspectRatio
+        aspectRatio,
+        overlayMode
       });
 
       if (dataUrl) {
@@ -396,7 +405,7 @@ export default function ImageTemplateStudio({
         logActivity({
           event: 'Exported Single Carousel Slide',
           category: 'Visual Studio',
-          details: `Downloaded Slide ${currentSlide.slideIndex} (${currentSlide.roleTitle}) for "${occasion?.name || 'Brother Post'}"`,
+          details: `Downloaded Slide ${currentSlide.slideIndex} (${currentSlide.roleTitle}) [Style: ${overlayMode}] for "${occasion?.name || 'Brother Post'}"`,
           status: 'Success'
         });
       }
@@ -420,7 +429,8 @@ export default function ImageTemplateStudio({
         const dataUrl = await renderSlideToCanvas({
           slide,
           photoUrl: slidePhoto,
-          aspectRatio
+          aspectRatio,
+          overlayMode
         });
 
         if (dataUrl) {
@@ -436,7 +446,7 @@ export default function ImageTemplateStudio({
       logActivity({
         event: 'Exported Full 5-Slide Carousel Pack',
         category: 'Visual Studio',
-        details: `Downloaded all 5 slides (1080x1080) for "${occasion?.name || 'Brother Post'}" - ${activeDraft?.name || 'Curated Angle'}`,
+        details: `Downloaded all 5 slides (1080x1080) [Style: ${overlayMode}] for "${occasion?.name || 'Brother Post'}" - ${activeDraft?.name || 'Curated Angle'}`,
         status: 'Success'
       });
     } catch (err) {
@@ -454,7 +464,8 @@ export default function ImageTemplateStudio({
         slides: baseSlides,
         slidePhotos,
         customSlideText,
-        aspectRatio
+        aspectRatio,
+        overlayMode
       });
 
       // 1. Trigger client download of the PDF
@@ -1283,6 +1294,22 @@ export default function ImageTemplateStudio({
               </button>
             </div>
 
+            {overlayMode === 'none' && (
+              <div className="p-2.5 rounded-lg bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-200 text-xs flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <Info className="w-4 h-4 shrink-0 text-[#0f2ea2] dark:text-blue-400" />
+                  <span>Currently in <strong>Pure Image</strong> mode (text overlay hidden on canvas). Switch below to <em>Clean Editorial</em>, <em>Frosted Card</em>, or <em>Full Details</em> to render text overlays.</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleSetOverlayMode('minimal')}
+                  className="px-2.5 py-1 rounded bg-[#0f2ea2] text-white font-bold text-[10px] whitespace-nowrap hover:bg-blue-800 transition-colors cursor-pointer"
+                >
+                  Enable Text
+                </button>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
@@ -1425,6 +1452,72 @@ export default function ImageTemplateStudio({
           </div>
         )}
 
+        {/* Presentation & Text Overlay Style Switcher */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-3 rounded-xl bg-slate-100/90 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60">
+          <div className="flex items-center gap-2">
+            <Sliders className="w-4 h-4 text-[#0f2ea2] dark:text-blue-400 shrink-0" />
+            <div>
+              <span className="text-xs font-bold text-slate-900 dark:text-white">
+                Slide Presentation Style:
+              </span>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                {overlayMode === 'none' && '🖼️ Pure Photograph (Zero text overlay & no dark scrim — 100% clean image with Brother logo watermark)'}
+                {overlayMode === 'minimal' && '🌿 Clean Editorial (Bottom-third anchor, clear punchline, 70% unshaded photograph)'}
+                {overlayMode === 'frosted' && '🧊 Frosted Glass Card (Translucent floating bottom card, background photo stays 100% visible)'}
+                {overlayMode === 'full' && '📝 Full Details (Traditional 4-tier comprehensive text layout)'}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1 bg-white dark:bg-slate-900 p-1 rounded-lg border border-slate-200 dark:border-slate-700/70 shrink-0 overflow-x-auto">
+            <button
+              type="button"
+              onClick={() => handleSetOverlayMode('none')}
+              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+                overlayMode === 'none'
+                  ? 'bg-[#0f2ea2] text-white shadow-sm'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+              }`}
+            >
+              <span>🖼️ Pure Image</span>
+              <span className={`text-[10px] ${overlayMode === 'none' ? 'text-blue-200' : 'text-slate-400'}`}>(No Text)</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSetOverlayMode('minimal')}
+              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+                overlayMode === 'minimal'
+                  ? 'bg-[#0f2ea2] text-white shadow-sm'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+              }`}
+            >
+              <span>🌿 Clean Editorial</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSetOverlayMode('frosted')}
+              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+                overlayMode === 'frosted'
+                  ? 'bg-[#0f2ea2] text-white shadow-sm'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+              }`}
+            >
+              <span>🧊 Frosted Card</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSetOverlayMode('full')}
+              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+                overlayMode === 'full'
+                  ? 'bg-[#0f2ea2] text-white shadow-sm'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+              }`}
+            >
+              <span>📝 Full Details</span>
+            </button>
+          </div>
+        </div>
+
         {/* The Live Composite Image / Carousel Canvas */}
         <div className="relative w-full rounded-2xl overflow-hidden shadow-xl border border-slate-300/80 dark:border-slate-800 bg-slate-950 group">
           <div 
@@ -1440,64 +1533,182 @@ export default function ImageTemplateStudio({
               className="absolute inset-0 w-full h-full object-cover select-none transition-all duration-500 group-hover:scale-105"
             />
 
-            {/* Cinematic Scrim & Brother Gradient Overlay */}
-            <div className={`absolute inset-0 transition-opacity duration-300 pointer-events-none ${
-              aspectRatio === '1.91:1'
-                ? 'bg-gradient-to-r from-slate-950/90 via-slate-950/50 to-slate-950/15'
-                : 'bg-gradient-to-t from-slate-950/95 via-slate-950/60 to-slate-950/20'
-            }`} />
+            {/* Gradient Scrim: Only applied when text overlay modes need contrast */}
+            {overlayMode === 'minimal' && (
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/40 to-transparent pointer-events-none transition-opacity duration-300" />
+            )}
 
-            {/* Signature Brother Blue Accent Edge */}
-            <div className={`absolute ${aspectRatio === '1.91:1' ? 'left-0 top-0 bottom-0 w-2.5' : 'top-0 left-0 right-0 h-2.5'} bg-[#0f2ea2] shadow-lg pointer-events-none`} />
+            {overlayMode === 'full' && (
+              <div className={`absolute inset-0 transition-opacity duration-300 pointer-events-none ${
+                aspectRatio === '1.91:1'
+                  ? 'bg-gradient-to-r from-slate-950/90 via-slate-950/50 to-slate-950/15'
+                  : 'bg-gradient-to-t from-slate-950/95 via-slate-950/60 to-slate-950/20'
+              }`} />
+            )}
 
-            {/* Slide Content Overlay */}
-            <div className="absolute inset-0 p-6 sm:p-10 flex flex-col justify-between text-white select-none">
-              {/* Top Bar: Official Brother Logo & Slide Indicator */}
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-2">
-                  <img 
-                    src="/brother-logo.svg" 
-                    alt="Brother • at your side" 
-                    className="h-8 sm:h-10 w-auto object-contain drop-shadow-md"
-                    onError={(e) => {
-                      e.target.src = '/brother-logo.png';
-                    }}
-                  />
-                </div>
+            {/* Signature Brother Blue Accent Edge (shown in text modes) */}
+            {overlayMode !== 'none' && (
+              <div className={`absolute ${aspectRatio === '1.91:1' ? 'left-0 top-0 bottom-0 w-2' : 'top-0 left-0 right-0 h-2'} bg-[#0f2ea2] shadow-lg pointer-events-none`} />
+            )}
 
-                {aspectRatio === '1:1' && (
-                  <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#0f2ea2] text-white text-[11px] font-mono font-bold shadow-md border border-white/20">
-                    {currentSlide.slideNumber}
+            {/* 1. Pure Image Mode: Clean Photograph with Subtle Watermark Only */}
+            {overlayMode === 'none' && (
+              <div className="absolute inset-0 p-6 sm:p-8 flex flex-col justify-between pointer-events-none select-none">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-2 p-1.5 rounded-lg bg-slate-950/35 backdrop-blur-sm border border-white/10 shadow-lg">
+                    <img 
+                      src="/brother-logo.svg" 
+                      alt="Brother • at your side" 
+                      className="h-7 sm:h-9 w-auto object-contain drop-shadow-md"
+                      onError={(e) => {
+                        e.target.src = '/brother-logo.png';
+                      }}
+                    />
                   </div>
-                )}
+                  <div className="px-3 py-1 rounded-full bg-slate-950/60 backdrop-blur-md text-white text-[11px] font-medium border border-white/20 shadow-md">
+                    🖼️ Pure Image Mode (No Text)
+                  </div>
+                </div>
               </div>
+            )}
 
-              {/* Middle Section: Badges, Headline, and Narrative */}
-              <div className={`space-y-2 sm:space-y-3 ${aspectRatio === '1.91:1' ? 'max-w-2xl my-auto' : 'my-auto'}`}>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-[#0f2ea2] text-white text-[10px] sm:text-xs font-bold uppercase tracking-wider shadow-sm">
-                  {currentSlide.badge}
+            {/* 2. Clean Editorial Mode: Bottom-Third Anchor */}
+            {overlayMode === 'minimal' && (
+              <div className="absolute inset-0 p-6 sm:p-10 flex flex-col justify-between text-white select-none">
+                {/* Top Bar: Official Brother Logo & Slide Indicator */}
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-2">
+                    <img 
+                      src="/brother-logo.svg" 
+                      alt="Brother • at your side" 
+                      className="h-8 sm:h-10 w-auto object-contain drop-shadow-md"
+                      onError={(e) => {
+                        e.target.src = '/brother-logo.png';
+                      }}
+                    />
+                  </div>
+                  {aspectRatio === '1:1' && (
+                    <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#0f2ea2] text-white text-[11px] font-mono font-bold shadow-md border border-white/20">
+                      {currentSlide.slideNumber}
+                    </div>
+                  )}
                 </div>
 
-                <h3 className="text-xl sm:text-3xl md:text-4xl font-black text-white leading-tight tracking-tight drop-shadow-md">
-                  {currentSlide.headline}
-                </h3>
+                {/* Bottom Third Section: Badge + Punchy Headline + 1-Sentence Takeaway */}
+                <div className="mt-auto space-y-2 sm:space-y-3 pb-2">
+                  <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-[#0f2ea2] text-white text-[10px] sm:text-xs font-bold uppercase tracking-wider shadow-sm">
+                    {currentSlide.badge}
+                  </div>
 
-                <p className="text-sm sm:text-base md:text-lg text-slate-200 font-medium leading-snug drop-shadow-sm line-clamp-3">
-                  {currentSlide.subheadline}
-                </p>
+                  <h3 className="text-xl sm:text-3xl md:text-4xl font-black text-white leading-tight tracking-tight drop-shadow-md">
+                    {currentSlide.headline}
+                  </h3>
 
-                {currentSlide.supportingText && (
-                  <p className="text-xs sm:text-sm text-slate-300 font-normal leading-relaxed pt-1 line-clamp-3">
-                    {currentSlide.supportingText}
+                  <p className="text-sm sm:text-base md:text-lg text-slate-200 font-medium leading-snug drop-shadow-sm line-clamp-2">
+                    {currentSlide.subheadline}
                   </p>
-                )}
-              </div>
+                </div>
 
-              {/* Bottom Footer: Official Tagline */}
-              <div className="pt-3 border-t border-white/15 flex items-center justify-between text-[11px] text-slate-400 font-medium">
-                <span>{getEffectiveFooterText(currentSlide, aspectRatio)}</span>
+                {/* Bottom Footer: Official Tagline */}
+                <div className="pt-2.5 border-t border-white/15 flex items-center justify-between text-[11px] text-slate-400 font-medium">
+                  <span>{getEffectiveFooterText(currentSlide, aspectRatio)}</span>
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* 3. Frosted Card Mode: Floating Glass Card at Bottom */}
+            {overlayMode === 'frosted' && (
+              <div className="absolute inset-0 p-6 sm:p-8 flex flex-col justify-between text-white select-none">
+                {/* Top Bar */}
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-2 p-1.5 rounded-lg bg-slate-950/40 backdrop-blur-sm border border-white/10">
+                    <img 
+                      src="/brother-logo.svg" 
+                      alt="Brother • at your side" 
+                      className="h-7 sm:h-9 w-auto object-contain drop-shadow-md"
+                      onError={(e) => {
+                        e.target.src = '/brother-logo.png';
+                      }}
+                    />
+                  </div>
+                  {aspectRatio === '1:1' && (
+                    <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#0f2ea2] text-white text-[11px] font-mono font-bold shadow-md border border-white/20">
+                      {currentSlide.slideNumber}
+                    </div>
+                  )}
+                </div>
+
+                {/* Floating Translucent Glass Card */}
+                <div className="mt-auto backdrop-blur-md bg-slate-950/75 border border-white/20 rounded-2xl p-4 sm:p-6 shadow-2xl space-y-2 sm:space-y-3">
+                  <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded bg-[#0f2ea2] text-white text-[10px] font-bold uppercase tracking-wider shadow-sm">
+                    {currentSlide.badge}
+                  </div>
+
+                  <h3 className="text-lg sm:text-2xl md:text-3xl font-black text-white leading-tight tracking-tight drop-shadow">
+                    {currentSlide.headline}
+                  </h3>
+
+                  <p className="text-xs sm:text-sm md:text-base text-slate-200 font-medium leading-snug line-clamp-2">
+                    {currentSlide.subheadline}
+                  </p>
+
+                  <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[10px] text-slate-400 font-medium">
+                    <span>{getEffectiveFooterText(currentSlide, aspectRatio)}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 4. Full Details Mode: Classic 4-Tier Layout */}
+            {overlayMode === 'full' && (
+              <div className="absolute inset-0 p-6 sm:p-10 flex flex-col justify-between text-white select-none">
+                {/* Top Bar: Official Brother Logo & Slide Indicator */}
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-2">
+                    <img 
+                      src="/brother-logo.svg" 
+                      alt="Brother • at your side" 
+                      className="h-8 sm:h-10 w-auto object-contain drop-shadow-md"
+                      onError={(e) => {
+                        e.target.src = '/brother-logo.png';
+                      }}
+                    />
+                  </div>
+
+                  {aspectRatio === '1:1' && (
+                    <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#0f2ea2] text-white text-[11px] font-mono font-bold shadow-md border border-white/20">
+                      {currentSlide.slideNumber}
+                    </div>
+                  )}
+                </div>
+
+                {/* Middle Section: Badges, Headline, and Narrative */}
+                <div className={`space-y-2 sm:space-y-3 ${aspectRatio === '1.91:1' ? 'max-w-2xl my-auto' : 'my-auto'}`}>
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-[#0f2ea2] text-white text-[10px] sm:text-xs font-bold uppercase tracking-wider shadow-sm">
+                    {currentSlide.badge}
+                  </div>
+
+                  <h3 className="text-xl sm:text-3xl md:text-4xl font-black text-white leading-tight tracking-tight drop-shadow-md">
+                    {currentSlide.headline}
+                  </h3>
+
+                  <p className="text-sm sm:text-base md:text-lg text-slate-200 font-medium leading-snug drop-shadow-sm line-clamp-3">
+                    {currentSlide.subheadline}
+                  </p>
+
+                  {currentSlide.supportingText && (
+                    <p className="text-xs sm:text-sm text-slate-300 font-normal leading-relaxed pt-1 line-clamp-3">
+                      {currentSlide.supportingText}
+                    </p>
+                  )}
+                </div>
+
+                {/* Bottom Footer: Official Tagline */}
+                <div className="pt-3 border-t border-white/15 flex items-center justify-between text-[11px] text-slate-400 font-medium">
+                  <span>{getEffectiveFooterText(currentSlide, aspectRatio)}</span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

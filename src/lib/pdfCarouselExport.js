@@ -18,7 +18,8 @@ export async function generateCarouselPdf({
   slides = [],
   slidePhotos = {},
   customSlideText = {},
-  aspectRatio = '1:1'
+  aspectRatio = '1:1',
+  overlayMode = 'minimal'
 }) {
   if (!slides || slides.length === 0) {
     throw new Error('No slides available to generate carousel PDF.');
@@ -44,7 +45,12 @@ export async function generateCarouselPdf({
     const photoUrl = slidePhotos[i] || slide.defaultPhotoUrl;
 
     // Render high-fidelity canvas slide
-    const slideDataUrl = await renderSlideToCanvas(slide, photoUrl, aspectRatio);
+    const slideDataUrl = await renderSlideToCanvas({
+      slide,
+      photoUrl,
+      aspectRatio,
+      overlayMode
+    });
 
     if (i > 0) {
       pdf.addPage([width, height], orientation);
