@@ -197,57 +197,40 @@ function filterAssets(assets, country, category, search) {
   });
 }
 
-function isIrrelevantAsset(name = '', url = '', category = '') {
-  const n = String(name || '').toLowerCase();
-  const u = String(url || '').toLowerCase();
-  const c = String(category || '').toLowerCase();
+function isIrrelevantAsset(name = '', url = '', category = '', alt = '') {
+  const n = String(name || '').trim().toLowerCase();
+  const a = String(alt || '').trim().toLowerCase();
+  const u = String(url || '').trim().toLowerCase();
+  const c = String(category || '').trim().toLowerCase();
+  const combined = `${n} ${a} ${u}`;
 
-  // Exclude icon, logo, and UI categories
+  // 1. Explicit Category filter
   if (c.includes('icon') || c.includes('logo') || c.includes('ui')) return true;
 
-  // Exclude URLs pointing to icons, logos, buttons, arrows, headers, or social marks
-  if (
-    u.includes('/icon') ||
-    u.includes('_icon') ||
-    u.includes('link_icon') ||
-    u.includes('logo_') ||
-    u.includes('/logo') ||
-    u.includes('common/img/header') ||
-    u.includes('/btn') ||
-    u.includes('_btn') ||
-    u.includes('/arrow') ||
-    u.includes('/flags/') ||
-    u.includes('flags/') ||
-    u.includes('/flag') ||
-    u.includes('bcsg') ||
-    u.includes('social') ||
-    u.includes('facebook') ||
-    u.includes('twitter') ||
-    u.includes('youtube') ||
-    u.includes('instagram') ||
-    u.includes('favicon')
-  ) {
-    return true;
-  }
+  // 2. Vector SVG formats
+  if (/\.svg($|\?)/i.test(u)) return true;
 
-  // Exclude titles indicating web navigational elements, symbols, or flag assets
-  if (
-    n.includes('[pdf]') ||
-    n.includes('[新しいウィンドウ]') ||
-    n.includes('検索') ||
-    n.includes('search') ||
-    n.includes('bcsg') ||
-    n.includes('flag') ||
-    n.includes('facebook') ||
-    n.includes('twitter') ||
-    n.includes('youtube') ||
-    n.includes('logo') ||
-    n.includes('favicon') ||
-    n.includes('important_') ||
-    n.includes('お知らせ')
-  ) {
-    return true;
-  }
+  // 3. Social Media & "X" Icons (Twitter / X, Facebook, Instagram, TikTok, Line, etc.)
+  if (n === 'x' || a === 'x' || /(?:^|[_\-/])(?:button|icon|ico|sns|header|footer)[_-]x(?:[_\-./]|$)/i.test(u)) return true;
+  if (/\b(twitter|tiktok|facebook|youtube|instagram|linkedin|viber|naver|line|sns)\b/i.test(combined)) return true;
+  if (/button_facebook|button_line|button-x|button_x/i.test(u)) return true;
+
+  // 4. Close / Cross Buttons ("X" buttons)
+  if (/\b(close|white-close|cross)\b/i.test(n) || /\b(close|white-close|cross)\b/i.test(a)) return true;
+  if (/(?:^|[_\-/])(?:white-)?close\.(?:svg|png|webp|ashx)/i.test(u)) return true;
+
+  // 5. Navigation & UI Controls (hamburger, search, cart, download, arrows, login, window, pdf)
+  if (/\b(hamburger|search|magnif|download-icon|download_icon|cart icon|cart|corseal|latest-promo|m380-menu-icon)\b/i.test(combined)) return true;
+  if (/button_search|button_login|new_win|01_pdf|icon_important|icon_global/i.test(u)) return true;
+  if (/header\/logo_brother|footer\/logo_brother/i.test(u)) return true;
+  if (n.includes('[pdf]') || n.includes('[新しいウィンドウ]') || n.includes('検索') || n.includes('お知らせ')) return true;
+
+  // 6. Flags & specific non-product graphics
+  if (/flag\/|bcsg/i.test(u) || n === '日本' || n.includes('flag')) return true;
+
+  // 7. Tiny dimension query parameters (< 100px)
+  const dimMatch = u.match(/[?&](?:h|w)=(\d+)/);
+  if (dimMatch && parseInt(dimMatch[1], 10) < 100) return true;
 
   return false;
 }
