@@ -805,65 +805,73 @@ To everyone celebrating, how is your team marking this special day? Share your f
             </p>
           </div>
 
-          <div className="flex items-center gap-2 w-full sm:w-auto flex-wrap">
-            {/* Preview on LinkedIn Button */}
-            <button
-              type="button"
-              onClick={() => {
-                setShowLinkedInPreviewModal(true);
-                setPreviewExpandedSeeMore(false);
-              }}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-[#0f2ea2] bg-blue-50 dark:bg-blue-950/60 text-[#0f2ea2] dark:text-blue-300 text-xs font-bold hover:bg-blue-100 dark:hover:bg-blue-900/80 transition-all shadow-sm cursor-pointer"
-              title="Preview how this post looks on LinkedIn (Mobile & Desktop)"
-            >
-              <Eye className="w-4 h-4" />
-              <span>Preview on LinkedIn</span>
-            </button>
+          <div className="w-full sm:w-auto flex flex-col gap-2">
+            {/* Row 1: Draft, Schedule, Post Now */}
+            <div className="flex items-center gap-2 w-full">
+              {/* Save as Draft */}
+              <button
+                type="button"
+                onClick={() => handleSaveToNotionRepository(null, 'Working Draft')}
+                disabled={notionSaving}
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm disabled:opacity-50 cursor-pointer"
+                title="Save current post as Working Draft"
+              >
+                <Bookmark className={`w-3.5 h-3.5 ${notionSaving ? 'animate-spin' : ''}`} />
+                <span>{notionSaving ? 'Saving...' : 'Save Draft'}</span>
+              </button>
 
-            {/* Save as Draft */}
-            <button
-              onClick={() => handleSaveToNotionRepository(null, 'Working Draft')}
-              disabled={notionSaving}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm disabled:opacity-50 cursor-pointer"
-              title="Save current post as Working Draft"
-            >
-              <Bookmark className={`w-3.5 h-3.5 ${notionSaving ? 'animate-spin' : ''}`} />
-              <span>{notionSaving ? 'Saving...' : 'Save Draft'}</span>
-            </button>
+              {/* Schedule */}
+              <button
+                type="button"
+                onClick={() => {
+                  setShowScheduleModal(true);
+                  setScheduleConflict(null);
+                  setScheduleSuccessMsg(null);
+                }}
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-950/40 text-[#0f2ea2] dark:text-blue-300 text-xs font-bold hover:bg-blue-100 dark:hover:bg-blue-900/60 transition-all shadow-sm cursor-pointer"
+                title="Schedule post"
+              >
+                <CalendarDays className="w-3.5 h-3.5" />
+                <span>Schedule</span>
+              </button>
 
-            {/* Schedule */}
-            <button
-              onClick={() => {
-                setShowScheduleModal(true);
-                setScheduleConflict(null);
-                setScheduleSuccessMsg(null);
-              }}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-950/40 text-[#0f2ea2] dark:text-blue-300 text-xs font-bold hover:bg-blue-100 dark:hover:bg-blue-900/60 transition-all shadow-sm cursor-pointer"
-              title="Schedule post"
-            >
-              <CalendarDays className="w-3.5 h-3.5" />
-              <span>Schedule</span>
-            </button>
+              {/* Post Now */}
+              <button
+                type="button"
+                onClick={handlePublishToLinkedIn}
+                disabled={publishing || (publishedData && publishedData.status === 'Live on LinkedIn')}
+                className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold shadow-md transition-all active:scale-95 cursor-pointer ${
+                  publishedData
+                    ? 'bg-emerald-600 text-white'
+                    : 'bg-[#0f2ea2] hover:bg-[#0c2482] text-white'
+                }`}
+              >
+                {publishing ? (
+                  <Sparkles className="w-3.5 h-3.5 animate-spin" />
+                ) : publishedData ? (
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                ) : (
+                  <Send className="w-3.5 h-3.5" />
+                )}
+                <span>{publishing ? 'Publishing...' : publishedData ? 'Published!' : 'Post Now'}</span>
+              </button>
+            </div>
 
-            {/* 1-Click Publish */}
-            <button
-              onClick={handlePublishToLinkedIn}
-              disabled={publishing || (publishedData && publishedData.status === 'Live on LinkedIn')}
-              className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold shadow-md transition-all active:scale-95 cursor-pointer ${
-                publishedData
-                  ? 'bg-emerald-600 text-white'
-                  : 'bg-[#0f2ea2] hover:bg-[#0c2482] text-white'
-              }`}
-            >
-              {publishing ? (
-                <Sparkles className="w-4 h-4 animate-spin" />
-              ) : publishedData ? (
-                <CheckCircle2 className="w-4 h-4" />
-              ) : (
-                <Send className="w-4 h-4" />
-              )}
-              {publishing ? 'Publishing...' : publishedData ? 'Published!' : 'Post Now'}
-            </button>
+            {/* Row 2: Preview on LinkedIn */}
+            <div className="w-full">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowLinkedInPreviewModal(true);
+                  setPreviewExpandedSeeMore(false);
+                }}
+                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-[#0f2ea2] bg-blue-50/70 dark:bg-blue-950/60 text-[#0f2ea2] dark:text-blue-300 text-xs font-bold hover:bg-blue-100 dark:hover:bg-blue-900/80 transition-all shadow-sm cursor-pointer"
+                title="Preview how this post looks on LinkedIn (Mobile & Desktop)"
+              >
+                <Eye className="w-4 h-4" />
+                <span>Preview on LinkedIn</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
