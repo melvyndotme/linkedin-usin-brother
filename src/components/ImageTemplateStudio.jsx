@@ -457,6 +457,34 @@ export default function ImageTemplateStudio({
     }
   };
 
+  // Auto-generate contextual visual prompt directly from finalized post copy
+  const handleGeneratePromptFromPost = () => {
+    const postCopy = activeDraft?.postContent || activeDraft?.post || occasion?.details || '';
+    if (!postCopy) {
+      setImagePrompt(`A high-resolution, studio-lit commercial photograph of a modern Brother Singapore office printer in matte black and titanium finish on an executive wooden desk. Warm natural sunlight, clean minimalist Japanese aesthetic, ultra-sharp focus, text-free.`);
+      return;
+    }
+
+    const lower = postCopy.toLowerCase();
+    let visualScene = '';
+
+    if (lower.includes('umbrella') || lower.includes('rain') || lower.includes('lc462')) {
+      visualScene = `A refined, cinematic lifestyle photograph on a modern Singapore office desk by a rain-streaked window. A sleek Brother printer in matte black with a closed navy automatic umbrella resting neatly beside a warm ceramic coffee mug. Soft ambient natural morning daylight, subtle Japanese Monozukuri craft aesthetic, 8k resolution, text-free.`;
+    } else if (lower.includes('printer') || lower.includes('cartridge') || lower.includes('toner') || lower.includes('ink') || lower.includes('mfc') || lower.includes('hardware')) {
+      visualScene = `Clean, high-end commercial editorial photograph of a modern Brother printer on a polished minimalist Singapore SME office desk. Gentle morning window illumination, tidy workstation with architecture blueprints, crisp clean composition, ultra-realistic, text-free.`;
+    } else if (lower.includes('kaizen') || lower.includes('monozukuri') || lower.includes('precision') || lower.includes('friction') || lower.includes('engineering')) {
+      visualScene = `Macro close-up editorial photograph showcasing precision Japanese engineering mechanics and gear alignment inside a premium printer chassis. Soft studio rim-lighting, tactile textures, metallic craftsmanship, depth of field bokeh, text-free.`;
+    } else if (lower.includes('celebrat') || lower.includes('festive') || lower.includes('wa') || lower.includes('harmony') || lower.includes('community') || lower.includes('blessing') || lower.includes('deepavali') || lower.includes('cny') || lower.includes('raya')) {
+      visualScene = `Warm, authentic corporate editorial photograph celebrating community and cultural harmony in a contemporary Singapore workplace setting. Warm golden ambient illumination, subtle festive accents, smiling diverse colleagues gathered in respectful conversation, cinematic bokeh, natural lighting, text-free.`;
+    } else if (lower.includes('sme') || lower.includes('productivity') || lower.includes('leader') || lower.includes('workplace') || lower.includes('digital')) {
+      visualScene = `Sophisticated Singapore corporate office scene overlooking the Marina Bay skyline. Modern collaborative workstation with ergonomic setup, natural ambient light, calm disciplined focus, premium editorial composition, text-free.`;
+    } else {
+      visualScene = `High-resolution editorial commercial photograph reflecting Brother Singapore's 'At your side' philosophy. Sleek modern workspace, natural daylight, warm minimalist tones, clean text-free composition.`;
+    }
+
+    setImagePrompt(visualScene);
+  };
+
   // AI Generate Visual using Gemini/Imagen
   const handleAiGenerate = async () => {
     setIsAiGenerating(true);
@@ -929,13 +957,19 @@ export default function ImageTemplateStudio({
 
           {/* Prompt Input Box */}
           <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between flex-wrap gap-2">
               <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                 Instructional Image Prompt:
               </label>
-              <span className="text-[10px] text-slate-400">
-                Text-free layer • Studio lighting • Japanese minimalist symmetry
-              </span>
+              <button
+                type="button"
+                onClick={handleGeneratePromptFromPost}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 text-[11px] font-bold text-[#0f2ea2] dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/80 transition-all cursor-pointer shadow-xs active:scale-95"
+                title="Automatically analyze the finalized post copy and suggest a tailored photography prompt"
+              >
+                <Sparkles className="w-3 h-3 text-[#0f2ea2] dark:text-blue-400" />
+                <span>✨ Auto-Match to Post Copy</span>
+              </button>
             </div>
             <textarea
               rows={3}

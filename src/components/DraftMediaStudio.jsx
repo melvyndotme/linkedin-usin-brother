@@ -5,7 +5,7 @@ import {
   CalendarDays, Clock, Zap, ShieldCheck, Upload, Link2, RefreshCw,
   Compass, Lightbulb, Target, MessageSquare, Quote, Eye, Smartphone, Monitor,
   ThumbsUp, Share2, Trash2, Image as ImageIcon, Bookmark,
-  MoreHorizontal, Repeat2, Plus
+  MoreHorizontal, Repeat2, Plus, PenSquare, ArrowLeft
 } from 'lucide-react';
 import ImageTemplateStudio from './ImageTemplateStudio.jsx';
 import { OFFICIAL_BROTHER_ASSETS } from '../lib/imageTemplateEngine.js';
@@ -57,6 +57,9 @@ To everyone celebrating, how is your team marking this special day? Share your f
   const [currentRationale, setCurrentRationale] = useState(
     initialDraft?.whyThisWorks || ''
   );
+
+  // 2-Stage Studio Workflow: 'copy' (Post Copywriter) | 'visual' (Visual Creative)
+  const [activeStudioStage, setActiveStudioStage] = useState('copy');
 
   // Active Draft Selection Index & Editor Ref for 1-tap mobile auto-scroll
   const draftEditorRef = useRef(null);
@@ -882,13 +885,13 @@ To everyone celebrating, how is your team marking this special day? Share your f
           <div>
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#0f2ea2]/10 text-[#0f2ea2] dark:text-blue-400 text-[11px] font-bold uppercase tracking-wider mb-1 sm:mb-1.5">
               <Edit3 className="w-3.5 h-3.5" />
-              Content Editor
+              Content Studio
             </div>
             <h2 className={`text-lg sm:text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
-              Campaign Drafting & Content Editor
+              Campaign Drafting & Visual Studio
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Generate strategic drafts using proven frameworks, design accompanying carousel visuals, and preview before publishing.
+              Refine your message in Post Copywriter, then craft high-impact branded imagery in Visual Creative.
             </p>
           </div>
 
@@ -1069,9 +1072,68 @@ To everyone celebrating, how is your team marking this special day? Share your f
       )}
 
       {/* ========================================================================= */}
-      {/* CARD 1: Full-Width Unified Card (1) Campaign topic, (2) Select Framework, */}
-      {/*         (3) AI Models + Generate, (4) Draft Post Editor                   */}
+      {/* 2-STAGE WORKFLOW STEPPER BAR: 1. Post Copywriter  ->  2. Visual Creative  */}
       {/* ========================================================================= */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-2 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <button
+            type="button"
+            onClick={() => setActiveStudioStage('copy')}
+            className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer ${
+              activeStudioStage === 'copy'
+                ? 'bg-white dark:bg-slate-800 text-[#0f2ea2] dark:text-blue-300 shadow-sm border border-slate-200/80 dark:border-slate-700'
+                : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200'
+            }`}
+          >
+            <PenSquare className="w-4 h-4 shrink-0" />
+            <span>1. Post Copywriter</span>
+            {content?.trim() && (
+              <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block shrink-0" title="Copy ready" />
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveStudioStage('visual')}
+            className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer ${
+              activeStudioStage === 'visual'
+                ? 'bg-white dark:bg-slate-800 text-[#0f2ea2] dark:text-blue-300 shadow-sm border border-slate-200/80 dark:border-slate-700'
+                : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200'
+            }`}
+          >
+            <ImageIcon className="w-4 h-4 shrink-0" />
+            <span>2. Visual Creative</span>
+          </button>
+        </div>
+
+        <div className="flex items-center justify-between sm:justify-end gap-3 text-xs text-slate-500 dark:text-slate-400 font-medium px-2">
+          <span>{activeStudioStage === 'copy' ? 'Stage 1 of 2: Refine Text Copy' : 'Stage 2 of 2: Visual Studio'}</span>
+          {activeStudioStage === 'copy' ? (
+            <button
+              type="button"
+              onClick={() => setActiveStudioStage('visual')}
+              className="inline-flex items-center gap-1 font-bold text-[#0f2ea2] dark:text-blue-400 hover:underline cursor-pointer"
+            >
+              <span>Go to Visuals</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setActiveStudioStage('copy')}
+              className="inline-flex items-center gap-1 font-bold text-slate-600 dark:text-slate-300 hover:underline cursor-pointer"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Back to Copy</span>
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* ========================================================================= */}
+      {/* STAGE 1: CARD 1: Post Copywriter (Steps 01-04)                            */}
+      {/* ========================================================================= */}
+      {activeStudioStage === 'copy' && (
       <div className={`p-4 sm:p-6 rounded-2xl border transition-colors ${
         isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
       } space-y-6`}>
@@ -1482,21 +1544,119 @@ To everyone celebrating, how is your team marking this special day? Share your f
               className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-3.5 font-mono text-xs leading-relaxed text-slate-900 dark:text-white focus:border-[#0f2ea2] focus:outline-none custom-scrollbar"
             />
           </div>
+
+          {/* Stage 1 to Stage 2 Navigation CTA */}
+          <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p className="text-xs text-slate-500 dark:text-slate-400 text-center sm:text-left">
+              Draft ready? Proceed to Visual Creative to design on-brand matching imagery.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setActiveStudioStage('visual');
+                window.scrollTo({ top: 120, behavior: 'smooth' });
+              }}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs sm:text-sm font-bold shadow-md hover:shadow-lg transition-all cursor-pointer"
+            >
+              <span>Continue to Visual Creative</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </div>
+      )}
 
       {/* ========================================================================= */}
-      {/* CARD 2: Full-Width Visual Studio (ImageTemplateStudio)                    */}
+      {/* STAGE 2: CARD 2: Visual Creative Studio                                   */}
       {/* ========================================================================= */}
-      <div className={`p-4 sm:p-6 rounded-2xl border ${
-        isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
-      }`}>
-        <ImageTemplateStudio
-          occasion={effectiveOccasion}
-          activeDraft={effectiveDraft}
-          isDark={isDark}
-        />
+      {activeStudioStage === 'visual' && (
+      <div className="space-y-6">
+        {/* Linked Post Copy Context Card */}
+        <div className={`p-4 sm:p-5 rounded-2xl border ${
+          isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+        } flex flex-col md:flex-row items-start md:items-center justify-between gap-4`}>
+          <div className="min-w-0 flex-1 space-y-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-950/80 text-[#0f2ea2] dark:text-blue-300">
+                Linked Post Copy
+              </span>
+              <span className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                {title || 'Campaign Post'}
+              </span>
+              <span className="text-[11px] text-slate-400 font-mono">
+                • {content.split(/\s+/).filter(Boolean).length} words
+              </span>
+            </div>
+            <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-2 leading-relaxed italic bg-slate-50 dark:bg-slate-950/50 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800">
+              "{content?.slice(0, 220)}{content?.length > 220 ? '...' : ''}"
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto justify-end">
+            <button
+              type="button"
+              onClick={() => {
+                setActiveStudioStage('copy');
+                window.scrollTo({ top: 120, behavior: 'smooth' });
+              }}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 transition-colors cursor-pointer"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Edit Post Copy</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setShowLinkedInPreviewModal(true);
+                setPreviewExpandedSeeMore(false);
+              }}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-blue-50 dark:bg-blue-950/40 text-[#0f2ea2] dark:text-blue-300 border border-blue-200 dark:border-blue-900 hover:bg-blue-100 transition-colors cursor-pointer"
+            >
+              <Eye className="w-3.5 h-3.5" />
+              <span>Preview Post</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Visual Studio Canvas & Templates */}
+        <div className={`p-4 sm:p-6 rounded-2xl border ${
+          isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+        }`}>
+          <ImageTemplateStudio
+            occasion={effectiveOccasion}
+            activeDraft={effectiveDraft}
+            isDark={isDark}
+          />
+        </div>
+
+        {/* Bottom Navigation for Visual Stage */}
+        <div className="flex items-center justify-between p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+          <button
+            type="button"
+            onClick={() => {
+              setActiveStudioStage('copy');
+              window.scrollTo({ top: 120, behavior: 'smooth' });
+            }}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>← Back to Post Copywriter</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setShowLinkedInPreviewModal(true);
+              setPreviewExpandedSeeMore(false);
+            }}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold bg-[#0f2ea2] hover:bg-[#0c2482] text-white shadow-md transition-all cursor-pointer"
+          >
+            <Eye className="w-4 h-4" />
+            <span>Preview on LinkedIn →</span>
+          </button>
+        </div>
       </div>
+      )}
 
       {/* ========================================================================= */}
       {/* LinkedIn Mockup Preview Modal with Device Switch & Notion Actions          */}
