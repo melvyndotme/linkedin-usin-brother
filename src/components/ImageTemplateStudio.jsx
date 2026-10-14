@@ -27,7 +27,8 @@ import {
   Database,
   FileText,
   Building2,
-  Bookmark
+  Bookmark,
+  ChevronDown
 } from 'lucide-react';
 import { 
   OFFICIAL_BROTHER_ASSETS,
