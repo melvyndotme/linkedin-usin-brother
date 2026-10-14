@@ -1435,3 +1435,66 @@ function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
   }
   ctx.fillText(line, x, currentY);
 }
+
+/**
+ * Automatically crafts a storytelling visual prompt for an individual slide in a 5-slide carousel series.
+ * Ensures all 5 slides have a cohesive visual aesthetic while progressing the narrative arc:
+ * - Slide 1: Establishing Hero Visual
+ * - Slide 2: Contextual Depth & Collaborative Workflow
+ * - Slide 3: Brand Commitment / 'At Your Side' Human Connection
+ * - Slide 4: Engineering Precision & Monozukuri / Kaizen Craftsmanship
+ * - Slide 5: Inspiring Forward Vision & Community Dialogue
+ */
+export function getAppropriatePromptForSlide({
+  slideIndex = 0,
+  slide,
+  masterPrompt = '',
+  occasion,
+  activeDraft
+}) {
+  const postText = (activeDraft?.postContent || activeDraft?.post || occasion?.details || '').toLowerCase();
+  const occasionTitle = occasion?.name || 'Brother Singapore';
+  const isCultural = occasion?.eventType === 'cultural' || occasion?.theme === 'amber';
+  
+  // Clean base prompt
+  let baseTheme = (masterPrompt || '').trim();
+  if (!baseTheme) {
+    if (isCultural) {
+      baseTheme = `Warm, authentic corporate editorial celebration for ${occasionTitle} in a modern Singapore workplace setting. Warm golden ambient lighting, respectful camaraderie, cinematic bokeh`;
+    } else if (postText.includes('kaizen') || postText.includes('precision') || postText.includes('craft') || postText.includes('monozukuri')) {
+      baseTheme = `Sophisticated corporate photography reflecting Japanese Monozukuri precision craftsmanship and modern Singapore enterprise efficiency. Crisp studio lighting, architectural symmetry`;
+    } else if (postText.includes('sustainability') || postText.includes('eco') || postText.includes('green') || postText.includes('earth')) {
+      baseTheme = `Modern Singapore biophilic corporate architecture with lush indoor vertical greenery, natural daylight streaming through glass, sustainable eco-friendly workspace`;
+    } else {
+      baseTheme = `High-end commercial corporate photograph of a modern Brother Singapore office technology environment. Polished concrete and timber desk, clean minimalist lines, soft diffused daylight`;
+    }
+  }
+
+  // Remove trailing period if present
+  baseTheme = baseTheme.replace(/\.+$/, '');
+
+  // Specific visual scene focus per slide index
+  let slideNarrativeFocus = '';
+  switch (slideIndex) {
+    case 0:
+      slideNarrativeFocus = `Establishing hero shot. High-impact composition introducing the core theme with striking visual contrast, pristine presentation of the modern workspace and technology, welcoming atmosphere`;
+      break;
+    case 1:
+      slideNarrativeFocus = `Contextual depth shot. Focused Singapore professional analyzing schematics and reports at an ergonomic collaborative workstation, morning sunlight through architectural glass, disciplined productive focus`;
+      break;
+    case 2:
+      slideNarrativeFocus = `Human-centric consultative partnership moment. Genuine warm interaction between colleagues and enterprise partners in a contemporary Singapore office lounge, respectful harmony (Wa), soft golden lighting, natural smiles`;
+      break;
+    case 3:
+      slideNarrativeFocus = `Macro close-up editorial shot highlighting precision Japanese engineering. Elegant hardware textures, fine mechanical gear alignment and paper path craftsmanship, soft studio rim lighting, shallow depth of field bokeh`;
+      break;
+    case 4:
+      slideNarrativeFocus = `Forward-looking inspiring perspective. Bright sunlit view across the modern Singapore Marina Bay skyline from an executive glass boardroom, optimistic atmosphere, professional community connection`;
+      break;
+    default:
+      slideNarrativeFocus = `Commercial editorial corporate composition, natural ambient lighting, clean aesthetic`;
+  }
+
+  return `${baseTheme}. ${slideNarrativeFocus}. Ultra-realistic commercial photography, 8k resolution, crisp three-point studio lighting, photorealistic corporate visual. CRITICAL REQUIREMENTS: Text-free, absolutely no typography, no letters or numbers, no watermark, clean background layer for graphic layout.`;
+}
+

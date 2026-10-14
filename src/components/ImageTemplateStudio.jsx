@@ -31,7 +31,10 @@ import {
   ChevronDown,
   Search,
   Globe,
-  Filter
+  Filter,
+  CheckCircle2,
+  Loader2,
+  Play
 } from 'lucide-react';
 import { 
   OFFICIAL_BROTHER_ASSETS,
@@ -39,7 +42,8 @@ import {
   getPhotoCategoryForOccasion, 
   generateCarouselSlideSeries, 
   renderSlideToCanvas,
-  getEffectiveFooterText
+  getEffectiveFooterText,
+  getAppropriatePromptForSlide
 } from '../lib/imageTemplateEngine.js';
 import { generateCarouselPdf } from '../lib/pdfCarouselExport.js';
 import { safeGetItem, safeSetItem } from '../lib/storage.js';
@@ -96,6 +100,9 @@ export default function ImageTemplateStudio({
   const [slidePhotos, setSlidePhotos] = useState({}); // Per-slide background image mapping: { [slideIndex]: url }
   const [customPhotoUrl, setCustomPhotoUrl] = useState('');
   const [isAiGenerating, setIsAiGenerating] = useState(false);
+  const [isBatchGenerating, setIsBatchGenerating] = useState(false);
+  const [batchProgress, setBatchProgress] = useState({ current: 0, total: 5, statusText: '', activeSlide: 0, completedIndices: [] });
+  const cancelBatchRef = useRef(false);
   const [aiError, setAiError] = useState(null);
   const [downloading, setDownloading] = useState(false);
 
@@ -641,6 +648,126 @@ export default function ImageTemplateStudio({
     } finally {
       setIsAiGenerating(false);
     }
+  };
+
+  // Batch Generate All 5 Carousel Images in One Go with Cohesive Storyline Prompts
+  const handleGenerateAll5Images = async () => {
+    if (isBatchGenerating || isAiGenerating) return;
+    setIsBatchGenerating(true);
+    setAiError(null);
+    cancelBatchRef.current = false;
+
+    const totalSlides = baseSlides.length; // 5 slides
+    const clientKey = safeGetItem('key_gemini') || '';
+    let successCount = 0;
+    const completed = [];
+
+    try {
+      for (let i = 0; i < totalSlides; i++) {
+        if (cancelBatchRef.current) {
+          break;
+        }
+
+        const slide = baseSlides[i];
+        setBatchProgress({
+          current: i + 1,
+          total: totalSlides,
+          statusText: `Generating Slide 0${i + 1} of 05 (${slide.roleTitle})...`,
+          activeSlide: i,
+          completedIndices: [...completed]
+        });
+        setActiveSlideIndex(i);
+
+        // Generate tailored storytelling prompt for this specific slide
+        const tailoredPrompt = getAppropriatePromptForSlide({
+          slideIndex: i,
+          slide,
+          masterPrompt: imagePrompt,
+          occasion,
+          activeDraft
+        });
+
+        try {
+          const res = await fetch('/api/ai/media', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              prompt: tailoredPrompt,
+              occasionName: occasion?.name,
+              theme: occasion?.theme,
+              aspectRatio: '1:1', // Carousel square
+              model: selectedAiModel,
+              apiKey: clientKey || undefined
+            })
+          });
+
+          const data = await res.json();
+          if (data.success && data.imageUrl) {
+            successCount++;
+            completed.push(i);
+            setSlidePhotos((prev) => ({
+              ...prev,
+              [i]: data.imageUrl
+            }));
+            if (i === 0) {
+              setCustomPhotoUrl(data.imageUrl);
+            }
+
+            // Background archival to Vercel Blob
+            fetch('/api/blob', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                filename: `carousel-slide-${i + 1}-${Date.now()}.png`,
+                imageBase64: data.imageUrl,
+                access: 'private'
+              })
+            }).catch(() => {});
+          } else {
+            console.warn(`Failed to generate slide ${i + 1}:`, data.error);
+          }
+        } catch (slideErr) {
+          console.error(`Error generating slide ${i + 1}:`, slideErr);
+        }
+
+        // Courtesy delay between API calls to prevent rate spikes
+        if (i < totalSlides - 1 && !cancelBatchRef.current) {
+          await new Promise((r) => setTimeout(r, 400));
+        }
+      }
+
+      if (successCount > 0) {
+        logActivity({
+          event: 'Batch Generated 5 Carousel Images',
+          category: 'Visual Studio',
+          details: `Generated ${successCount}/${totalSlides} AI images using ${selectedAiModel} for "${occasion?.name || 'Brother Post'}"`,
+          status: 'Success'
+        });
+      } else if (!cancelBatchRef.current) {
+        setAiError({
+          message: 'Could not generate batch images. Please verify your Gemini API key.',
+          troubleshooting: 'Check Settings > Gemini API key or confirm that your quota has not been exceeded.',
+          errorType: 'BATCH_ERROR',
+          modelUsed: selectedAiModel
+        });
+      }
+    } catch (err) {
+      setAiError({
+        message: err.message || 'Batch generation encountered an error.',
+        troubleshooting: 'Try generating individual slides or check your network connection.',
+        errorType: 'BATCH_ERROR',
+        modelUsed: selectedAiModel
+      });
+    } finally {
+      setIsBatchGenerating(false);
+      setBatchProgress({ current: 0, total: 5, statusText: '', activeSlide: 0, completedIndices: [] });
+      setActiveSlideIndex(0);
+    }
+  };
+
+  const handleCancelBatch = () => {
+    cancelBatchRef.current = true;
+    setIsBatchGenerating(false);
   };
 
   // Save current slide to Vercel Blob storage and Notion
@@ -1712,60 +1839,179 @@ export default function ImageTemplateStudio({
           </div>
         </div>
 
-        {/* Directly Below Each Image: Individual "Generate with Gemini" Control Bar */}
-        <div className="p-3.5 sm:p-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/60 space-y-3">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#0f2ea2] dark:text-blue-400" />
-              <span className="text-xs font-bold text-slate-900 dark:text-white">
-                Generate this image background with Gemini AI
-              </span>
-              <span className="text-[10px] font-semibold text-slate-400">
-                (Regenerate individual visual if not satisfied)
-              </span>
+        {/* AI Background Image Generation Suite (Single & Batch 5-Slide) */}
+        <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/60 space-y-4">
+          {/* Header & Primary Actions */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200/80 dark:border-slate-700/70">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-xl bg-blue-100 dark:bg-blue-950 text-[#0f2ea2] dark:text-blue-300">
+                <Sparkles className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+                    {aspectRatio === '1:1' ? 'AI Visual Studio (5-Slide Storyline)' : 'AI Visual Studio (Banner)'}
+                  </h4>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#0f2ea2] text-white">
+                    {selectedAiModel}
+                  </span>
+                </div>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  {aspectRatio === '1:1'
+                    ? 'Generate all 5 carousel images in one go, or regenerate individual slides with custom prompts.'
+                    : 'Generate high-resolution commercial photography tailored to your campaign.'}
+                </p>
+              </div>
             </div>
 
-            <button
-              type="button"
-              onClick={handleAiGenerate}
-              disabled={isAiGenerating}
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-[#0f2ea2] hover:bg-[#0c2480] px-3.5 py-1.5 rounded-xl shadow-xs transition-all cursor-pointer disabled:opacity-50 self-start sm:self-auto"
-            >
-              <Sparkles className={`w-3.5 h-3.5 ${isAiGenerating ? 'animate-spin' : ''}`} />
-              <span>{isAiGenerating ? 'Synthesizing...' : `Generate Slide 0${activeSlideIndex + 1} Image`}</span>
-            </button>
-          </div>
+            {/* Batch / Single Action Buttons */}
+            <div className="flex items-center gap-2 shrink-0 flex-wrap">
+              {aspectRatio === '1:1' && (
+                <button
+                  type="button"
+                  onClick={handleGenerateAll5Images}
+                  disabled={isBatchGenerating || isAiGenerating}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-[#0f2ea2] to-blue-700 hover:from-[#0c2480] hover:to-blue-800 shadow-md hover:shadow-lg transition-all cursor-pointer disabled:opacity-50"
+                >
+                  <Sparkles className={`w-4 h-4 ${isBatchGenerating ? 'animate-spin' : ''}`} />
+                  <span>{isBatchGenerating ? 'Synthesizing 5 Slides...' : '⚡ Generate All 5 Images in One Go'}</span>
+                </button>
+              )}
 
-          {/* Visual Style Preset Selector Pills */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 custom-scrollbar">
-            {GEMINI_STYLE_PROMPT_GUIDES.map(guide => (
               <button
-                key={guide.id}
                 type="button"
-                onClick={() => {
-                  setSelectedStyleGuideId(guide.id);
-                  setImagePrompt(guide.getSamplePrompt(occasion?.name));
-                }}
-                className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap transition-all cursor-pointer border ${
-                  selectedStyleGuideId === guide.id
-                    ? 'bg-[#0f2ea2] text-white border-[#0f2ea2]'
-                    : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100'
-                }`}
+                onClick={handleAiGenerate}
+                disabled={isBatchGenerating || isAiGenerating}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all cursor-pointer disabled:opacity-50"
               >
-                {guide.name.split('&')[0].trim()}
+                <Sparkles className={`w-3.5 h-3.5 ${isAiGenerating ? 'animate-spin' : ''}`} />
+                <span>
+                  {isAiGenerating 
+                    ? 'Generating...' 
+                    : aspectRatio === '1:1' 
+                      ? `Regenerate Slide 0${activeSlideIndex + 1}` 
+                      : 'Generate Banner'}
+                </span>
               </button>
-            ))}
+            </div>
           </div>
 
-          {/* Instructional Image Prompt Input */}
-          <div className="flex items-center gap-2">
-            <input
-              type="text"
-              value={imagePrompt}
-              onChange={(e) => setImagePrompt(e.target.value)}
-              placeholder="Instructional prompt for this slide's visual layer..."
-              className="flex-1 px-3 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#0f2ea2]"
-            />
+          {/* Active Batch Generation Live Progress Card */}
+          {isBatchGenerating && (
+            <div className="p-4 rounded-xl bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 space-y-3 animate-in fade-in">
+              <div className="flex items-center justify-between text-xs font-bold text-blue-950 dark:text-blue-200">
+                <div className="flex items-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin text-[#0f2ea2] dark:text-blue-400" />
+                  <span>{batchProgress.statusText || 'Synthesizing 5-slide carousel series...'}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-xs">
+                    {Math.round((batchProgress.current / batchProgress.total) * 100)}%
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleCancelBatch}
+                    className="px-2.5 py-0.5 rounded bg-rose-100 hover:bg-rose-200 text-rose-700 text-[10px] font-bold cursor-pointer transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="w-full h-2 rounded-full bg-blue-200 dark:bg-blue-900 overflow-hidden">
+                <div 
+                  className="h-full bg-[#0f2ea2] transition-all duration-300 rounded-full"
+                  style={{ width: `${(batchProgress.current / batchProgress.total) * 100}%` }}
+                />
+              </div>
+
+              {/* 5-Slide Step Tracker */}
+              <div className="grid grid-cols-5 gap-1.5 pt-1">
+                {baseSlides.map((slide, sIdx) => {
+                  const isDone = batchProgress.completedIndices?.includes(sIdx);
+                  const isCurrent = batchProgress.activeSlide === sIdx;
+                  return (
+                    <div 
+                      key={sIdx} 
+                      className={`p-1.5 rounded-lg text-center border transition-all ${
+                        isDone
+                          ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300'
+                          : isCurrent
+                            ? 'bg-blue-100 dark:bg-blue-900/60 border-[#0f2ea2] text-[#0f2ea2] dark:text-blue-200 font-bold'
+                            : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-400'
+                      }`}
+                    >
+                      <div className="flex items-center justify-center gap-1 text-[10px]">
+                        {isDone ? (
+                          <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                        ) : isCurrent ? (
+                          <Loader2 className="w-3 h-3 animate-spin text-[#0f2ea2]" />
+                        ) : (
+                          <span className="font-mono">0{sIdx + 1}</span>
+                        )}
+                        <span className="truncate hidden sm:inline">{slide.roleTitle.split(' ')[0]}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Master Creative Prompt Input & Preset Selectors */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                <span>Master Visual Creative Prompt</span>
+                <span className="text-[10px] text-slate-400 font-normal">
+                  (Adapted automatically to each slide's narrative role)
+                </span>
+              </label>
+
+              <button
+                type="button"
+                onClick={handleGeneratePromptFromPost}
+                className="inline-flex items-center gap-1 text-[11px] font-bold text-[#0f2ea2] dark:text-blue-400 hover:underline cursor-pointer"
+              >
+                <Wand2 className="w-3 h-3" />
+                <span>Auto-Craft From Post Copy</span>
+              </button>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={imagePrompt}
+                onChange={(e) => setImagePrompt(e.target.value)}
+                placeholder="Overarching prompt theme for the carousel visual layer..."
+                className="flex-1 px-3.5 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#0f2ea2]"
+              />
+            </div>
+
+            {/* Visual Style Preset Selector Pills */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pt-1 pb-0.5 custom-scrollbar">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider shrink-0 mr-1">
+                Themes:
+              </span>
+              {GEMINI_STYLE_PROMPT_GUIDES.map((guide) => (
+                <button
+                  key={guide.id}
+                  type="button"
+                  onClick={() => {
+                    setSelectedStyleGuideId(guide.id);
+                    setImagePrompt(guide.getSamplePrompt(occasion?.name));
+                  }}
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap transition-all cursor-pointer border ${
+                    selectedStyleGuideId === guide.id
+                      ? 'bg-[#0f2ea2] text-white border-[#0f2ea2] shadow-xs'
+                      : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100'
+                  }`}
+                >
+                  {guide.name.split('&')[0].trim()}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
