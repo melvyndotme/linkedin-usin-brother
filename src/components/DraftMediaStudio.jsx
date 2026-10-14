@@ -237,9 +237,11 @@ To everyone celebrating, how is your team marking this special day? Share your f
   const [modalSelectedFrameworkId, setModalSelectedFrameworkId] = useState(() => FIVE_CORE_FRAMEWORKS[0].id);
 
   // Derive contextual drafts for quick switching
+  // Derive contextual drafts for quick switching
   const contextualDrafts = useMemo(() => {
-    if (availableDrafts && availableDrafts.length > 0) {
-      return availableDrafts;
+    const validAvailable = (availableDrafts || []).filter(Boolean);
+    if (validAvailable.length > 0) {
+      return validAvailable;
     }
     if (occasion && occasion.eventType !== 'corporate' && occasion.name) {
       return generateFestiveDrafts({
@@ -267,11 +269,12 @@ To everyone celebrating, how is your team marking this special day? Share your f
 
   // Full comprehensive template catalog for the library modal
   const allLibraryTemplates = useMemo(() => {
-    const custom = getCustomIngestedTemplates();
+    const custom = (getCustomIngestedTemplates() || []).filter(Boolean);
     const combined = [];
 
     // 1. Core Frameworks
-    FIVE_CORE_FRAMEWORKS.forEach((f) => {
+    (FIVE_CORE_FRAMEWORKS || []).forEach((f) => {
+      if (!f) return;
       combined.push({
         ...f,
         isFramework: true,
@@ -282,7 +285,8 @@ To everyone celebrating, how is your team marking this special day? Share your f
 
     // 2. Custom Deconstructed Frameworks
     custom.forEach((c) => {
-      if (!combined.some(item => item.name?.trim().toLowerCase() === c.name?.trim().toLowerCase())) {
+      if (!c || !c.name) return;
+      if (!combined.some(item => item?.name?.trim().toLowerCase() === c.name?.trim().toLowerCase())) {
         combined.push({
           ...c,
           isFramework: true,
@@ -293,11 +297,13 @@ To everyone celebrating, how is your team marking this special day? Share your f
     });
 
     // 3. Contextual drafts
-    contextualDrafts.forEach((d, idx) => {
-      if (!combined.some(item => item.name?.trim().toLowerCase() === (d.name || d.templateName || '').trim().toLowerCase())) {
+    (contextualDrafts || []).forEach((d, idx) => {
+      if (!d) return;
+      const dName = d.name || d.templateName || `Strategy Angle #${idx + 1}`;
+      if (!combined.some(item => item?.name?.trim().toLowerCase() === dName.trim().toLowerCase())) {
         combined.push({
           id: d.id || `context-draft-${idx}`,
-          name: d.name || d.templateName || `Strategy Angle #${idx + 1}`,
+          name: dName,
           category: d.category || (occasion ? 'Festive & Cultural' : 'Thought Leadership & Strategy'),
           tone: d.tone || 'Strategic & Authoritative',
           whyThisWorks: d.whyThisWorks || d.description || d.angle || 'Tailored to drive engagement and executive clarity.',
@@ -1907,7 +1913,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
                     ) : (
                       filteredTemplates.map((tmpl) => {
                         const isSelectedInModal = activeTmpl?.id === tmpl.id;
-                        const isCurrentlyApplied = selectedTemplateId === tmpl.id || (activeDraft?.name === tmpl.name);
+                        const isCurrentlyApplied = selectedTemplateId === tmpl.id || (activeDraft?.name === tmpl?.name);
 
                         return (
                           <div
@@ -1932,7 +1938,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
                             <h4 className={`text-xs font-bold leading-snug ${
                               isSelectedInModal ? 'text-[#0f2ea2] dark:text-blue-300' : 'text-slate-900 dark:text-white'
                             }`}>
-                              {tmpl.name}
+                              {tmpl?.name || 'Strategic Framework'}
                             </h4>
                             <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 mt-1 leading-relaxed">
                               {tmpl.description || tmpl.whyThisWorks || tmpl.philosophy}
@@ -1950,14 +1956,14 @@ To everyone celebrating, how is your team marking this special day? Share your f
                           <div>
                             <div className="flex items-center gap-1.5 flex-wrap">
                               <span className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950 text-[#0f2ea2] dark:text-blue-300 border border-blue-200 dark:border-blue-900">
-                                {activeTmpl.category}
+                                {activeTmpl?.category}
                               </span>
                             </div>
                             <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white mt-1">
-                              {activeTmpl.name}
+                              {activeTmpl?.name}
                             </h3>
                             <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                              <strong>Tone:</strong> {activeTmpl.tone}
+                              <strong>Tone:</strong> {activeTmpl?.tone}
                             </p>
                           </div>
 
