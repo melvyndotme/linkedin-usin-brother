@@ -4,9 +4,8 @@ import {
   ExternalLink, BookOpen, Layers, Search, X, Filter, ArrowRight, ChevronDown,
   CalendarDays, Clock, Zap, ShieldCheck, Upload, Link2, RefreshCw,
   Compass, Lightbulb, Target, MessageSquare, Quote, Eye, Smartphone, Monitor,
-  ThumbsUp, Share2, Trash2, Image as ImageIcon
+  ThumbsUp, Share2, Trash2, Image as ImageIcon, Bookmark
 } from 'lucide-react';
-import NotionIcon from './icons/NotionIcon.jsx';
 import ImageTemplateStudio from './ImageTemplateStudio.jsx';
 import { publishToLinkedInApi } from '../lib/linkedInApi.js';
 import { safeGetItem, safeSetItem } from '../lib/storage.js';
@@ -653,11 +652,11 @@ To everyone celebrating, how is your team marking this special day? Share your f
         const currentCal = JSON.parse(safeGetItem('brother_calendar_posts') || '[]');
         safeSetItem('brother_calendar_posts', JSON.stringify([...currentCal, newPost]));
 
-        setScheduleSuccessMsg(`🎉 Successfully scheduled for ${targetDay} via Buffer API & saved to Notion!`);
+        setScheduleSuccessMsg(`🎉 Successfully scheduled for ${targetDay}!`);
         logActivity({
           event: 'Scheduled Post to Calendar',
           category: 'Publishing',
-          details: `Scheduled "${title}" for ${targetDay} (${scheduledDateTime}) via Buffer API`,
+          details: `Scheduled "${title}" for ${targetDay} (${scheduledDateTime})`,
           status: 'Success'
         });
         setTimeout(() => {
@@ -665,7 +664,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
           setScheduleSuccessMsg(null);
         }, 1800);
       } else {
-        setScheduleConflict(result.error || 'Failed to schedule via Buffer API.');
+        setScheduleConflict(result.error || 'Failed to schedule post.');
       }
     } catch (e) {
       setScheduleConflict(e.message);
@@ -810,18 +809,18 @@ To everyone celebrating, how is your team marking this special day? Share your f
               <span>Preview on LinkedIn</span>
             </button>
 
-            {/* Save as Draft (Notion) */}
+            {/* Save as Draft */}
             <button
               onClick={() => handleSaveToNotionRepository(null, 'Working Draft')}
               disabled={notionSaving}
               className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm disabled:opacity-50 cursor-pointer"
-              title="Save current post in Notion as Working Draft"
+              title="Save current post as Working Draft"
             >
-              <NotionIcon className={`w-3.5 h-3.5 ${notionSaving ? 'animate-spin' : ''}`} />
-              <span>{notionSaving ? 'Saving...' : 'Save Draft (Notion)'}</span>
+              <Bookmark className={`w-3.5 h-3.5 ${notionSaving ? 'animate-spin' : ''}`} />
+              <span>{notionSaving ? 'Saving...' : 'Save Draft'}</span>
             </button>
 
-            {/* Schedule (Buffer) */}
+            {/* Schedule */}
             <button
               onClick={() => {
                 setShowScheduleModal(true);
@@ -829,7 +828,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
                 setScheduleSuccessMsg(null);
               }}
               className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-950/40 text-[#0f2ea2] dark:text-blue-300 text-xs font-bold hover:bg-blue-100 dark:hover:bg-blue-900/60 transition-all shadow-sm cursor-pointer"
-              title="Schedule post via Buffer API"
+              title="Schedule post"
             >
               <CalendarDays className="w-3.5 h-3.5" />
               <span>Schedule</span>
@@ -1517,7 +1516,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
             {/* Modal Action Footer: Save as Draft, Schedule, or Post Now (All save to Notion!) */}
             <div className="p-4 sm:p-5 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-50/60 dark:bg-slate-800/40">
               <div className="text-[11px] text-slate-500 dark:text-slate-400">
-                <span>All actions automatically archive record to Notion Repository.</span>
+                <span>All actions automatically archive record to the repository.</span>
               </div>
 
               <div className="flex items-center gap-2 w-full sm:w-auto justify-end flex-wrap">
@@ -1530,7 +1529,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
                   disabled={notionSaving}
                   className="px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-700 transition-all shadow-xs cursor-pointer disabled:opacity-50"
                 >
-                  <NotionIcon className={`w-3.5 h-3.5 inline mr-1.5 ${notionSaving ? 'animate-spin' : ''}`} />
+                  <Bookmark className={`w-3.5 h-3.5 inline mr-1.5 ${notionSaving ? 'animate-spin' : ''}`} />
                   <span>Save as Draft</span>
                 </button>
 
@@ -1858,7 +1857,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
                 </div>
                 <div>
                   <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
-                    Schedule via Buffer API
+                    Schedule Post
                   </h3>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400">
                     Singapore Cadence Guard: 1 scheduled post per day limit
@@ -1889,7 +1888,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
                   className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0f2ea2]"
                 />
                 <p className="text-[11px] text-slate-400 mt-1">
-                  Buffer queues and publishes this post to Brother Singapore LinkedIn page at the specified time.
+                  Queues and publishes this post to Brother Singapore LinkedIn page at the specified time.
                 </p>
               </div>
 

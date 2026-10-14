@@ -181,7 +181,7 @@ export default function HomeFeedAnalytics({ isDark, onNavigateToModule }) {
                 {liveConnected && (
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-[10px] font-bold text-emerald-700 dark:text-emerald-300">
                     <CheckCircle2 className="w-3 h-3 text-emerald-500" />
-                    <span>{analytics.provider === "buffer" ? "Live Telemetry Connected (Buffer)" : "Live Telemetry Connected"}</span>
+                    <span>Live Telemetry Connected</span>
                   </span>
                 )}
               </div>

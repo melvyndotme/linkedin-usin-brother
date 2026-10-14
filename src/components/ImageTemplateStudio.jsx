@@ -26,7 +26,8 @@ import {
   Cloud,
   Database,
   FileText,
-  Building2
+  Building2,
+  Bookmark
 } from 'lucide-react';
 import { 
   OFFICIAL_BROTHER_ASSETS,
@@ -1421,16 +1422,16 @@ export default function ImageTemplateStudio({
             )}
           </div>
 
-          {/* Save to Notion */}
+          {/* Save to Library */}
           <button
             type="button"
             onClick={handleSaveToCloud}
             disabled={cloudSaving}
             className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0f2ea2] dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 px-4 py-2 rounded-xl border border-blue-200 dark:border-blue-800/60 shadow-xs transition-all cursor-pointer disabled:opacity-50"
-            title="Archive visual layer to Notion database"
+            title="Archive visual layer to library"
           >
-            <Database className={`w-3.5 h-3.5 ${cloudSaving ? 'animate-spin' : ''}`} />
-            <span>{cloudSaving ? 'Saving to Notion...' : 'Save to Notion'}</span>
+            <Bookmark className={`w-3.5 h-3.5 ${cloudSaving ? 'animate-spin' : ''}`} />
+            <span>{cloudSaving ? 'Saving...' : 'Save to Library'}</span>
           </button>
         </div>
       </div>

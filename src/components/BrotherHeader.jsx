@@ -20,7 +20,6 @@ import {
   PanelLeft,
   User
 } from 'lucide-react';
-import NotionIcon from './icons/NotionIcon.jsx';
 
 const TAB_CONFIG = {
   'home': { label: 'Overview', icon: LayoutDashboard },
@@ -29,7 +28,7 @@ const TAB_CONFIG = {
   'template-studio': { label: 'Content Frameworks', icon: Layers },
   'draft-studio': { label: 'Content Editor', icon: Edit3 },
   'calendar': { label: 'Content Calendar', icon: CalendarDays },
-  'notion-hub': { label: 'Notion', icon: NotionIcon },
+  'notion-hub': { label: 'Notion', icon: Database },
   'team': { label: 'Team', icon: Users },
   'settings': { label: 'Integration', icon: Sliders },
   'profile': { label: 'My Profile', icon: User }

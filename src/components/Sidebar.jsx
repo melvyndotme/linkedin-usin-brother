@@ -18,7 +18,6 @@ import {
   PanelLeftOpen,
   CalendarDays
 } from 'lucide-react';
-import NotionIcon from './icons/NotionIcon.jsx';
 
 export default function Sidebar({ 
   activeTab, 
@@ -66,7 +65,7 @@ export default function Sidebar({
     {
       title: 'SETTINGS',
       items: [
-        { id: 'notion-hub', label: 'Notion', icon: NotionIcon },
+        { id: 'notion-hub', label: 'Notion', icon: Database },
         { id: 'team', label: 'Team', icon: Users },
         { id: 'settings', label: 'Integration', icon: Sliders }
       ]
