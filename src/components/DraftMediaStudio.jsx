@@ -1123,37 +1123,94 @@ To everyone celebrating, how is your team marking this special day? Share your f
                       </select>
                     </div>
 
-                    {/* Draft Snippet */}
-                    <div className="pt-1">
-                      {draft ? (
-                        <p className="text-[11px] text-slate-600 dark:text-slate-300 line-clamp-3 leading-relaxed font-sans">
-                          {draftText || draft.whyThisWorks || 'Generated candidate draft.'}
+                    {/* Framework Features & Core Elements */}
+                    <div className="pt-2 pb-1 space-y-2">
+                      {/* Core Feature / What it's about */}
+                      <div className="p-2.5 rounded-lg bg-white/70 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                            Core Feature:
+                          </span>
+                          <span className="text-[10px] font-mono font-bold text-[#0f2ea2] dark:text-blue-400 bg-blue-50 dark:bg-blue-950/80 px-1.5 py-0.5 rounded">
+                            {selectedFw?.formula || 'Framework'}
+                          </span>
+                        </div>
+                        <p className="text-[11px] font-medium text-slate-800 dark:text-slate-200 leading-snug line-clamp-2">
+                          {selectedFw?.description || selectedFw?.whyItDiffers || 'Strategic structure designed for LinkedIn engagement.'}
                         </p>
-                      ) : (
-                        <p className="text-[11px] text-slate-400 dark:text-slate-500 italic py-2">
-                          Ready to generate with {selectedFw?.name || 'selected framework'}.
+                      </div>
+
+                      {/* Main Elements (Cognitive Step Flow) */}
+                      <div className="space-y-1">
+                        <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
+                          Main Elements:
+                        </span>
+                        <div className="flex flex-wrap gap-1">
+                          {(selectedFw?.structureSteps || []).slice(0, 5).map((st, sIdx) => (
+                            <span
+                              key={sIdx}
+                              className="inline-flex items-center text-[10px] font-semibold px-1.5 py-0.5 rounded bg-blue-50/80 dark:bg-blue-950/60 text-[#0f2ea2] dark:text-blue-300 border border-blue-200/50 dark:border-blue-900/40"
+                              title={st.purpose || st.prompt}
+                            >
+                              {st.label || st.step}
+                            </span>
+                          ))}
+                          {(selectedFw?.structureSteps?.length || 0) > 5 && (
+                            <span className="text-[9px] text-slate-400 font-semibold self-center">
+                              +{selectedFw.structureSteps.length - 5}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Best Scenario */}
+                      {selectedFw?.whenToUse && (
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 line-clamp-1">
+                          <strong className="text-slate-600 dark:text-slate-300 font-semibold">Best for: </strong>
+                          {selectedFw.whenToUse}
                         </p>
+                      )}
+
+                      {/* AI Draft Status Indicator */}
+                      {draft && draft.frameworkId === currentFrameworkId && draftText && (
+                        <div className="pt-1.5 border-t border-slate-200/60 dark:border-slate-800 flex items-center justify-between text-[10px]">
+                          <span className="font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span>
+                            Draft Generated & Ready
+                          </span>
+                          <span className="text-slate-400 font-mono">
+                            {draftText.split(/\s+/).filter(Boolean).length} words
+                          </span>
+                        </div>
                       )}
                     </div>
                   </div>
 
                   {/* Pick Draft Button */}
                   <div className="pt-3 mt-2 border-t border-slate-200/60 dark:border-slate-800/80 flex items-center justify-between">
-                    <span className="text-[10px] text-slate-400 truncate max-w-[130px]">
-                      {draft?.angle || selectedFw?.formula || 'Strategic sequence'}
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 truncate max-w-[130px]">
+                      {selectedFw?.category || selectedFw?.tone || selectedFw?.formula || 'Strategic sequence'}
                     </span>
                     <button
                       type="button"
                       onClick={() => {
-                        if (draft) {
+                        if (draft && draft.frameworkId === currentFrameworkId) {
                           setContent(draftText);
                           setActiveDraft(draft);
                           setSelectedTemplateId(draft.frameworkId || draft.id || `draft-${idx}`);
-                          setCurrentRationale(draft.whyThisWorks || draft.angle || selectedFw?.whyThisWorks || '');
+                          setCurrentRationale(draft.whyThisWorks || draft.angle || selectedFw?.whyThisWorks || selectedFw?.description || '');
                         } else {
                           const exampleText = selectedFw?.examplePost || selectedFw?.placeholderTemplate || '';
                           if (exampleText) setContent(exampleText);
                           setSelectedTemplateId(selectedFw?.id || `draft-${idx}`);
+                          setActiveDraft({
+                            id: `draft-${idx}`,
+                            frameworkId: selectedFw?.id,
+                            frameworkName: selectedFw?.name,
+                            formula: selectedFw?.formula,
+                            postContent: exampleText,
+                            whyThisWorks: selectedFw?.description
+                          });
                           setCurrentRationale(selectedFw?.whyThisWorks || selectedFw?.description || '');
                         }
                       }}
