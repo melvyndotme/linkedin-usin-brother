@@ -115,7 +115,6 @@ export default function ImageTemplateStudio({
     const saved = safeGetItem('model_gemini_image');
     return saved || DEFAULT_IMAGE_MODEL;
   });
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [cloudSaving, setCloudSaving] = useState(false);
   const [cloudSuccess, setCloudSuccess] = useState(null);
   const [cloudError, setCloudError] = useState(null);
@@ -1131,7 +1130,7 @@ export default function ImageTemplateStudio({
 
             <button
               type="button"
-              onClick={() => setShowConfirmModal(true)}
+              onClick={handleAiGenerate}
               disabled={isAiGenerating}
               className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-gradient-to-r from-[#0f2ea2] to-blue-700 hover:from-[#0c2480] hover:to-blue-800 px-4 py-2 rounded-xl shadow-md transition-all cursor-pointer disabled:opacity-50"
             >
@@ -1517,7 +1516,7 @@ export default function ImageTemplateStudio({
 
             <button
               type="button"
-              onClick={() => setShowConfirmModal(true)}
+              onClick={handleAiGenerate}
               disabled={isAiGenerating}
               className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-[#0f2ea2] hover:bg-[#0c2480] px-3.5 py-1.5 rounded-xl shadow-xs transition-all cursor-pointer disabled:opacity-50 self-start sm:self-auto"
             >
@@ -1638,124 +1637,6 @@ export default function ImageTemplateStudio({
             >
               Dismiss
             </button>
-          </div>
-        </div>
-      )}
-
-      {/* Gemini AI Token Confirmation Modal */}
-      {showConfirmModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-5 sm:p-6 shadow-2xl space-y-4">
-            <div className="flex items-start justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950 flex items-center justify-center text-[#0f2ea2] dark:text-blue-400">
-                  <Sparkles className="w-5 h-5" />
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-slate-900 dark:text-white">
-                    Generate Photo with Gemini AI
-                  </h4>
-                  <p className="text-[11px] text-slate-500">Google Gemini Visual Synthesis</p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowConfirmModal(false)}
-                className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/80 text-xs text-amber-900 dark:text-amber-200 space-y-2">
-              <div className="flex items-center gap-1.5 font-bold">
-                <Coins className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                <span>Credit & Token Consumption Advisory</span>
-              </div>
-              <p className="text-[11px] text-amber-800 dark:text-amber-300 leading-relaxed">
-                Generating this visual utilizes <strong>Google Gemini / Imagen API credits</strong> (~1 credit per generation, est. $0.03 – $0.05).
-              </p>
-              <div className="text-[10px] text-amber-900/80 dark:text-amber-200/80 bg-amber-100/50 dark:bg-amber-900/30 p-2 rounded-lg space-y-1">
-                <p>• <strong>Selected Format:</strong> {aspectRatio === '1:1' ? '1:1 Square Carousel' : '1.91:1 Landscape Banner'}</p>
-                <p>• <strong>Output Layer:</strong> Clean, text-free background image will be generated and saved to Notion as a clean asset.</p>
-                <p>• <strong>Typography & Overlays:</strong> You will be able to edit headlines, text overlays, and Brother branding directly in the editor before final save.</p>
-              </div>
-            </div>
-
-            {/* API Key Connection Source Indicator */}
-            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs space-y-1">
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-slate-700 dark:text-slate-300 text-[11px]">API Key Source:</span>
-                {serverGeminiConfigured ? (
-                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">
-                    <Check className="w-3 h-3" /> Vercel Env (GEMINI_API_KEY)
-                  </span>
-                ) : safeGetItem('key_gemini') ? (
-                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/50 px-2 py-0.5 rounded-full border border-blue-200 dark:border-blue-800">
-                    <Check className="w-3 h-3" /> Client Key (Settings)
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/50 px-2 py-0.5 rounded-full border border-amber-200 dark:border-amber-800">
-                    <AlertCircle className="w-3 h-3" /> Not Configured Yet
-                  </span>
-                )}
-              </div>
-              <p className="text-[10px] text-slate-500 dark:text-slate-400">
-                {serverGeminiConfigured
-                  ? 'Serverless Gemini generation is active via your Vercel project environment variables.'
-                  : safeGetItem('key_gemini')
-                  ? 'Using client API key saved in browser Settings.'
-                  : 'Add GEMINI_API_KEY in Vercel Environment Variables, or enter your key in Settings.'}
-              </p>
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
-                Selected AI Model:
-              </label>
-              <select
-                value={selectedAiModel}
-                onChange={(e) => {
-                  setSelectedAiModel(e.target.value);
-                  safeSetItem('model_gemini_image', e.target.value);
-                }}
-                className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0f2ea2] cursor-pointer"
-              >
-                {availableImageModels.map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {m.name || m.id} {m.badge ? `(${m.badge})` : ''}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
-              If you prefer not to use tokens, you can cancel to select from Brother&apos;s photo library at zero token cost.
-            </p>
-
-            <div className="pt-2 flex items-center justify-end gap-2.5">
-              <button
-                type="button"
-                onClick={() => {
-                  setShowConfirmModal(false);
-                  setActiveAssetTab('official');
-                }}
-                className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-200 text-xs font-semibold transition-colors cursor-pointer border border-slate-200 dark:border-slate-700"
-              >
-                Cancel (Use Photo Library)
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowConfirmModal(false);
-                  handleAiGenerate();
-                }}
-                className="px-4 py-2 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2480] text-white text-xs font-bold shadow-md transition-colors cursor-pointer flex items-center gap-1.5"
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>Continue</span>
-              </button>
-            </div>
           </div>
         </div>
       )}
