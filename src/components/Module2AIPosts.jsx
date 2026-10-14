@@ -372,7 +372,7 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
               News & Trend Search Engine
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              Real-time Google News intelligence for Brother Singapore. Click &ldquo;Draft in Content Studio&rdquo; on any article below to generate targeted posts.
+              Real-time Google News intelligence for Brother Singapore. Click &ldquo;Draft in Content Editor&rdquo; on any article below to generate targeted posts.
             </p>
           </div>
         </div>
@@ -802,9 +802,9 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
 
               const handleDraftInStudio = () => {
                 logActivity({
-                  event: 'Drafted News in Content Studio',
+                  event: 'Drafted News in Content Editor',
                   category: 'Content Generation',
-                  details: `Selected news "${item.headline}" to draft in Content Studio`,
+                  details: `Selected news "${item.headline}" to draft in Content Editor`,
                   status: 'Success'
                 });
                 const drafts = generateAIDrafts({
@@ -924,7 +924,7 @@ export default function Module2AIPosts({ isDark, onNavigateToDraftStudio, onNavi
                       }}
                       className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold transition-all duration-150 shadow-xs hover:shadow-sm cursor-pointer"
                     >
-                      <span>Draft in Content Studio</span>
+                      <span>Draft in Content Editor</span>
                       <ArrowRight className="w-3.5 h-3.5 transition-transform duration-150 group-hover:translate-x-0.5" />
                     </button>
                   </div>

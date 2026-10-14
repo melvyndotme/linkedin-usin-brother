@@ -195,7 +195,7 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
       if (res.ok && data.template) {
         setJustExtractedTemplate(data.template);
         logActivity({
-          event: 'Deconstructed Content Framework',
+          event: 'Deconstructed Content Frameworks',
           category: 'Content Generation',
           details: `Deconstructed framework "${data.template.name}" via ${selectedModel}`,
           status: 'Success'
@@ -327,7 +327,7 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
               Content Frameworks
             </div>
             <h2 className={`text-lg sm:text-2xl font-bold tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
-              Brother Singapore Content Framework Studio
+              Brother Singapore Content Frameworks
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-2xl">
               Strategic narrative architectures that guide AI prompt generation. Deconstruct high-performing posts into reusable communication formulas.
@@ -703,7 +703,7 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
                 Deconstruct Competitor & Benchmark Posts with AI
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-3xl leading-relaxed">
-                Provide a live post link, screenshot (like the Epson printer launch), or document. The engine analyzes structure, tone, philosophy, critiques weaknesses, and extracts an elevated <strong>Content Framework</strong> tailored for Brother Singapore.
+                Provide a live post link, screenshot (like the Epson printer launch), or document. The engine analyzes structure, tone, philosophy, critiques weaknesses, and extracts elevated <strong>Content Frameworks</strong> tailored for Brother Singapore.
               </p>
             </div>
 
@@ -888,7 +888,7 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
                     onClick={() => onSelectTemplateForDrafting(justExtractedTemplate)}
                     className="inline-flex items-center gap-1.5 bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold px-4 py-2 rounded-xl shadow-md transition-all active:scale-95 cursor-pointer"
                   >
-                    <span>Use in Content Studio</span>
+                    <span>Use in Content Editor</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                   <button

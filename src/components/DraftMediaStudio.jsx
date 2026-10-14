@@ -785,10 +785,10 @@ To everyone celebrating, how is your team marking this special day? Share your f
           <div>
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#0f2ea2]/10 text-[#0f2ea2] dark:text-blue-400 text-[11px] font-bold uppercase tracking-wider mb-1 sm:mb-1.5">
               <Edit3 className="w-3.5 h-3.5" />
-              Content Studio
+              Content Editor
             </div>
             <h2 className={`text-lg sm:text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
-              Campaign Drafting & Visual Studio
+              Campaign Drafting & Content Editor
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               Generate strategic drafts using proven frameworks, design accompanying carousel visuals, and preview before publishing.
@@ -1578,7 +1578,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
                 </div>
                 <div>
                   <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
-                    Choose Content Framework
+                    Choose Content Frameworks
                   </h3>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400">
                     Select from Brother Singapore proven narrative frameworks & strategic cognitive sequences ({filteredTemplates.length} available)
