@@ -4,9 +4,11 @@ import {
   ExternalLink, BookOpen, Layers, Search, X, Filter, ArrowRight, ChevronDown,
   CalendarDays, Clock, Zap, ShieldCheck, Upload, Link2, RefreshCw,
   Compass, Lightbulb, Target, MessageSquare, Quote, Eye, Smartphone, Monitor,
-  ThumbsUp, Share2, Trash2, Image as ImageIcon, Bookmark
+  ThumbsUp, Share2, Trash2, Image as ImageIcon, Bookmark,
+  MoreHorizontal, Repeat2, Plus
 } from 'lucide-react';
 import ImageTemplateStudio from './ImageTemplateStudio.jsx';
+import { OFFICIAL_BROTHER_ASSETS } from '../lib/imageTemplateEngine.js';
 import { publishToLinkedInApi } from '../lib/linkedInApi.js';
 import { safeGetItem, safeSetItem } from '../lib/storage.js';
 import { generateAIDrafts, generateFestiveDrafts } from '../lib/draftGenerator.js';
@@ -771,8 +773,17 @@ To everyone celebrating, how is your team marking this special day? Share your f
   const preFoldText = content.slice(0, foldCharLimit);
   const postFoldText = content.slice(foldCharLimit);
 
+  // User profile for authentic "React as" avatar
+  const userProfile = useMemo(() => {
+    try {
+      return JSON.parse(safeGetItem('linkedusin_user') || '{}');
+    } catch (e) {
+      return {};
+    }
+  }, []);
+
   // Active visual image for the LinkedIn mockup
-  const activeVisualPreviewUrl = safeGetItem('brother_latest_visual_url') || uploadedPromoPhoto || '';
+  const activeVisualPreviewUrl = safeGetItem('brother_latest_visual_url') || uploadedPromoPhoto || OFFICIAL_BROTHER_ASSETS[0]?.url || '';
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
@@ -1452,39 +1463,58 @@ To everyone celebrating, how is your team marking this special day? Share your f
               </div>
             </div>
 
-            {/* LinkedIn Card Body */}
-            <div className="p-4 sm:p-6 overflow-y-auto custom-scrollbar bg-slate-100/70 dark:bg-slate-950/60 flex justify-center">
-              <div className={`bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden transition-all ${
+            {/* LinkedIn Card Body (Strictly Light Theme) */}
+            <div className="p-3 sm:p-6 overflow-y-auto custom-scrollbar bg-[#f4f2ee] flex justify-center">
+              <div className={`bg-white border border-[#e0e0e0] rounded-xl shadow-xs overflow-hidden transition-all text-[#191919] ${
                 previewDevice === 'mobile' ? 'w-full max-w-[390px]' : 'w-full max-w-[560px]'
               }`}>
                 {/* Profile Header */}
-                <div className="p-3.5 flex items-start justify-between gap-3">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-10 h-10 rounded-full bg-[#0f2ea2] flex items-center justify-center text-white font-black text-sm shrink-0 border border-slate-200 dark:border-slate-700">
-                      B
+                <div className="p-3.5 flex items-start justify-between gap-3 bg-white">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="w-11 h-11 rounded-lg bg-white border border-slate-200 flex items-center justify-center p-1 shrink-0 overflow-hidden shadow-2xs">
+                      <img src="/brother-logo.png" alt="Brother" className="w-full h-auto object-contain" />
                     </div>
-                    <div>
-                      <div className="flex items-center gap-1">
-                        <span className="text-xs font-bold text-slate-900 dark:text-white hover:underline cursor-pointer">
-                          Brother International Singapore Pte Ltd
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="text-xs sm:text-sm font-bold text-[#191919] hover:text-[#0a66c2] hover:underline cursor-pointer truncate">
+                          Brother International Singapore
                         </span>
-                        <CheckCircle2 className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                        {/* LinkedIn Official Verified Badge */}
+                        <svg className="w-3.5 h-3.5 text-[#0a66c2] shrink-0 fill-current" viewBox="0 0 16 16">
+                          <path d="M14.5 7.2l-1.2-1.4.2-1.8-1.8-.4-.9-1.6L9.2 2.8 7.6 2 6.4 3.2 4.7 3.6l-.4 1.8-1.8.4.2 1.8-1.2 1.4 1.2 1.4-.2 1.8 1.8.4.9 1.6 1.6-.8 1.6.8 1.2-1.2 1.7-.4.4-1.8 1.8-.4-.2-1.8 1.2-1.4zM6.8 10.8L4.5 8.5l1-1 1.3 1.3 3.7-3.7 1 1-4.7 4.7z"/>
+                        </svg>
                       </div>
-                      <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">
+                      <p className="text-[11px] text-[#666666] leading-tight truncate">
                         At your side • 24,500 followers
                       </p>
-                      <div className="flex items-center gap-1 text-[10px] text-slate-400 mt-0.5">
+                      <div className="flex items-center gap-1 text-[11px] text-[#666666] mt-0.5">
                         <span>Just now</span>
                         <span>•</span>
-                        <span>🌐</span>
+                        <svg className="w-3 h-3 text-[#666666] fill-current" viewBox="0 0 16 16">
+                          <path d="M8 0a8 8 0 1 0 8 8 8 8 0 0 0-8-8zm5.9 7H10a12.5 12.5 0 0 0-1.1-4.7A6.9 6.9 0 0 1 13.9 7zM8 2.1c.6 1.2 1.1 2.9 1.3 4.9H6.7c.2-2 .7-3.7 1.3-4.9zM2.1 7a6.9 6.9 0 0 1 5-4.7A12.5 12.5 0 0 0 6 7H2.1zm0 2H6a12.5 12.5 0 0 0 1.1 4.7A6.9 6.9 0 0 1 2.1 9zm5.9 4.9c-.6-1.2-1.1-2.9-1.3-4.9h2.6c-.2 2-.7 3.7-1.3 4.9zm1-4.9h3.9a6.9 6.9 0 0 1-5 4.7 12.5 12.5 0 0 0 1.1-4.7z"/>
+                        </svg>
                       </div>
                     </div>
                   </div>
-                  <button className="text-slate-400 hover:text-slate-600 text-sm font-bold">•••</button>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <button
+                      type="button"
+                      className="inline-flex items-center gap-1 text-xs font-bold text-[#0a66c2] hover:text-[#004182] hover:bg-blue-50 px-2 py-1 rounded-md transition-colors cursor-pointer"
+                    >
+                      <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                      <span>Follow</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="p-1 rounded-full text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer"
+                    >
+                      <MoreHorizontal className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
 
                 {/* Post Commentary Text */}
-                <div className="px-3.5 pb-3 text-xs text-slate-800 dark:text-slate-100 leading-relaxed font-sans whitespace-pre-wrap">
+                <div className="px-3.5 pb-2.5 text-xs sm:text-[13px] text-[#191919] leading-relaxed font-sans whitespace-pre-wrap bg-white">
                   {(() => {
                     if (previewExpandedSeeMore || !isOverFold) {
                       return (
@@ -1494,7 +1524,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
                             <button
                               type="button"
                               onClick={() => setPreviewExpandedSeeMore(false)}
-                              className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 font-bold ml-1 cursor-pointer"
+                              className="text-[#666666] hover:text-[#191919] font-medium ml-1 cursor-pointer"
                             >
                               see less
                             </button>
@@ -1504,13 +1534,13 @@ To everyone celebrating, how is your team marking this special day? Share your f
                     }
                     return (
                       <>
-                        {preFoldText}
+                        {preFoldText}{" "}
                         <button
                           type="button"
                           onClick={() => setPreviewExpandedSeeMore(true)}
-                          className="text-[#0f2ea2] dark:text-blue-400 font-bold hover:underline ml-1 cursor-pointer"
+                          className="text-[#666666] hover:text-[#191919] font-medium cursor-pointer"
                         >
-                          ...see more
+                          ...more
                         </button>
                       </>
                     );
@@ -1519,54 +1549,127 @@ To everyone celebrating, how is your team marking this special day? Share your f
 
                 {/* Post Visual Creative */}
                 {activeVisualPreviewUrl ? (
-                  <div className="border-t border-b border-slate-100 dark:border-slate-800 bg-slate-950 flex items-center justify-center overflow-hidden">
+                  <div className="w-full bg-slate-100 flex items-center justify-center overflow-hidden">
                     <img
                       src={activeVisualPreviewUrl}
                       alt="LinkedIn Visual Creative"
-                      className="w-full object-cover max-h-[380px]"
+                      className="w-full object-cover max-h-[400px] block"
                     />
                   </div>
                 ) : (
-                  <div className="border-t border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-8 text-center text-slate-400">
+                  <div className="w-full bg-slate-50 border-t border-b border-slate-200 p-8 text-center text-slate-400">
                     <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                    <p className="text-xs font-semibold">Visual Creative Attached</p>
-                    <p className="text-[10px] opacity-75 mt-0.5">Carousel / Banner generated in Visual Studio below</p>
+                    <p className="text-xs font-semibold text-slate-600">Visual Creative Attached</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">Carousel / Banner generated in Visual Studio below</p>
                   </div>
                 )}
 
-                {/* LinkedIn Social Counters */}
-                <div className="px-3.5 py-2 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between text-[10px] text-slate-500">
-                  <div className="flex items-center gap-1">
-                    <span className="w-4 h-4 rounded-full bg-blue-600 text-white flex items-center justify-center text-[9px]">👍</span>
-                    <span className="w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[9px]">👏</span>
-                    <span className="ml-1 font-semibold">42</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span>8 comments</span>
-                    <span>•</span>
-                    <span>3 reposts</span>
-                  </div>
-                </div>
+                {/* Bottom Action & Reaction Bar: Mobile vs Desktop */}
+                {previewDevice === 'mobile' ? (
+                  /* Authentic Mobile Action & Reaction Bar (matching actual LinkedIn mobile screenshot) */
+                  <div className="px-3 py-2 flex items-center justify-between bg-white text-slate-700 border-t border-slate-100">
+                    <div className="flex items-center gap-3">
+                      {/* React as Profile Avatar with Dropdown */}
+                      <div className="flex items-center gap-0.5 shrink-0 cursor-pointer" title="Reacting as current user">
+                        <div className="w-6 h-6 rounded-full overflow-hidden bg-[#0f2ea2] text-white flex items-center justify-center text-[10px] font-bold border border-slate-200">
+                          {userProfile?.avatarImage ? (
+                            <img src={userProfile.avatarImage} alt="User" className="w-full h-full object-cover" />
+                          ) : (
+                            (userProfile?.name || 'Allan Cheng').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
+                          )}
+                        </div>
+                        <ChevronDown className="w-3 h-3 text-slate-500" />
+                      </div>
 
-                {/* LinkedIn Interaction Buttons */}
-                <div className="px-2 py-1.5 grid grid-cols-4 gap-1 text-[11px] font-semibold text-slate-600 dark:text-slate-300">
-                  <button className="flex items-center justify-center gap-1.5 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                    <ThumbsUp className="w-3.5 h-3.5" />
-                    <span>Like</span>
-                  </button>
-                  <button className="flex items-center justify-center gap-1.5 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                    <MessageSquare className="w-3.5 h-3.5" />
-                    <span>Comment</span>
-                  </button>
-                  <button className="flex items-center justify-center gap-1.5 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                    <Share2 className="w-3.5 h-3.5" />
-                    <span>Repost</span>
-                  </button>
-                  <button className="flex items-center justify-center gap-1.5 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                    <Send className="w-3.5 h-3.5" />
-                    <span>Send</span>
-                  </button>
-                </div>
+                      {/* Like Icon + Count */}
+                      <button
+                        type="button"
+                        className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
+                      >
+                        <ThumbsUp className="w-4 h-4 stroke-[1.8]" />
+                        <span>73</span>
+                      </button>
+
+                      {/* Comment Icon */}
+                      <button
+                        type="button"
+                        className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
+                      >
+                        <MessageSquare className="w-4 h-4 stroke-[1.8]" />
+                      </button>
+
+                      {/* Repost Icon + Count */}
+                      <button
+                        type="button"
+                        className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
+                      >
+                        <Repeat2 className="w-4 h-4 stroke-[1.8]" />
+                        <span>4</span>
+                      </button>
+
+                      {/* Send Icon */}
+                      <button
+                        type="button"
+                        className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
+                      >
+                        <Send className="w-4 h-4 stroke-[1.8]" />
+                      </button>
+                    </div>
+
+                    {/* Right Side: Stacked Reaction Badges */}
+                    <div className="flex items-center -space-x-1.5 shrink-0">
+                      <span className="w-5 h-5 rounded-full bg-[#0a66c2] border-2 border-white flex items-center justify-center text-white text-[9px] shadow-2xs">
+                        👍
+                      </span>
+                      <span className="w-5 h-5 rounded-full bg-[#df704d] border-2 border-white flex items-center justify-center text-white text-[9px] shadow-2xs">
+                        💡
+                      </span>
+                      <span className="w-5 h-5 rounded-full bg-[#44712e] border-2 border-white flex items-center justify-center text-white text-[9px] shadow-2xs">
+                        👏
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  /* Authentic Desktop Action Bar */
+                  <div className="bg-white">
+                    {/* Social Counts Line */}
+                    <div className="px-4 py-2 border-b border-slate-100 flex items-center justify-between text-[11px] text-[#666666]">
+                      <div className="flex items-center gap-1.5">
+                        <div className="flex items-center -space-x-1">
+                          <span className="w-4 h-4 rounded-full bg-[#0a66c2] border border-white flex items-center justify-center text-white text-[8px]">👍</span>
+                          <span className="w-4 h-4 rounded-full bg-[#44712e] border border-white flex items-center justify-center text-white text-[8px]">👏</span>
+                          <span className="w-4 h-4 rounded-full bg-[#df704d] border border-white flex items-center justify-center text-white text-[8px]">💡</span>
+                        </div>
+                        <span className="font-semibold text-slate-700">77</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span>8 comments</span>
+                        <span>•</span>
+                        <span>3 reposts</span>
+                      </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="px-2 py-1 grid grid-cols-4 gap-1 text-xs font-semibold text-[#666666]">
+                      <button type="button" className="flex items-center justify-center gap-2 py-2.5 rounded-md hover:bg-slate-100 transition-colors cursor-pointer">
+                        <ThumbsUp className="w-4 h-4 stroke-[1.8]" />
+                        <span>Like</span>
+                      </button>
+                      <button type="button" className="flex items-center justify-center gap-2 py-2.5 rounded-md hover:bg-slate-100 transition-colors cursor-pointer">
+                        <MessageSquare className="w-4 h-4 stroke-[1.8]" />
+                        <span>Comment</span>
+                      </button>
+                      <button type="button" className="flex items-center justify-center gap-2 py-2.5 rounded-md hover:bg-slate-100 transition-colors cursor-pointer">
+                        <Repeat2 className="w-4 h-4 stroke-[1.8]" />
+                        <span>Repost</span>
+                      </button>
+                      <button type="button" className="flex items-center justify-center gap-2 py-2.5 rounded-md hover:bg-slate-100 transition-colors cursor-pointer">
+                        <Send className="w-4 h-4 stroke-[1.8]" />
+                        <span>Send</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
