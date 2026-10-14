@@ -202,6 +202,10 @@ export default function ImageTemplateStudio({
       u.includes('/btn') ||
       u.includes('_btn') ||
       u.includes('/arrow') ||
+      u.includes('/flags/') ||
+      u.includes('flags/') ||
+      u.includes('/flag') ||
+      u.includes('bcsg') ||
       u.includes('social') ||
       u.includes('facebook') ||
       u.includes('twitter') ||
@@ -214,6 +218,8 @@ export default function ImageTemplateStudio({
       n.includes('[新しいウィンドウ]') ||
       n.includes('検索') ||
       n.includes('search') ||
+      n.includes('bcsg') ||
+      n.includes('flag') ||
       n.includes('facebook') ||
       n.includes('twitter') ||
       n.includes('youtube') ||
@@ -971,10 +977,7 @@ export default function ImageTemplateStudio({
                 }`}
               >
                 <Database className="w-3.5 h-3.5" />
-                <span>Notion Digital Assets ({notionAssets.length || 356})</span>
-                {isLiveNotionStream && (
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block animate-pulse" title="Live Notion Stream" />
-                )}
+                <span>Regional Digital Assets ({filteredNotionAssets.length || notionAssets.length || 276})</span>
               </button>
 
               <button
@@ -1025,7 +1028,7 @@ export default function ImageTemplateStudio({
           {/* Notion Digital Asset Toolbar & Country Filters */}
           {activeAssetTab === 'notion' && (
             <div className="space-y-2.5 pt-1 pb-1">
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
+              <div className="flex items-center justify-between gap-2.5">
                 {/* Search bar */}
                 <div className="relative flex-1">
                   <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -1033,7 +1036,7 @@ export default function ImageTemplateStudio({
                     type="text"
                     value={notionSearchQuery}
                     onChange={(e) => setNotionSearchQuery(e.target.value)}
-                    placeholder="Search 350+ Brother digital assets by model, keyword, or country..."
+                    placeholder="Search regional digital assets by model, keyword, or country..."
                     className="w-full pl-8.5 pr-8 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#0f2ea2]"
                   />
                   {notionSearchQuery && (
@@ -1047,41 +1050,34 @@ export default function ImageTemplateStudio({
                   )}
                 </div>
 
-                {/* Live stream status & refresh */}
-                <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/50 text-[11px] font-bold text-emerald-700 dark:text-emerald-300">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    <span>Live Notion Stream ({filteredNotionAssets.length} of {notionAssets.length || 356})</span>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => loadNotionAssets(true)}
-                    disabled={loadingNotionAssets}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer text-slate-600 dark:text-slate-300"
-                    title="Refresh & re-sync from Notion database"
-                  >
-                    <RefreshCw className={`w-3 h-3 ${loadingNotionAssets ? 'animate-spin text-[#0f2ea2]' : ''}`} />
-                    <span>Sync</span>
-                  </button>
-                </div>
+                {/* Refresh sync button */}
+                <button
+                  type="button"
+                  onClick={() => loadNotionAssets(true)}
+                  disabled={loadingNotionAssets}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer text-slate-700 dark:text-slate-200 shrink-0 shadow-2xs"
+                  title="Refresh & re-sync from database"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${loadingNotionAssets ? 'animate-spin text-[#0f2ea2]' : 'text-slate-500'}`} />
+                  <span>Sync Library</span>
+                </button>
               </div>
 
-              {/* Country Filter Chips */}
+              {/* Country Filter Chips without flag emojis */}
               <div className="flex items-center gap-1.5 overflow-x-auto pb-1 custom-scrollbar text-[11px]">
                 <span className="text-slate-400 text-[10px] uppercase font-bold tracking-wider shrink-0 mr-1 flex items-center gap-1">
                   <Globe className="w-3 h-3" />
                   Region:
                 </span>
                 {[
-                  { id: 'all', label: `All (${notionAssets.length || 356})` },
-                  { id: 'Singapore', label: `🇸🇬 Singapore (${countryCounts['singapore'] || 67})` },
-                  { id: 'Japan', label: `🇯🇵 Japan (${countryCounts['japan'] || 38})` },
-                  { id: 'Philippines', label: `🇵🇭 Philippines (${countryCounts['philippines'] || 49})` },
-                  { id: 'Malaysia', label: `🇲🇾 Malaysia (${countryCounts['malaysia'] || 48})` },
-                  { id: 'Taiwan', label: `🇹🇼 Taiwan (${countryCounts['taiwan'] || 46})` },
-                  { id: 'South Korea', label: `🇰🇷 Korea (${countryCounts['south korea'] || 62})` },
-                  { id: 'Indonesia', label: `🇮🇩 Indonesia (${countryCounts['indonesia'] || 45})` }
+                  { id: 'all', label: `All (${countryCounts['all'] || notionAssets.length || 276})` },
+                  { id: 'Singapore', label: `Singapore (${countryCounts['singapore'] || 0})` },
+                  { id: 'Japan', label: `Japan (${countryCounts['japan'] || 0})` },
+                  { id: 'Philippines', label: `Philippines (${countryCounts['philippines'] || 0})` },
+                  { id: 'Malaysia', label: `Malaysia (${countryCounts['malaysia'] || 0})` },
+                  { id: 'Taiwan', label: `Taiwan (${countryCounts['taiwan'] || 0})` },
+                  { id: 'South Korea', label: `Korea (${countryCounts['south korea'] || 0})` },
+                  { id: 'Indonesia', label: `Indonesia (${countryCounts['indonesia'] || 0})` }
                 ].map(chip => (
                   <button
                     key={chip.id}
@@ -1139,7 +1135,7 @@ export default function ImageTemplateStudio({
           {activeAssetTab === 'notion' && loadingNotionAssets && notionAssets.length === 0 ? (
             <div className="p-8 text-center text-xs text-slate-400">
               <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-[#0f2ea2]" />
-              <span>Streaming digital asset library from Notion database (3f101136...)...</span>
+              <span>Loading regional digital asset library...</span>
             </div>
           ) : activeAssetTab === 'notion' && filteredNotionAssets.length === 0 ? (
             <div className="p-8 text-center text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-950/40 rounded-xl border border-dashed border-slate-200 dark:border-slate-800">

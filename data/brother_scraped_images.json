@@ -901,15 +901,6 @@
       "filename": "youtube.svg"
     },
     {
-      "id": "sg-58",
-      "name": "BCSG",
-      "country": "Singapore",
-      "sourceSite": "Brother Singapore",
-      "category": "Marketing Asset",
-      "imageUrl": "https://www.brother.com.sg/-/media/themes/apweb/global/header-footer-theme/images/flags/bcsg.png?h=24&amp;iar=0&amp;w=24&amp;rev=25cdb12159454b598865570cc239b6cc",
-      "filename": "bcsg.png"
-    },
-    {
       "id": "sg-59",
       "name": "brother-spore-5yrs-campaign-640x480-r3",
       "country": "Singapore",
@@ -1313,15 +1304,6 @@
       "category": "Icon / UI",
       "imageUrl": "https://www.brother.com.my/-/media/themes/apweb/global/global-lite/images/icons/youtube.svg?iar=0&amp;rev=87f2f2f637c14b80823f550b138ab231",
       "filename": "youtube.svg"
-    },
-    {
-      "id": "my-37",
-      "name": "BICM",
-      "country": "Malaysia",
-      "sourceSite": "Brother Malaysia",
-      "category": "Marketing Asset",
-      "imageUrl": "https://www.brother.com.my/-/media/themes/apweb/global/header-footer-theme/images/flags/bicm.png?h=24&amp;iar=0&amp;w=24&amp;rev=aefe61c49909475bb188c1e5837ff5e5",
-      "filename": "bicm.png"
     },
     {
       "id": "my-38",
@@ -2215,15 +2197,6 @@
       "filename": "linkedin.svg"
     },
     {
-      "id": "kr-43",
-      "name": "flag",
-      "country": "South Korea",
-      "sourceSite": "Brother Korea",
-      "category": "Marketing Asset",
-      "imageUrl": "https://www.brother-korea.com/-/media/themes/apweb/global/global-lite/images/flags/bick.png?h=28&amp;iar=0&amp;w=28&amp;rev=0eca6cf0e59b4e6e81381d0620cc5c81",
-      "filename": "bick.png"
-    },
-    {
       "id": "kr-44",
       "name": "mfc-t930dw_dbmo",
       "country": "South Korea",
@@ -2701,15 +2674,6 @@
       "filename": "tiktok.svg"
     },
     {
-      "id": "id-35",
-      "name": "BICID",
-      "country": "Indonesia",
-      "sourceSite": "Brother Indonesia",
-      "category": "Marketing Asset",
-      "imageUrl": "https://www.brother.co.id/-/media/themes/apweb/global/header-footer-theme/images/flags/bicid.png?h=24&amp;iar=0&amp;w=24&amp;rev=7e78423036634a918ea238400c0b4749",
-      "filename": "bicid.png"
-    },
-    {
       "id": "id-36",
       "name": "idc2025_2026_home-banner_mobile_640x480px_hires",
       "country": "Indonesia",
@@ -3140,15 +3104,6 @@
       "category": "Icon / UI",
       "imageUrl": "https://www.brother.com.ph/-/media/themes/apweb/global/global-lite/images/icons/viber.svg?iar=0&amp;rev=eee2eb69581047aa89754ebd43980054",
       "filename": "viber.svg"
-    },
-    {
-      "id": "ph-39",
-      "name": "BICP",
-      "country": "Philippines",
-      "sourceSite": "Brother Philippines",
-      "category": "Marketing Asset",
-      "imageUrl": "https://www.brother.com.ph/-/media/themes/apweb/global/header-footer-theme/images/flags/bicp.png?h=28&amp;iar=0&amp;w=28&amp;rev=ae6267c1ee5b4811aeb5e585e6d6b295",
-      "filename": "bicp.png"
     },
     {
       "id": "ph-40",

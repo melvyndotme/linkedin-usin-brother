@@ -216,6 +216,10 @@ function isIrrelevantAsset(name = '', url = '', category = '') {
     u.includes('/btn') ||
     u.includes('_btn') ||
     u.includes('/arrow') ||
+    u.includes('/flags/') ||
+    u.includes('flags/') ||
+    u.includes('/flag') ||
+    u.includes('bcsg') ||
     u.includes('social') ||
     u.includes('facebook') ||
     u.includes('twitter') ||
@@ -226,12 +230,14 @@ function isIrrelevantAsset(name = '', url = '', category = '') {
     return true;
   }
 
-  // Exclude titles indicating web navigational elements or symbols
+  // Exclude titles indicating web navigational elements, symbols, or flag assets
   if (
     n.includes('[pdf]') ||
     n.includes('[新しいウィンドウ]') ||
     n.includes('検索') ||
     n.includes('search') ||
+    n.includes('bcsg') ||
+    n.includes('flag') ||
     n.includes('facebook') ||
     n.includes('twitter') ||
     n.includes('youtube') ||
