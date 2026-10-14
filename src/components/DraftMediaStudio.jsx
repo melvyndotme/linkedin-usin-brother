@@ -976,9 +976,9 @@ To everyone celebrating, how is your team marking this special day? Share your f
         <div className="space-y-3 pb-6 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div className="flex items-center gap-2">
-              <span className="text-base font-black text-red-600 dark:text-red-500 font-mono">(1)</span>
+              <span className="text-xs sm:text-sm font-mono font-bold text-[#0f2ea2] dark:text-blue-400">Step 01:</span>
               <h3 className={`text-sm sm:text-base font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                Campaign topic
+                Campaign Topic
               </h3>
             </div>
             <span className="text-[11px] text-slate-400">
@@ -1059,7 +1059,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
         <div className="space-y-3 pb-6 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div className="flex items-center gap-2">
-              <span className="text-base font-black text-red-600 dark:text-red-500 font-mono">(2)</span>
+              <span className="text-xs sm:text-sm font-mono font-bold text-[#0f2ea2] dark:text-blue-400">Step 02:</span>
               <h3 className={`text-sm sm:text-base font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
                 Select Framework
               </h3>
@@ -1179,7 +1179,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
         <div className="space-y-3 pb-6 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div className="flex items-center gap-2">
-              <span className="text-base font-black text-red-600 dark:text-red-500 font-mono">(3)</span>
+              <span className="text-xs sm:text-sm font-mono font-bold text-[#0f2ea2] dark:text-blue-400">Step 03:</span>
               <h3 className={`text-sm sm:text-base font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
                 AI Models
               </h3>
@@ -1230,12 +1230,12 @@ To everyone celebrating, how is your team marking this special day? Share your f
         </div>
 
         {/* ------------------------------------------------------------- */}
-        {/* (4) [in red] Draft Post [in black]                             */}
+        {/* Step 04: Draft Post                                           */}
         {/* ------------------------------------------------------------- */}
         <div className="space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div className="flex items-center gap-2">
-              <span className="text-base font-black text-red-600 dark:text-red-500 font-mono">(4)</span>
+              <span className="text-xs sm:text-sm font-mono font-bold text-[#0f2ea2] dark:text-blue-400">Step 04:</span>
               <h3 className={`text-sm sm:text-base font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
                 Draft Post
               </h3>

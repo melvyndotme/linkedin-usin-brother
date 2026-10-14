@@ -967,7 +967,7 @@ export default function ImageTemplateStudio({
       {/* SECTION (1): [in red] (1) [in black] Image Size */}
       <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
         <div className="flex items-center gap-2">
-          <span className="text-rose-600 font-extrabold text-sm sm:text-base">(1)</span>
+          <span className="text-xs sm:text-sm font-mono font-bold text-[#0f2ea2] dark:text-blue-400">Step 01:</span>
           <span className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white uppercase tracking-wider">
             Image Size
           </span>
@@ -1068,7 +1068,7 @@ export default function ImageTemplateStudio({
       <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-rose-600 font-extrabold text-sm sm:text-base">(2)</span>
+            <span className="text-xs sm:text-sm font-mono font-bold text-[#0f2ea2] dark:text-blue-400">Step 02:</span>
             <span className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white uppercase tracking-wider">
               Edit Text
             </span>
@@ -1180,7 +1180,7 @@ export default function ImageTemplateStudio({
       <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-rose-600 font-extrabold text-sm sm:text-base">(3)</span>
+            <span className="text-xs sm:text-sm font-mono font-bold text-[#0f2ea2] dark:text-blue-400">Step 03:</span>
             <span className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white uppercase tracking-wider">
               {aspectRatio === '1:1' ? 'The Image / Carousel Canvas' : 'The Image / Banner Canvas'}
             </span>
