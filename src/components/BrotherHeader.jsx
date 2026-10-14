@@ -31,8 +31,8 @@ const TAB_CONFIG = {
   'calendar': { label: 'Content Calendar', icon: CalendarDays },
   'notion-hub': { label: 'Notion', icon: NotionIcon },
   'team': { label: 'Team', icon: Users },
-  'profile': { label: 'My Profile', icon: User },
-  'settings': { label: 'Integrations', icon: Sliders }
+  'settings': { label: 'Integration', icon: Sliders },
+  'profile': { label: 'My Profile', icon: User }
 };
 
 export default function BrotherHeader({ 

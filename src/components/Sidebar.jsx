@@ -64,11 +64,11 @@ export default function Sidebar({
       ]
     },
     {
-      title: 'SYSTEM',
+      title: 'SETTINGS',
       items: [
+        { id: 'notion-hub', label: 'Notion', icon: NotionIcon },
         { id: 'team', label: 'Team', icon: Users },
-        { id: 'settings', label: 'Integrations', icon: Sliders },
-        { id: 'notion-hub', label: 'Notion', icon: NotionIcon }
+        { id: 'settings', label: 'Integration', icon: Sliders }
       ]
     }
   ];
