@@ -18,7 +18,8 @@ import {
   CheckCircle2,
   Sparkles,
   PanelLeft,
-  User
+  User,
+  RefreshCw
 } from 'lucide-react';
 
 const TAB_CONFIG = {
@@ -47,7 +48,34 @@ export default function BrotherHeader({
 }) {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [unread, setUnread] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const notificationRef = useRef(null);
+
+  const handleAppRefresh = async () => {
+    if (refreshing) return;
+    setRefreshing(true);
+    try {
+      if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        for (const reg of registrations) {
+          if (reg.waiting) {
+            reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+          }
+          await reg.update();
+        }
+      }
+      if ('caches' in window) {
+        const cacheNames = await caches.keys();
+        await Promise.all(cacheNames.map((name) => caches.delete(name)));
+      }
+    } catch (err) {
+      console.warn('[PWA] Refresh/cache clear warning:', err);
+    }
+    // Hard reload the window
+    setTimeout(() => {
+      window.location.reload();
+    }, 200);
+  };
 
   // Close notifications on click outside
   useEffect(() => {
@@ -148,6 +176,24 @@ export default function BrotherHeader({
               </div>
               <ChevronDown className="w-3 h-3 text-slate-400 ml-0.5 shrink-0" />
             </div>
+
+            {/* 1-Tap PWA Refresh / Check for Updates */}
+            <button
+              type="button"
+              onClick={handleAppRefresh}
+              disabled={refreshing}
+              className={`p-2 rounded-xl border transition-all cursor-pointer ${
+                refreshing
+                  ? 'bg-blue-50 dark:bg-blue-950/60 border-[#0f2ea2]/40 text-[#0f2ea2]'
+                  : isDark 
+                    ? 'bg-slate-900 border-slate-800 hover:bg-slate-800 text-slate-300' 
+                    : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-600'
+              }`}
+              title="Refresh App & Check for Updates"
+              aria-label="Refresh App"
+            >
+              <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin text-[#0f2ea2]' : ''}`} />
+            </button>
 
             {/* Notification Bell with Dropdown Popover */}
             <div className="relative" ref={notificationRef}>

@@ -15,6 +15,7 @@ import ProfileView from './components/ProfileView.jsx';
 import PWAInstallPrompt from './components/PWAInstallPrompt.jsx';
 import { safeGetItem, safeSetItem, safeRemoveItem } from './lib/storage.js';
 import { logActivity } from './lib/auditLogger.js';
+import { RefreshCw } from 'lucide-react';
 
 class ErrorBoundary extends Component {
   constructor(props) {
@@ -210,6 +211,62 @@ export default function App() {
     window.matchMedia('(display-mode: standalone)').matches || 
     window.navigator.standalone === true
   );
+
+  // PWA Service Worker Update Tracking
+  const [swUpdateAvailable, setSwUpdateAvailable] = useState(false);
+  const [waitingWorker, setWaitingWorker] = useState(null);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return;
+
+    const checkServiceWorkerUpdate = async () => {
+      try {
+        const registration = await navigator.serviceWorker.getRegistration();
+        if (registration) {
+          if (registration.waiting) {
+            setWaitingWorker(registration.waiting);
+            setSwUpdateAvailable(true);
+          }
+          registration.addEventListener('updatefound', () => {
+            const newWorker = registration.installing;
+            if (newWorker) {
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  setWaitingWorker(newWorker);
+                  setSwUpdateAvailable(true);
+                }
+              });
+            }
+          });
+          // Ask SW to query server for updated bundle
+          registration.update().catch(() => {});
+        }
+      } catch (err) {
+        console.warn('[PWA] SW check warning:', err);
+      }
+    };
+
+    checkServiceWorkerUpdate();
+
+    // Re-check automatically when user returns to the app from iOS home/multitasking
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        checkServiceWorkerUpdate();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
+  const handleApplyUpdate = () => {
+    if (waitingWorker) {
+      waitingWorker.postMessage({ type: 'SKIP_WAITING' });
+    }
+    window.location.reload();
+  };
 
   // Authentication State
   const [currentUser, setCurrentUser] = useState(() => {
@@ -526,6 +583,26 @@ export default function App() {
           </ErrorBoundary>
         </main>
       </div>
+
+      {/* PWA Update Available Floating Action Bar for iOS Standalone PWA */}
+      {swUpdateAvailable && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 animate-in fade-in slide-in-from-top-4 duration-200">
+          <div className="flex items-center gap-3 px-4 py-2 rounded-full bg-[#0f2ea2] text-white shadow-2xl shadow-blue-900/40 border border-blue-400/40 text-xs font-semibold backdrop-blur-md">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+            </span>
+            <span className="tracking-tight">New version available</span>
+            <button
+              onClick={handleApplyUpdate}
+              className="bg-white text-[#0f2ea2] hover:bg-blue-50 px-3 py-1 rounded-full text-[11px] font-bold transition-all shadow-sm flex items-center gap-1.5 cursor-pointer active:scale-95"
+            >
+              <RefreshCw className="w-3 h-3" />
+              Update Now
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* PWA Home Screen Installation Prompt & Guide */}
       <PWAInstallPrompt isDark={isDark} />

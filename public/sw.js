@@ -1,5 +1,11 @@
 // Progressive Web App Service Worker for Brother LinkedUs
-const CACHE_NAME = 'brother-linkedus-v2';
+const CACHE_NAME = 'brother-linkedus-v3';
+
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
 
 // Static assets to pre-cache on install
 const PRECACHE_ASSETS = [
