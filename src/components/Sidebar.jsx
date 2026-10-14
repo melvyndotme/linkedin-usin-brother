@@ -58,7 +58,7 @@ export default function Sidebar({
       title: 'STUDIO',
       items: [
         { id: 'template-studio', label: 'Content Frameworks', icon: Layers },
-        { id: 'draft-studio', label: 'Content Editor', icon: Edit3 },
+        { id: 'draft-studio', label: 'Content Studio', icon: Edit3 },
         { id: 'calendar', label: 'Content Calendar', icon: CalendarDays }
       ]
     },

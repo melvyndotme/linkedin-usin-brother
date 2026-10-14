@@ -107,7 +107,7 @@ const TAB_TITLES = {
   'module-1': 'Events & Occasions | Brother Singapore',
   'module-2': 'News & Trends | Brother Singapore',
   'template-studio': 'Content Frameworks | Brother Singapore',
-  'draft-studio': 'Content Editor | Brother Singapore',
+  'draft-studio': 'Content Studio | Brother Singapore',
   'calendar': 'Content Calendar | Brother Singapore',
   'notion-hub': 'Notion Hub | Brother Singapore',
   'team': 'Team Directory | Brother Singapore',

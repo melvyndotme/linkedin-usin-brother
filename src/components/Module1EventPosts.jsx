@@ -641,7 +641,7 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
               Events, Public Holidays & Promotions
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              Select any upcoming Singapore occasion or promotional campaign to immediately draft 3 LinkedIn posts in Content Editor.
+              Select any upcoming Singapore occasion or promotional campaign to immediately draft 3 LinkedIn posts in Content Studio.
             </p>
           </div>
 
@@ -756,9 +756,9 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
 
             const handleDraftEvent = () => {
               logActivity({
-                event: 'Drafted Event in Content Editor',
+                event: 'Drafted Event in Content Studio',
                 category: 'Content Generation',
-                details: `Selected "${evt.name}" to draft in Content Editor`,
+                details: `Selected "${evt.name}" to draft in Content Studio`,
                 status: 'Success'
               });
               const evtDrafts = generateEventDrafts(evt);
@@ -868,7 +868,7 @@ export default function Module1EventPosts({ isDark, onNavigateToDraftStudio }) {
                     }}
                     className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold transition-all duration-150 shadow-xs hover:shadow-sm cursor-pointer"
                   >
-                    <span>Draft in Content Editor</span>
+                    <span>Draft in Content Studio</span>
                     <ArrowRight className="w-3.5 h-3.5 transition-transform duration-150 group-hover:translate-x-0.5" />
                   </button>
                 </div>

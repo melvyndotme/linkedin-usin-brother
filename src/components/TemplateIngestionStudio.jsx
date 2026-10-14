@@ -881,7 +881,7 @@ export default function TemplateIngestionStudio({ isDark, onSelectTemplateForDra
                     onClick={() => onSelectTemplateForDrafting(justExtractedTemplate)}
                     className="inline-flex items-center gap-1.5 bg-[#0f2ea2] hover:bg-[#0c2482] text-white text-xs font-bold px-4 py-2 rounded-xl shadow-md transition-all active:scale-95 cursor-pointer"
                   >
-                    <span>Use in Content Editor</span>
+                    <span>Use in Content Studio</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                   <button

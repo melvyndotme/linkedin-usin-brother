@@ -287,7 +287,7 @@ export default function ContentCalendar({ isDark = false, onNavigateToStudio }) 
     setPublishSuccessMsg(null);
   };
 
-  // Navigate to Content Editor to edit draft
+  // Navigate to Content Studio to edit draft
   const handleEditInStudio = (draft) => {
     if (!onNavigateToStudio) return;
     onNavigateToStudio({
@@ -565,7 +565,7 @@ export default function ContentCalendar({ isDark = false, onNavigateToStudio }) 
 
         {draftPosts.length === 0 ? (
           <div className="py-6 text-center text-slate-400">
-            <p className="text-xs">No unscheduled drafts. Generate candidate posts in Content Editor.</p>
+            <p className="text-xs">No unscheduled drafts. Generate candidate posts in Content Studio.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
