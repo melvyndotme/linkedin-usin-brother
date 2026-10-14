@@ -1262,7 +1262,7 @@ To everyone celebrating, how is your team marking this special day? Share your f
                             {fw.name}
                           </option>
                         ))}
-                        <option value="none">— None (Do not generate) —</option>
+                        <option value="none">None (Skip)</option>
                       </select>
                     </div>
 
