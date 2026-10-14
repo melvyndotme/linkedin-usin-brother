@@ -14,6 +14,7 @@ import eventsHandler from '../api/events.js';
 import verifyOtpHandler from '../api/auth/verify-otp.js';
 import sessionHandler from '../api/auth/session.js';
 import teamHandler from '../api/notion/team.js';
+import notionAssetsHandler from '../api/notion/assets.js';
 
 try {
   process.loadEnvFile();
@@ -87,6 +88,11 @@ const server = http.createServer(async (req, res) => {
   // Notion & Serper Handlers
   if (pathname === '/api/notion/sync' || pathname === '/api/notion/seed') {
     adaptVercel(notionSyncHandler)(req, res, parsedUrl);
+    return;
+  }
+
+  if (pathname === '/api/notion/assets') {
+    adaptVercel(notionAssetsHandler)(req, res, parsedUrl);
     return;
   }
 

@@ -1,4 +1,5 @@
 // Vercel Serverless Function: Sync Final Posts, Telemetry, and Audit Logs to Notion Database
+import notionAssetsHandler from './assets.js';
 
 function formatAuditLogs(results) {
   return results.map(page => {
@@ -158,6 +159,11 @@ export default async function handler(req, res) {
     'Notion-Version': '2022-06-28',
     'Content-Type': 'application/json'
   };
+
+  // 0. Digital Asset Library Routine (Brother Regional Digital Assets)
+  if (action === 'get_digital_assets' || action === 'get_assets' || action === 'list_assets') {
+    return notionAssetsHandler(req, res);
+  }
 
   // 1. Database Seeding Routine
   if (action === 'seed') {

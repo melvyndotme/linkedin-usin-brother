@@ -28,7 +28,10 @@ import {
   FileText,
   Building2,
   Bookmark,
-  ChevronDown
+  ChevronDown,
+  Search,
+  Globe,
+  Filter
 } from 'lucide-react';
 import { 
   OFFICIAL_BROTHER_ASSETS,
@@ -88,7 +91,7 @@ export default function ImageTemplateStudio({
 }) {
   const [aspectRatio, setAspectRatio] = useState('1:1'); // '1:1' (Square Carousel) or '1.91:1' (Landscape Banner)
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
-  const [activeAssetTab, setActiveAssetTab] = useState('official'); // 'official' | 'festive'
+  const [activeAssetTab, setActiveAssetTab] = useState('notion'); // 'notion' (Digital Asset Library) | 'official' | 'festive'
   const [visualSourceMode, setVisualSourceMode] = useState('library'); // 'library' | 'ai'
   const [slidePhotos, setSlidePhotos] = useState({}); // Per-slide background image mapping: { [slideIndex]: url }
   const [customPhotoUrl, setCustomPhotoUrl] = useState('');
@@ -118,51 +121,93 @@ export default function ImageTemplateStudio({
   const [cloudError, setCloudError] = useState(null);
   const [serverGeminiConfigured, setServerGeminiConfigured] = useState(false);
 
-  // Notion Database Image Assets
+  // Notion Regional Digital Asset Library State
   const [notionAssets, setNotionAssets] = useState([]);
   const [loadingNotionAssets, setLoadingNotionAssets] = useState(false);
+  const [isLiveNotionStream, setIsLiveNotionStream] = useState(false);
+  const [notionCountryFilter, setNotionCountryFilter] = useState('all');
+  const [notionCategoryFilter, setNotionCategoryFilter] = useState('all');
+  const [notionSearchQuery, setNotionSearchQuery] = useState('');
 
-  // Fetch live images saved in Notion database
-  useEffect(() => {
-    async function loadNotionAssets() {
-      setLoadingNotionAssets(true);
-      try {
-        const token = safeGetItem('notion_token') || safeGetItem('token_notion');
-        const dbId = safeGetItem('notion_database_id') || '3c701136de4881de9d29ca4ea415e856';
-        const res = await fetch('/api/notion/sync?action=get_posts', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            apiKey: token || undefined,
-            databaseId: dbId
-          })
-        });
-        if (res.ok) {
-          const data = await res.json();
-          if (data.success && Array.isArray(data.posts)) {
-            const foundImages = [];
-            data.posts.forEach((p, idx) => {
-              const img = p.cleanImageUrl || p.compositeImageUrl || p.imageUrl;
-              if (img && typeof img === 'string' && (img.startsWith('http') || img.startsWith('data:image'))) {
-                foundImages.push({
-                  id: p.id || `notion-img-${idx}`,
-                  title: p.title || 'Notion Visual Asset',
-                  url: img,
-                  thumb: img
-                });
-              }
-            });
-            setNotionAssets(foundImages);
-          }
+  // Fetch live images from Notion Digital Asset Library database (3f101136de4881d69ba7ca159483a544)
+  const loadNotionAssets = async (forceRefresh = false) => {
+    setLoadingNotionAssets(true);
+    try {
+      const token = safeGetItem('notion_token') || safeGetItem('token_notion') || '';
+      const url = forceRefresh ? '/api/notion/assets?refresh=true' : '/api/notion/assets';
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          apiKey: token || undefined,
+          databaseId: '3f101136de4881d69ba7ca159483a544'
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && Array.isArray(data.assets) && data.assets.length > 0) {
+          setNotionAssets(data.assets);
+          setIsLiveNotionStream(Boolean(data.liveNotion));
+          return;
         }
-      } catch (e) {
-        console.warn('Could not load Notion image assets:', e);
-      } finally {
-        setLoadingNotionAssets(false);
       }
+
+      // Fallback: try /api/notion/sync?action=get_digital_assets
+      const fallbackRes = await fetch('/api/notion/sync?action=get_digital_assets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          apiKey: token || undefined,
+          databaseId: '3f101136de4881d69ba7ca159483a544'
+        })
+      });
+
+      if (fallbackRes.ok) {
+        const fallbackData = await fallbackRes.json();
+        if (fallbackData.success && Array.isArray(fallbackData.assets)) {
+          setNotionAssets(fallbackData.assets);
+          setIsLiveNotionStream(Boolean(fallbackData.liveNotion));
+        }
+      }
+    } catch (e) {
+      console.warn('Could not load Notion image assets:', e);
+    } finally {
+      setLoadingNotionAssets(false);
     }
+  };
+
+  useEffect(() => {
     loadNotionAssets();
   }, []);
+
+  // Filtered Notion Assets by country, category, and search query
+  const filteredNotionAssets = useMemo(() => {
+    return notionAssets.filter(item => {
+      if (notionCountryFilter !== 'all' && item.country?.toLowerCase() !== notionCountryFilter.toLowerCase()) {
+        return false;
+      }
+      if (notionCategoryFilter !== 'all' && item.category?.toLowerCase() !== notionCategoryFilter.toLowerCase()) {
+        return false;
+      }
+      if (notionSearchQuery.trim()) {
+        const q = notionSearchQuery.toLowerCase();
+        const combined = `${item.title || ''} ${item.name || ''} ${item.country || ''} ${item.category || ''}`.toLowerCase();
+        if (!combined.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [notionAssets, notionCountryFilter, notionCategoryFilter, notionSearchQuery]);
+
+  // Dynamic country counts for filter chips
+  const countryCounts = useMemo(() => {
+    const counts = { all: notionAssets.length };
+    notionAssets.forEach(a => {
+      const c = (a.country || 'Other').toLowerCase();
+      counts[c] = (counts[c] || 0) + 1;
+    });
+    return counts;
+  }, [notionAssets]);
 
   // Fetch live contextual image models (Nano Banana series)
   useEffect(() => {
@@ -741,6 +786,22 @@ export default function ImageTemplateStudio({
             <div className="flex items-center gap-1.5 flex-wrap">
               <button
                 type="button"
+                onClick={() => setActiveAssetTab('notion')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  activeAssetTab === 'notion'
+                    ? 'bg-[#0f2ea2] text-white shadow-xs'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+                }`}
+              >
+                <Database className="w-3.5 h-3.5" />
+                <span>Notion Digital Assets ({notionAssets.length || 356})</span>
+                {isLiveNotionStream && (
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block animate-pulse" title="Live Notion Stream" />
+                )}
+              </button>
+
+              <button
+                type="button"
                 onClick={() => setActiveAssetTab('official')}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   activeAssetTab === 'official'
@@ -748,8 +809,9 @@ export default function ImageTemplateStudio({
                     : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
                 }`}
               >
-                Official Brother Assets ({OFFICIAL_BROTHER_ASSETS.length})
+                Featured SG Hardware ({OFFICIAL_BROTHER_ASSETS.length})
               </button>
+
               <button
                 type="button"
                 onClick={() => setActiveAssetTab('festive')}
@@ -760,18 +822,6 @@ export default function ImageTemplateStudio({
                 }`}
               >
                 Cultural & Events ({festivePresets.length})
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveAssetTab('notion')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                  activeAssetTab === 'notion'
-                    ? 'bg-[#0f2ea2] text-white shadow-xs'
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
-                }`}
-              >
-                <Database className="w-3 h-3" />
-                <span>Notion Saved Images ({notionAssets.length})</span>
               </button>
             </div>
 
@@ -794,6 +844,84 @@ export default function ImageTemplateStudio({
               </button>
             </div>
           </div>
+
+          {/* Notion Digital Asset Toolbar & Country Filters */}
+          {activeAssetTab === 'notion' && (
+            <div className="space-y-2.5 pt-1 pb-1">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
+                {/* Search bar */}
+                <div className="relative flex-1">
+                  <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="text"
+                    value={notionSearchQuery}
+                    onChange={(e) => setNotionSearchQuery(e.target.value)}
+                    placeholder="Search 350+ Brother digital assets by model, keyword, or country..."
+                    className="w-full pl-8.5 pr-8 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-[#0f2ea2]"
+                  />
+                  {notionSearchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setNotionSearchQuery('')}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Live stream status & refresh */}
+                <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/50 text-[11px] font-bold text-emerald-700 dark:text-emerald-300">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>Live Notion Stream ({filteredNotionAssets.length} of {notionAssets.length || 356})</span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => loadNotionAssets(true)}
+                    disabled={loadingNotionAssets}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer text-slate-600 dark:text-slate-300"
+                    title="Refresh & re-sync from Notion database"
+                  >
+                    <RefreshCw className={`w-3 h-3 ${loadingNotionAssets ? 'animate-spin text-[#0f2ea2]' : ''}`} />
+                    <span>Sync</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Country Filter Chips */}
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 custom-scrollbar text-[11px]">
+                <span className="text-slate-400 text-[10px] uppercase font-bold tracking-wider shrink-0 mr-1 flex items-center gap-1">
+                  <Globe className="w-3 h-3" />
+                  Region:
+                </span>
+                {[
+                  { id: 'all', label: `All (${notionAssets.length || 356})` },
+                  { id: 'Singapore', label: `🇸🇬 Singapore (${countryCounts['singapore'] || 67})` },
+                  { id: 'Japan', label: `🇯🇵 Japan (${countryCounts['japan'] || 38})` },
+                  { id: 'Philippines', label: `🇵🇭 Philippines (${countryCounts['philippines'] || 49})` },
+                  { id: 'Malaysia', label: `🇲🇾 Malaysia (${countryCounts['malaysia'] || 48})` },
+                  { id: 'Taiwan', label: `🇹🇼 Taiwan (${countryCounts['taiwan'] || 46})` },
+                  { id: 'South Korea', label: `🇰🇷 Korea (${countryCounts['south korea'] || 62})` },
+                  { id: 'Indonesia', label: `🇮🇩 Indonesia (${countryCounts['indonesia'] || 45})` }
+                ].map(chip => (
+                  <button
+                    key={chip.id}
+                    type="button"
+                    onClick={() => setNotionCountryFilter(chip.id)}
+                    className={`px-2.5 py-0.5 rounded-full font-bold whitespace-nowrap transition-all cursor-pointer ${
+                      notionCountryFilter.toLowerCase() === chip.id.toLowerCase()
+                        ? 'bg-[#0f2ea2] text-white shadow-2xs'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+                    }`}
+                  >
+                    {chip.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Custom Uploaded Photo Indicator Banner */}
           {customPhotoUrl && (
@@ -831,26 +959,33 @@ export default function ImageTemplateStudio({
           )}
 
           {/* Thumbnail Grid for Selected Tab */}
-          {activeAssetTab === 'notion' && loadingNotionAssets ? (
+          {activeAssetTab === 'notion' && loadingNotionAssets && notionAssets.length === 0 ? (
             <div className="p-8 text-center text-xs text-slate-400">
               <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-[#0f2ea2]" />
-              <span>Loading saved image assets from Notion repository...</span>
+              <span>Streaming digital asset library from Notion database (3f101136...)...</span>
             </div>
-          ) : activeAssetTab === 'notion' && notionAssets.length === 0 ? (
+          ) : activeAssetTab === 'notion' && filteredNotionAssets.length === 0 ? (
             <div className="p-8 text-center text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-950/40 rounded-xl border border-dashed border-slate-200 dark:border-slate-800">
               <Database className="w-6 h-6 mx-auto mb-2 opacity-50" />
-              <p className="font-bold">No saved images found in Notion yet.</p>
+              <p className="font-bold">No assets found matching your filter.</p>
               <p className="text-[11px] opacity-80 mt-1">
-                Generate images with Gemini or save visuals to Notion, and they will automatically appear here as reusable thumbnails.
+                Try selecting "All" regions or clearing your search term.
               </p>
+              <button
+                type="button"
+                onClick={() => { setNotionCountryFilter('all'); setNotionSearchQuery(''); }}
+                className="mt-3 px-3 py-1 bg-[#0f2ea2] text-white text-xs font-bold rounded-lg cursor-pointer"
+              >
+                Clear Filters
+              </button>
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5 max-h-[520px] overflow-y-auto custom-scrollbar p-1">
               {(activeAssetTab === 'official' 
                 ? OFFICIAL_BROTHER_ASSETS 
                 : activeAssetTab === 'festive' 
                 ? festivePresets 
-                : notionAssets
+                : filteredNotionAssets
               ).map((asset) => (
                 <button
                   key={asset.id}
@@ -861,15 +996,24 @@ export default function ImageTemplateStudio({
                       ? 'border-[#0f2ea2] ring-2 ring-[#0f2ea2]/40 shadow-md scale-[1.02]'
                       : 'border-transparent hover:border-slate-400 opacity-85 hover:opacity-100'
                   }`}
+                  title={`${asset.title || asset.name} - ${asset.country || ''}`}
                 >
                   <img
                     src={asset.thumb || asset.url}
-                    alt={asset.title}
+                    alt={asset.title || asset.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                     loading="lazy"
                   />
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-1.5 text-[10px] text-white font-medium truncate text-left">
-                    {asset.title}
+                  {/* Country badge */}
+                  {asset.country && (
+                    <div className="absolute top-1.5 left-1.5">
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-black/70 text-white backdrop-blur-xs font-mono shadow-xs">
+                        {asset.country}
+                      </span>
+                    </div>
+                  )}
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/50 to-transparent p-1.5 text-[10px] text-white font-medium truncate text-left">
+                    {asset.title || asset.name}
                   </div>
                 </button>
               ))}
